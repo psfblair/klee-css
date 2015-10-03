@@ -1,38 +1,46 @@
 module Css.Property where
 
-type Prefixed
-     = WithPrefix (List (String, String))
+import Dict exposing (fromList, get)
+import Regex exposing (regex, replace)
+
+type Literal = Literal String
+
+type Either a b = Left a | Right b
+
+isRight : Either a b -> Bool
+isRight either =
+  case either of
+    (Right _) -> True
+    _ -> False
+
+type PrefixedOrNot
+     = Prefixed (List (String, String))
      | Plain String
 
-fromString : String -> Prefixed
-fromString str = Plain str
-                 
-unPlain : Prefixed -> String
-unPlain prefixed =
-  case prefixed of
-    Plain str -> str
-                 
-unPrefixed : Prefixed -> List (String, String)
-unPrefixed prefixed =
-  case prefixed of
-    WithPrefix xs -> xs
+unPrefixed : PrefixedOrNot -> List (String, String)
+unPrefixed (Prefixed inner) = inner
 
-plain : Prefixed -> String
-plain prefixed =
-  case prefixed of
-    WithPrefix xs -> "" `fromMaybe` lookup "" xs
+unPlain : PrefixedOrNot -> String
+unPlain (Plain str) = str
+
+plain : PrefixedOrNot -> String
+plain prefixedOrNot =
+  case prefixedOrNot of
+    Prefixed xs -> Dict.fromList xs |> Dict.get "" |> Maybe.withDefault ""
     Plain str -> str
 
 quote : String -> String
-quote str = "\"" ++ (replace quote in string with escape) + "\""
+quote str =
+   let escaped = str |> replace Regex.All (regex "\"") (\_ -> "\\\"")
+   in "\"" ++ escaped ++ "\""
 
-merge : Prefixed -> Prefixed -> Prefixed
-merge prefixed1 prefixed2 =
-  case (prefixed1, prefixed2) of
-    ((Plain       x), (Plain       y)) -> Plain (x ++ y)
-    ((Plain       x), (WithPrefix ys)) -> ys |> List.map (\(k, y) -> (k, x ++ y)) |> WithPrefix
-    ((WithPrefix xs), (Plain       y)) -> xs |> List.map (\(k, x) -> (k, x ++ y)) |> WithPrefix
-    ((WithPrefix xs), (WithPrefix ys)) ->
+merge : PrefixedOrNot -> PrefixedOrNot -> PrefixedOrNot
+merge prefixedOrNot1 prefixedOrNot2 =
+  case (prefixedOrNot1, prefixedOrNot2) of
+    ((Plain     x), (Plain     y)) -> Plain (x ++ y)
+    ((Plain     x), (Prefixed ys)) -> ys |> List.map (\(k, y) -> (k, x ++ y)) |> Prefixed
+    ((Prefixed xs), (Plain     y)) -> xs |> List.map (\(k, x) -> (k, x ++ y)) |> Prefixed
+    ((Prefixed xs), (Prefixed ys)) ->
       let kxs = List.map fst xs
           kys = List.map fst ys
           xsWithKeysInKys = List.partition (fst >> (\x -> List.member x kys)) xs
@@ -42,88 +50,94 @@ merge prefixed1 prefixed2 =
                                        |> fst
                                        |> List.sort
       in List.map2 (\(p, a) (_, b) -> (p, a ++ b)) xsWithKeysInKys ysWithKeysInKxs
-                                      |> WithPrefix
+                                      |> Prefixed
 
-type Key a = Key a
-           
-unKeys : Key a -> Prefixed
-unKeys key =
-  case Key val -> val
+type Key a = Key PrefixedOrNot
 
--- Huh?
+unKeys : Key PrefixedOrNot -> PrefixedOrNot
+unKeys (Key a) = a
+
 cast : Key a -> Key ()
 cast (Key k) = Key k
 
-type Value = Value Prefixed
-           
-type Literal = Literal String
+type Value = Value PrefixedOrNot
 
-type alias ValueWrappable a =
-  { _obj: a
-  , _value : a -> Value
-  }
+unValue : Value -> PrefixedOrNot
+unValue (Value v) = v
 
-value : ValueWrappable a -> Value
-value val = val._value val._obj
+emptyValue : Value
+emptyValue = Value (Plain "")
 
-valueWrappableString : String -> ValueWrappable String
-valueWrappableString str =
-  { _obj = str, _value = \x -> Value (Plain x) }
+appendValues : Value -> Value -> Value
+appendValues (Value v1) (Value v2) = merge v1 v2 |> Value
 
-valueWrappableLiteral : Literal -> ValueWrappable Literal
-valueWrappableLiteral literal =
-  { _obj = literal, _value = \x -> quote x |> Plain |> Value }
+intersperse : String -> List Value -> Value
+intersperse str values =
+  let separatorValue = Plain str |> Value
+      interspersed = List.intersperse separatorValue values
+  in List.foldl (\val accum -> appendValues val accum) emptyValue interspersed
 
-valueWrappableInteger : Integer -> ValueWrappable Integer
-valueWrappableInteger int =
-  { _obj = int, _value = \x -> toString x |> Value }
+type alias ValueWrapper a = { value : a -> Value }
 
-valueWrappableFloat : Float -> ValueWrappable Float
-valueWrappableFloat num =
-  { _obj = num, _value = \x -> showFixed x |> toString |> Value } -- TODO Data.Fixed to resolution of 100000
+stringValueWrapper : ValueWrapper String
+stringValueWrapper = { value = \x -> Plain x |> Value}
 
-valueWrappableValue : Value -> ValueWrappable Value
-valueWrappableValue val =
-  { _obj = val, _value = \x -> x }
+literalValueWrapper : ValueWrapper Literal
+literalValueWrapper = { value = \(Literal x) -> quote x |> Plain |> Value }
 
-valueWrappableMaybe : Maybe a -> ValueWrappable Maybe a
-valueWrappableMaybe maybe =
-  { _obj = maybe
-  , _value = \x ->
+intValueWrapper : ValueWrapper Int
+intValueWrapper = { value = \x -> toString x |> Plain |> Value }
+
+showFixed : Int -> Float -> String
+showFixed resolution number =
+  let resolutionF = toFloat resolution
+  in number * resolutionF
+      |> round
+      |> toFloat
+      |> (\x -> x / resolutionF)
+      |> toString
+
+floatValueWrapper : ValueWrapper Float
+floatValueWrapper = { value = \x -> showFixed 100000 x |> Plain |> Value }
+
+maybeValueWrapper : ValueWrapper a -> ValueWrapper (Maybe a)
+maybeValueWrapper innerWrapper =
+  { value = \x ->
       case x of
-        Just a -> value (wrap a)  -- TODO How to get this polymorphism?
-        Nothing -> Value ""
+        Just val -> innerWrapper.value val
+        Nothing -> emptyValue
   }
 
-valueWrappablePair : (a, b) -> ValueWrappable (a, b)
-valueWrappablePair pair =
-  { _obj = pair
-  , _value \(x,y) -> value (wrap x) ++ " " ++ value (wrap y) -- TODO How to get this polymorphism?
+listValueWrapper : String -> ValueWrapper a -> ValueWrapper (List a)
+listValueWrapper separator innerWrapper =
+  let wrapList xs =
+    case xs of
+      [] -> []
+      (h :: t) -> (innerWrapper.value h) :: (wrapList t)
+  in { value = wrapList >> intersperse separator }
+
+commaListValueWrapper : ValueWrapper a -> ValueWrapper (List a)
+commaListValueWrapper = listValueWrapper ","
+
+noCommasListValueWrapper : ValueWrapper a -> ValueWrapper (List a)
+noCommasListValueWrapper = listValueWrapper " "
+
+pairValueWrapper : ValueWrapper a -> ValueWrapper b -> ValueWrapper (a, b)
+pairValueWrapper firstInnerWrapper secondInnerWrapper =
+  { value =
+      \(x,y) ->
+        [firstInnerWrapper.value x, secondInnerWrapper.value y]
+        |> intersperse " "
   }
 
-valueWrappableEither : Either a b -> ValueWrappable Either a b
-valueWrappableEither : either =
-  { _obj = either
-  , _value \x ->   -- TODO How to get this polymorphism?
+eitherValueWrapper : ValueWrapper a -> ValueWrapper b -> ValueWrapper (Either a b)
+eitherValueWrapper leftInnerWrapper rightInnerWrapper =
+  { value = \x ->
       case x of
-        Left a -> value (wrap a)
-        Right a -> value (wrap a)
+        Left a -> leftInnerWrapper.value a
+        Right a -> rightInnerWrapper.value a
   }
 
-valueWrappableList : List a -> ValueWrappable List a
-valueWrappableList list =
-  { _obj = list
-  , _value = list |> List.map wrap |> List.map value |> intersperse "," -- TODO polymorphism
-  }
-
-
-intersperse :: Monoid a => a -> [a] -> a -- TODO polymorphism
-intersperse _ []     = mempty
-intersperse s (x:xs) = foldl (\a b -> a <> s <> b) x xs
-
-noCommas : List a -> Value
-noCommas xs = intersperse " " (map value xs)
-
--- right-associative tupling operator
+-- TODO right-associative tupling operator -- why?
 (!) : a -> b -> (a, b)
 (!) = (,)

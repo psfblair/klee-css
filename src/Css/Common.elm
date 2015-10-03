@@ -1,5 +1,7 @@
 module Css.Common where
 
+import Css.Property exposing (PrefixedOrNot)
+
 {-
 class All      a where all      : a
 class Auto     a where auto     : a
@@ -14,7 +16,7 @@ class Initial  a where initial  : a
 class Unset    a where unset    : a
 
 -- The Other type class is used to escape from the type safety introduced by
--- embedding CSS properties into the typed world of Clay. 
+-- embedding CSS properties into the typed world of Clay.
 -- `Other` allows you to cast any `Value` to a specific value type.
 
 class Other   a where other   : Value -> a
@@ -31,16 +33,16 @@ instance Hidden   Value where hidden   = "hidden"
 instance Other    Value where other    = id
 instance Initial  Value where initial  = "initial"
 instance Unset    Value where unset    = "unset"
- 
+
 -}
 
 
--- | Common list browser prefixes to make experimental properties work in
--- different browsers.
+{-| List of browser prefixes to make experimental properties work in
+different browsers. -}
 
-browsers : Prefixed
+browsers : PrefixedOrNot
 browsers =
-  Prefixed
+  Css.Property.Prefixed
   [ ( "-webkit-", "" )
   , (    "-moz-", "" )
   , (     "-ms-", "" )
@@ -48,21 +50,22 @@ browsers =
   , (         "", "" )
   ]
 
+{-| Syntax for CSS function call. -}
 
--- | Syntax for CSS function call.
-
-call : (IsString s, Monoid s) => s -> s -> s
-call fn arg = fn <> "(" <> arg <> ")"
+call : String -> String -> String
+call fn arg = fn ++ "(" ++ arg ++ ")"
 
 
--- | Some auxiliary mathematical functions.
+{-| Some auxiliary mathematical functions.  -}
 
-fracMod : RealFrac a => a -> a -> a
-fracMod x y = (x -) . (* y) $ evenMultiples x y
-  where evenMultiples x y = fromIntegral . truncate $ x / y
-                            
-decimalRound : RealFrac a => a -> Int -> a
-decimalRound x decimalPlaces = shiftedAndRounded x / powersOf10
-  where powersOf10 = 10 ^ decimalPlaces
-        shiftedAndRounded x = fromIntegral . round $ x * powersOf10
-                        
+floatMod : Float -> Float -> Float
+floatMod dividend divisor =
+  let numberOfEvenMultiples = dividend / divisor  |> truncate |> toFloat
+  in dividend - (numberOfEvenMultiples * divisor)
+
+-- TODO Integrate with fixedShow in Property.elm
+decimalRound : Float -> Int -> Float
+decimalRound x decimalPlaces =
+  let powersOf10 = 10 ^ decimalPlaces
+      shiftedAndRounded = x * powersOf10 |> round |> toFloat
+  in shiftedAndRounded / powersOf10
