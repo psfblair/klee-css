@@ -1,37 +1,42 @@
 module Css.Selector where
 
-newtype Fix f = In { out : f (Fix f) }
+import String (uncons)
+
+type Fix f = In SelectorF f
+-- TODO out to dig the embedded value out?
+-- { out : f (Fix f) }
 -- instance Show (f (Fix f)) => Show (Fix f)
 
 type Path f
   = Star
-  | Elem      Text
+  | Elem      String
   | Child     f f
   | Deep      f f
   | Adjacent  f f
   | Combined  f f
-  deriving Show
 
-data SelectorF a = SelectorF Refinement (Path a)
-  -- deriving Show
-  
+type SelectorF a = SelectorF Refinement (Path a)
+
 type Selector = Fix SelectorF
-  -- instance IsString (Fix SelectorF) where fromString = text . fromString
+-- Haskell uses overloaded strings to allow obtaining a Selector from a string.
+-- We can't do that.
+
+emptySelector : Selector
+emptySelector = text ""
 
 text : String -> Selector
-text str = In $
-  case Text.uncons str of
-    Just ('#', s) -> SelectorF (Refinement [Id s]) Star
-    Just ('.', s) -> SelectorF (Refinement [Class s]) Star
-    _             -> SelectorF (Refinement []) (Elem t)
+text str = In <|
+  case String.uncons str of
+    Just ('#', idPart) -> SelectorF (Refinement [Id idPart]) Star
+    Just ('.', classPart) -> SelectorF (Refinement [Class classPart]) Star
+    _ -> SelectorF (Refinement []) (Elem str)
 
-instance Monoid (Fix SelectorF) where
-  mempty      = error "Selector is a semigroup"
-  mappend a b = In (SelectorF (Refinement []) (Combined a b))
+combine : Selector -> Selector -> Selector
+combine selector1 selector2 = In (SelectorF (Refinement []) (Combined a b))
 
 -------------------------------------------------------------------------------
 
-data Predicate
+type Predicate
   = Id           String
   | Class        String
   | Attr         String
@@ -42,137 +47,136 @@ data Predicate
   | AttrSpace    String String
   | AttrHyph     String String
   | Pseudo       String
-  | PseudoFunc   String [String]
+  | PseudoFunc   String (List String)
 
-newtype Refinement = Refinement { unFilter : [Predicate] }
-  deriving Show
+type Refinement = Refinement List Predicate
+-- Haskell uses overloaded strings to allow creating a Refinement from a String.
+-- We can't do that.
+-- TODO unFilter to dig the embedded value out?
 
-instance IsString Refinement where
-  fromString = filterFromText . fromString
-
-filterFromText : Text -> Refinement
-filterFromText t = Refinement $
-  case Text.uncons t of
+filterFromString : String -> Refinement
+filterFromString str = Refinement <|
+  case String.uncons str of
     Just ('#', s) -> [Id     s]
     Just ('.', s) -> [Class  s]
     Just (':', s) -> [Pseudo s]
     Just ('@', s) -> [Attr   s]
-    _             -> [Attr   t]
+    _             -> [Attr str]
 
 -------------------------------------------------------------------------------
+-- ** Element selectors
 
-{-| The star selector applies to all elements. Maps to @*@ in CSS. -}
-
+{-| The star selector applies to all elements. Maps to @*@ in CSS.
+-}
 star : Selector
 star = In (SelectorF (Refinement []) Star)
 
--- | Select elements by name. The preferred syntax is to enable
--- @OverloadedStrings@ and actually just use @\"element-name\"@ or use one of
--- the predefined elements from "Clay.Elements".
+{-| Select elements by name. The preferred syntax is to just use one of
+the predefined elements from "Css.Elements".
+-}
+element : String -> Selector
+element name = In (SelectorF (Refinement []) (Elem name))
 
-element : Text -> Selector
-element e = In (SelectorF (Refinement []) (Elem e))
+-------------------------------------------------------------------------------
+-- ** Composing and refining selectors
 
--- | Named alias for `**`.
-
+{-| The deep selector composer. Maps to @sel1 sel2@ in CSS.
+-}
 deep : Selector -> Selector -> Selector
-deep a b = In (SelectorF (Refinement []) (Deep a b))
+deep selector1 selector2 =
+  In (SelectorF (Refinement []) (Deep selector1 selector2))
 
--- | The deep selector composer. Maps to @sel1 sel2@ in CSS.
-
-(**) : Selector -> Selector -> Selector
-(**) = deep
-
--- | Named alias for `|>`.
-
+{-| The child selector composer. Maps to @sel1 > sel2@ in CSS.
+-}
 child : Selector -> Selector -> Selector
-child a b = In (SelectorF (Refinement []) (Child a b))
+child selector1 selector2 =
+  In (SelectorF (Refinement []) (Child selector1 selector2))
 
--- | The child selector composer. Maps to @sel1 > sel2@ in CSS.
+{-| The adjacent selector composer. Maps to @sel1 + sel2@ in CSS.
+-}
+adjacent : Selector -> Selector -> Selector
+adjacent selector1 selector2 =
+  In (SelectorF (Refinement []) (Adjacent selector1 selector2))
 
-(|>) : Selector -> Selector -> Selector
-(|>) = child
-
--- | The adjacent selector composer. Maps to @sel1 + sel2@ in CSS.
-
-(|+) : Selector -> Selector -> Selector
-(|+) a b = In (SelectorF (Refinement []) (Adjacent a b))
-
--- | Named alias for `#`.
-
+{-| The filter selector composer, which adds a filter to a selector. Maps to
+something like @sel#filter@ or @sel.filter@ in CSS, depending on the filter.
+-}
 with : Selector -> Refinement -> Selector
-with (In (SelectorF (Refinement fs) e)) (Refinement ps) = In (SelectorF (Refinement (fs ++ ps)) e)
+with (In (SelectorF (Refinement filters) path)) (Refinement moreFilters) =
+  In (SelectorF (Refinement (filters ++ moreFilters)) path)
 
--- | The filter selector composer, adds a filter to a selector. Maps to
--- something like @sel#filter@ or @sel.filter@ in CSS, depending on the filter.
+{-| Given an id and a selector, add an id filter to the selector.
+-}
+byId : String -> Selector -> Selector
+byId idString sel = [ Id idString ] |> Refinement |> (sel with)
 
-(#) : Selector -> Refinement -> Selector
-(#) = with
+{-| Given a class name and a selector, add a class filter to the selector.
+-}
+byClass : String -> Selector -> Selector
+byClass className sel = [ Class className ] |> Refinement |> (sel with)
 
--- | Filter elements by id. The preferred syntax is to enable
--- @OverloadedStrings@ and use @\"#id-name\"@.
+{-| Filter elements of the given selector by pseudo selector or pseudo class.
+The preferred syntax is to use one of the predefined pseudo selectors from "Css.Pseudo".
+-}
+pseudo : String -> Selector -> Selector
+pseudo pseudoSelector outerSelector =
+  [ Pseudo pseudoSelector ] |> Refinement |> (outerSelector with)
 
-byId : Text -> Refinement
-byId = Refinement . pure . Id
+{-| Filter elements of the given selector by pseudo selector functions. The
+preferred syntax is to use one of the predefined functions from "Css.Pseudo".
+-}
+func : String -> (List String) -> Selector -> Selector
+func pseudoFunc args outerSelector =
+  [ PseudoFunc pseudoFunc args ] |> Refinement |> (outerSelector with)
 
--- | Filter elements by class. The preferred syntax is to enable
--- @OverloadedStrings@ and use @\".class-name\"@.
+-- ** Attribute-based refining.
 
-byClass : Text -> Refinement
-byClass = Refinement . pure . Class
+{-| Given an attribute name and a selector, filter elements based on the presence
+of that attribute. The preferred syntax is use one of the predefined attribute
+Refinements from "Css.Attributes".
+-}
+withAttr : String -> Selector -> Selector
+withAttr attrName outerSelector =
+  [ Attr attrName ] |> Refinement |> (outerSelector with)
 
--- | Filter elements by pseudo selector or pseudo class. The preferred syntax
--- is to enable @OverloadedStrings@ and use @\":pseudo-selector\"@ or use one
--- of the predefined ones from "Clay.Pseudo".
+{-| Filter elements based on the presence of a certain attribute with the
+specified value.
+-}
+withAttrValue : String -> String -> Selector -> Selector
+withAttrValue attrName attrValue outerSelector =
+  [ AttrVal attrName attrValue ] |> Refinement |> (outerSelector with)
 
-pseudo : Text -> Refinement
-pseudo = Refinement . pure . Pseudo
+{-| Filter elements based on the presence of a certain attribute that begins
+with the specified value.
+-}
+withAttrValueBeginning : String -> String -> Selector -> Selector
+withAttrValueBeginning attrName attrValue outerSelector =
+  [ AttrBegins attrName attrValue ] |> Refinement |> (outerSelector with)
 
--- | Filter elements by pseudo selector functions. The preferred way is to use
--- one of the predefined functions from "Clay.Pseudo".
+{-| Filter elements based on the presence of a certain attribute that ends
+with the specified value.
+-}
+withAttrValueEnding : String -> String -> Selector -> Selector
+withAttrValueEnding attrName attrValue outerSelector =
+  [ AttrEnds attrName attrValue ] |> Refinement |> (outerSelector with)
 
-func : Text -> [Text] -> Refinement
-func f = Refinement . pure . PseudoFunc f
+{-| Filter elements based on the presence of a certain attribute that contains
+the specified value as a substring.
+-}
+withAttrValueContaining : String -> String -> Selector -> Selector
+withAttrValueContaining attrName attrValue outerSelector =
+  [ AttrContains attrName attrValue ] |> Refinement |> (outerSelector with)
 
--- | Filter elements based on the presence of a certain attribute. The
--- preferred syntax is to enable @OverloadedStrings@ and use
--- @\"\@attr\"@ or use one of the predefined ones from "Clay.Attributes".
+{-| Filter elements based on the presence of a certain attribute that have the
+specified value contained in a space separated list.
+-}
+withAttrValueInSpacedList : String -> String -> Selector -> Selector
+withAttrValueInSpacedList attrName attrValue outerSelector =
+  [ AttrSpace attrName attrValue ] |> Refinement |> (outerSelector with)
 
-attr : Text -> Refinement
-attr = Refinement . pure . Attr
-
--- | Filter elements based on the presence of a certain attribute with the
--- specified value.
-
-(@=) : Text -> Text -> Refinement
-(@=) a = Refinement . pure . AttrVal a
-
--- | Filter elements based on the presence of a certain attribute that begins
--- with the selected value.
-
-(^=) : Text -> Text -> Refinement
-(^=) a = Refinement . pure . AttrBegins a
-
--- | Filter elements based on the presence of a certain attribute that ends
--- with the specified value.
-
-($=) : Text -> Text -> Refinement
-($=) a = Refinement . pure . AttrEnds a
-
--- | Filter elements based on the presence of a certain attribute that contains
--- the specified value as a substring.
-
-(*=) : Text -> Text -> Refinement
-(*=) a = Refinement . pure . AttrContains a
-
--- | Filter elements based on the presence of a certain attribute that have the
--- specified value contained in a space separated list.
-
-(~=) : Text -> Text -> Refinement
-(~=) a = Refinement . pure . AttrSpace a
-
--- | Filter elements based on the presence of a certain attribute that have the
--- specified value contained in a hyphen separated list.
-
-(|=) : Text -> Text -> Refinement
-(|=) a = Refinement . pure . AttrHyph a
+{-| Filter elements based on the presence of a certain attribute that have the
+specified value contained in a hyphen separated list.
+-}
+withAttrValueInHyphenatedList : String -> String -> Selector -> Selector
+withAttrValueInHyphenatedList attrName attrValue outerSelector =
+  [ AttrHyph attrName attrValue ] |> Refinement |> (outerSelector with)
