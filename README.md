@@ -6,4 +6,4 @@ CSS library (http://fvisser.nl/clay/), though some of the operators have been
 changed.
 
 Documentation is currently a work in progress, but the source code is
-extensively documented.
+extensively commented.
