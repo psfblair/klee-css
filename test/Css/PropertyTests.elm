@@ -10,11 +10,10 @@ suite = [ prefixedTest, mergeTest ]
 prefixedTest : Spec
 prefixedTest =
   describe "PrefixedOrNot"
-             [ ("a" |> Plain |> unPlain) `shouldEqual` "a"
-             , ([ ("a","b"),("c","d")]
-                 |> Prefixed
-                 |> unPrefixed) `shouldEqual` [("a","b"),("c","d")]
-             ]
+    [ ("a" |> Plain |> unPlain) `shouldEqual` "a"
+    , ([ ("a","b"),("c","d")] |> Prefixed |> unPrefixed)
+          `shouldEqual` [("a","b"),("c","d")]
+    ]
 
 mergeTest : Spec
 mergeTest =

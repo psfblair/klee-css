@@ -1,13 +1,13 @@
 {
     "version": "0.9.0",
-    "summary": "A type-safe CSS combinator library for Elm, based on the Haskell Clay framework.",
-    "repository": "https://github.com/psfblair/elm-css",
+    "summary": "A type-safe CSS combinator library based on Haskell's Clay framework.",
+    "repository": "https://github.com/psfblair/elm-css.git",
     "license": "BSD3",
     "source-directories": [
         "src",
         "test"
     ],
-    "exposed-modules": [Css],
+    "exposed-modules": ["Css"],
     "dependencies": {
         "avh4/elm-spec": "1.0.0 <= v < 2.0.0",
         "elm-lang/core": "2.1.0 <= v < 3.0.0",

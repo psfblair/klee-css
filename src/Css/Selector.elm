@@ -3,7 +3,7 @@ module Css.Selector (
   , emptySelector, sortPredicate, star, element, deep, child, adjacent, with, byId, byClass
   , pseudo, func, withAttr, withAttrValue, withAttrValueBeginning, withAttrValueEnding
   , withAttrValueEnding, withAttrValueContaining, withAttrValueInSpacedList
-  , withAttrValueInHyphenatedList
+  , withAttrValueInHyphenatedList, text, filterFromString
   ) where
 
 import String exposing (uncons)
