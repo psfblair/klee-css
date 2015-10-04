@@ -1,9 +1,17 @@
 module Css.Render where
 
-import Css.Stylesheet hiding (Child, query, rule)
-import Css.Common (browsers)
-import Css.Property
-import Css.Selector
+import Css.Stylesheet exposing (
+  Css, Scope (..), Rule (..)
+  , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..)
+  , Keyframes (..), runS)
+import Css.Common exposing (browsers)
+import Css.Property exposing (Key (..), Value (..), PrefixedOrNot (..), Either (..)
+  , plain, unPrefixed, rightValue)
+import Css.Selector exposing (
+  Selector (..), Refinement (..), Path (..), Predicate (..)
+  , emptySelector, sortPredicate, star, deep, child, with)
+import String
+import Dict
 
 type alias Config =
   { indentation    : String
@@ -49,7 +57,7 @@ render = renderWith pretty []
 
 {-| Render a stylesheet with a custom configuration and an optional outer scope.
 -}
-renderWith : Config -> [Scope] -> Css -> String
+renderWith : Config -> (List Scope) -> Css -> String
 renderWith cfg outerScope css
   = runS css
   |> renderRules cfg outerScope
@@ -66,8 +74,8 @@ renderSelector = renderSelectorWithConfig compact
 -}
 renderBanner : Config -> String -> String
 renderBanner cfg =
-  if | banner cfg -> \x -> x ++ "\n/* Generated with elm-css */"
-     | otherwise  -> id
+  if | cfg.banner -> (\x -> x ++ "\n/* Generated with elm-css */")
+     | otherwise  -> identity
 
 -------------------------------------------------------------------------------
 
@@ -75,7 +83,7 @@ renderBanner cfg =
 by a listing of Scope objects that specifies how the scope is composed of
 its various nested levels.
 -}
-renderRules : Config -> [Scope] -> [Rule] -> String
+renderRules : Config -> (List Scope) -> (List Rule) -> String
 renderRules cfg scopes ruleList =
   let property prop =
         case prop of
@@ -83,34 +91,34 @@ renderRules cfg scopes ruleList =
           _  -> Nothing
       nested n =
         case n of
-          Int (Nested innerScope nestedRules) -> Just (innerScope, nestedRules)
+          (Nested innerScope nestedRules) -> Just (innerScope, nestedRules)
           _  -> Nothing
       queries qs =
         case qs of
-          Int (Query q nestedRules) -> Just (q, nestedRules)
+          (Query q nestedRules) -> Just (q, nestedRules)
           _ -> Nothing
       kframes kfs =
         case kfs of
-          (Keyframe nestedRules) -> Just nestedRules;
-          kframes  _ -> Nothing
+          (Keyframe nestedRules) -> Just nestedRules
+          _ -> Nothing
       faces fcs =
         case fcs of
-          Int (Face nestedRules) -> Just nestedRules
+          (Face nestedRules) -> Just nestedRules
           _ -> Nothing
       imports imp =
         case imp of
           (Import i    ) -> Just i
           _ -> Nothing
   in concat
-      [ renderRule cfg scopes (Maybe.map property ruleList)
-      , newline cfg
-      , Maybe.map imports ruleList |> List.map (renderImportRule cfg) |> concat
-      , Maybe.map kframes ruleList |> List.map (renderKeyframes cfg) |> concat
-      , Maybe.map faces   ruleList |> List.map (renderFontFace cfg) |> concat
-      , Maybe.map nested  ruleList
-            |> List.map (\(scope, nestedRules) -> renderRules cfg (scope : scopes) nestedRules)
+      [ renderRule cfg scopes (List.filterMap property ruleList)
+      , cfg.newline
+      , List.filterMap imports ruleList |> List.map (renderImportRule cfg) |> concat
+      , List.filterMap kframes ruleList |> List.map (renderKeyframes cfg) |> concat
+      , List.filterMap faces   ruleList |> List.map (renderFontFace cfg) |> concat
+      , List.filterMap nested  ruleList
+            |> List.map (\(scope, nestedRules) -> renderRules cfg (scope :: scopes) nestedRules)
             |> concat
-      , Maybe.map queries ruleList
+      , List.filterMap queries ruleList
             |> List.map (\(qry, nestedRules) -> renderMedia cfg qry scopes nestedRules)
             |> concat
       ]
@@ -120,34 +128,34 @@ property/value rules do not include nested rules or rules for media, keyframes,
 font-face, or imports. The scope is specified by a listing of Scope objects that
 specifies how the scope is composed of its various nested levels.
 -}
-renderRule : Config -> [Scope] -> [(Key (), Value)] -> String
+renderRule : Config -> (List Scope)-> (List (Key (), Value)) -> String
 renderRule cfg scopes props =
   case props of
     [] -> ""
-    (h:t) ->
+    (h::t) ->
       concat
         [ mergeScopes scopes |> renderSelectorWithConfig cfg
-        , newline cfg
+        , cfg.newline
         , "{"
-        , newline cfg
-        , (List.map toEithers props |> renderProperty cfg)
+        , cfg.newline
+        , (List.map toEithers props |> List.map (renderProperty cfg) |> concat)
         , "}"
-        , newline cfg
+        , cfg.newline
         ]
 
 {- Takes a list of scopes and composes together the selectors they contain using
     the composition functions in the Selector module, and returning the
     composed selector.
 -}
-mergeScopes : [Scope] -> Selector
+mergeScopes : (List Scope) -> Selector
 mergeScopes scopes =
   case scopes of
     [] -> emptySelector -- TODO Maybe some anomalous behavior here? Clay thinks so.
-    (scope:rest) ->
+    (scope::rest) ->
       case scope of
         Root selector -> deep selector (mergeScopes rest)
-        Pop  levels   -> drop levels scopes |> mergeScopes
-        Rule.Child selector ->
+        Pop  levels   -> List.drop levels scopes |> mergeScopes
+        Css.Stylesheet.Child selector ->
           case rest of
             [] -> selector
             _  -> child (mergeScopes rest) selector
@@ -164,15 +172,15 @@ mergeScopes scopes =
 newline behavior. -}
 renderSelectorWithConfig : Config -> Selector -> String
 renderSelectorWithConfig cfg =
-  let expandSelectorIntoStringList (In (SelectorF (Refinement preds) selectorPath)) =
+  let expandSelectorIntoStringList (Selector (Refinement preds) selectorPath) =
         let insertSeparator separator str1 str2 = str1 ++ separator ++ str2
-            predString = List.sort preds |> List.map renderPredicate |> List.concat
+            predString = List.sortWith sortPredicate preds |> List.map renderPredicate |> concat
             appendPredStringToPathComponent predStr component = component ++ predStr
             pathComponents =
               case selectorPath of
                 Star           -> if List.isEmpty preds then ["*"] else [""]
                 Elem t         -> [t]
-                Child sel1 sel2 ->
+                Css.Selector.Child sel1 sel2 ->
                   List.map2 (insertSeparator " > ")
                             (expandSelectorIntoStringList sel1)
                             (expandSelectorIntoStringList sel2)
@@ -188,24 +196,24 @@ renderSelectorWithConfig cfg =
                   expandSelectorIntoStringList sel1 ++
                     expandSelectorIntoStringList sel2
         in List.map (appendPredStringToPathComponent predString) pathComponents
-  in expandSelectorIntoStringList >> String.intersperse ("," ++ newline cfg)
+  in expandSelectorIntoStringList >> String.join ("," ++ cfg.newline)
 
 {- Render to a string a predicate that refines a selector.
 -}
 renderPredicate : Predicate -> String
 renderPredicate pred =
   case pred of
-    Id           a   -> "#" ++ a                       ]
-    Class        a   -> "." ++ a                       ]
-    Attr         a   -> "[" ++ a ++                "]" ]
-    AttrVal      a v -> "[" ++ a ++  "='" ++ v ++ "']" ]
-    AttrBegins   a v -> "[" ++ a ++ "^='" ++ v ++ "']" ]
-    AttrEnds     a v -> "[" ++ a ++ "$='" ++ v ++ "']" ]
-    AttrContains a v -> "[" ++ a ++ "*='" ++ v ++ "']" ]
-    AttrSpace    a v -> "[" ++ a ++ "~='" ++ v ++ "']" ]
-    AttrHyph     a v -> "[" ++ a ++ "|='" ++ v ++ "']" ]
-    Pseudo       a   -> ":" ++ a                       ]
-    PseudoFunc   a args -> ":" ++ a ++ "(" ++ (String.intersperse "," args) ++ ")" ]
+    Id           a   -> "#" ++ a
+    Class        a   -> "." ++ a
+    Attr         a   -> "[" ++ a ++                "]"
+    AttrVal      a v -> "[" ++ a ++  "='" ++ v ++ "']"
+    AttrBegins   a v -> "[" ++ a ++ "^='" ++ v ++ "']"
+    AttrEnds     a v -> "[" ++ a ++ "$='" ++ v ++ "']"
+    AttrContains a v -> "[" ++ a ++ "*='" ++ v ++ "']"
+    AttrSpace    a v -> "[" ++ a ++ "~='" ++ v ++ "']"
+    AttrHyph     a v -> "[" ++ a ++ "|='" ++ v ++ "']"
+    Pseudo       a   -> ":" ++ a
+    PseudoFunc   a args -> ":" ++ a ++ "(" ++ (String.join "," args) ++ ")"
 
 {-  Returns either a pair of key,value (Right), or a prefixed key (Left).
     The prefixes that are carried along by the Prefixed type are concatenated
@@ -217,44 +225,47 @@ renderPredicate pred =
     is called by `renderRule` for each of the key-value properties for the rule.
     The results are fed to the properties function below which stringifies them.
  -}
-toEithers : (Key (), Value) -> [Either String (String, String)]
+toEithers : (Key (), Value) -> List (Either String (String, String))
 toEithers (Key ky, Value vl) =
   case (ky, vl) of
     ( Plain    k  , Plain    v  ) -> [ Right(k, v) ]
-    ( Prefixed ks , Plain    v  ) -> ks |> List.map \(prefix, k) -> Right(prefix ++ k, v)
-    ( Plain    k  , Prefixed vs ) -> vs |> List.map \(prefix, v) -> Right(k, prefix ++ v)
+    ( Prefixed ks , Plain    v  ) -> ks |> List.map (\(prefix, k) -> Right(prefix ++ k, v))
+    ( Plain    k  , Prefixed vs ) -> vs |> List.map (\(prefix, v) -> Right(k, prefix ++ v))
     ( Prefixed ks , Prefixed vs ) ->
         ks |> List.map
-                \(prefix, k) ->
-                  let prefixToValueMap = Dict.fromList vs
-                      maybeVal = Dict.get prefix prefixToValueMap
-                      default = Left prefix ++ k
-                      rightFromVal val = Right(prefixedKey, prefix ++ val)
-                  in Maybe.withDefault default rightFromVal maybeVal
+                (\(prefix, k) ->
+                  let default = Left (prefix ++ k)
+                      rightFromVal val = Right(prefix ++ k, prefix ++ val)
+                      maybeVal = Dict.get prefix (Dict.fromList vs)
+                  in Maybe.map rightFromVal maybeVal |> Maybe.withDefault default
+                )
 
 {-  Takes a key-value property for a rule in the form of either a pair of
     key,value (Right), or a prefixed key (Left). Returns a string representation
     of the property.
  -}
-renderProperty : Config -> [Either String (String, String)] -> String
+renderProperty : Config -> List (Either String (String, String)) -> String
 renderProperty cfg eithers =
-  let goodKeys   = eithers |> List.filter isRight |> List.map fst
-      alignWidth = List.map String.length goodKeys |> maximum |> (1 +)
-      indent     = indentation cfg
-      endline    = newline cfg
-      finalSemi  = if finalSemicolon cfg then ";" else ""
+  let finalSemi  = if cfg.finalSemicolon then ";" else ""
+      indent     = cfg.indentation
+      endline    = cfg.newline
+      goodKeys   = eithers |> List.filterMap rightValue |> List.map fst
+      alignWidth = List.map String.length goodKeys
+                      |> List.maximum
+                      |> Maybe.withDefault (String.length indent)
+                      |> ((+) 1)
       paddingFor theKey =
-        if align cfg
-        then " " |> String.repeat (alignWidth - String.length theKey)
+        if cfg.align
+        then " " |> String.repeat (alignWidth - String.length theKey) --empty if length is negative
         else ""
       stringify either =
         case either of
-          Right (k, val) -> concat [indent, k, (paddingFor k), ":", sep cfg, val]
+          Right (k, val) -> concat [indent, k, (paddingFor k), ":", cfg.sep, val]
           Left orphan ->
-            if warn cfg
+            if cfg.warn
             then indent ++ "/* no value for " ++ orphan ++ " */" ++ endline
             else ""
-  in stringify eithers
+  in List.map stringify eithers
       |> String.join (";" ++ endline)
       |> \x -> x ++ finalSemi ++ endline
 
@@ -269,20 +280,20 @@ renderKeyframes cfg (Keyframes animationName listOfFrames) =
     ( \(browser, _) ->
       concat [ "@" ++ browser ++ "keyframes "
               , animationName
-              , newline cfg
+              , cfg.newline
               , "{"
-              , newline cfg
-              , (listOfFrames |> List.map (frame cfg) |> concat)
+              , cfg.newline
+              , (listOfFrames |> List.map (renderKeyframe cfg) |> concat)
               , "}"
-              , newline cfg
-              , newline cfg
+              , cfg.newline
+              , cfg.newline
               ]
       )
   |> concat
 
 {- Render one frame in a CSS @keyframes rule.
 -}
-renderKeyframe : Config -> (Float, [Rule]) -> String
+renderKeyframe : Config -> (Float, (List Rule)) -> String
 renderKeyframe cfg (percentage, mediaRules) =
   concat
     [ percentage |> toString
@@ -292,33 +303,34 @@ renderKeyframe cfg (percentage, mediaRules) =
 
 {-| Render a CSS @media rule.
 -}
-renderMedia : Config -> MediaQuery -> [Scope] -> [Rule] -> String
+renderMedia : Config -> MediaQuery -> (List Scope) -> (List Rule) -> String
 renderMedia cfg query sel mediaRules =
   concat
     [ renderMediaQuery query
-    , newline cfg
+    , cfg.newline
     , "{"
-    , newline cfg
+    , cfg.newline
     , renderRules cfg sel mediaRules
     , "}"
-    , newline cfg
+    , cfg.newline
     ]
 
 {- Render the media query part of a CSS @media rule.
 -}
 renderMediaQuery : MediaQuery -> String
-renderMediaQuery (MediaQuery notOrOnly typeOfMedia mediaFeatures) = mconcat
-  [ "@media "
-  , case notOrOnly of
-      Nothing   -> ""
-      Just Not  -> "not "
-      Just Only -> "only "
-  , renderMediaType typeOfMedia
-  , mediaFeatures
-      |> List.map renderMediaFeature
-      |> List.map (" and " ++)
-      |> concat
-  ]
+renderMediaQuery (MediaQuery notOrOnly typeOfMedia mediaFeatures) =
+  concat
+    [ "@media "
+    , case notOrOnly of
+        Nothing   -> ""
+        Just Not  -> "not "
+        Just Only -> "only "
+    , renderMediaType typeOfMedia
+    , mediaFeatures
+        |> List.map renderMediaFeature
+        |> List.map (\feature -> " and " ++ feature)
+        |> concat
+    ]
 
 {- Render the media type in the media query part of a CSS @media rule.
 -}
@@ -336,7 +348,7 @@ renderMediaFeature (Feature featureName maybeFeatureValue) =
 
 {-| Render a CSS @font-face rule.
 -}
-renderFontFace : Config -> [Rule] -> String
+renderFontFace : Config -> (List Rule) -> String
 renderFontFace cfg faceRules =
   concat
     [ "@font-face"
@@ -351,5 +363,8 @@ renderImportRule cfg url =
     [ "@import url("
     , url
     , ");"
-    , newline cfg
+    , cfg.newline
     ]
+
+concat : List String -> String
+concat = String.join ""

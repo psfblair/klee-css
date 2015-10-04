@@ -1,4 +1,7 @@
-module Css.Property where
+module Css.Property (
+  Key (..), Value (..), PrefixedOrNot (..), Either (..)
+    , rightValue, unPrefixed, plain, cast, stringValueWrapper
+  ) where
 
 import Dict exposing (fromList, get)
 import Regex exposing (regex, replace)
@@ -7,11 +10,11 @@ type Literal = Literal String
 
 type Either a b = Left a | Right b
 
-isRight : Either a b -> Bool
-isRight either =
+rightValue : Either a b -> Maybe b
+rightValue either =
   case either of
-    (Right _) -> True
-    _ -> False
+    Right a -> Just a
+    _ -> Nothing
 
 type PrefixedOrNot
      = Prefixed (List (String, String))

@@ -1,13 +1,16 @@
-module Css.Stylesheet where
+module Css.Stylesheet (
+  Css, Scope (..), Rule (..), fallback, addStyles, addChildStyles, addFilteredStyles, root, pop
+  , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..), query, queryNot, queryOnly
+  , Keyframes (..), keyframes, keyframesFromTo, fontFace, importUrl
+  , runS) where
 
-import Css.Common
-import Css.Property exposing (Value)
+import Css.Property exposing (Key, Value, cast, stringValueWrapper)
 import Css.Selector exposing (Selector, Refinement)
 
 {-| Types for the @media rule: @media not|only mediatype and (media feature) { rules }
     The MediaQuery type does not contain the media rules themselves.
 -}
-type MediaQuery = MediaQuery (Maybe NotOrOnly) MediaType [Feature]
+type MediaQuery = MediaQuery (Maybe NotOrOnly) MediaType (List Feature)
 type MediaType = MediaType Value
 type NotOrOnly = Not | Only
 type Feature = Feature String (Maybe Value)
@@ -15,7 +18,7 @@ type Feature = Feature String (Maybe Value)
 {-| A @keyframes rule: @keyframes animation-name {keyframes-selector {css-styles;}}
     where keyframes-selector is the percentage of the animation duration.
 -}
-type Keyframes = Keyframes String [(Float, [Rule])]
+type Keyframes = Keyframes String (List (Float, (List Rule)))
 
 {-| A type allowing various selectors to be composed together to indicate the
 scope of a set of rules.
@@ -23,15 +26,15 @@ scope of a set of rules.
 type Scope
   = Self   Refinement
   | Root   Selector
-  | Pop    Integer
+  | Pop    Int
   | Child  Selector
   | Sub    Selector
 
 type Rule
   = Property (Key ()) Value
-  | Nested   Scope [Rule]
-  | Query    MediaQuery [Rule]
-  | Face     [Rule]
+  | Nested   Scope (List Rule)
+  | Query    MediaQuery (List Rule)
+  | Face     (List Rule)
   | Keyframe Keyframes
   | Import   String
 
@@ -39,13 +42,13 @@ type Rule
 from selectors to style properties. The `Css` type is a computation in the
 `StyleM` monad that just collects and doesn't return anything.
 -}
-type Css = Css [Rule]
+type Css = Css (List Rule)
 
-runS : Css -> [Rule]
+runS : Css -> (List Rule)
 runS (Css rules) = rules
 
-addRule : Css -> Rule -> Css
-addRule (Css rules) ruleToAdd = rules ++ [ ruleToAdd ] |> Css
+addRule : Rule -> Css -> Css
+addRule ruleToAdd (Css rules) = rules ++ [ ruleToAdd ] |> Css
 
 {- In Clay, the key function adds a new style property to the stylesheet with
 the specified `Key` and value. The value can be any type that is in the `Val'
@@ -65,49 +68,45 @@ with the specified `Key` and value in the same way `key` does, but uses a
 for which there is no typed version available. Both the key and the value
 are plain text values and rendered as is to the output CSS.
 -}
-infixl 4 -:
-(-:) : Css -> Key String -> String -> Css
-(-:) css k v = Property (cast k) (stringValueWrapper.value v) |> addRule css
+fallback : Key String -> String -> Css -> Css
+fallback k v  = addRule <| Property (cast k) (stringValueWrapper.value v)
 
 {-| Assign a group of style rules to a selector. When the selector is nested inside an
 outer scope it will be composed with `deep`, which maps to @sel1 sel2@ in CSS.
 -}
-infixr 5 ?
-(?) : Selector -> Css -> Css
-(?) sel css = Nested (Sub sel) (runS css) |> addRule
+addStyles : Selector -> Css -> Css -> Css
+addStyles sel rulesToAdd = addRule <| Nested (Sub sel) (runS rulesToAdd)
 
 {-| Assign a group of style rules to a selector. When the selector is nested inside
 an outer scope it will be composed with `child`, which maps to @sel1 > sel2@ in CSS.
 -}
-infixr 5 <?
-(<?) : Selector -> Css -> Css
-(<?) sel css = Nested (Child sel) (runS css) |> addRule
+addChildStyles : Selector -> Css -> Css -> Css
+addChildStyles sel rulesToAdd = addRule <| Nested (Child sel) (runS rulesToAdd)
 
 {-| Assign a group of style rules to a filter selector. When the selector is nested
 inside an outer scope it will be composed with the `with` selector, which maps
 to something like @sel#filter@ or @sel.filter@ in CSS depending on the filter.
 -}
-infixr 5 &
-(&) : Refinement -> Css -> Css
-(&) refinemt css = Nested (Self refinemt) (runS css) |> addRule
+addFilteredStyles : Refinement -> Css -> Css -> Css
+addFilteredStyles refinemt rulesToAdd = addRule <| Nested (Self refinemt) (runS rulesToAdd)
 
 {-| `root` is used to add style rules to the top scope.
 -}
-root : Selector -> Css -> Css
-root sel css = Nested (Root sel) (runS css) |> addRule
+root : Selector -> Css -> Css -> Css
+root sel rulesToAdd = addRule <| Nested (Root sel) (runS rulesToAdd)
 
 {-| `pop` is used to add style rules to selectors defined in an outer scope. The
 counter specifies how far up the scope stack we want to add the rules.
 -}
-pop : Int -> Css -> Css
-pop numLevels css = Nested (Pop numLevels) (runS css) |> addRule
+pop : Int -> Css -> Css -> Css
+pop numLevels rulesToAdd = addRule <| Nested (Pop numLevels) (runS rulesToAdd)
 
 -------------------------------------------------------------------------------
 
 {-| A @media rule to apply a set of style rules when a media type and
 feature queries apply.
 -}
-query : MediaType -> [Feature] -> Css -> Css
+query : MediaType -> (List Feature) -> Css -> Css -> Css
 query typeOfMedia mediaFeatures mediaRules =
   runS mediaRules
   |> Query (MediaQuery Nothing typeOfMedia mediaFeatures)
@@ -116,7 +115,7 @@ query typeOfMedia mediaFeatures mediaRules =
 {-| A  @media rule to apply a set of style rules when the media type and
 feature queries do not apply.
 -}
-queryNot : MediaType -> [Feature] -> Css -> Css
+queryNot : MediaType -> (List Feature) -> Css -> Css -> Css
 queryNot typeOfMedia mediaFeatures mediaRules =
   runS mediaRules
   |> Query (MediaQuery (Just Not) typeOfMedia mediaFeatures)
@@ -125,7 +124,7 @@ queryNot typeOfMedia mediaFeatures mediaRules =
 {-| A  @media rule to apply a set of style rules only when the media type and
 feature queries apply.
 -}
-queryOnly : MediaType -> [Feature] -> Css -> Css
+queryOnly : MediaType -> (List Feature) -> Css -> Css -> Css
 queryOnly typeOfMedia mediaFeatures mediaRules =
   runS mediaRules
   |> Query (MediaQuery (Just Only) typeOfMedia mediaFeatures)
@@ -135,18 +134,18 @@ queryOnly typeOfMedia mediaFeatures mediaRules =
 {-| Create a CSS @keyframes rule from an animation name and a list of
 (percentage, css rules) pairs.
 -}
-keyframes : String -> [(Float, Css)] -> Css
+keyframes : String -> (List (Float, Css)) -> Css -> Css
 keyframes animationName frames =
   frames
-  |> map \(percentage, css) -> (percentage, runS css)
-  |> Keyframes animationName
-  |> Keyframe
-  |> addRule
+    |> List.map (\(percentage, css) -> (percentage, (runS css)))
+    |> Keyframes animationName
+    |> Keyframe
+    |> addRule
 
 {-| Create a CSS @keyframes rule from an animation name, some css starting rules,
 and some css ending rules.
 -}
-keyframesFromTo : String -> Css -> Css -> Css
+keyframesFromTo : String -> Css -> Css -> Css -> Css
 keyframesFromTo animationName fromRules toRules =
   keyframes animationName [(0, fromRules), (100, toRules)]
 
@@ -154,12 +153,12 @@ keyframesFromTo animationName fromRules toRules =
 
 {-| Create a CSS @font-face rule from some css specifying font properties.
 -}
-fontFace : Css -> Css
+fontFace : Css -> Css -> Css
 fontFace fontProperties = runS fontProperties |> Face |> addRule
 
 -------------------------------------------------------------------------------
 
 {-| Create a CSS @import rule to import a CSS file from a URL.
 -}
-importUrl : String -> Css
+importUrl : String -> Css -> Css
 importUrl url = Import url |> addRule
