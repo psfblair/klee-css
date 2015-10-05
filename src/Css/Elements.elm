@@ -1,4 +1,4 @@
-module CSS.Elements where
+module Css.Elements where
 
 import Css.Selector exposing (text)
 

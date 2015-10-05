@@ -1,20 +1,31 @@
 module Css.PropertyTests where
 
 import Spec exposing (..)
+import Css.TestUtils exposing (it)
 
 import Css.Property exposing (..)
 
-suite : List Spec
-suite = [ prefixedTest, mergeTest ]
+suite : Spec
+suite = describe "Css.PropertyTests"
+  [ stringValueWrapperTest, commaListValueWrapperTest ]
 
-prefixedTest : Spec
-prefixedTest =
-  describe "PrefixedOrNot"
-    [ ("a" |> Plain |> unPlain) `shouldEqual` "a"
-    , ([ ("a","b"),("c","d")] |> Prefixed |> unPrefixed)
-          `shouldEqual` [("a","b"),("c","d")]
+stringValueWrapperTest : Spec
+stringValueWrapperTest =
+  describe "stringValueWrapper"
+    [ stringValueWrapper.value "a" `shouldEqual` Value (Plain "a")
     ]
 
+commaListValueWrapperTest : Spec
+commaListValueWrapperTest =
+  describe "pairValueWrapper"
+    [ it "should wrap an empty list"
+        [ (commaListValueWrapper stringValueWrapper).value [] `shouldEqual` emptyValue ]
+    , it "should wrap plain values"
+        [ (commaListValueWrapper stringValueWrapper).value ["a", "b"] `shouldEqual` Value (Plain "a,b")]
+    ]
+
+-- TODO Test wrappers involving prefixed values in order to test merge instead of test below
+{-
 mergeTest : Spec
 mergeTest =
   let plain1 = Plain "a"
@@ -27,3 +38,4 @@ mergeTest =
        , merge withPrefix1 plain1 `shouldEqual` Prefixed [("a","ba"),("c","da")]
        , merge withPrefix1 withPrefix2 `shouldEqual` Prefixed [("c","de")]
        ]
+-}

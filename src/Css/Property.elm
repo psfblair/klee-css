@@ -1,10 +1,14 @@
 module Css.Property (
   Key (..), Value (..), PrefixedOrNot (..), Either (..)
-    , rightValue, unPrefixed, plain, cast, stringValueWrapper
+    , rightValue, unPrefixed, plain, stringKey, cast, emptyValue, ValueWrapper
+    , stringValueWrapper, intValueWrapper, floatValueWrapper, maybeValueWrapper
+    , commaListValueWrapper, noCommasListValueWrapper, pairValueWrapper, eitherValueWrapper
   ) where
 
 import Dict exposing (fromList, get)
 import Regex exposing (regex, replace)
+
+import Css.Utils exposing (toFixed)
 
 type Literal = Literal String
 
@@ -57,6 +61,9 @@ merge prefixedOrNot1 prefixedOrNot2 =
 
 type Key a = Key PrefixedOrNot
 
+stringKey : String -> Key String
+stringKey str = Plain str |> Key
+
 unKeys : Key PrefixedOrNot -> PrefixedOrNot
 unKeys (Key a) = a
 
@@ -78,7 +85,7 @@ intersperse : String -> List Value -> Value
 intersperse str values =
   let separatorValue = Plain str |> Value
       interspersed = List.intersperse separatorValue values
-  in List.foldl (\val accum -> appendValues val accum) emptyValue interspersed
+  in List.foldr (\val accum -> appendValues val accum) emptyValue interspersed
 
 type alias ValueWrapper a = { value : a -> Value }
 
@@ -91,17 +98,8 @@ literalValueWrapper = { value = \(Literal x) -> quote x |> Plain |> Value }
 intValueWrapper : ValueWrapper Int
 intValueWrapper = { value = \x -> toString x |> Plain |> Value }
 
-showFixed : Int -> Float -> String
-showFixed resolution number =
-  let resolutionF = toFloat resolution
-  in number * resolutionF
-      |> round
-      |> toFloat
-      |> (\x -> x / resolutionF)
-      |> toString
-
 floatValueWrapper : ValueWrapper Float
-floatValueWrapper = { value = \x -> showFixed 100000 x |> Plain |> Value }
+floatValueWrapper = { value = \x -> toFixed 5 x |> toString |> Plain |> Value }
 
 maybeValueWrapper : ValueWrapper a -> ValueWrapper (Maybe a)
 maybeValueWrapper innerWrapper =

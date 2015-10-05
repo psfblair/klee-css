@@ -1,10 +1,11 @@
 module Css.Stylesheet (
-  Css, Scope (..), Rule (..), fallback, addStyles, addChildStyles, addFilteredStyles, root, pop
+  Css, Scope (..), Rule (..), custom, addStyles, addChildStyles, addFilteredStyles, root, pop
   , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..), query, queryNot, queryOnly
   , Keyframes (..), keyframes, keyframesFromTo, fontFace, importUrl
-  , runS) where
+  , emptyCss, runS) where
 
-import Css.Property exposing (Key, Value, cast, stringValueWrapper)
+import Css.Property exposing (Key, Value, ValueWrapper, PrefixedOrNot
+  , cast, stringKey, stringValueWrapper)
 import Css.Selector exposing (Selector, Refinement)
 
 {-| Types for the @media rule: @media not|only mediatype and (media feature) { rules }
@@ -44,32 +45,35 @@ from selectors to style properties. The `Css` type is a computation in the
 -}
 type Css = Css (List Rule)
 
+emptyCss : Css
+emptyCss = Css []
+
 runS : Css -> (List Rule)
 runS (Css rules) = rules
 
 addRule : Rule -> Css -> Css
 addRule ruleToAdd (Css rules) = rules ++ [ ruleToAdd ] |> Css
 
-{- In Clay, the key function adds a new style property to the stylesheet with
-the specified `Key` and value. The value can be any type that is in the `Val'
-typeclass; i.e., that can be converted to a `Value`. No typeclasses in the Elm version!
+{- Add a new style property to the stylesheet with the specified `Key` and value.
+The value can be any type that is in the `Val' typeclass; i.e., that can be
+converted to a `Value`. No typeclasses in the Elm version!
 -}
--- key : Css -> Key a -> a -> Css
--- key css k v = Property (cast k) (value v) |> addRule css
+key : Key a -> a -> ValueWrapper a -> Css -> Css
+key k v wrapper = Property (cast k) (wrapper.value v) |> addRule
 
 {- In Clay, the prefixed function adds a new style property to the stylesheet
 with the specified `Key` and value in the same way `key` does, but uses a
 `PrefixedOrNot` key. Again, not available in Elm.
 -}
--- prefixed : Css -> PrefixedOrNot -> a -> Css
--- prefixed css prefixedOrNot = key css (Key prefixedOrNot)
+prefixed : PrefixedOrNot -> a -> ValueWrapper a -> Css -> Css
+prefixed prefixedOrNot = key (Css.Property.Key prefixedOrNot)
 
-{-| The fallback operator can be used to add style rules to the current context
+{-| The custom function can be used to add style rules to the current context
 for which there is no typed version available. Both the key and the value
 are plain text values and rendered as is to the output CSS.
 -}
-fallback : Key String -> String -> Css -> Css
-fallback k v  = addRule <| Property (cast k) (stringValueWrapper.value v)
+custom : String -> String -> Css -> Css
+custom k v  = key (stringKey k) v stringValueWrapper
 
 {-| Assign a group of style rules to a selector. When the selector is nested inside an
 outer scope it will be composed with `deep`, which maps to @sel1 sel2@ in CSS.

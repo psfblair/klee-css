@@ -1,5 +1,5 @@
 module Css (
-  Css, Selector, Refinement, (-:), (?), (<?), (&), root, pop
+  Css, Selector, Refinement, custom, (?), (<?), (&), root, pop
   , star, element, (.*), (.>), (.+), (.|), (.|#), (.|.), pseudo, func, withAttr
   , (.|@), (.|^), (.|$), (.|*), (.|~), (.|-)
   , MediaType, Feature, query, queryNot, queryOnly
@@ -20,7 +20,7 @@ the module Css.Property is also internal.
 @docs Css, Selector, Refinement
 
 # Operators for aggregating style rules
-@docs (-:), (?), (<?), (&), root, pop
+@docs custom, (?), (<?), (&), root, pop
 
 # The selector language
 @docs star, element, (.*), (.>), (.+), (.|), (.|#), (.|.), pseudo, func, withAttr,
@@ -35,7 +35,7 @@ the module Css.Property is also internal.
 -}
 
 import Css.Stylesheet exposing (
-  Css, Scope, fallback, addStyles, addChildStyles, addFilteredStyles, root, pop
+  Css, Scope, custom, addStyles, addChildStyles, addFilteredStyles, root, pop
   , MediaType, Feature, query, queryNot, queryOnly
   , keyframes, keyframesFromTo, fontFace, importUrl)
 
@@ -47,7 +47,6 @@ import Css.Selector exposing (
 
 import Css.Render exposing (render, renderWith, pretty, compact, Config)
 
-import Css.Property exposing (Key)
 -------------------------------------------------------------------------------
 -- * Principal types
 
@@ -68,35 +67,35 @@ type alias Refinement = Css.Selector.Refinement
 -------------------------------------------------------------------------------
 -- * Operators for aggregating style rules.
 
-{-| The fallback operator can be used to add style rules to the current context
+{-| The custom function can be used to add style rules to the current context
 for which there is no typed version available. Both the key and the value
 are plain text values and rendered as is to the output CSS.
 -}
+custom : String -> String -> Css -> Css
+custom = Css.Stylesheet.custom
 infixl 4 -:
-(-:) : Key String -> String -> Css -> Css
-(-:) = Css.Stylesheet.fallback
 
 {-| Assign a group of style rules to a selector. When the selector is nested inside an
 outer scope it will be composed with `deep`, which maps to @sel1 sel2@ in CSS.
 -}
-infixr 5 ?
 (?) : Selector -> Css -> Css -> Css
 (?) = Css.Stylesheet.addStyles
+infixr 5 ?
 
 {-| Assign a group of style rules to a selector. When the selector is nested inside
 an outer scope it will be composed with `child`, which maps to @sel1 > sel2@ in CSS.
 -}
-infixr 5 <?
 (<?) : Selector -> Css -> Css -> Css
 (<?) = Css.Stylesheet.addChildStyles
+infixr 5 <?
 
 {-| Assign a group of style rules to a filter selector. When the selector is nested
 inside an outer scope it will be composed with the `with` selector, which maps
 to something like @sel#filter@ or @sel.filter@ in CSS depending on the filter.
 -}
-infixr 5 &
 (&) : Refinement -> Css -> Css -> Css
 (&) = Css.Stylesheet.addFilteredStyles
+infixr 5 &
 
 {-| `root` is used to add style rules to the top scope.
 -}
@@ -227,14 +226,17 @@ type alias Scope = Css.Stylesheet.Scope
 type alias Config = Css.Render.Config
 
 {-| Render a stylesheet with the default configuration. The pretty printer is
-used by default.
+used by default. The stylesheet is a function of Css to Css, which render will
+supply with an empty Css as the accumulator.
 -}
-render : Css -> String
+render : (Css -> Css) -> String
 render = Css.Render.render
 
 {-| Render a stylesheet with a custom configuration and an optional outer scope.
+The stylesheet is a function of Css to Css, which render will supply with an
+empty Css as the accumulator.
 -}
-renderWith : Config -> (List Scope) -> Css -> String
+renderWith : Config -> (List Scope) -> (Css -> Css) -> String
 renderWith = Css.Render.renderWith
 
 {-| Configuration to print to a pretty human readable CSS output.

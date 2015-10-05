@@ -3,7 +3,7 @@ module Css.Render where
 import Css.Stylesheet exposing (
   Css, Scope (..), Rule (..)
   , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..)
-  , Keyframes (..), runS)
+  , Keyframes (..), emptyCss, runS)
 import Css.Common exposing (browsers)
 import Css.Property exposing (Key (..), Value (..), PrefixedOrNot (..), Either (..)
   , plain, unPrefixed, rightValue)
@@ -50,16 +50,20 @@ compact =
   }
 
 {-| Render a stylesheet with the default configuration. The pretty printer is
-used by default.
+used by default. The stylesheet is a function of Css to Css, which render will
+supply with an empty Css as the accumulator.
 -}
-render : Css -> String
+render : (Css -> Css) -> String
 render = renderWith pretty []
 
 {-| Render a stylesheet with a custom configuration and an optional outer scope.
+The stylesheet is a function of Css to Css, which render will supply with an
+empty Css as the accumulator.
 -}
-renderWith : Config -> (List Scope) -> Css -> String
-renderWith cfg outerScope css
-  = runS css
+renderWith : Config -> (List Scope) -> (Css -> Css) -> String
+renderWith cfg outerScope stylesheet
+  = stylesheet emptyCss
+  |> runS
   |> renderRules cfg outerScope
   |> renderBanner cfg
 

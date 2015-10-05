@@ -1,41 +1,62 @@
 module Css.Common where
 
-import Css.Property exposing (PrefixedOrNot)
+import Css.Property exposing (Value, PrefixedOrNot, stringValueWrapper)
 
-{-
-class All      a where all      : a
-class Auto     a where auto     : a
-class Baseline a where baseline : a
-class Center   a where center   : a
-class Inherit  a where inherit  : a
-class None     a where none     : a
-class Normal   a where normal   : a
-class Visible  a where visible  : a
-class Hidden   a where hidden   : a
-class Initial  a where initial  : a
-class Unset    a where unset    : a
-
--- The Other type class is used to escape from the type safety introduced by
--- embedding CSS properties into the typed world of Clay.
--- `Other` allows you to cast any `Value` to a specific value type.
-
-class Other   a where other   : Value -> a
-
-instance All      Value where all      = "all"
-instance Auto     Value where auto     = "auto"
-instance Baseline Value where baseline = "baseline"
-instance Center   Value where center   = "center"
-instance Inherit  Value where inherit  = "inherit"
-instance Normal   Value where normal   = "normal"
-instance None     Value where none     = "none"
-instance Visible  Value where visible  = "visible"
-instance Hidden   Value where hidden   = "hidden"
-instance Other    Value where other    = id
-instance Initial  Value where initial  = "initial"
-instance Unset    Value where unset    = "unset"
-
+{-| A bunch of records of functions representing common values shared between
+multiple CSS properties, like `Auto`, `Inherit`, `None`, `Normal` and several more.
 -}
+type alias All      a = {  all      : a }
+type alias Auto     a = {  auto     : a }
+type alias Baseline a = {  baseline : a }
+type alias Center   a = {  center   : a }
+type alias Inherit  a = {  inherit  : a }
+type alias None     a = {  none     : a }
+type alias Normal   a = {  normal   : a }
+type alias Visible  a = {  visible  : a }
+type alias Hidden   a = {  hidden   : a }
+type alias Initial  a = {  initial  : a }
+type alias Unset    a = {  unset    : a }
 
+-- The Other type alias is used to escape from the type safety introduced by
+-- embedding CSS properties in the typed world. `Other` allows you to extract
+-- a specific value type out of any `Value`.
+type alias Other a = {  other: Value -> a }
+
+allWrapper : All Value
+allWrapper  = { all = stringValueWrapper.value "all" }
+
+autoWrapper : Auto Value
+autoWrapper = { auto = stringValueWrapper.value "auto" }
+
+baselineWrapper : Baseline Value
+baselineWrapper = { baseline = stringValueWrapper.value "baseline" }
+
+centerWrapper : Center Value
+centerWrapper = { center = stringValueWrapper.value "center" }
+
+inheritWrapper : Inherit Value
+inheritWrapper = { inherit  = stringValueWrapper.value "inherit" }
+
+normalWrapper : Normal Value
+normalWrapper = { normal = stringValueWrapper.value "normal" }
+
+noneWrapper : None Value
+noneWrapper = { none = stringValueWrapper.value "none" }
+
+visibleWrapper : Visible Value
+visibleWrapper = { visible  = stringValueWrapper.value "visible" }
+
+hiddenWrapper : Hidden Value
+hiddenWrapper = { hidden = stringValueWrapper.value "hidden" }
+
+initialWrapper : Initial Value
+initialWrapper = { initial  = stringValueWrapper.value "initial" }
+
+unsetWrapper : Unset Value
+unsetWrapper = { unset = stringValueWrapper.value "unset" }
+
+otherWrapper : Other Value
+otherWrapper = { other = identity }
 
 {-| List of browser prefixes to make experimental properties work in
 different browsers. -}
@@ -54,18 +75,3 @@ browsers =
 
 call : String -> String -> String
 call fn arg = fn ++ "(" ++ arg ++ ")"
-
-
-{-| Some auxiliary mathematical functions.  -}
-
-floatMod : Float -> Float -> Float
-floatMod dividend divisor =
-  let numberOfEvenMultiples = dividend / divisor  |> truncate |> toFloat
-  in dividend - (numberOfEvenMultiples * divisor)
-
--- TODO Integrate with fixedShow in Property.elm
-decimalRound : Float -> Int -> Float
-decimalRound x decimalPlaces =
-  let powersOf10 = 10 ^ decimalPlaces
-      shiftedAndRounded = x * powersOf10 |> round |> toFloat
-  in shiftedAndRounded / powersOf10
