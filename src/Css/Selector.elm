@@ -1,6 +1,6 @@
 module Css.Selector (
   Selector (..), Refinement (..), Path (..), Predicate (..)
-  , emptySelector, sortPredicate, star, element, deep, child, adjacent, with, byId, byClass
+  , emptySelector, sortPredicate, star, deep, child, adjacent, with, byId, byClass
   , pseudo, func, withAttr, withAttrValue, withAttrValueBeginning, withAttrValueEnding
   , withAttrValueEnding, withAttrValueContaining, withAttrValueInSpacedList
   , withAttrValueInHyphenatedList, text, filterFromString
@@ -84,12 +84,6 @@ filterFromString str = Refinement <|
 -}
 star : Selector
 star = Selector (Refinement []) Star
-
-{-| Select elements by name. The preferred syntax is to just use one of
-the predefined elements from "Css.Elements".
--}
-element : String -> Selector
-element name = Selector (Refinement []) (Elem name)
 
 -------------------------------------------------------------------------------
 -- ** Composing and refining selectors

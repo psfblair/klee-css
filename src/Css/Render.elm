@@ -1,9 +1,9 @@
 module Css.Render where
 
 import Css.Stylesheet exposing (
-  Css, Scope (..), Rule (..)
+  Css, CssGenerator, SelectorScope (..), Rule (..)
   , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..)
-  , Keyframes (..), emptyCss, runS)
+  , Keyframes (..), emptyCss, extractRules)
 import Css.Common exposing (browsers)
 import Css.Property exposing (Key (..), Value (..), PrefixedOrNot (..), Either (..)
   , plain, unPrefixed, rightValue)
@@ -53,17 +53,16 @@ compact =
 used by default. The stylesheet is a function of Css to Css, which render will
 supply with an empty Css as the accumulator.
 -}
-render : (Css -> Css) -> String
+render : CssGenerator a -> String
 render = renderWith pretty []
 
 {-| Render a stylesheet with a custom configuration and an optional outer scope.
 The stylesheet is a function of Css to Css, which render will supply with an
 empty Css as the accumulator.
 -}
-renderWith : Config -> (List Scope) -> (Css -> Css) -> String
+renderWith : Config -> (List SelectorScope) -> CssGenerator a -> String
 renderWith cfg outerScope stylesheet
-  = stylesheet emptyCss
-  |> runS
+  = extractRules [ stylesheet ]
   |> renderRules cfg outerScope
   |> renderBanner cfg
 
@@ -87,7 +86,7 @@ renderBanner cfg =
 by a listing of Scope objects that specifies how the scope is composed of
 its various nested levels.
 -}
-renderRules : Config -> (List Scope) -> (List Rule) -> String
+renderRules : Config -> (List SelectorScope) -> (List Rule) -> String
 renderRules cfg scopes ruleList =
   let property prop =
         case prop of
@@ -132,7 +131,7 @@ property/value rules do not include nested rules or rules for media, keyframes,
 font-face, or imports. The scope is specified by a listing of Scope objects that
 specifies how the scope is composed of its various nested levels.
 -}
-renderRule : Config -> (List Scope)-> (List (Key (), Value)) -> String
+renderRule : Config -> (List SelectorScope)-> (List (Key (), Value)) -> String
 renderRule cfg scopes props =
   case props of
     [] -> ""
@@ -151,14 +150,13 @@ renderRule cfg scopes props =
     the composition functions in the Selector module, and returning the
     composed selector.
 -}
-mergeScopes : (List Scope) -> Selector
+mergeScopes : (List SelectorScope) -> Selector
 mergeScopes scopes =
   case scopes of
     [] -> emptySelector -- TODO Maybe some anomalous behavior here? Clay thinks so.
     (scope::rest) ->
       case scope of
         Root selector -> deep selector (mergeScopes rest)
-        Pop  levels   -> List.drop levels scopes |> mergeScopes
         Css.Stylesheet.Child selector ->
           case rest of
             [] -> selector
@@ -307,7 +305,7 @@ renderKeyframe cfg (percentage, mediaRules) =
 
 {-| Render a CSS @media rule.
 -}
-renderMedia : Config -> MediaQuery -> (List Scope) -> (List Rule) -> String
+renderMedia : Config -> MediaQuery -> (List SelectorScope) -> (List Rule) -> String
 renderMedia cfg query sel mediaRules =
   concat
     [ renderMediaQuery query

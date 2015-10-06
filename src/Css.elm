@@ -1,6 +1,6 @@
 module Css (
-  Css, Selector, Refinement, custom, (?), (<?), (&), root, pop
-  , star, element, (.*), (.>), (.+), (.|), (.|#), (.|.), pseudo, func, withAttr
+  Css, CssGenerator, Selector, Refinement, custom, (<?), (&), root
+  , (.*), (.>), (.+), (.|), (.|#), (.|.), pseudo, func, withAttr
   , (.|@), (.|^), (.|$), (.|*), (.|~), (.|-)
   , MediaType, Feature, query, queryNot, queryOnly
   , keyframes, keyframesFromTo, fontFace, importUrl
@@ -17,13 +17,14 @@ Css.Stylesheet, Css.Selector, Css.Render, which they export. Besides these,
 the module Css.Property is also internal.
 
 # Principal Types
-@docs Css, Selector, Refinement
+@docs Css, CssGenerator, Selector, Refinement
 
 # Operators for aggregating style rules
-@docs custom, (?), (<?), (&), root, pop
+@docs custom, (<?), (&), root
 
-# The selector language
-@docs star, element, (.*), (.>), (.+), (.|), (.|#), (.|.), pseudo, func, withAttr,
+# The selector language.
+For predefined element selectors, see `Css.Elements`.
+@docs (.*), (.>), (.+), (.|), (.|#), (.|.), pseudo, func, withAttr,
       (.|@), (.|^), (.|$), (.|*), (.|~), (.|-)
 
 # Rendering stylesheets to CSS strings
@@ -35,12 +36,13 @@ the module Css.Property is also internal.
 -}
 
 import Css.Stylesheet exposing (
-  Css, Scope, custom, addStyles, addChildStyles, addFilteredStyles, root, pop
+  Css, CssGenerator, SelectorScope
+  , custom, addStylesAsChild, addFilteredStyles, root
   , MediaType, Feature, query, queryNot, queryOnly
   , keyframes, keyframesFromTo, fontFace, importUrl)
 
 import Css.Selector exposing (
-  Selector, Refinement, star, element, deep, child, adjacent, with, byId, byClass
+  Selector, Refinement, star, deep, child, adjacent, with, byId, byClass
   , pseudo, func, withAttr, withAttrValue, withAttrValueBeginning, withAttrValueEnding
   , withAttrValueEnding, withAttrValueContaining, withAttrValueInSpacedList
   , withAttrValueInHyphenatedList)
@@ -50,9 +52,15 @@ import Css.Render exposing (render, renderWith, pretty, compact, Config)
 -------------------------------------------------------------------------------
 -- * Principal types
 
-{-| The type that collects the style rules.
+{-| The `Css` type is used to collect style rules which are mappings
+from selectors to style properties.
 -}
 type alias Css = Css.Stylesheet.Css
+
+{-| An alias for a function of Css -> Css, which is the type allowing for the
+css combinators to be composed.
+-}
+type alias CssGenerator a = Css.Stylesheet.CssGenerator a
 
 {-|  A type to represent the selector in a CSS rule.
 -}
@@ -75,54 +83,28 @@ custom : String -> String -> Css -> Css
 custom = Css.Stylesheet.custom
 infixl 4 -:
 
-{-| Assign a group of style rules to a selector. When the selector is nested inside an
-outer scope it will be composed with `deep`, which maps to @sel1 sel2@ in CSS.
--}
-(?) : Selector -> Css -> Css -> Css
-(?) = Css.Stylesheet.addStyles
-infixr 5 ?
-
 {-| Assign a group of style rules to a selector. When the selector is nested inside
 an outer scope it will be composed with `child`, which maps to @sel1 > sel2@ in CSS.
 -}
-(<?) : Selector -> Css -> Css -> Css
-(<?) = Css.Stylesheet.addChildStyles
+(<?) : (List (CssGenerator a) -> CssGenerator Selector) -> List (CssGenerator a) -> CssGenerator Selector
+(<?) = Css.Stylesheet.addStylesAsChild
 infixr 5 <?
 
 {-| Assign a group of style rules to a filter selector. When the selector is nested
 inside an outer scope it will be composed with the `with` selector, which maps
 to something like @sel#filter@ or @sel.filter@ in CSS depending on the filter.
 -}
-(&) : Refinement -> Css -> Css -> Css
+(&) : Refinement -> List (CssGenerator a) -> CssGenerator ()
 (&) = Css.Stylesheet.addFilteredStyles
 infixr 5 &
 
 {-| `root` is used to add style rules to the top scope.
 -}
-root : Selector -> Css -> Css -> Css
+root : Selector -> List (CssGenerator a) -> CssGenerator ()
 root = Css.Stylesheet.root
 
-{-| `pop` is used to add style rules to selectors defined in an outer scope. The
-counter specifies how far up the scope stack we want to add the rules.
--}
-pop : Int -> Css -> Css -> Css
-pop = Css.Stylesheet.pop
-
 -------------------------------------------------------------------------------
--- * The selector language
--- ** Element selectors
-
-{-| The star selector applies to all elements. Maps to @*@ in CSS.
--}
-star : Selector
-star = Css.Selector.star
-
-{-| Creates a selector using its name. The preferred syntax is to use one of
-the predefined elements from "Css.Elements".
--}
-element : String -> Selector
-element = Css.Selector.element
-
+-- * The selector language.
 -- ** Composing and refining selectors
 
 {-| The deep selector composer. Maps to @sel1 sel2@ in CSS.
@@ -219,7 +201,7 @@ specified value contained in a hyphen separated list.
 {-| A type allowing various selectors to be composed together to indicate the
 scope within which a set of rules applies.
 -}
-type alias Scope = Css.Stylesheet.Scope
+type alias Scope = Css.Stylesheet.SelectorScope
 
 {-| Type to allow configuring print output of separators, newlines, etc.
 -}
@@ -264,19 +246,19 @@ type alias Feature = Css.Stylesheet.Feature
 {-| A @media rule to apply a set of style rules when a media type and
 feature queries apply.
 -}
-query : MediaType -> (List Feature) -> Css -> Css -> Css
+query : MediaType -> (List Feature) -> List (CssGenerator a) -> CssGenerator ()
 query = Css.Stylesheet.query
 
 {-| A  @media rule to apply a set of style rules when the media type and
 feature queries do not apply.
 -}
-queryNot : MediaType -> (List Feature) -> Css -> Css -> Css
+queryNot : MediaType -> (List Feature) -> List (CssGenerator a) -> CssGenerator ()
 queryNot = Css.Stylesheet.queryNot
 
 {-| A  @media rule to apply a set of style rules only when the media type and
 feature queries apply.
 -}
-queryOnly : MediaType -> (List Feature) -> Css -> Css -> Css
+queryOnly : MediaType -> (List Feature) -> List (CssGenerator a) -> CssGenerator ()
 queryOnly = Css.Stylesheet.queryOnly
 
 -------------------------------------------------------------------------------
@@ -285,13 +267,13 @@ queryOnly = Css.Stylesheet.queryOnly
 {-| Create a CSS @keyframes rule from an animation name and a list of
 (percentage, css rules) pairs.
 -}
-keyframes : String -> (List (Float, Css)) -> Css -> Css
+keyframes : String -> (List (Float, List (CssGenerator a))) -> CssGenerator ()
 keyframes = Css.Stylesheet.keyframes
 
 {-| Create a CSS @keyframes rule from an animation name, some css starting rules,
 and some css ending rules.
 -}
-keyframesFromTo : String -> Css -> Css -> Css -> Css
+keyframesFromTo : String -> List (CssGenerator a) -> List (CssGenerator a) -> CssGenerator ()
 keyframesFromTo = Css.Stylesheet.keyframesFromTo
 
 -------------------------------------------------------------------------------
@@ -299,7 +281,7 @@ keyframesFromTo = Css.Stylesheet.keyframesFromTo
 
 {-| Create a CSS @font-face rule from some css specifying font properties.
 -}
-fontFace : Css -> Css -> Css
+fontFace : List (CssGenerator a) -> CssGenerator ()
 fontFace = Css.Stylesheet.fontFace
 
 -------------------------------------------------------------------------------
