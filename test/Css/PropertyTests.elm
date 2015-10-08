@@ -7,21 +7,21 @@ import Css.Property exposing (..)
 
 suite : Spec
 suite = describe "Css.PropertyTests"
-  [ stringValueWrapperTest, commaListValueWrapperTest ]
+  [ stringValueFactoryTest, commaListValueFactoryTest ]
 
-stringValueWrapperTest : Spec
-stringValueWrapperTest =
-  describe "stringValueWrapper"
-    [ stringValueWrapper.value "a" `shouldEqual` Value (Plain "a")
+stringValueFactoryTest : Spec
+stringValueFactoryTest =
+  describe "stringValueFactory"
+    [ stringValueFactory.value "a" `shouldEqual` Value (Plain "a")
     ]
 
-commaListValueWrapperTest : Spec
-commaListValueWrapperTest =
-  describe "pairValueWrapper"
+commaListValueFactoryTest : Spec
+commaListValueFactoryTest =
+  describe "pairValueFactory"
     [ it "should wrap an empty list"
-        [ (commaListValueWrapper stringValueWrapper).value [] `shouldEqual` emptyValue ]
+        [ (commaListValueFactory stringValueFactory).value [] `shouldEqual` emptyValue ]
     , it "should wrap plain values"
-        [ (commaListValueWrapper stringValueWrapper).value ["a", "b"] `shouldEqual` Value (Plain "a,b")]
+        [ (commaListValueFactory stringValueFactory).value ["a", "b"] `shouldEqual` Value (Plain "a,b")]
     ]
 
 -- TODO Test wrappers involving prefixed values in order to test merge instead of test below

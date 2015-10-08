@@ -1,12 +1,13 @@
 module Css.Stylesheet (
-  Css, CssGenerator, SelectorScope (..), Rule (..), emptyCss, extractRules, custom
+  Css, CssGenerator, SelectorScope (..), Rule (..), emptyCss, extractRules
+  , key, prefixed, custom
   , assignSelector, addStylesAsChild, addFilteredStyles, root
   , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..), query, queryNot, queryOnly
   , Keyframes (..), keyframes, keyframesFromTo, fontFace, importUrl
   ) where
 
-import Css.Property exposing (Key, Value, ValueWrapper, PrefixedOrNot
-  , cast, stringKey, stringValueWrapper)
+import Css.Property exposing (Key, Value, ValueFactory, PrefixedOrNot
+  , cast, stringKey, stringValueFactory)
 import Css.Selector exposing (Selector, Refinement)
 
 -------------------------------------------------------------------------------
@@ -69,15 +70,15 @@ type Keyframes = Keyframes String (List (Float, (List Rule)))
 
 {- Add a new style property to the stylesheet with the specified `Key` and value.
 The value can be any type that that can be converted to a `Value` using the
-a record of functions of type `ValueWrapper`.
+a record of functions of type `ValueFactory`.
 -}
-key : Key a -> a -> ValueWrapper a -> CssGenerator ()
+key : Key a -> a -> ValueFactory a -> CssGenerator a
 key k v wrapper = Property (cast k) (wrapper.value v) |> addRule
 
 {- Add a new style property to the stylesheet with the specified `Key` and value
 the same way `key` does, but uses a `PrefixedOrNot` key.
 -}
-prefixed : PrefixedOrNot -> a -> ValueWrapper a -> CssGenerator ()
+prefixed : PrefixedOrNot -> a -> ValueFactory a -> CssGenerator a
 prefixed prefixedOrNot = key (Css.Property.Key prefixedOrNot)
 
 {-| The custom function can be used to add style rules to the current context
@@ -85,7 +86,7 @@ for which there is no typed version available. Both the key and the value
 are plain text values and rendered as is to the output CSS.
 -}
 custom : String -> String -> CssGenerator ()
-custom k v  = key (stringKey k) v stringValueWrapper
+custom k v  = key (stringKey k) v stringValueFactory
 
 {-| Assign a group of style rules to a selector. When the selector is nested inside an
 outer scope it will be composed with `deep`, which maps to @sel1 sel2@ in CSS. This

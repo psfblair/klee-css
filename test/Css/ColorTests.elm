@@ -4,7 +4,7 @@ import Spec exposing (..)
 
 import Css.Color exposing (..)
 import Css.TestUtils exposing (it)
-import Css.Property exposing (stringValueWrapper)
+import Css.Property exposing (stringValueFactory)
 
 suite : Spec
 suite = describe "Css.ColorTests"
@@ -23,7 +23,7 @@ toRgbaTest =
     [ it "gives back the same Rgba"
         [  toRgba (Rgba 255 255 255 1.0) `shouldEqual` Rgba 255 255 255 1.0 ]
     , it "will not accept an Other"
-        [  toRgba (Other <| stringValueWrapper.value "auto") `shouldEqual` toRgba (Other <| stringValueWrapper.value "auto") ]
+        [  toRgba (Other <| stringValueFactory.value "auto") `shouldEqual` toRgba (Other <| stringValueFactory.value "auto") ]
     , it "translates a whiteRgba Hsla"
         [  toRgba (Hsla 360 1.0 1.0 1.0) `shouldEqual` Rgba 255 255 255 1.0 ]
     , it "translates a blackRgba Hsla"
@@ -46,7 +46,7 @@ toHslaTest =
     [ it "gives back the same Hsla"
         [  toHsla (Hsla 0 0.0 0.0 0) `shouldEqual` Hsla 0 0.0 0.0 0 ]
     , it "will not accept an Other"
-        [  toHsla (Other <| stringValueWrapper.value "auto") `shouldEqual` toHsla (Other <| stringValueWrapper.value "auto") ]
+        [  toHsla (Other <| stringValueFactory.value "auto") `shouldEqual` toHsla (Other <| stringValueFactory.value "auto") ]
     , it "translates a whiteRgba Rgba"
         [  toHsla (Rgba 255 255 255 1.0) `shouldEqual` Hsla 0 0.0 1.0 1.0 ]
     , it "translates a blackRgba Rgba"

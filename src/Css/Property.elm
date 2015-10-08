@@ -1,8 +1,11 @@
 module Css.Property (
   Key (..), Value (..), PrefixedOrNot (..), Either (..)
-    , rightValue, unPrefixed, plain, stringKey, cast, emptyValue, ValueWrapper
-    , stringValueWrapper, intValueWrapper, floatValueWrapper, maybeValueWrapper
-    , commaListValueWrapper, noCommasListValueWrapper, pairValueWrapper, eitherValueWrapper
+    , rightValue, unPrefixed, plain, stringKey, cast, emptyValue, ValueFactory
+    , appendUnits, concatenateValues
+    , stringValueFactory, intValueFactory, floatValueFactory, maybeValueFactory
+    , commaListValueFactory, spaceListValueFactory, spacePairValueFactory
+    , spaceTripleValueFactory, spaceQuadrupleValueFactory, commaQuadrupleValueFactory
+    , eitherValueFactory
   ) where
 
 import Dict exposing (fromList, get)
@@ -61,7 +64,7 @@ merge prefixedOrNot1 prefixedOrNot2 =
 
 type Key a = Key PrefixedOrNot
 
-stringKey : String -> Key String
+stringKey : String -> Key a
 stringKey str = Plain str |> Key
 
 unKeys : Key PrefixedOrNot -> PrefixedOrNot
@@ -81,64 +84,95 @@ emptyValue = Value (Plain "")
 appendValues : Value -> Value -> Value
 appendValues (Value v1) (Value v2) = merge v1 v2 |> Value
 
+concatenateValues : List Value -> Value
+concatenateValues = List.foldr (\val accum -> appendValues val accum) emptyValue
+
+appendUnits : Float -> String -> Value
+appendUnits qty unit =
+  appendValues (floatValueFactory.value qty) (stringValueFactory.value unit)
+
 intersperse : String -> List Value -> Value
 intersperse str values =
   let separatorValue = Plain str |> Value
       interspersed = List.intersperse separatorValue values
   in List.foldr (\val accum -> appendValues val accum) emptyValue interspersed
 
-type alias ValueWrapper a = { value : a -> Value }
+type alias ValueFactory a = { value : a -> Value }
 
-stringValueWrapper : ValueWrapper String
-stringValueWrapper = { value = \x -> Plain x |> Value}
+stringValueFactory : ValueFactory String
+stringValueFactory = { value x = Plain x |> Value}
 
-literalValueWrapper : ValueWrapper Literal
-literalValueWrapper = { value = \(Literal x) -> quote x |> Plain |> Value }
+literalValueFactory : ValueFactory Literal
+literalValueFactory = { value (Literal x) = quote x |> Plain |> Value }
 
-intValueWrapper : ValueWrapper Int
-intValueWrapper = { value = \x -> toString x |> Plain |> Value }
+intValueFactory : ValueFactory Int
+intValueFactory = { value x = toString x |> Plain |> Value }
 
-floatValueWrapper : ValueWrapper Float
-floatValueWrapper = { value = \x -> toFixed 5 x |> toString |> Plain |> Value }
+floatValueFactory : ValueFactory Float
+floatValueFactory = { value x = toFixed 5 x |> toString |> Plain |> Value }
 
-maybeValueWrapper : ValueWrapper a -> ValueWrapper (Maybe a)
-maybeValueWrapper innerWrapper =
-  { value = \x ->
+maybeValueFactory : ValueFactory a -> ValueFactory (Maybe a)
+maybeValueFactory innerFactory =
+  { value x =
       case x of
-        Just val -> innerWrapper.value val
+        Just val -> innerFactory.value val
         Nothing -> emptyValue
   }
 
-listValueWrapper : String -> ValueWrapper a -> ValueWrapper (List a)
-listValueWrapper separator innerWrapper =
+listValueFactory : String -> ValueFactory a -> ValueFactory (List a)
+listValueFactory separator innerFactory =
   let wrapList xs =
     case xs of
       [] -> []
-      (h :: t) -> (innerWrapper.value h) :: (wrapList t)
+      (h :: t) -> (innerFactory.value h) :: (wrapList t)
   in { value = wrapList >> intersperse separator }
 
-commaListValueWrapper : ValueWrapper a -> ValueWrapper (List a)
-commaListValueWrapper = listValueWrapper ","
+commaListValueFactory : ValueFactory a -> ValueFactory (List a)
+commaListValueFactory = listValueFactory ","
 
-noCommasListValueWrapper : ValueWrapper a -> ValueWrapper (List a)
-noCommasListValueWrapper = listValueWrapper " "
+spaceListValueFactory : ValueFactory a -> ValueFactory (List a)
+spaceListValueFactory = listValueFactory " "
 
-pairValueWrapper : ValueWrapper a -> ValueWrapper b -> ValueWrapper (a, b)
-pairValueWrapper firstInnerWrapper secondInnerWrapper =
-  { value =
-      \(x,y) ->
-        [firstInnerWrapper.value x, secondInnerWrapper.value y]
-        |> intersperse " "
+pairValueFactory : String -> ValueFactory a -> ValueFactory b -> ValueFactory (a, b)
+pairValueFactory separator firstInnerFactory secondInnerFactory =
+  { value (x,y) =
+        [ firstInnerFactory.value x, secondInnerFactory.value y ]
+        |> intersperse separator
   }
 
-eitherValueWrapper : ValueWrapper a -> ValueWrapper b -> ValueWrapper (Either a b)
-eitherValueWrapper leftInnerWrapper rightInnerWrapper =
-  { value = \x ->
+spacePairValueFactory : ValueFactory a -> ValueFactory b -> ValueFactory (a, b)
+spacePairValueFactory = pairValueFactory " "
+
+tripleValueFactory : String -> ValueFactory a -> ValueFactory b -> ValueFactory c -> ValueFactory (a, b, c)
+tripleValueFactory separator firstInnerFactory secondInnerFactory thirdInnerFactory =
+  { value (x,y,z) =
+        [ firstInnerFactory.value x, secondInnerFactory.value y, thirdInnerFactory.value z ]
+        |> intersperse separator
+  }
+
+spaceTripleValueFactory : ValueFactory a -> ValueFactory b -> ValueFactory c -> ValueFactory (a, b, c)
+spaceTripleValueFactory = tripleValueFactory " "
+
+quadrupleValueFactory : String -> ValueFactory a -> ValueFactory b -> ValueFactory c ->
+                          ValueFactory d -> ValueFactory (a, b, c, d)
+quadrupleValueFactory separator firstInnerFactory secondInnerFactory thirdInnerFactory fourthInnerFactory =
+  { value (x,y,z,a) =
+        [ firstInnerFactory.value x, secondInnerFactory.value y, thirdInnerFactory.value z, fourthInnerFactory.value a ]
+        |> intersperse separator
+  }
+
+spaceQuadrupleValueFactory : ValueFactory a -> ValueFactory b -> ValueFactory c ->
+                                ValueFactory d -> ValueFactory (a, b, c, d)
+spaceQuadrupleValueFactory = quadrupleValueFactory " "
+
+commaQuadrupleValueFactory : ValueFactory a -> ValueFactory b -> ValueFactory c ->
+                                ValueFactory d -> ValueFactory (a, b, c, d)
+commaQuadrupleValueFactory = quadrupleValueFactory ","
+
+eitherValueFactory : ValueFactory a -> ValueFactory b -> ValueFactory (Either a b)
+eitherValueFactory leftInnerFactory rightInnerFactory =
+  { value x =
       case x of
-        Left a -> leftInnerWrapper.value a
-        Right a -> rightInnerWrapper.value a
+        Left a -> leftInnerFactory.value a
+        Right a -> rightInnerFactory.value a
   }
-
--- TODO right-associative tupling operator -- why?
-(!) : a -> b -> (a, b)
-(!) = (,)
