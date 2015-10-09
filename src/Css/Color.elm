@@ -195,60 +195,6 @@ lerp factor startColor boundColor =
                     (lerpFloats factor a a' |> clampAlpha)
 
 -------------------------------------------------------------------------------
-colorValueFactory : ValueFactory Color
-colorValueFactory =
-  let fixedStr str = toFixed 4 str |> toString
-      wrapped clr =
-        case clr of
-          Rgba r g b 255 ->
-            ["#", toHexString r, toHexString g, toHexString b]
-            |> String.join ""
-            |> stringValueFactory.value
-          Rgba r g b a ->
-            ["rgba(", toString r, ",", toString g, ",", toString b, ",", fixedStr a, ")"]
-            |> String.join ""
-            |> stringValueFactory.value
-          Hsla h s l 255 ->
-            ["hsl(",  toString h, ",", fixedStr s, ",", fixedStr l,                  ")"]
-            |> String.join ""
-            |> stringValueFactory.value
-          Hsla h s l a   ->
-            ["hsla(", toString h, ",", fixedStr s, ",", fixedStr l, ",", fixedStr a, ")"]
-            |> String.join ""
-            |> stringValueFactory.value
-          Other o        -> o
-  in { value = \x -> wrapped x }
-
-noneColorFactory : None Color
-noneColorFactory  = { none  = Other <| stringValueFactory.value "none" }
-
-autoColorFactory : Auto Color
-autoColorFactory  = { auto  = Other <| stringValueFactory.value "auto" }
-
-inheritColorFactory : Inherit Color
-inheritColorFactory  = { inherit  = Other <| stringValueFactory.value "inherit"  }
-
-otherColorFactory : Other Color
-otherColorFactory  = { other  = Other }
-
-parse : String -> Result String Color
-parse str =
-  let hex digit1 digit2 = fromHex <| String.fromList [digit1, digit2]
-      toAlpha hexResult = hexResult |> Result.map toFloat |> Result.map ((/) 255.0)
-      err = "Invalid color string" |> Err
-      digits =
-        case String.uncons str of
-          Just ('#', cs) -> cs
-          _ -> str
-  in case String.toList digits of
-      -- Hex alpha is in CSS 4
-      [a, b, c, d, e, f, g, h] -> Result.map4 rgba (hex a b) (hex c d) (hex e f) (hex g h |> toAlpha)
-      [a, b, c, d, e, f      ] -> Result.map3 rgb  (hex a b) (hex c d) (hex e f)
-      [a, b, c, d            ] -> Result.map4 rgba (hex a a) (hex b b) (hex c c) (hex d d |> toAlpha)
-      [a, b, c               ] -> Result.map3 rgb  (hex a a) (hex b b) (hex c c)
-      _                        -> err
-
--------------------------------------------------------------------------------
 
 -- * List of color values by name.
 
@@ -693,3 +639,63 @@ yellow               = rgb 255 255   0
 
 yellowgreen          : Color
 yellowgreen          = rgb 154 205  50
+
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+-- These functions are not part of the DSL. They integrate the colors with the
+-- rest of the Css framework.
+
+colorValueFactory : ValueFactory Color
+colorValueFactory =
+  let fixedStr str = toFixed 4 str |> toString
+      wrapped clr =
+        case clr of
+          Rgba r g b 255 ->
+            ["#", toHexString r, toHexString g, toHexString b]
+            |> String.join ""
+            |> stringValueFactory.value
+          Rgba r g b a ->
+            ["rgba(", toString r, ",", toString g, ",", toString b, ",", fixedStr a, ")"]
+            |> String.join ""
+            |> stringValueFactory.value
+          Hsla h s l 255 ->
+            ["hsl(",  toString h, ",", fixedStr s, ",", fixedStr l,                  ")"]
+            |> String.join ""
+            |> stringValueFactory.value
+          Hsla h s l a   ->
+            ["hsla(", toString h, ",", fixedStr s, ",", fixedStr l, ",", fixedStr a, ")"]
+            |> String.join ""
+            |> stringValueFactory.value
+          Other o        -> o
+  in { value = \x -> wrapped x }
+
+noneColorFactory : None Color
+noneColorFactory  = { none  = Other <| stringValueFactory.value "none" }
+
+autoColorFactory : Auto Color
+autoColorFactory  = { auto  = Other <| stringValueFactory.value "auto" }
+
+inheritColorFactory : Inherit Color
+inheritColorFactory  = { inherit  = Other <| stringValueFactory.value "inherit"  }
+
+otherColorFactory : Other Color
+otherColorFactory  = { other  = Other }
+
+parse : String -> Result String Color
+parse str =
+  let hex digit1 digit2 = fromHex <| String.fromList [digit1, digit2]
+      toAlpha hexResult = hexResult |> Result.map toFloat |> Result.map ((/) 255.0)
+      err = "Invalid color string" |> Err
+      digits =
+        case String.uncons str of
+          Just ('#', cs) -> cs
+          _ -> str
+  in case String.toList digits of
+      -- Hex alpha is in CSS 4
+      [a, b, c, d, e, f, g, h] -> Result.map4 rgba (hex a b) (hex c d) (hex e f) (hex g h |> toAlpha)
+      [a, b, c, d, e, f      ] -> Result.map3 rgb  (hex a b) (hex c d) (hex e f)
+      [a, b, c, d            ] -> Result.map4 rgba (hex a a) (hex b b) (hex c c) (hex d d |> toAlpha)
+      [a, b, c               ] -> Result.map3 rgb  (hex a a) (hex b b) (hex c c)
+      _                        -> err

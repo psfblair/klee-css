@@ -57,37 +57,8 @@ type Stroke
   | AutoStroke
   | OtherStroke Value
 
-type alias StrokeFactory =
-  {
-    stroke: String -> Stroke
-  , none: Stroke
-  , inherit: Stroke
-  , auto: Stroke
-  , other: Value -> Stroke
-  }
-
+-- See bottom of this file for the additional boilerplate types
 type alias StrokeDescriptor = StrokeFactory -> Stroke
-
-strokeFactory : StrokeFactory
-strokeFactory =
-  {
-    stroke str = Stroke str
-  , none = NoStroke
-  , inherit = InheritStroke
-  , auto = AutoStroke
-  , other val = OtherStroke val
-  }
-
-strokeValueFactory : ValueFactory Stroke
-strokeValueFactory =
-  { value stroke =
-      case stroke of
-        Stroke str -> stringValueFactory.value str
-        NoStroke -> noneValueFactory.none
-        InheritStroke -> inheritValueFactory.inherit
-        AutoStroke -> autoValueFactory.auto
-        OtherStroke val -> otherValueFactory.other val
-  }
 
 solid : StrokeDescriptor
 solid factory = factory.stroke "solid"
@@ -485,3 +456,38 @@ borderSpacing2 sizeDescriptorA sizeDescriptorB =
       sizeB = sizeDescriptorB sizeFactory
       valueFactory = spacePairValueFactory sizeValueFactory sizeValueFactory
   in key (stringKey "border-spacing") (sizeA, sizeB) valueFactory
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+-- Ancillary types used for implementation. These substitute for Clay's typeclasses.
+
+type alias StrokeFactory =
+  {
+    stroke: String -> Stroke
+  , none: Stroke
+  , inherit: Stroke
+  , auto: Stroke
+  , other: Value -> Stroke
+  }
+
+strokeFactory : StrokeFactory
+strokeFactory =
+  {
+    stroke str = Stroke str
+  , none = NoStroke
+  , inherit = InheritStroke
+  , auto = AutoStroke
+  , other val = OtherStroke val
+  }
+
+strokeValueFactory : ValueFactory Stroke
+strokeValueFactory =
+  { value stroke =
+      case stroke of
+        Stroke str -> stringValueFactory.value str
+        NoStroke -> noneValueFactory.none
+        InheritStroke -> inheritValueFactory.inherit
+        AutoStroke -> autoValueFactory.auto
+        OtherStroke val -> otherValueFactory.other val
+  }

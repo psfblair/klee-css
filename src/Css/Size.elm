@@ -70,39 +70,7 @@ type Size a -- Phantom type, for type safety. The type parameter is for Abs or R
   | NoSize
   | OtherSize Value
 
-type alias SizeFactory a =
-  { size: Value -> Size a
-  , auto: Size a
-  , normal: Size a
-  , inherit: Size a
-  , none: Size a
-  , other: Value -> Size a
-  }
-
 type alias SizeDescriptor a = SizeFactory a -> Size a
-
-sizeFactory : SizeFactory a
-sizeFactory =
-  {
-    size value = Size value
-  , auto = AutoSize
-  , normal = NormalSize
-  , inherit = InheritSize
-  , none = NoSize
-  , other val = OtherSize val
-  }
-
-sizeValueFactory : ValueFactory (Size a)
-sizeValueFactory =
-  { value size =
-      case size of
-        Size val -> val
-        AutoSize -> autoValueFactory.auto
-        NormalSize -> normalValueFactory.normal
-        InheritSize -> inheritValueFactory.inherit
-        NoSize -> noneValueFactory.none
-        OtherSize val -> otherValueFactory.other val
-  }
 
 -- | Zero size.
 nil : SizeDescriptor a
@@ -190,22 +158,7 @@ type Angle a -- Phantom type, for type safety. The type parameter is for Deg, Ra
   | InheritAngle
   | OtherAngle Value
 
-type alias AngleFactory a =
-  { angle: Value -> Angle a
-  , auto: Angle a
-  , inherit: Angle a
-  , other: Value -> Angle a
-  }
-
 type alias AngleDescriptor a = AngleFactory a -> Angle a
-
-angleFactory : AngleFactory a
-angleFactory =
-  { angle value = Angle value
-  , auto = AutoAngle
-  , inherit = InheritAngle
-  , other value = OtherAngle value
-  }
 
 -- | Angle in degrees.
 deg : Float -> AngleDescriptor Deg
@@ -229,3 +182,55 @@ turn amount = \factory -> factory.angle (appendUnits amount "turn")
 -- fromRational = deg . fromRational and similarly for the others.
 -- In elm-css, units will always need to be specified.
 -------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+-- Ancillary types used for implementation. These substitute for Clay's typeclasses.
+
+type alias SizeFactory a =
+  { size: Value -> Size a
+  , auto: Size a
+  , normal: Size a
+  , inherit: Size a
+  , none: Size a
+  , other: Value -> Size a
+  }
+
+sizeFactory : SizeFactory a
+sizeFactory =
+  {
+    size value = Size value
+  , auto = AutoSize
+  , normal = NormalSize
+  , inherit = InheritSize
+  , none = NoSize
+  , other val = OtherSize val
+  }
+
+sizeValueFactory : ValueFactory (Size a)
+sizeValueFactory =
+  { value size =
+      case size of
+        Size val -> val
+        AutoSize -> autoValueFactory.auto
+        NormalSize -> normalValueFactory.normal
+        InheritSize -> inheritValueFactory.inherit
+        NoSize -> noneValueFactory.none
+        OtherSize val -> otherValueFactory.other val
+  }
+
+type alias AngleFactory a =
+  { angle: Value -> Angle a
+  , auto: Angle a
+  , inherit: Angle a
+  , other: Value -> Angle a
+  }
+
+angleFactory : AngleFactory a
+angleFactory =
+  { angle value = Angle value
+  , auto = AutoAngle
+  , inherit = InheritAngle
+  , other value = OtherAngle value
+  }
