@@ -1,17 +1,19 @@
-module Css.Property (
-  Key (..), Value (..), PrefixedOrNot (..), Either (..)
-    , rightValue, unPrefixed, plain, stringKey, cast, emptyValue, ValueFactory
-    , appendUnits, concatenateValues
-    , stringValueFactory, intValueFactory, floatValueFactory, maybeValueFactory
-    , commaListValueFactory, spaceListValueFactory, spacePairValueFactory
-    , spaceTripleValueFactory, spaceQuadrupleValueFactory, commaQuadrupleValueFactory
-    , eitherValueFactory
+module Css.Internal.Property
+  ( Key (..), Value (..), PrefixedOrNot (..), Either (..)
+  , rightValue, unPrefixed, plain, stringKey, cast, emptyValue, ValueFactory
+  , appendUnits, concatenateValues
+  , stringValueFactory, intValueFactory, floatValueFactory, maybeValueFactory
+  , commaListValueFactory, spaceListValueFactory, spacePairValueFactory
+  , spaceTripleValueFactory, spaceQuadrupleValueFactory, commaQuadrupleValueFactory
+  , eitherValueFactory
   ) where
 
 import Dict exposing (fromList, get)
 import Regex exposing (regex, replace)
 
-import Css.Utils exposing (toFixed)
+import Css.Internal.Utils exposing (toFixed)
+
+-------------------------------------------------------------------------------
 
 type Literal = Literal String
 
@@ -22,6 +24,8 @@ rightValue either =
   case either of
     Right a -> Just a
     _ -> Nothing
+
+-------------------------------------------------------------------------------
 
 type PrefixedOrNot
      = Prefixed (List (String, String))
@@ -62,6 +66,8 @@ merge prefixedOrNot1 prefixedOrNot2 =
       in List.map2 (\(p, a) (_, b) -> (p, a ++ b)) xsWithKeysInKys ysWithKeysInKxs
                                       |> Prefixed
 
+-------------------------------------------------------------------------------
+
 type Key a = Key PrefixedOrNot
 
 stringKey : String -> Key a
@@ -72,6 +78,8 @@ unKeys (Key a) = a
 
 cast : Key a -> Key ()
 cast (Key k) = Key k
+
+-------------------------------------------------------------------------------
 
 type Value = Value PrefixedOrNot
 
@@ -96,6 +104,8 @@ intersperse str values =
   let separatorValue = Plain str |> Value
       interspersed = List.intersperse separatorValue values
   in List.foldr (\val accum -> appendValues val accum) emptyValue interspersed
+
+-------------------------------------------------------------------------------
 
 type alias ValueFactory a = { value : a -> Value }
 

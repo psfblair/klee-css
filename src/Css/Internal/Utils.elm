@@ -1,8 +1,10 @@
-module Css.Utils where
--- TODO These need to go into a library of their own
+module Css.Internal.Utils where
 
 import Char
 import String
+
+-------------------------------------------------------------------------------
+-- TODO These need to go into a library of their own
 
 {-| Some auxiliary mathematical functions.  -}
 
@@ -33,7 +35,7 @@ toHexString num =
 
 fromHexChar : Char -> Result String Int
 fromHexChar ch =
-   if | Char.isDigit ch -> toString ch |> String.toInt
+   if | Char.isDigit ch -> String.fromChar ch |> String.toInt
       | ch == 'A' -> Ok 10
       | ch == 'a' -> Ok 10
       | ch == 'B' -> Ok 11
@@ -46,7 +48,7 @@ fromHexChar ch =
       | ch == 'e' -> Ok 14
       | ch == 'F' -> Ok 15
       | ch == 'f' -> Ok 15
-      | otherwise -> Err ("could not convert char '" ++ (toString ch) ++ "' to Int")
+      | otherwise -> Err ("could not convert char " ++ (toString ch) ++ " to Int")
 
 fromHex : String -> Result String Int
 fromHex str =
@@ -56,4 +58,4 @@ fromHex str =
       mapResultInto digitChar result =
         let convertedResult = fromHexChar digitChar
         in Result.map2 (\accum val -> (accum * 16) + val) result convertedResult
-  in hexDigits |> List.foldr mapResultInto (Ok 0)
+  in hexDigits |> List.foldl mapResultInto (Ok 0)

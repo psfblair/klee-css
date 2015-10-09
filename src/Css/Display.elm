@@ -75,16 +75,17 @@ module Css.Display (
 
   ) where
 
-import Css.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValueFactory)
-import Css.Property exposing (Value, ValueFactory, concatenateValues, stringKey
+import Css.Internal.Property exposing (Value, ValueFactory, concatenateValues, stringKey
   , stringValueFactory, intValueFactory, floatValueFactory, commaQuadrupleValueFactory
   )
-import Css.Stylesheet exposing (CssGenerator, key)
+import Css.Internal.Stylesheet exposing (CssGenerator, key)
+
 import Css.Common exposing (
     Auto, Inherit, None, Visible, Hidden, Other
   , autoValueFactory, inheritValueFactory, initialValueFactory, noneValueFactory
   , visibleValueFactory, hiddenValueFactory, otherValueFactory
   )
+import Css.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValueFactory)
 
 -------------------------------------------------------------------------------
 

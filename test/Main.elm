@@ -7,14 +7,18 @@ import Spec.Runner.Console as Console
 import Spec exposing (..)
 
 import CssTests
-import Css.PropertyTests
+import Css.Internal.PropertyTests
+import Css.Internal.UtilsTests
 import Css.ColorTests
+
+-------------------------------------------------------------------------------
 
 allTests : Spec
 allTests =
-  describe  "All tests" 
+  describe  "All tests"
     [ CssTests.suite
-    , Css.PropertyTests.suite
+    , Css.Internal.PropertyTests.suite
+    , Css.Internal.UtilsTests.suite
     , Css.ColorTests.suite
     ]
 

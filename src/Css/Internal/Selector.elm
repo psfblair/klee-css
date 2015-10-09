@@ -1,4 +1,4 @@
-module Css.Selector (
+module Css.Internal.Selector (
   Selector (..), Refinement (..), Path (..), Predicate (..)
   , emptySelector, sortPredicate, star, deep, child, adjacent, with, byId, byClass
   , pseudo, func, withAttr, withAttrValue, withAttrValueBeginning, withAttrValueEnding

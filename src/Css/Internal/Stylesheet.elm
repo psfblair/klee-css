@@ -1,14 +1,17 @@
-module Css.Stylesheet (
-  Css, CssGenerator, SelectorScope (..), Rule (..), emptyCss, extractRules
+module Css.Internal.Stylesheet
+  ( Css, CssGenerator, SelectorScope (..), Rule (..), emptyCss, extractRules
   , key, prefixed, custom
   , assignSelector, addStylesAsChild, addFilteredStyles, root
-  , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..), query, queryNot, queryOnly
+  , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..)
+  , query, queryNot, queryOnly
   , Keyframes (..), keyframes, keyframesFromTo, fontFace, importUrl
   ) where
 
-import Css.Property exposing (Key, Value, ValueFactory, PrefixedOrNot
-  , cast, stringKey, stringValueFactory)
-import Css.Selector exposing (Selector, Refinement)
+import Css.Internal.Property exposing
+  ( Key (..), Value, ValueFactory, PrefixedOrNot
+  , cast, stringKey, stringValueFactory
+  )
+import Css.Internal.Selector exposing (Selector, Refinement)
 
 -------------------------------------------------------------------------------
 
@@ -79,7 +82,7 @@ key k v wrapper = Property (cast k) (wrapper.value v) |> addRule
 the same way `key` does, but uses a `PrefixedOrNot` key.
 -}
 prefixed : PrefixedOrNot -> a -> ValueFactory a -> CssGenerator a
-prefixed prefixedOrNot = key (Css.Property.Key prefixedOrNot)
+prefixed prefixedOrNot = key (Key prefixedOrNot)
 
 {-| The custom function can be used to add style rules to the current context
 for which there is no typed version available. Both the key and the value

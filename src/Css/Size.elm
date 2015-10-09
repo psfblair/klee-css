@@ -40,14 +40,19 @@ module Css.Size (
   , turn
 
   -- * For use by other modules
-  , SizeDescriptor, sizeFactory, sizeValueFactory 
+  , SizeDescriptor, sizeFactory, sizeValueFactory
   ) where
 
-import Css.Common exposing (
-    Auto, Normal, Inherit, None, Other
-  , autoValueFactory, normalValueFactory, inheritValueFactory, noneValueFactory, otherValueFactory
+import Css.Internal.Property exposing
+  ( Value, ValueFactory
+  , appendUnits, stringValueFactory, floatValueFactory
   )
-import Css.Property exposing (Value, ValueFactory, appendUnits, stringValueFactory, floatValueFactory)
+
+import Css.Common exposing
+  ( Auto, Normal, Inherit, None, Other
+  , autoValueFactory, normalValueFactory, inheritValueFactory, noneValueFactory
+  , otherValueFactory
+  )
 
 -------------------------------------------------------------------------------
 

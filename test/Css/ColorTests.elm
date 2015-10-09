@@ -1,10 +1,13 @@
 module Css.ColorTests where
 
 import Spec exposing (..)
+import Css.TestUtils exposing (it)
+
+import Css.Internal.Property exposing (stringValueFactory)
 
 import Css.Color exposing (..)
-import Css.TestUtils exposing (it)
-import Css.Property exposing (stringValueFactory)
+
+-------------------------------------------------------------------------------
 
 suite : Spec
 suite = describe "Css.ColorTests"

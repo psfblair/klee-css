@@ -1,9 +1,11 @@
-module Css.PropertyTests where
+module Css.Internal.PropertyTests where
 
 import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
-import Css.Property exposing (..)
+import Css.Internal.Property exposing (..)
+
+-------------------------------------------------------------------------------
 
 suite : Spec
 suite = describe "Css.PropertyTests"

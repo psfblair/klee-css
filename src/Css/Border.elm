@@ -30,22 +30,25 @@ module Css.Border (
 
   ) where
 
-import Css.Property exposing (
-  Value, ValueFactory, stringKey
+import Css.Internal.Property exposing
+  ( Value, ValueFactory, stringKey
   , stringValueFactory, spacePairValueFactory
   , spaceTripleValueFactory, spaceQuadrupleValueFactory
   )
-import Css.Stylesheet exposing (CssGenerator, key)
-import Css.Color exposing (Color, colorValueFactory)
-import Css.Size exposing (Size, Abs, SizeDescriptor, sizeFactory, sizeValueFactory)
-import Css.Display exposing (
-    Visibility, VisibilityDescriptor
-  , visibilityFactory, visibilityValueFactory
-  )
+import Css.Internal.Stylesheet exposing (CssGenerator, key)
+
 import Css.Common exposing (
   Other, Inherit, Auto, None
   , otherValueFactory, inheritValueFactory, autoValueFactory, noneValueFactory
   )
+import Css.Size exposing (Size, Abs, SizeDescriptor, sizeFactory, sizeValueFactory)
+import Css.Color exposing (Color, colorValueFactory)
+import Css.Display exposing
+  ( Visibility, VisibilityDescriptor
+  , visibilityFactory, visibilityValueFactory
+  )
+
+-------------------------------------------------------------------------------
 
 type Stroke
   = Stroke String

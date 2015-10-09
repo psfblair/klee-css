@@ -1,10 +1,13 @@
 module Css.Color where
 
-import Css.Property exposing (Value, ValueFactory, stringValueFactory)
-import Css.Common exposing (None, Auto, Inherit, Other)
-import Css.Utils exposing (floatMod, toFixed, toHexString, fromHex)
-
 import String
+
+import Css.Internal.Property exposing (Value, ValueFactory, stringValueFactory)
+import Css.Internal.Utils exposing (floatMod, toFixed, toHexString, fromHex)
+
+import Css.Common exposing (None, Auto, Inherit, Other)
+
+-------------------------------------------------------------------------------
 
 type Color
   = Rgba Int Int Int Float

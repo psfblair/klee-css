@@ -47,8 +47,8 @@ module Css.Common (
 
   ) where
 
-import Css.Property exposing (Value, PrefixedOrNot, stringValueFactory)
-import Css.Stylesheet exposing (CssGenerator)
+import Css.Internal.Property exposing (Value, PrefixedOrNot (..), stringValueFactory)
+import Css.Internal.Stylesheet exposing (CssGenerator)
 
 -------------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ different browsers. -}
 
 browsers : PrefixedOrNot
 browsers =
-  Css.Property.Prefixed
+  Prefixed
   [ ( "-webkit-", "" )
   , (    "-moz-", "" )
   , (     "-ms-", "" )

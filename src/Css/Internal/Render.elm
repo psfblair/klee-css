@@ -1,17 +1,25 @@
-module Css.Render where
+module Css.Internal.Render where
 
-import Css.Stylesheet exposing (
-  Css, CssGenerator, SelectorScope (..), Rule (..)
-  , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..)
-  , Keyframes (..), emptyCss, extractRules)
-import Css.Common exposing (browsers)
-import Css.Property exposing (Key (..), Value (..), PrefixedOrNot (..), Either (..)
-  , plain, unPrefixed, rightValue)
-import Css.Selector exposing (
-  Selector (..), Refinement (..), Path (..), Predicate (..)
-  , emptySelector, sortPredicate, star, deep, child, with)
 import String
 import Dict
+
+import Css.Internal.Stylesheet exposing
+  ( Css, CssGenerator, SelectorScope (..), Rule (..)
+  , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..)
+  , Keyframes (..), emptyCss, extractRules
+  )
+import Css.Common exposing (browsers)
+import Css.Internal.Property exposing
+  ( Key (..), Value (..), PrefixedOrNot (..)
+  , Either (..)
+  , plain, unPrefixed, rightValue
+  )
+import Css.Internal.Selector exposing
+  ( Selector (..), Refinement (..), Path (..), Predicate (..)
+  , emptySelector, sortPredicate, star, deep, child, with
+  )
+
+-------------------------------------------------------------------------------
 
 type alias Config =
   { indentation    : String
@@ -157,7 +165,7 @@ mergeScopes scopes =
     (scope::rest) ->
       case scope of
         Root selector -> deep selector (mergeScopes rest)
-        Css.Stylesheet.Child selector ->
+        Css.Internal.Stylesheet.Child selector ->
           case rest of
             [] -> selector
             _  -> child (mergeScopes rest) selector
@@ -182,7 +190,7 @@ renderSelectorWithConfig cfg =
               case selectorPath of
                 Star           -> if List.isEmpty preds then ["*"] else [""]
                 Elem t         -> [t]
-                Css.Selector.Child sel1 sel2 ->
+                Css.Internal.Selector.Child sel1 sel2 ->
                   List.map2 (insertSeparator " > ")
                             (expandSelectorIntoStringList sel1)
                             (expandSelectorIntoStringList sel2)

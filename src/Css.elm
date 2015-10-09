@@ -1,10 +1,11 @@
-module Css (
-  Css, CssGenerator, Selector, Refinement, custom, (<?), (&), root
+module Css
+  ( Css, CssGenerator, Selector, Refinement, custom, (<?), (&), root
   , (.*), (.>), (.+), (.|), (.|#), (.|.), pseudo, func, withAttr
   , (.|@), (.|^), (.|$), (.|*), (.|~), (.|-)
   , MediaType, Feature, query, queryNot, queryOnly
   , keyframes, keyframesFromTo, fontFace, importUrl
-  , Scope, Config, render, renderWith, pretty, compact)  where
+  , Scope, Config, render, renderWith, pretty, compact
+  )  where
 
 {-| A module for constructing Css in a typesafe way, and rendering the result
 to a string (either pretty-printed or compact). This library is based on the
@@ -35,19 +36,21 @@ For predefined element selectors, see `Css.Elements`.
       fontFace, importUrl
 -}
 
-import Css.Stylesheet exposing (
-  Css, CssGenerator, SelectorScope
+import Css.Internal.Stylesheet exposing
+  ( Css, CssGenerator, SelectorScope
   , custom, addStylesAsChild, addFilteredStyles, root
   , MediaType, Feature, query, queryNot, queryOnly
-  , keyframes, keyframesFromTo, fontFace, importUrl)
+  , keyframes, keyframesFromTo, fontFace, importUrl
+  )
 
-import Css.Selector exposing (
-  Selector, Refinement, star, deep, child, adjacent, with, byId, byClass
+import Css.Internal.Selector exposing
+  ( Selector, Refinement, star, deep, child, adjacent, with, byId, byClass
   , pseudo, func, withAttr, withAttrValue, withAttrValueBeginning, withAttrValueEnding
   , withAttrValueEnding, withAttrValueContaining, withAttrValueInSpacedList
-  , withAttrValueInHyphenatedList)
+  , withAttrValueInHyphenatedList
+  )
 
-import Css.Render exposing (render, renderWith, pretty, compact, Config)
+import Css.Internal.Render exposing (render, renderWith, pretty, compact, Config)
 
 -------------------------------------------------------------------------------
 -- * Principal types
@@ -55,22 +58,22 @@ import Css.Render exposing (render, renderWith, pretty, compact, Config)
 {-| The `Css` type is used to collect style rules which are mappings
 from selectors to style properties.
 -}
-type alias Css = Css.Stylesheet.Css
+type alias Css = Css.Internal.Stylesheet.Css
 
 {-| An alias for a function of Css -> Css, which is the type allowing for the
 css combinators to be composed.
 -}
-type alias CssGenerator a = Css.Stylesheet.CssGenerator a
+type alias CssGenerator a = Css.Internal.Stylesheet.CssGenerator a
 
 {-|  A type to represent the selector in a CSS rule.
 -}
-type alias Selector = Css.Selector.Selector
+type alias Selector = Css.Internal.Selector.Selector
 
 {-|  A type to represent refinements on a selector; i.e., classes, ids, attributes
 etc. that may be applied to a selector at a given level as filters (but not child
 selectors).
 -}
-type alias Refinement = Css.Selector.Refinement
+type alias Refinement = Css.Internal.Selector.Refinement
 
 -------------------------------------------------------------------------------
 -- * Operators for aggregating style rules.
@@ -80,14 +83,14 @@ for which there is no typed version available. Both the key and the value
 are plain text values and rendered as is to the output CSS.
 -}
 custom : String -> String -> Css -> Css
-custom = Css.Stylesheet.custom
+custom = Css.Internal.Stylesheet.custom
 infixl 4 -:
 
 {-| Assign a group of style rules to a selector. When the selector is nested inside
 an outer scope it will be composed with `child`, which maps to @sel1 > sel2@ in CSS.
 -}
 (<?) : (List (CssGenerator a) -> CssGenerator Selector) -> List (CssGenerator a) -> CssGenerator Selector
-(<?) = Css.Stylesheet.addStylesAsChild
+(<?) = Css.Internal.Stylesheet.addStylesAsChild
 infixr 5 <?
 
 {-| Assign a group of style rules to a filter selector. When the selector is nested
@@ -95,13 +98,13 @@ inside an outer scope it will be composed with the `with` selector, which maps
 to something like @sel#filter@ or @sel.filter@ in CSS depending on the filter.
 -}
 (&) : Refinement -> List (CssGenerator a) -> CssGenerator ()
-(&) = Css.Stylesheet.addFilteredStyles
+(&) = Css.Internal.Stylesheet.addFilteredStyles
 infixr 5 &
 
 {-| `root` is used to add style rules to the top scope.
 -}
 root : Selector -> List (CssGenerator a) -> CssGenerator ()
-root = Css.Stylesheet.root
+root = Css.Internal.Stylesheet.root
 
 -------------------------------------------------------------------------------
 -- * The selector language.
@@ -110,45 +113,45 @@ root = Css.Stylesheet.root
 {-| The deep selector composer. Maps to @sel1 sel2@ in CSS.
 -}
 (.*) : Selector -> Selector -> Selector
-(.*) = Css.Selector.deep
+(.*) = Css.Internal.Selector.deep
 
 {-| The child selector composer. Maps to @sel1 > sel2@ in CSS.
 -}
 (.>) : Selector -> Selector -> Selector
-(.>) = Css.Selector.child
+(.>) = Css.Internal.Selector.child
 
 {-| The adjacent selector composer. Maps to @sel1 + sel2@ in CSS.
 -}
 (.+) : Selector -> Selector -> Selector
-(.+) = Css.Selector.adjacent
+(.+) = Css.Internal.Selector.adjacent
 
 {-| The filter selector composer, which adds a filter to a selector. Maps to
 something like @sel#filter@ or @sel.filter@ in CSS, depending on the filter.
 -}
 (.|) : Selector -> Refinement -> Selector
-(.|) = Css.Selector.with
+(.|) = Css.Internal.Selector.with
 
 {-| Given an id and a selector, add an id filter to the selector.
 -}
 (.|#) : String -> Selector -> Selector
-(.|#) = Css.Selector.byId
+(.|#) = Css.Internal.Selector.byId
 
 {-| Given a class name and a selector, add a class filter to the selector.
 -}
 (.|.) : String -> Selector -> Selector
-(.|.) = Css.Selector.byClass
+(.|.) = Css.Internal.Selector.byClass
 
 {-| Filter elements of the given selector by pseudo selector or pseudo class.
 The preferred syntax is to use one of the predefined pseudo selectors from "Css.Pseudo".
 -}
 pseudo : String -> Selector -> Selector
-pseudo = Css.Selector.pseudo
+pseudo = Css.Internal.Selector.pseudo
 
 {-| Filter elements of the given selector by pseudo selector functions. The
 preferred syntax is to use one of the predefined functions from "Css.Pseudo".
 -}
 func : String -> (List String) -> Selector -> Selector
-func = Css.Selector.func
+func = Css.Internal.Selector.func
 
 -- ** Attribute-based refining.
 
@@ -157,43 +160,43 @@ of that attribute. The preferred syntax is use one of the predefined attribute
 Refinements from "Css.Attributes".
 -}
 withAttr : String -> Selector -> Selector
-withAttr = Css.Selector.withAttr
+withAttr = Css.Internal.Selector.withAttr
 
 {-| Filter elements based on the presence of a certain attribute with the
 specified name and value.
 -}
 (.|@) : String -> String -> Selector -> Selector
-(.|@) = Css.Selector.withAttrValue
+(.|@) = Css.Internal.Selector.withAttrValue
 
 {-| Filter elements based on the presence of a certain attribute that begins
 with the specified value.
 -}
 (.|^) : String -> String -> Selector -> Selector
-(.|^) = Css.Selector.withAttrValueBeginning
+(.|^) = Css.Internal.Selector.withAttrValueBeginning
 
 {-| Filter elements based on the presence of a certain attribute that ends
 with the specified value.
 -}
 (.|$) : String -> String -> Selector -> Selector
-(.|$) = Css.Selector.withAttrValueEnding
+(.|$) = Css.Internal.Selector.withAttrValueEnding
 
 {-| Filter elements based on the presence of a certain attribute that contains
 the specified value as a substring.
 -}
 (.|*) : String -> String -> Selector -> Selector
-(.|*) = Css.Selector.withAttrValueContaining
+(.|*) = Css.Internal.Selector.withAttrValueContaining
 
 {-| Filter elements based on the presence of a certain attribute that have the
 specified value contained in a space separated list.
 -}
 (.|~) : String -> String -> Selector -> Selector
-(.|~) = Css.Selector.withAttrValueInSpacedList
+(.|~) = Css.Internal.Selector.withAttrValueInSpacedList
 
 {-| Filter elements based on the presence of a certain attribute that have the
 specified value contained in a hyphen separated list.
 -}
 (.|-) : String -> String -> Selector -> Selector
-(.|-) = Css.Selector.withAttrValueInHyphenatedList
+(.|-) = Css.Internal.Selector.withAttrValueInHyphenatedList
 
 -------------------------------------------------------------------------------
 -- * Rendering stylesheets to CSS strings.
@@ -201,35 +204,35 @@ specified value contained in a hyphen separated list.
 {-| A type allowing various selectors to be composed together to indicate the
 scope within which a set of rules applies.
 -}
-type alias Scope = Css.Stylesheet.SelectorScope
+type alias Scope = Css.Internal.Stylesheet.SelectorScope
 
 {-| Type to allow configuring print output of separators, newlines, etc.
 -}
-type alias Config = Css.Render.Config
+type alias Config = Css.Internal.Render.Config
 
 {-| Render a stylesheet with the default configuration. The pretty printer is
 used by default. The stylesheet is a function of Css to Css, which render will
 supply with an empty Css as the accumulator.
 -}
 render : (Css -> Css) -> String
-render = Css.Render.render
+render = Css.Internal.Render.render
 
 {-| Render a stylesheet with a custom configuration and an optional outer scope.
 The stylesheet is a function of Css to Css, which render will supply with an
 empty Css as the accumulator.
 -}
 renderWith : Config -> (List Scope) -> (Css -> Css) -> String
-renderWith = Css.Render.renderWith
+renderWith = Css.Internal.Render.renderWith
 
 {-| Configuration to print to a pretty human readable CSS output.
 -}
 pretty : Config
-pretty = Css.Render.pretty
+pretty = Css.Internal.Render.pretty
 
 {-| Configuration to print to a compacted unreadable CSS output.
 -}
 compact : Config
-compact = Css.Render.compact
+compact = Css.Internal.Render.compact
 
 -------------------------------------------------------------------------------
 -- * Special rules
@@ -237,29 +240,29 @@ compact = Css.Render.compact
 
 {-| A type representing the media type portion of a Css @media rule.
 -}
-type alias MediaType = Css.Stylesheet.MediaType
+type alias MediaType = Css.Internal.Stylesheet.MediaType
 
 {-| A type representing the media features portion of a Css @media rule.
 -}
-type alias Feature = Css.Stylesheet.Feature
+type alias Feature = Css.Internal.Stylesheet.Feature
 
 {-| A @media rule to apply a set of style rules when a media type and
 feature queries apply.
 -}
 query : MediaType -> (List Feature) -> List (CssGenerator a) -> CssGenerator ()
-query = Css.Stylesheet.query
+query = Css.Internal.Stylesheet.query
 
 {-| A  @media rule to apply a set of style rules when the media type and
 feature queries do not apply.
 -}
 queryNot : MediaType -> (List Feature) -> List (CssGenerator a) -> CssGenerator ()
-queryNot = Css.Stylesheet.queryNot
+queryNot = Css.Internal.Stylesheet.queryNot
 
 {-| A  @media rule to apply a set of style rules only when the media type and
 feature queries apply.
 -}
 queryOnly : MediaType -> (List Feature) -> List (CssGenerator a) -> CssGenerator ()
-queryOnly = Css.Stylesheet.queryOnly
+queryOnly = Css.Internal.Stylesheet.queryOnly
 
 -------------------------------------------------------------------------------
 -- ** The @keyframes rule.
@@ -268,13 +271,13 @@ queryOnly = Css.Stylesheet.queryOnly
 (percentage, css rules) pairs.
 -}
 keyframes : String -> (List (Float, List (CssGenerator a))) -> CssGenerator ()
-keyframes = Css.Stylesheet.keyframes
+keyframes = Css.Internal.Stylesheet.keyframes
 
 {-| Create a CSS @keyframes rule from an animation name, some css starting rules,
 and some css ending rules.
 -}
 keyframesFromTo : String -> List (CssGenerator a) -> List (CssGenerator a) -> CssGenerator ()
-keyframesFromTo = Css.Stylesheet.keyframesFromTo
+keyframesFromTo = Css.Internal.Stylesheet.keyframesFromTo
 
 -------------------------------------------------------------------------------
 -- ** The @font-face rule.
@@ -282,7 +285,7 @@ keyframesFromTo = Css.Stylesheet.keyframesFromTo
 {-| Create a CSS @font-face rule from some css specifying font properties.
 -}
 fontFace : List (CssGenerator a) -> CssGenerator ()
-fontFace = Css.Stylesheet.fontFace
+fontFace = Css.Internal.Stylesheet.fontFace
 
 -------------------------------------------------------------------------------
 -- ** The @import rule.
@@ -290,4 +293,4 @@ fontFace = Css.Stylesheet.fontFace
 {-| Create a CSS @import rule to import a CSS file from a URL.
 -}
 importUrl : String -> Css -> Css
-importUrl = Css.Stylesheet.importUrl
+importUrl = Css.Internal.Stylesheet.importUrl

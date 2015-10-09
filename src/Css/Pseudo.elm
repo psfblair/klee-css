@@ -1,6 +1,8 @@
 module Css.Pseudo where
 
-import Css.Selector exposing (filterFromString, func)
+import Css.Internal.Selector exposing (filterFromString, func)
+
+-------------------------------------------------------------------------------
 
 -- List of specific pseudo classes, from:
 -- https://developer.mozilla.org/en-US/docs/CSS/Pseudo-classes

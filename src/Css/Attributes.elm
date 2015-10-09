@@ -1,6 +1,8 @@
 module Css.Attributes where
 
-import Css.Selector exposing (filterFromString)
+import Css.Internal.Selector exposing (filterFromString)
+
+-------------------------------------------------------------------------------
 
 -- From: http://www.whatwg.org/specs/web-apps/current-work/multipage/section-index.html#index
 

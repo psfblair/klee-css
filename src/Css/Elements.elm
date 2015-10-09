@@ -1,14 +1,17 @@
 module Css.Elements where
 
-import Css.Selector exposing (Selector, star, text)
+import Css.Internal.Selector exposing (Selector, star, text)
 
-import Css.Stylesheet exposing (CssGenerator, assignSelector)
+import Css.Internal.Stylesheet exposing (CssGenerator, assignSelector)
+
+-------------------------------------------------------------------------------
+
 -- From: http://www.whatwg.org/specs/web-apps/current-work/multipage/section-index.html#index
 
 {-| The star selector applies to all elements. Maps to @*@ in CSS.
 -}
 star : List (CssGenerator a) -> CssGenerator Selector
-star = Css.Selector.star |> assignSelector
+star = Css.Internal.Selector.star |> assignSelector
 
 {-| Select elements by name. The preferred syntax is to just use one of
 the predefined elements from "Css.Elements".
