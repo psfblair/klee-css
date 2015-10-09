@@ -70,72 +70,73 @@ type Size a -- Phantom type, for type safety. The type parameter is for Abs or R
   | NoSize
   | OtherSize Value
 
-type alias SizeDescriptor a = SizeFactory a -> Size a
+-- See the bottom of this file for why there are two type parameters.
+type alias SizeDescriptor a c = SizeFactory a c -> a -- c is the constraint type (Abs or Rel)
 
 -- | Zero size.
-nil : SizeDescriptor a
+nil : SizeDescriptor a c
 nil = \factory -> factory.size (stringValueFactory.value "0")
 
 -- | Unitless size (as recommended for line-height).
-unitless : Float -> SizeDescriptor a
+unitless : Float -> SizeDescriptor a c
 unitless length = \factory -> factory.size (floatValueFactory.value length)
 
 -- | Size in centimeters.
-cm : Float -> SizeDescriptor Abs
+cm : Float -> SizeDescriptor a Abs
 cm length = \factory -> factory.size (appendUnits length "cm")
 
 -- | Size in millimeters.
-mm : Float -> SizeDescriptor Abs
+mm : Float -> SizeDescriptor a Abs
 mm length = \factory -> factory.size (appendUnits length "mm")
 
 -- | Size in inches (1in = 2.54 cm).
-inches : Float -> SizeDescriptor Abs
+inches : Float -> SizeDescriptor a Abs
 inches length = \factory -> factory.size (appendUnits length "in")
 
 -- | Size in pixels.
-px : Float -> SizeDescriptor Abs
+px : Float -> SizeDescriptor a Abs
 px length = \factory -> factory.size (appendUnits length "px")
 
 -- | Size in points (1pt = 1/72 of 1in).
-pt : Float -> SizeDescriptor Abs
+pt : Float -> SizeDescriptor a Abs
 pt length = \factory -> factory.size (appendUnits length "pt")
 
 -- | Size in picas (1pc = 12pt).
-pc : Float -> SizeDescriptor Abs
+pc : Float -> SizeDescriptor a Abs
 pc length = \factory -> factory.size (appendUnits length "pc")
 
 -------------------------------------------------------------------------------
 
 -- | Size in em's (computed value of the font-size).
-em : Float -> SizeDescriptor Rel
+em : Float -> SizeDescriptor a Rel
 em length = \factory -> factory.size (appendUnits length "em")
 
 -- Double -> Size Rel| Size in ex'es (x-height of the first avaliable font).
-ex : Float -> SizeDescriptor Rel
+ex : Float -> SizeDescriptor a Rel
 ex length = \factory -> factory.size (appendUnits length "ex")
 
 -- | Size in percents.
-pct : Float -> SizeDescriptor Rel
+pct : Float -> SizeDescriptor a Rel
 pct length = \factory -> factory.size (appendUnits length "%")
 
 -- | Size in rem's (em's, but always relative to the root element).
-rem : Float -> SizeDescriptor Rel
+rem : Float -> SizeDescriptor a Rel
 rem length = \factory -> factory.size (appendUnits length "rem")
 
 -- | Size in vw's (1vw = 1% of viewport width).
-vw : Float -> SizeDescriptor Rel
+vw : Float -> SizeDescriptor a Rel
 vw length = \factory -> factory.size (appendUnits length "vw")
 
 -- | Size in vh's (1vh = 1% of viewport height).
-vh : Float -> SizeDescriptor Rel
+vh : Float -> SizeDescriptor a Rel
 vh length = \factory -> factory.size (appendUnits length "vh")
 
 -- | Size in vmin's (the smaller of vw or vh).
-vmin : Float -> SizeDescriptor Rel
+vmin : Float -> SizeDescriptor a Rel
 vmin length = \factory -> factory.size (appendUnits length "vmin")
 
 -- | Size in vmax's (the larger of vw or vh).
-vmax : Float -> SizeDescriptor Rel
+vmax : Float -> SizeDescriptor a Rel
 vmax length = \factory -> factory.size (appendUnits length "vmax")
 
 -------------------------------------------------------------------------------
@@ -188,16 +189,16 @@ turn amount = \factory -> factory.angle (appendUnits amount "turn")
 
 -- Ancillary types used for implementation. These substitute for Clay's typeclasses.
 
-type alias SizeFactory a =
-  { size: Value -> Size a
-  , auto: Size a
-  , normal: Size a
-  , inherit: Size a
-  , none: Size a
-  , other: Value -> Size a
+type alias SizeFactory a c = -- c is the constraint type (Abs or Rel)
+  { size: Value -> a -- This has to be more open than Size so we can use sizes in other ways. See e.g., Css.Display.verticalAlign.
+  , auto: Size c
+  , normal: Size c
+  , inherit: Size c
+  , none: Size c
+  , other: Value -> Size c
   }
 
-sizeFactory : SizeFactory a
+sizeFactory : SizeFactory (Size a) a
 sizeFactory =
   {
     size value = Size value

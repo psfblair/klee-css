@@ -59,17 +59,19 @@ module Css.Display (
   , fillEvents, strokeEvents, allEvents
 
   -- * Vertical align
-{-
+
   , VerticalAlign(..)
   , middle, vAlignSub, vAlignSuper, textTop, textBottom, vAlignTop, vAlignBottom
 
   -- * Cursor
 
   , Cursor(..)
-  , crosshair, cursorDefault, pointer, move, eResize, neResize, nwResize, nResize
-  , seResize, swResize, sResize, wResize, cursorText, wait, cursorProgress, help, cursorUrl
+  , aliasCursor, allScroll, cell, contextMenu, colResize, copy, crosshair
+  , defaultCursor, eResize, ewResize, grab, grabbing, help, move, nResize, neResize
+  , neswResize, nsResize, nwResize, nwseResize, noDrop, notAllowed, pointer, progress
+  , rowResize, sResize, seResize, swResize, textCursor, cursorUrl, vTextCursor
+  , wResize, wait, zoomIn, zoomOut
 
--}
   -- Used by other modules
   , VisibilityDescriptor, visibilityFactory, visibilityValueFactory
 
@@ -82,8 +84,8 @@ import Css.Internal.Stylesheet exposing (CssGenerator, key)
 
 import Css.Common exposing (
     Auto, Inherit, None, Visible, Hidden, Other
-  , autoValueFactory, inheritValueFactory, initialValueFactory, noneValueFactory
-  , visibleValueFactory, hiddenValueFactory, otherValueFactory
+  , autoValueFactory, baselineValueFactory, inheritValueFactory, initialValueFactory
+  , noneValueFactory, visibleValueFactory, hiddenValueFactory, otherValueFactory
   )
 import Css.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValueFactory)
 
@@ -309,8 +311,11 @@ clip descriptor =
   let clipValue = descriptor clipFactory
   in key (stringKey "clip") clipValue clipValueFactory
 
-rect : SizeDescriptor a -> SizeDescriptor b -> SizeDescriptor c -> SizeDescriptor d ->
-        ClipDescriptor a b c d
+rect : SizeDescriptor (Size a) a ->
+       SizeDescriptor (Size b) b ->
+       SizeDescriptor (Size c) c ->
+       SizeDescriptor (Size d) d ->
+       ClipDescriptor a b c d
 rect top right bottom left factory =
   let t = top sizeFactory
       r = right sizeFactory
@@ -394,150 +399,165 @@ allEvents : PointerEventsDescriptor
 allEvents factory = factory.pointerEvents "all"
 
 -------------------------------------------------------------------------------
-{- TODO (with notes)
--- baseline|length|   sub|super|top|text-top|middle|bottom|text-bottom|  initial|inherit
--- length	Raises or lower an element by the specified length. Negative values are allowed
--- %	Raises or lower an element in a percent of the "line-height" property. Negative values are allowed
 
-type VerticalAlignValue a
-  = VerticalAlignValue Value
+type VerticalAlign
+  = VerticalAlign Value
   | BaselineVerticalAlign
   | InitialVerticalAlign
   | InheritVerticalAlign
   | OtherVerticalAlign Value
 
-instance VerticalAlign (VerticalAlignValue a)
-instance VerticalAlign (Size a)
+type alias VerticalAlignDescriptor = VerticalAlignFactory -> VerticalAlign
 
--- you want either a SizeDescriptor or a VerticalAlignDescriptor
--- SizeDescriptor = SizeFactory a -> Size a
--- SizeFactory a =
---   { size: Value -> Size a
---   , auto: Size a
---   , normal: Size a
---   , inherit: Size a
---   , none: Size a
---   , other: Value -> Size a
---   }
-VerticalAlignDescriptor = VerticalAlignFactory a -> VerticalAlignValue a
--- You want to take a SizeDescriptor a but only want a SizeFactory a like this:
--- SizeFactory a =
---   { size: Value -> Size a }
+verticalAlign : VerticalAlignDescriptor -> CssGenerator VerticalAlign
+verticalAlign descriptor =
+  let valign = descriptor verticalAlignFactory
+  in key (stringKey "vertical-align") valign verticalAlignValueFactory
 
-{-
-  We want VerticalAlign to take a SizeDescriptor or a VerticalAlignDescriptor
-  So we make it generic in a - we have verticalAlign a : a -> CssGenerator VerticalAlignValue a
-  Now how do we get a VerticalAlignValue from an a?
+middle : VerticalAlignDescriptor
+middle factory = factory.vAlign "middle"
 
-  from a SizeDescriptor we need to call it with a SizeFactory
-    this SizeFactory can have only one function: { size: Value -> Size a }
-    then the result we have to wrap in a VerticalAlignValue Size
-  from a VerticalAlignDescriptor we need to call it with a VerticalAlignFactory
-    this will give us the VerticalAlignValue
-  so verticalAlign a has to take something that will take an a and give a VerticalAlignValue a
-    record of functions will have a size function and a valign function?
+vAlignSub : VerticalAlignDescriptor
+vAlignSub factory = factory.vAlign  "sub"
 
-we need size to be a function size: Value -> a
-  so it doesn't always produce a Size
+vAlignSuper : VerticalAlignDescriptor
+vAlignSuper factory = factory.vAlign  "super"
 
-VerticalAlignFactory a
-  valignSize : SizeDescriptor a -> VerticalAlignValue a
-  valign: VerticalAlignDescriptor -> VerticalAlignValue
+textTop : VerticalAlignDescriptor
+textTop factory = factory.vAlign  "text-top"
 
-suppose Sized is generic, like None
-    so type alias Sized a = { size: a }
+textBottom : VerticalAlignDescriptor
+textBottom factory = factory.vAlign  "text-bottom"
 
--}
+vAlignTop : VerticalAlignDescriptor
+vAlignTop factory = factory.vAlign  "top"
 
-verticalAlign : a -> CssGenerator VerticalAlignValue a
-verticalAlign = key "vertical-align"
-
-middle : VerticalAlignValue Value
-middle = VerticalAlignValue "middle"
-
-vAlignSub : VerticalAlignValue Value
-vAlignSub = VerticalAlignValue "sub"
-
-vAlignSuper : VerticalAlignValue Value
-vAlignSuper = VerticalAlignValue "super"
-
-textTop : VerticalAlignValue Value
-textTop = VerticalAlignValue "text-top"
-
-textBottom : VerticalAlignValue Value
-textBottom = VerticalAlignValue "text-bottom"
-
-vAlignTop : VerticalAlignValue Value
-vAlignTop = VerticalAlignValue "top"
-
-vAlignBottom : VerticalAlignValue Value
-vAlignBottom = VerticalAlignValue "bottom"
+vAlignBottom : VerticalAlignDescriptor
+vAlignBottom factory = factory.vAlign  "bottom"
 
 -------------------------------------------------------------------------------
 
-class (Val a) => Cursor a where
-    cursor : a -> CssGenerator
-    cursor = key "cursor"
+type Cursor
+  = Cursor String
+  | AutoCursor
+  | NoCursor
+  | InheritCursor
+  | InitialCursor
+  | OtherCursor Value
 
-type CursorValue a
-  = CursorValue Value
-  | InheritCursorValue
-  | AutoCursorValue
+type alias CursorDescriptor = CursorFactory -> Cursor
 
-instance Cursor (CursorValue a)
+cursor : CursorDescriptor -> CssGenerator Cursor
+cursor descriptor =
+  let cursorValue = descriptor cursorFactory
+  in key (stringKey "cursor") cursorValue cursorValueFactory
 
-crosshair : CursorValue Value
-crosshair = CursorValue "crosshair"
+aliasCursor : CursorDescriptor
+aliasCursor factory = factory.cursor "alias"
 
-cursorDefault : CursorValue Value
-cursorDefault = CursorValue "cursorDefault"
+allScroll : CursorDescriptor
+allScroll factory = factory.cursor "all-scroll"
 
-pointer : CursorValue Value
-pointer = CursorValue "pointer"
+cell : CursorDescriptor
+cell factory = factory.cursor "cell"
 
-move : CursorValue Value
-move = CursorValue "move"
+contextMenu : CursorDescriptor
+contextMenu factory = factory.cursor "context-menu"
 
-eResize : CursorValue Value
-eResize = CursorValue "e-resize"
+colResize : CursorDescriptor
+colResize factory = factory.cursor "col-resize"
 
-neResize : CursorValue Value
-neResize = CursorValue "ne-resize"
+copy : CursorDescriptor
+copy factory = factory.cursor "copy"
 
-nwResize : CursorValue Value
-nwResize = CursorValue "nw-resize"
+crosshair : CursorDescriptor
+crosshair factory = factory.cursor "crosshair"
 
-nResize : CursorValue Value
-nResize = CursorValue "n-resize"
+defaultCursor : CursorDescriptor
+defaultCursor factory = factory.cursor "default"
 
-seResize : CursorValue Value
-seResize = CursorValue "se-resize"
+eResize : CursorDescriptor
+eResize factory = factory.cursor "e-resize"
 
-swResize : CursorValue Value
-swResize = CursorValue "sw-resize"
+ewResize : CursorDescriptor
+ewResize factory = factory.cursor "ew-resize"
 
-sResize : CursorValue Value
-sResize = CursorValue "sResize"
+grab : CursorDescriptor
+grab factory = factory.cursor "grab"
 
-wResize : CursorValue Value
-wResize = CursorValue "sResize"
+grabbing : CursorDescriptor
+grabbing factory = factory.cursor "grabbing"
 
-cursorText : CursorValue Value
-cursorText = CursorValue "text"
+help : CursorDescriptor
+help factory = factory.cursor "help"
 
-wait : CursorValue Value
-wait = CursorValue "wait"
+move : CursorDescriptor
+move factory = factory.cursor "move"
 
-cursorProgress : CursorValue Value
-cursorProgress = CursorValue "progress"
+nResize : CursorDescriptor
+nResize factory = factory.cursor "n-resize"
 
-help : CursorValue Value
-help = CursorValue "help"
+neResize : CursorDescriptor
+neResize factory = factory.cursor "ne-resize"
 
-cursorUrl : Text -> CursorValue Value
-cursorUrl u = CursorValue $ value ("url(\"" <> u <> "\")")
+neswResize : CursorDescriptor
+neswResize factory = factory.cursor "nesw-resize"
 
--}
+nsResize : CursorDescriptor
+nsResize factory = factory.cursor "ns-resize"
+
+nwResize : CursorDescriptor
+nwResize factory = factory.cursor "nw-resize"
+
+nwseResize : CursorDescriptor
+nwseResize factory = factory.cursor "nwse-resize"
+
+noDrop : CursorDescriptor
+noDrop factory = factory.cursor "no-drop"
+
+notAllowed : CursorDescriptor
+notAllowed factory = factory.cursor "not-allowed"
+
+pointer : CursorDescriptor
+pointer factory = factory.cursor "pointer"
+
+progress : CursorDescriptor
+progress factory = factory.cursor "progress"
+
+rowResize : CursorDescriptor
+rowResize factory = factory.cursor "row-resize"
+
+sResize : CursorDescriptor
+sResize factory = factory.cursor "sResize"
+
+seResize : CursorDescriptor
+seResize factory = factory.cursor "se-resize"
+
+swResize : CursorDescriptor
+swResize factory = factory.cursor "sw-resize"
+
+textCursor : CursorDescriptor
+textCursor factory = factory.cursor "text"
+
+cursorUrl : String -> CursorDescriptor
+cursorUrl url factory =
+  let urlexpr =  "url(\"" ++ url  ++ "\")"
+  in factory.cursor urlexpr
+
+vTextCursor : CursorDescriptor
+vTextCursor factory = factory.cursor "vertical-text"
+
+wResize : CursorDescriptor
+wResize factory = factory.cursor "sResize"
+
+wait : CursorDescriptor
+wait factory = factory.cursor "wait"
+
+zoomIn : CursorDescriptor
+zoomIn factory = factory.cursor "zoom-in"
+
+zoomOut : CursorDescriptor
+zoomOut factory = factory.cursor "zoom-out"
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -858,9 +878,83 @@ pointerEventsValueFactory : ValueFactory PointerEvents
 pointerEventsValueFactory =
   { value pointerEvts =
       case pointerEvts of
-        PointerEvents num -> stringValueFactory.value num
+        PointerEvents str -> stringValueFactory.value str
         AutoPointerEvents -> autoValueFactory.auto
         InheritPointerEvents -> inheritValueFactory.inherit
         InitialPointerEvents -> initialValueFactory.initial
         OtherPointerEvents value -> otherValueFactory.other value
+  }
+
+-------------------------------------------------------------------------------
+
+-- Since SizeDescriptor is parameterized by a generic type `a` rather than
+-- simply by `Size a`, that means that for dimensioned sizes it just calls
+-- whatever `size` function is passed to it in the record -- that function
+-- doesn't need to return a `Size`. So we can pass this factory to a SizeDescriptor
+-- and get a `VerticalAlignValue` out instead of a `Size`.
+type alias VerticalAlignFactory =
+  { size: Value -> VerticalAlign
+  , vAlign: String -> VerticalAlign
+  , baseline: VerticalAlign
+  , initial: VerticalAlign
+  , inherit: VerticalAlign
+  , other: Value -> VerticalAlign
+  }
+
+verticalAlignFactory : VerticalAlignFactory
+verticalAlignFactory =
+  { size value = VerticalAlign value
+  , vAlign str = stringValueFactory.value str |> VerticalAlign
+  , baseline = BaselineVerticalAlign
+  , initial = InitialVerticalAlign
+  , inherit = InheritVerticalAlign
+  , other value = OtherVerticalAlign value
+  }
+
+verticalAlignValueFactory : ValueFactory VerticalAlign
+verticalAlignValueFactory =
+  { value valign =
+      case valign of
+        VerticalAlign value -> value
+        BaselineVerticalAlign -> baselineValueFactory.baseline
+        InitialVerticalAlign -> initialValueFactory.initial
+        InheritVerticalAlign -> inheritValueFactory.inherit
+        OtherVerticalAlign value -> otherValueFactory.other value
+  }
+
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+
+type alias CursorFactory =
+  {
+    cursor: String -> Cursor
+  , auto: Cursor
+  , none : Cursor
+  , inherit: Cursor
+  , initial: Cursor
+  , other: Value -> Cursor
+  }
+
+cursorFactory : CursorFactory
+cursorFactory =
+  {
+    cursor str = Cursor str
+  , auto = AutoCursor
+  , none = NoCursor
+  , inherit = InheritCursor
+  , initial = InitialCursor
+  , other val = OtherCursor val
+  }
+
+cursorValueFactory : ValueFactory Cursor
+cursorValueFactory =
+  { value cursorValue =
+      case cursorValue of
+        Cursor str -> stringValueFactory.value str
+        AutoCursor -> autoValueFactory.auto
+        NoCursor -> noneValueFactory.none
+        InheritCursor -> inheritValueFactory.inherit
+        InitialCursor -> initialValueFactory.initial
+        OtherCursor value -> otherValueFactory.other value
   }
