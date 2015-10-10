@@ -1,4 +1,37 @@
-module Css.Color where
+module Css.Color
+  ( Color (..)
+  , rgb, rgba, hsl, hsla, parse
+  , toRgba, toHsla, setR, setG, setB, setA
+  , clampColor, clampAlpha
+  , (*.), (+.), (-.)
+  , lighten, darken, lerp
+  , grayish, transparent
+  , aliceblue, antiquewhite, aqua, aquamarine, azure, beige, bisque, black
+  , blanchedalmond, blue, blueviolet, brown, burlywood, cadetblue, chartreuse
+  , chocolate, coral, cornflowerblue, cornsilk, crimson, cyan, darkblue, darkcyan
+  , darkgoldenrod, darkgray, darkgreen, darkgrey, darkkhaki, darkmagenta
+  , darkolivegreen, darkorange, darkorchid, darkred, darksalmon, darkseagreen
+  , darkslateblue, darkslategray, darkslategrey, darkturquoise, darkviolet
+  , deeppink, deepskyblue, dimgray, dimgrey, dodgerblue, firebrick, floralwhite
+  , forestgreen, fuchsia, gainsboro, ghostwhite, gold, goldenrod, gray, green
+  , greenyellow, grey, honeydew, hotpink, indianred, indigo, ivory, khaki
+  , lavender, lavenderblush, lawngreen, lemonchiffon, lightblue, lightcoral
+  , lightcyan, lightgoldenrodyellow, lightgray, lightgreen, lightgrey, lightpink
+  , lightsalmon, lightseagreen, lightskyblue, lightslategray, lightslategrey
+  , lightsteelblue, lightyellow, lime, limegreen, linen, magenta, maroon
+  , mediumaquamarine, mediumblue, mediumorchid, mediumpurple, mediumseagreen
+  , mediumslateblue, mediumspringgreen, mediumturquoise, mediumvioletred
+  , midnightblue, mintcream, mistyrose, moccasin, navajowhite, navy, oldlace
+  , olive, olivedrab, orange, orangered, orchid, palegoldenrod, palegreen
+  , paleturquoise, palevioletred, papayawhip, peachpuff, peru, pink, plum
+  , powderblue, purple, red, rosybrown, royalblue, saddlebrown, salmon
+  , sandybrown, seagreen, seashell, sienna, silver, skyblue, slateblue
+  , slategray, slategrey, snow, springgreen, steelblue, tan, teal, thistle
+  , tomato, turquoise, violet, wheat, white, whitesmoke, yellow, yellowgreen
+
+  -- used by other modules
+  , colorValueFactory
+  ) where
 
 import String
 
@@ -15,24 +48,38 @@ type Color
   | Other Value
 
 
-rgba : Int -> Int -> Int -> Float -> Color
-rgba = Rgba
-
-
 rgb : Int -> Int -> Int -> Color
 rgb r g b = rgba r g b 1.0
 
 
-hsla : Int -> Float -> Float -> Float -> Color
-hsla = Hsla
+rgba : Int -> Int -> Int -> Float -> Color
+rgba = Rgba
 
 
 hsl : Int -> Float -> Float -> Color
 hsl r g b = hsla r g b 1.0
 
 
-grayish : Int -> Color
-grayish g = rgb g g g
+hsla : Int -> Float -> Float -> Float -> Color
+hsla = Hsla
+
+
+parse : String -> Result String Color
+parse str =
+  let hex digit1 digit2 = fromHex <| String.fromList [digit1, digit2]
+      toAlpha hexResult = hexResult |> Result.map toFloat |> Result.map ((/) 255.0)
+      err = "Invalid color string" |> Err
+      digits =
+        case String.uncons str of
+          Just ('#', cs) -> cs
+          _ -> str
+  in case String.toList digits of
+      -- Hex alpha is in CSS 4
+      [a, b, c, d, e, f, g, h] -> Result.map4 rgba (hex a b) (hex c d) (hex e f) (hex g h |> toAlpha)
+      [a, b, c, d, e, f      ] -> Result.map3 rgb  (hex a b) (hex c d) (hex e f)
+      [a, b, c, d            ] -> Result.map4 rgba (hex a a) (hex b b) (hex c c) (hex d d |> toAlpha)
+      [a, b, c               ] -> Result.map3 rgb  (hex a a) (hex b b) (hex c c)
+      _                        -> err
 
 
 -- * Color conversions.
@@ -193,6 +240,9 @@ lerp factor startColor boundColor =
                     (lerpFloats factor a a' |> clampAlpha)
 
 -------------------------------------------------------------------------------
+
+grayish : Int -> Color
+grayish g = rgb g g g
 
 -- * List of color values by name.
 
@@ -682,20 +732,3 @@ inheritColorFactory  = { inherit  = Other <| stringValueFactory.value "inherit" 
 
 otherColorFactory : Other Color
 otherColorFactory  = { other  = Other }
-
-parse : String -> Result String Color
-parse str =
-  let hex digit1 digit2 = fromHex <| String.fromList [digit1, digit2]
-      toAlpha hexResult = hexResult |> Result.map toFloat |> Result.map ((/) 255.0)
-      err = "Invalid color string" |> Err
-      digits =
-        case String.uncons str of
-          Just ('#', cs) -> cs
-          _ -> str
-  in case String.toList digits of
-      -- Hex alpha is in CSS 4
-      [a, b, c, d, e, f, g, h] -> Result.map4 rgba (hex a b) (hex c d) (hex e f) (hex g h |> toAlpha)
-      [a, b, c, d, e, f      ] -> Result.map3 rgb  (hex a b) (hex c d) (hex e f)
-      [a, b, c, d            ] -> Result.map4 rgba (hex a a) (hex b b) (hex c c) (hex d d |> toAlpha)
-      [a, b, c               ] -> Result.map3 rgb  (hex a a) (hex b b) (hex c c)
-      _                        -> err
