@@ -1,6 +1,6 @@
 module Css.Internal.Property
   ( Key (..), Value (..), PrefixedOrNot (..), Either (..)
-  , rightValue, unPrefixed, plain, stringKey, prefixedKeys, cast
+  , rightValue, unPrefixed, plain, quote, stringKey, prefixedKeys, cast
   , ValueFactory, emptyValue, appendUnits, concatenateValues
   , stringValueFactory, intValueFactory, floatValueFactory, maybeValueFactory
   , commaListValueFactory, spaceListValueFactory, spacePairValueFactory
