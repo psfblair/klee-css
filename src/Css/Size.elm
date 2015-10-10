@@ -235,3 +235,13 @@ angleFactory =
   , inherit = InheritAngle
   , other value = OtherAngle value
   }
+
+angleValueFactory : ValueFactory (Angle a)
+angleValueFactory =
+  { value angle =
+      case angle of
+        Angle val -> val
+        AutoAngle -> autoValueFactory.auto
+        InheritAngle -> inheritValueFactory.inherit
+        OtherAngle val -> otherValueFactory.other val
+  }

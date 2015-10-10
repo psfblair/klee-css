@@ -1,7 +1,7 @@
 module Css.Internal.Property
   ( Key (..), Value (..), PrefixedOrNot (..), Either (..)
-  , rightValue, unPrefixed, plain, stringKey, cast, emptyValue, ValueFactory
-  , appendUnits, concatenateValues
+  , rightValue, unPrefixed, plain, stringKey, prefixedKeys, cast
+  , ValueFactory, emptyValue, appendUnits, concatenateValues
   , stringValueFactory, intValueFactory, floatValueFactory, maybeValueFactory
   , commaListValueFactory, spaceListValueFactory, spacePairValueFactory
   , spaceTripleValueFactory, spaceQuadrupleValueFactory, commaQuadrupleValueFactory
@@ -26,7 +26,7 @@ rightValue either =
     _ -> Nothing
 
 -------------------------------------------------------------------------------
-
+-- Prefixed is for properties with browser prefixes.
 type PrefixedOrNot
      = Prefixed (List (String, String))
      | Plain String
@@ -72,6 +72,9 @@ type Key a = Key PrefixedOrNot
 
 stringKey : String -> Key a
 stringKey str = Plain str |> Key
+
+prefixedKeys : PrefixedOrNot -> String -> PrefixedOrNot
+prefixedKeys prefixes rootKey = Plain rootKey |> merge prefixes
 
 unKeys : Key PrefixedOrNot -> PrefixedOrNot
 unKeys (Key a) = a
