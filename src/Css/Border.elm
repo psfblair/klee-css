@@ -13,9 +13,9 @@ module Css.Border (
   -- * Outline properties.
 
   , outline, outlineTop, outlineLeft, outlineBottom, outlineRight
-  , outlineColor4, outlineColor, outlineLeftColor, outlineRightColor, outlineTopColor, outlineBottomColor
-  , outlineStyle4, outlineStyle, outlineLeftStyle, outlineRightStyle, outlineTopStyle, outlineBottomStyle
-  , outlineWidth4, outlineWidth, outlineLeftWidth, outlineRightWidth, outlineTopWidth, outlineBottomWidth
+  , outlineColor, outlineLeftColor, outlineRightColor, outlineTopColor, outlineBottomColor, outlineColor4
+  , outlineStyle, outlineLeftStyle, outlineRightStyle, outlineTopStyle, outlineBottomStyle, outlineStyle4
+  , outlineWidth, outlineLeftWidth, outlineRightWidth, outlineTopWidth, outlineBottomWidth, outlineWidth4
   , outlineOffset
 
   -- * Border radius.
@@ -285,12 +285,6 @@ outlineRight strokeDescriptor sizeDescriptor color =
 
 -------------------------------------------------------------------------------
 
-outlineColor4 : Color -> Color -> Color -> Color -> CssGenerator (Color, Color, Color, Color )
-outlineColor4 colorA colorB colorC colorD =
-  let valueFactory =
-    spaceQuadrupleValueFactory colorValueFactory colorValueFactory colorValueFactory colorValueFactory
-  in key (stringKey "outline-color") (colorA, colorB, colorC, colorD) valueFactory
-
 outlineColor : Color -> CssGenerator Color
 outlineColor color = key (stringKey "outline-color") color colorValueFactory
 
@@ -306,18 +300,13 @@ outlineTopColor color = key (stringKey "outline-top-color") color colorValueFact
 outlineBottomColor : Color -> CssGenerator Color
 outlineBottomColor color = key (stringKey "outline-bottom-color") color colorValueFactory
 
--------------------------------------------------------------------------------
+outlineColor4 : Color -> Color -> Color -> Color -> CssGenerator (Color, Color, Color, Color )
+outlineColor4 colorA colorB colorC colorD =
+  let valueFactory =
+    spaceQuadrupleValueFactory colorValueFactory colorValueFactory colorValueFactory colorValueFactory
+  in key (stringKey "outline-color") (colorA, colorB, colorC, colorD) valueFactory
 
-outlineStyle4 : StrokeDescriptor -> StrokeDescriptor -> StrokeDescriptor -> StrokeDescriptor ->
-                  CssGenerator (Stroke, Stroke, Stroke, Stroke )
-outlineStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescriptorD =
-  let strokeA = strokeDescriptorA strokeFactory
-      strokeB = strokeDescriptorB strokeFactory
-      strokeC = strokeDescriptorC strokeFactory
-      strokeD = strokeDescriptorD strokeFactory
-      valueFactory =
-        spaceQuadrupleValueFactory strokeValueFactory strokeValueFactory strokeValueFactory strokeValueFactory
-  in key (stringKey "outline-style") (strokeA, strokeB, strokeC, strokeD) valueFactory
+-------------------------------------------------------------------------------
 
 outlineStyle : StrokeDescriptor -> CssGenerator Stroke
 outlineStyle strokeDescriptor =
@@ -344,21 +333,18 @@ outlineBottomStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "outline-bottom-style") style strokeValueFactory
 
--------------------------------------------------------------------------------
-
-outlineWidth4 : SizeDescriptor (Size Abs) Abs ->
-                SizeDescriptor (Size Abs) Abs ->
-                SizeDescriptor (Size Abs) Abs ->
-                SizeDescriptor (Size Abs) Abs ->
-                CssGenerator (Size Abs, Size Abs, Size Abs, Size Abs )
-outlineWidth4 sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
-  let sizeA = sizeDescriptorA sizeFactory
-      sizeB = sizeDescriptorB sizeFactory
-      sizeC = sizeDescriptorC sizeFactory
-      sizeD = sizeDescriptorD sizeFactory
+outlineStyle4 : StrokeDescriptor -> StrokeDescriptor -> StrokeDescriptor -> StrokeDescriptor ->
+                  CssGenerator (Stroke, Stroke, Stroke, Stroke )
+outlineStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescriptorD =
+  let strokeA = strokeDescriptorA strokeFactory
+      strokeB = strokeDescriptorB strokeFactory
+      strokeC = strokeDescriptorC strokeFactory
+      strokeD = strokeDescriptorD strokeFactory
       valueFactory =
-        spaceQuadrupleValueFactory sizeValueFactory sizeValueFactory sizeValueFactory sizeValueFactory
-  in key (stringKey "outline-width") (sizeA, sizeB, sizeC, sizeD) valueFactory
+        spaceQuadrupleValueFactory strokeValueFactory strokeValueFactory strokeValueFactory strokeValueFactory
+  in key (stringKey "outline-style") (strokeA, strokeB, strokeC, strokeD) valueFactory
+
+-------------------------------------------------------------------------------
 
 outlineWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
 outlineWidth sizeDescriptor =
@@ -389,6 +375,20 @@ outlineOffset : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
 outlineOffset sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "outline-offset") size sizeValueFactory
+
+outlineWidth4 : SizeDescriptor (Size Abs) Abs ->
+                SizeDescriptor (Size Abs) Abs ->
+                SizeDescriptor (Size Abs) Abs ->
+                SizeDescriptor (Size Abs) Abs ->
+                CssGenerator (Size Abs, Size Abs, Size Abs, Size Abs )
+outlineWidth4 sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
+  let sizeA = sizeDescriptorA sizeFactory
+      sizeB = sizeDescriptorB sizeFactory
+      sizeC = sizeDescriptorC sizeFactory
+      sizeD = sizeDescriptorD sizeFactory
+      valueFactory =
+        spaceQuadrupleValueFactory sizeValueFactory sizeValueFactory sizeValueFactory sizeValueFactory
+  in key (stringKey "outline-width") (sizeA, sizeB, sizeC, sizeD) valueFactory
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

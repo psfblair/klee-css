@@ -9,11 +9,7 @@ import Css.Elements exposing (..)
 
 suite : Spec
 suite = describe "CssTests"
-  [ prettyPrintTest ]
-
-prettyPrintTest : Spec
-prettyPrintTest =
-  describe "render"
+  [ describe "render"
     [ let stylesheet =
             a [ custom "-ms-lens-flare-style" "really-shiny"
               , custom "-ms-lens-flare-style" "really-shiny"
@@ -24,3 +20,4 @@ prettyPrintTest =
                "\n  -ms-lens-flare-style : really-shiny;" ++
             "\n}\n\n\n/* Generated with elm-css */")
     ]
+  ]
