@@ -7,7 +7,9 @@ module Css.Box
   ) where
 
 import Css.Internal.Property exposing
-  (Value, ValueFactory, prefixedKeys, concatenateValues, stringValueFactory)
+  ( Value, ValueFactory, prefixedKeys, concatenateValues
+  , stringValueFactory, valueValueFactory, spaceListValueFactory
+  )
 import Css.Internal.Stylesheet exposing (CssGenerator, prefixed)
 
 import Css.Color exposing (Color, colorValueFactory)
@@ -71,7 +73,7 @@ type alias BoxShadowDescriptor t x y b s
 boxShadow : BoxShadowDescriptor t x y b s -> CssGenerator (BoxShadow t x y b s)
 boxShadow shadowDescriptor =
   let boxShadow = shadowDescriptor boxShadowFactory
-      browserPrefixes = prefixedKeys browsers "box-sizing"
+      browserPrefixes = prefixedKeys browsers "box-shadow"
   in prefixed browserPrefixes boxShadow boxShadowValueFactory
 
 
@@ -179,11 +181,12 @@ boxShadowValueFactory: ValueFactory (BoxShadow t x y b s)
 boxShadowValueFactory =
   { value boxShadow = case boxShadow of
       BoxShadow (xSize, ySize) shadowColor blur inset ->
-        let colorValue = extractColorValue shadowColor
+        let xyValues = [ sizeValueFactory.value xSize, sizeValueFactory.value ySize ]
             blurValues = extractBlurValues blur
+            colorValue = extractColorValue shadowColor
             insetValue = extractInsetValue inset
-            xyValues = [ sizeValueFactory.value xSize, sizeValueFactory.value ySize ]
-        in concatenateValues (xyValues ++ blurValues ++ colorValue ++ insetValue)
+            valueListFactory = spaceListValueFactory valueValueFactory
+        in valueListFactory.value (xyValues ++ blurValues ++ colorValue ++ insetValue)
       NoBoxShadow -> noneValueFactory.none
       InitialBoxShadow -> initialValueFactory.initial
       InheritBoxShadow -> inheritValueFactory.inherit

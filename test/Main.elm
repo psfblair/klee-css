@@ -10,6 +10,7 @@ import CssTests
 import Css.Internal.PropertyTests
 import Css.Internal.UtilsTests
 import Css.BorderTests
+import Css.BoxTests
 import Css.ColorTests
 
 -------------------------------------------------------------------------------
@@ -21,6 +22,7 @@ allTests =
     , Css.Internal.PropertyTests.suite
     , Css.Internal.UtilsTests.suite
     , Css.BorderTests.suite
+    , Css.BoxTests.suite
     , Css.ColorTests.suite
     ]
 

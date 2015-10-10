@@ -2,8 +2,8 @@ module Css.Internal.Property
   ( Key (..), Value (..), PrefixedOrNot (..), Either (..)
   , rightValue, unPrefixed, plain, quote, stringKey, prefixedKeys, cast
   , ValueFactory, emptyValue, appendUnits, concatenateValues
-  , stringValueFactory, intValueFactory, floatValueFactory, maybeValueFactory
-  , commaListValueFactory, spaceListValueFactory, spacePairValueFactory
+  , stringValueFactory, intValueFactory, floatValueFactory, valueValueFactory
+  , maybeValueFactory, commaListValueFactory, spaceListValueFactory, spacePairValueFactory
   , spaceTripleValueFactory, spaceQuadrupleValueFactory, commaQuadrupleValueFactory
   , eitherValueFactory
   ) where
@@ -123,6 +123,9 @@ intValueFactory = { value x = toString x |> Plain |> Value }
 
 floatValueFactory : ValueFactory Float
 floatValueFactory = { value x = toFixed 5 x |> toString |> Plain |> Value }
+
+valueValueFactory : ValueFactory Value
+valueValueFactory = { value = identity }
 
 maybeValueFactory : ValueFactory a -> ValueFactory (Maybe a)
 maybeValueFactory innerFactory =
