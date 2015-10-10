@@ -57,13 +57,6 @@ compact =
   , banner         = False
   }
 
-{-| Render a stylesheet with the default configuration. The pretty printer is
-used by default. The stylesheet is a function of Css to Css, which render will
-supply with an empty Css as the accumulator.
--}
-render : CssGenerator a -> String
-render = renderWith pretty []
-
 {-| Render a stylesheet with a custom configuration and an optional outer scope.
 The stylesheet is a function of Css to Css, which render will supply with an
 empty Css as the accumulator.

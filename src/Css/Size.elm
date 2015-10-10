@@ -18,7 +18,7 @@ module Css.Size (
   , em
   , ex
   , pct
-  , rem
+  , srem
   , vw
   , vh
   , vmin
@@ -120,8 +120,9 @@ pct : Float -> SizeDescriptor a Rel
 pct length = \factory -> factory.size (appendUnits length "%")
 
 -- | Size in rem's (em's, but always relative to the root element).
-rem : Float -> SizeDescriptor a Rel
-rem length = \factory -> factory.size (appendUnits length "rem")
+-- renamed to srem in order not to collide with Basics.rem
+srem : Float -> SizeDescriptor a Rel
+srem length = \factory -> factory.size (appendUnits length "rem")
 
 -- | Size in vw's (1vw = 1% of viewport width).
 vw : Float -> SizeDescriptor a Rel

@@ -9,6 +9,7 @@ import Spec exposing (..)
 import CssTests
 import Css.Internal.PropertyTests
 import Css.Internal.UtilsTests
+import Css.BorderTests
 import Css.ColorTests
 
 -------------------------------------------------------------------------------
@@ -19,6 +20,7 @@ allTests =
     [ CssTests.suite
     , Css.Internal.PropertyTests.suite
     , Css.Internal.UtilsTests.suite
+    , Css.BorderTests.suite
     , Css.ColorTests.suite
     ]
 

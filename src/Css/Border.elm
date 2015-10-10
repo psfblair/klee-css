@@ -6,9 +6,9 @@ module Css.Border (
   -- * Border properties.
 
   , border, borderTop, borderLeft, borderBottom, borderRight
-  , borderColor4, borderColor, borderLeftColor, borderRightColor, borderTopColor, borderBottomColor
-  , borderStyle4, borderStyle, borderLeftStyle, borderRightStyle, borderTopStyle, borderBottomStyle
-  , borderWidth4, borderWidth, borderLeftWidth, borderRightWidth, borderTopWidth, borderBottomWidth
+  , borderColor, borderLeftColor, borderRightColor, borderTopColor, borderBottomColor, borderColor4
+  , borderStyle, borderLeftStyle, borderRightStyle, borderTopStyle, borderBottomStyle, borderStyle4
+  , borderWidth, borderLeftWidth, borderRightWidth, borderTopWidth, borderBottomWidth, borderWidth4
 
   -- * Outline properties.
 
@@ -134,13 +134,6 @@ borderRight strokeDescriptor sizeDescriptor color =
 
 -------------------------------------------------------------------------------
 
-borderColor4 : Color -> Color -> Color -> Color ->
-                  CssGenerator (Color, Color, Color, Color )
-borderColor4 colorA colorB colorC colorD =
-  let valueFactory =
-    spaceQuadrupleValueFactory colorValueFactory colorValueFactory colorValueFactory colorValueFactory
-  in key (stringKey "border-color") (colorA, colorB, colorC, colorD) valueFactory
-
 borderColor : Color -> CssGenerator Color
 borderColor color = key (stringKey "border-color") color colorValueFactory
 
@@ -156,18 +149,14 @@ borderTopColor color = key (stringKey "border-top-color") color colorValueFactor
 borderBottomColor : Color -> CssGenerator Color
 borderBottomColor color = key (stringKey "border-bottom-color") color colorValueFactory
 
--------------------------------------------------------------------------------
+borderColor4 : Color -> Color -> Color -> Color ->
+                  CssGenerator (Color, Color, Color, Color )
+borderColor4 colorA colorB colorC colorD =
+  let valueFactory =
+    spaceQuadrupleValueFactory colorValueFactory colorValueFactory colorValueFactory colorValueFactory
+  in key (stringKey "border-color") (colorA, colorB, colorC, colorD) valueFactory
 
-borderStyle4 : StrokeDescriptor -> StrokeDescriptor -> StrokeDescriptor -> StrokeDescriptor ->
-                  CssGenerator (Stroke, Stroke, Stroke, Stroke )
-borderStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescriptorD =
-  let strokeA = strokeDescriptorA strokeFactory
-      strokeB = strokeDescriptorB strokeFactory
-      strokeC = strokeDescriptorC strokeFactory
-      strokeD = strokeDescriptorD strokeFactory
-      valueFactory =
-        spaceQuadrupleValueFactory strokeValueFactory strokeValueFactory strokeValueFactory strokeValueFactory
-  in key (stringKey "border-style") (strokeA, strokeB, strokeC, strokeD) valueFactory
+-------------------------------------------------------------------------------
 
 borderStyle : StrokeDescriptor -> CssGenerator Stroke
 borderStyle strokeDescriptor =
@@ -194,21 +183,18 @@ borderBottomStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "border-bottom-style") style strokeValueFactory
 
--------------------------------------------------------------------------------
+borderStyle4 : StrokeDescriptor -> StrokeDescriptor -> StrokeDescriptor -> StrokeDescriptor ->
+                  CssGenerator (Stroke, Stroke, Stroke, Stroke )
+borderStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescriptorD =
+  let strokeA = strokeDescriptorA strokeFactory
+      strokeB = strokeDescriptorB strokeFactory
+      strokeC = strokeDescriptorC strokeFactory
+      strokeD = strokeDescriptorD strokeFactory
+      svf = strokeValueFactory
+      valueFactory = spaceQuadrupleValueFactory svf svf svf svf
+  in key (stringKey "border-style") (strokeA, strokeB, strokeC, strokeD) valueFactory
 
-borderWidth4 : SizeDescriptor (Size Abs) Abs ->
-               SizeDescriptor (Size Abs) Abs ->
-               SizeDescriptor (Size Abs) Abs ->
-               SizeDescriptor (Size Abs) Abs ->
-               CssGenerator (Size Abs, Size Abs, Size Abs, Size Abs )
-borderWidth4 sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
-  let sizeA = sizeDescriptorA sizeFactory
-      sizeB = sizeDescriptorB sizeFactory
-      sizeC = sizeDescriptorC sizeFactory
-      sizeD = sizeDescriptorD sizeFactory
-      valueFactory =
-        spaceQuadrupleValueFactory sizeValueFactory sizeValueFactory sizeValueFactory sizeValueFactory
-  in key (stringKey "border-width") (sizeA, sizeB, sizeC, sizeD) valueFactory
+-------------------------------------------------------------------------------
 
 borderWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
 borderWidth sizeDescriptor =
@@ -234,6 +220,20 @@ borderBottomWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
 borderBottomWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "border-bottom-width") size sizeValueFactory
+
+borderWidth4 : SizeDescriptor (Size Abs) Abs ->
+               SizeDescriptor (Size Abs) Abs ->
+               SizeDescriptor (Size Abs) Abs ->
+               SizeDescriptor (Size Abs) Abs ->
+               CssGenerator (Size Abs, Size Abs, Size Abs, Size Abs )
+borderWidth4 sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
+  let sizeA = sizeDescriptorA sizeFactory
+      sizeB = sizeDescriptorB sizeFactory
+      sizeC = sizeDescriptorC sizeFactory
+      sizeD = sizeDescriptorD sizeFactory
+      valueFactory =
+        spaceQuadrupleValueFactory sizeValueFactory sizeValueFactory sizeValueFactory sizeValueFactory
+  in key (stringKey "border-width") (sizeA, sizeB, sizeC, sizeD) valueFactory
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

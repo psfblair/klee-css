@@ -4,7 +4,7 @@ module Css
   , (.|@), (.|^), (.|$), (.|*), (.|~), (.|-)
   , MediaType, Feature, query, queryNot, queryOnly
   , keyframes, keyframesFromTo, fontFace, importUrl
-  , Scope, Config, render, renderWith, pretty, compact
+  , Scope, Config, render, renderCompact, renderWith
   )  where
 
 {-| A module for constructing Css in a typesafe way, and rendering the result
@@ -29,7 +29,7 @@ For predefined element selectors, see `Css.Elements`.
       (.|@), (.|^), (.|$), (.|*), (.|~), (.|-)
 
 # Rendering stylesheets to CSS strings
-@docs Scope, Config, render, renderWith, pretty, compact
+@docs Scope, Config, render, renderCompact, renderWith
 
 # Special rules
 @docs MediaType, Feature, query, queryNot, queryOnly, keyframes, keyframesFromTo,
@@ -50,7 +50,7 @@ import Css.Internal.Selector exposing
   , withAttrValueInHyphenatedList
   )
 
-import Css.Internal.Render exposing (render, renderWith, pretty, compact, Config)
+import Css.Internal.Render exposing (renderWith, pretty, compact, Config)
 
 -------------------------------------------------------------------------------
 -- * Principal types
@@ -210,12 +210,19 @@ type alias Scope = Css.Internal.Stylesheet.SelectorScope
 -}
 type alias Config = Css.Internal.Render.Config
 
-{-| Render a stylesheet with the default configuration. The pretty printer is
-used by default. The stylesheet is a function of Css to Css, which render will
-supply with an empty Css as the accumulator.
+{-| Render a stylesheet with the default configuration, using the pretty printer.
+The stylesheet is passed in the form of a CssGenerator -- a function of Css to
+Css -- which render will supply with an empty Css as the initial accumulator.
 -}
-render : (Css -> Css) -> String
-render = Css.Internal.Render.render
+render : CssGenerator a -> String
+render = Css.Internal.Render.renderWith pretty []
+
+{-| Render a stylesheet in compact format. The stylesheet is passed in the form
+of a CssGenerator -- a function of Css to Css -- which render will supply with
+an empty Css as the initial accumulator.
+-}
+renderCompact : CssGenerator a -> String
+renderCompact = Css.Internal.Render.renderWith compact []
 
 {-| Render a stylesheet with a custom configuration and an optional outer scope.
 The stylesheet is a function of Css to Css, which render will supply with an
@@ -223,16 +230,6 @@ empty Css as the accumulator.
 -}
 renderWith : Config -> (List Scope) -> (Css -> Css) -> String
 renderWith = Css.Internal.Render.renderWith
-
-{-| Configuration to print to a pretty human readable CSS output.
--}
-pretty : Config
-pretty = Css.Internal.Render.pretty
-
-{-| Configuration to print to a compacted unreadable CSS output.
--}
-compact : Config
-compact = Css.Internal.Render.compact
 
 -------------------------------------------------------------------------------
 -- * Special rules

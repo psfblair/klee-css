@@ -16,8 +16,9 @@ suite = describe "Css.ColorTests"
 parseTest : Spec
 parseTest =
   describe "parse"
-    [ parse "#FFFFFF" `shouldEqual` Ok (Rgba 255 255 255 1.0)
-    , parse "000" `shouldEqual` Ok (Rgba 0 0 0 1.0)
+    [ parse "#FF6666" `shouldEqual` Ok (Rgba 255 102 102 1.0)
+    , parse "444" `shouldEqual` Ok (Rgba 68 68 0 1.0)
+    , parse "440220" `shouldEqual` Ok (Rgba 68 2 32 1.0)
     ]
 
 toRgbaTest : Spec
@@ -49,7 +50,8 @@ toHslaTest =
     [ it "gives back the same Hsla"
         [  toHsla (Hsla 0 0.0 0.0 0) `shouldEqual` Hsla 0 0.0 0.0 0 ]
     , it "will not accept an Other"
-        [  toHsla (Other <| stringValueFactory.value "auto") `shouldEqual` toHsla (Other <| stringValueFactory.value "auto") ]
+        [  toHsla (Other <| stringValueFactory.value "auto") `shouldEqual`
+              toHsla (Other <| stringValueFactory.value "auto") ]
     , it "translates a whiteRgba Rgba"
         [  toHsla (Rgba 255 255 255 1.0) `shouldEqual` Hsla 0 0.0 1.0 1.0 ]
     , it "translates a blackRgba Rgba"
