@@ -35,9 +35,6 @@ grayish : Int -> Color
 grayish g = rgb g g g
 
 
-transparent : Color
-transparent = rgba 0 0 0 0
-
 -- * Color conversions.
 
 toRgba : Color -> Color
@@ -97,7 +94,7 @@ toHsla color =
 setR : Int -> Color -> Color
 setR redToSet col =
   case col of
-     Rgba _ g b a -> Rgba redToSet g b a
+     Rgba _ g b a -> Rgba (clampColor redToSet) g b a
      (Hsla _ _ _ _) as hslaColor -> hslaColor |> toRgba |> setR redToSet |> toHsla
      _ as other -> other
 
@@ -105,7 +102,7 @@ setR redToSet col =
 setG : Int -> Color -> Color
 setG greenToSet col =
   case col of
-    (Rgba r _ b a) -> Rgba r greenToSet b a
+    (Rgba r _ b a) -> Rgba r (clampColor greenToSet) b a
     (Hsla _ _ _ _) as hslaColor -> hslaColor |> toRgba |> setG greenToSet |> toHsla
     _ as other -> other
 
@@ -113,7 +110,7 @@ setG greenToSet col =
 setB : Int -> Color -> Color
 setB blueToSet col =
   case col of
-    (Rgba r g _ a) -> Rgba r g blueToSet a
+    (Rgba r g _ a) -> Rgba r g (clampColor blueToSet) a
     (Hsla _ _ _ _) as hslaColor -> hslaColor |> toRgba |> setB blueToSet |> toHsla
     _ as other -> other
 
@@ -121,7 +118,7 @@ setB blueToSet col =
 setA : Float -> Color -> Color
 setA alphaToSet col =
   case col of
-    (Rgba r g b _) -> Rgba r g b alphaToSet
+    (Rgba r g b _) -> Rgba r g b (clampAlpha alphaToSet)
     (Hsla _ _ _ _) as hslaColor -> hslaColor |> toRgba |> setA alphaToSet |> toHsla
     _ as other -> other
 
@@ -133,11 +130,12 @@ clampColor = clamp 0 255
 clampAlpha : Float -> Float
 clampAlpha = clamp 0.0 1.0
 
-(*.) : Color -> Int -> Color
+(*.) : Color -> Float -> Color
 (*.) col factor =
-  case col of
+  let multiplyNormalize val = toFloat val |> (*) factor |> truncate |> clampColor
+  in case col of
     (Rgba r g b a) ->
-      rgba (clampColor (r * factor)) (clampColor (g * factor)) (clampColor (b * factor)) a
+      rgba (multiplyNormalize r) (multiplyNormalize g) (multiplyNormalize b) a
     (Hsla _ _ _ _) as hslaColor ->
       hslaColor |> toRgba |> \c -> (*.) c factor |> toHsla
     _ as other ->
@@ -198,6 +196,8 @@ lerp factor startColor boundColor =
 
 -- * List of color values by name.
 
+transparent          : Color
+transparent          = rgba 0 0 0 0
 
 aliceblue            : Color
 aliceblue            = rgb 240 248 255

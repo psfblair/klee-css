@@ -12,9 +12,36 @@ import Css.Color exposing (..)
 suite : Spec
 suite = describe "Css.ColorTests"
   [ describe "parse"
-    [ parse "#FF6666" `shouldEqual` Ok (Rgba 255 102 102 1.0)
-    , parse "444" `shouldEqual` Ok (Rgba 68 68 68 1.0)
-    , parse "440220" `shouldEqual` Ok (Rgba 68 2 32 1.0)
+    [ it "can parse color strings"
+      [ parse "#FF6666" `shouldEqual` Ok (Rgba 255 102 102 1.0)
+      , parse "444" `shouldEqual` Ok (Rgba 68 68 68 1.0)
+      , parse "440220" `shouldEqual` Ok (Rgba 68 2 32 1.0)
+      ]
+    ]
+  , describe "rgba"
+    [ it "creates the proper color"
+      [ rgba 255 102 102 0.5 `shouldEqual` Rgba 255 102 102 0.5
+      ]
+    ]
+  , describe "rgb"
+    [ it "creates the proper color"
+      [ rgb 255 102 102 `shouldEqual` Rgba 255 102 102 1.0
+      ]
+    ]
+  , describe "hsla"
+    [ it "creates the proper color"
+      [ hsla 99 0.61 0.82 0.478 `shouldEqual` Hsla 99 0.61 0.82 0.478
+      ]
+    ]
+  , describe "hsl"
+    [ it "creates the proper color"
+      [ hsl 99 0.61 0.82 `shouldEqual` Hsla 99 0.61 0.82 1.0
+      ]
+    ]
+  , describe "grayish"
+    [ it "should make a gray color"
+      [ grayish 127 `shouldEqual` Rgba 127 127 127 1.0
+      ]
     ]
   , describe "toRgba"
     [ it "gives back the same Rgba"
@@ -56,6 +83,97 @@ suite = describe "Css.ColorTests"
         [  toHsla (Rgba 201 237 181 0.478) `shouldEqual` Hsla 98 0.609 0.82 0.478
         ,  toHsla (Rgba 20 168 104 1.0) `shouldEqual` Hsla 154 0.787 0.369 1.0
         ]
+    ]
+  , describe "setR"
+    [ it "should modify the red component of a color"
+      [ (Rgba 105 102 98 1.0 |> setR 255) `shouldEqual` Rgba 255 102 98 1.0
+      ]
+    , it "should not allow a color to exceed 255"
+      [ (Rgba 105 102 98 1.0 |> setR 256) `shouldEqual` Rgba 255 102 98 1.0
+      ]
+    , it "should not allow a color to go below 0"
+      [ (Rgba 105 102 98 1.0 |> setR -1) `shouldEqual` Rgba 0 102 98 1.0
+      ]
+    ]
+  , describe "setG"
+    [ it "should modify the green component of a color"
+      [ (Rgba 105 102 98 1.0 |> setG 255) `shouldEqual` Rgba 105 255 98 1.0
+      ]
+    , it "should not allow a color to exceed 255"
+      [ (Rgba 105 102 98 1.0 |> setG 256) `shouldEqual` Rgba 105 255 98 1.0
+      ]
+    , it "should not allow a color to go below 0"
+      [ (Rgba 105 102 98 1.0 |> setG -1) `shouldEqual` Rgba 105 0 98 1.0
+      ]
+    ]
+  , describe "setB"
+    [ it "should modify the blue component of a color"
+      [ (Rgba 105 102 98 1.0 |> setB 255) `shouldEqual` Rgba 105 102 255 1.0
+      ]
+    , it "should not allow a color to exceed 255"
+      [ (Rgba 105 102 98 1.0 |> setB 256) `shouldEqual` Rgba 105 102 255 1.0
+      ]
+    , it "should not allow a color to go below 0"
+      [ (Rgba 105 102 98 1.0 |> setB -1) `shouldEqual` Rgba 105 102 0 1.0
+      ]
+    ]
+  , describe "setA"
+    [ it "should modify the alpha component of a color"
+      [ (Rgba 105 102 98 0.72 |> setA 0.54) `shouldEqual` Rgba 105 102 98 0.54
+      ]
+    , it "should not allow the alpha to exceed 1.0"
+      [ (Rgba 105 102 98 0.72 |> setA 1.02) `shouldEqual` Rgba 105 102 98 1.0
+      ]
+    , it "should not allow the alpha to go below 0"
+      [ (Rgba 105 102 98 0.72 |> setA -1.02) `shouldEqual` Rgba 105 102 98 0
+      ]
+    ]
+  , describe "clampColor"
+    [ it "should restrict a value from exceeding the bounds of rgba"
+      [ clampColor 256 `shouldEqual` 255
+      , clampColor -1 `shouldEqual` 0
+      ]
+    ]
+  , describe "clampAlpha"
+    [ it "should restrict an alpha value from exceeding its bounds"
+      [ clampAlpha 1.2 `shouldEqual` 1.0
+      , clampAlpha -1.0 `shouldEqual` 0
+      ]
+    ]
+  , describe "multiply"
+    [ it "should multiply each of the r,g,b components of a color by a factor"
+      [ (Rgba 128 128 128 0.5 *. 0.5) `shouldEqual` Rgba 64 64 64 0.5
+      ]
+    , it "should not allow a color to exceed 255"
+      [ (Rgba 128 128 128 0.5 *. 3) `shouldEqual` Rgba 255 255 255 0.5
+      ]
+    , it "should not allow a color to go below 0"
+      [ (Rgba 128 128 128 0.5 *. -1) `shouldEqual` Rgba 0 0 0 0.5
+      ]
+    ]
+  , describe "add"
+    [ it "should add a value to each of the r,g,b components of a color"
+      [ (Rgba 128 128 128 0.5 +. 126) `shouldEqual` Rgba 254 254 254 0.5
+      , (Rgba 128 128 128 0.5 +. -64) `shouldEqual` Rgba 64 64 64 0.5
+      ]
+    , it "should not allow a color to exceed 255"
+      [ (Rgba 128 128 128 0.5 +. 255) `shouldEqual` Rgba 255 255 255 0.5
+      ]
+    , it "should not allow a color to go below 0"
+      [ (Rgba 128 128 128 0.5 +. -129) `shouldEqual` Rgba 0 0 0 0.5
+      ]
+    ]
+  , describe "subtract"
+    [ it "should diminish each of the r,g,b components of a color by a value"
+      [ (Rgba 128 128 128 0.5 -. -126) `shouldEqual` Rgba 254 254 254 0.5
+      , (Rgba 128 128 128 0.5 -.   64) `shouldEqual` Rgba 64 64 64 0.5
+      ]
+    , it "should not allow a color to exceed 255"
+      [ (Rgba 128 128 128 0.5 -. -255) `shouldEqual` Rgba 255 255 255 0.5
+      ]
+    , it "should not allow a color to go below 0"
+      [ (Rgba 128 128 128 0.5 -. 129) `shouldEqual` Rgba 0 0 0 0.5
+      ]
     ]
   , let whiteRgba = Rgba 255 255 255 1.0
         blackRgba = Rgba 0 0 0 1.0
