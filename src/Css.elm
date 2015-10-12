@@ -2,8 +2,10 @@ module Css
   ( Stylesheet, StyleProperty, PropertyStylesheet, MediaStylesheet
   , KeyframeStylesheet, FontFaceStylesheet, ImportStylesheet
   , Selector, Refinement
-  , (:..), (:~), (:>), (:+), (:|), (:#), (:.), pseudo, func
-  , (:@), (:@^), (:@$), (:@*), (:@~), (:@-)
+  , group, (:..), descend, (:~), child, (:>), sibling, (:+), with, (:|)
+  , byId, (:#), byClass, (:.), pseudo, func
+  , attr, (:@), attrBegin, (:@^), attrEnd, (:@$), attrHas, (:@*)
+  , attrInSpaceList, (:@~), attrInHyphenList, (:@-)
   , Config, render, renderCompact, renderWith
   , MediaType, Feature, query, queryNot, queryOnly
   , keyframes, keyframesFromTo, fontFace, importUrl
@@ -16,19 +18,18 @@ Haskell Clay CSS preprocessing framework, though some of the operators in the
 selector DSL have been changed in order to avoid clashing with standard Elm
 operators and for various other reasons.
 
-The functions in this main module should be used in preference to those in
-Css.Stylesheet, Css.Selector, Css.Render, which they export. Besides these,
-the module Css.Property is also internal.
-
 # Principal Types
 @docs Stylesheet, StyleProperty, PropertyStylesheet, MediaStylesheet,
       KeyframeStylesheet, FontFaceStylesheet, ImportStylesheet,
       Selector, Refinement
 
 # The selector language.
-For predefined element selectors, see `Css.Elements`.
-@docs (:..), (:~), (:>), (:+), (:|), (:#), (:.), pseudo, func,
-      (:@), (:@^), (:@$), (:@*), (:@~), (:@-)
+For predefined element selectors, see `Css.Elements`, for pseudo-selectors see
+`Css.Pseudo`, and for predefined attributes, see `Css.Attributes`.
+@docs group, (:..), descend, (:~), child, (:>), sibling, (:+), with, (:|),
+      byId, (:#), byClass, (:.), pseudo, func,
+      attr, (:@), attrBegin, (:@^), attrEnd, (:@$),attrHas, (:@*),
+      attrInSpaceList, (:@~), attrInHyphenList, (:@-)
 
 # Rendering stylesheets to CSS strings
 @docs Config, render, renderCompact, renderWith
@@ -109,20 +110,40 @@ type alias Refinement = Css.Internal.Selector.Refinement
 {-| The group selector composer. aps to `sel1, sel2` in CSS, but unfortunately
 we can't use commas in an operator.
 -}
+group : Selector -> Selector -> Selector
+group = Css.Internal.SelectorCombinators.group
+
+{-| Operator alias for group.
+-}
 (:..) : Selector -> Selector -> Selector
 (:..) = Css.Internal.SelectorCombinators.group
 
 {-| The descendant selector composer. Maps to `sel1 sel2` in CSS.
+-}
+descend : Selector -> Selector -> Selector
+descend = Css.Internal.SelectorCombinators.descendant
+
+{-| Operator alias for descend.
 -}
 (:~) : Selector -> Selector -> Selector
 (:~) = Css.Internal.SelectorCombinators.descendant
 
 {-| The child selector composer. Maps to `sel1 > sel2` in CSS.
 -}
+child : Selector -> Selector -> Selector
+child = Css.Internal.SelectorCombinators.child
+
+{-| Operator alias for child.
+-}
 (:>) : Selector -> Selector -> Selector
 (:>) = Css.Internal.SelectorCombinators.child
 
 {-| The next-sibling selector composer. Maps to `sel1 + sel2` in CSS.
+-}
+sibling : Selector -> Selector -> Selector
+sibling = Css.Internal.SelectorCombinators.sibling
+
+{-| Operator alias for sibling.
 -}
 (:+) : Selector -> Selector -> Selector
 (:+) = Css.Internal.SelectorCombinators.sibling
@@ -130,15 +151,30 @@ we can't use commas in an operator.
 {-| The filter selector composer, which adds a filter to a selector. Maps to
 something like `sel#filter` or `sel.filter` in CSS, depending on the filter.
 -}
+with : Selector -> Refinement -> Selector
+with = Css.Internal.SelectorCombinators.with
+
+{-| Operator alias for with.
+-}
 (:|) : Selector -> Refinement -> Selector
 (:|) = Css.Internal.SelectorCombinators.with
 
 {-| Given an id and a selector, add an id filter to the selector.
 -}
+byId : Selector -> String -> Selector
+byId = Css.Internal.SelectorCombinators.byId
+
+{-| Operator alias for byId.
+-}
 (:#) : Selector -> String -> Selector
 (:#) = Css.Internal.SelectorCombinators.byId
 
 {-| Given a class name and a selector, add a class filter to the selector.
+-}
+byClass : Selector -> String -> Selector
+byClass = Css.Internal.SelectorCombinators.byClass
+
+{-| Operator alias for byClass.
 -}
 (:.) : Selector -> String -> Selector
 (:.) = Css.Internal.SelectorCombinators.byClass
@@ -160,11 +196,21 @@ func = Css.Internal.SelectorCombinators.func
 {-| Filter elements based on the presence of a certain attribute with the
 specified name and value.
 -}
+attr : Selector -> String -> String -> Selector
+attr = Css.Internal.SelectorCombinators.withAttrValue
+
+{-| Operator alias for attr.
+-}
 (:@) : Selector -> String -> String -> Selector
 (:@) = Css.Internal.SelectorCombinators.withAttrValue
 
 {-| Filter elements based on the presence of a certain attribute that begins
 with the specified value.
+-}
+attrBegin : Selector -> String -> String -> Selector
+attrBegin = Css.Internal.SelectorCombinators.withAttrValueBeginning
+
+{-| Operator alias for attrBegin.
 -}
 (:@^) : Selector -> String -> String -> Selector
 (:@^) = Css.Internal.SelectorCombinators.withAttrValueBeginning
@@ -172,11 +218,21 @@ with the specified value.
 {-| Filter elements based on the presence of a certain attribute that ends
 with the specified value.
 -}
+attrEnd : Selector -> String -> String -> Selector
+attrEnd = Css.Internal.SelectorCombinators.withAttrValueEnding
+
+{-| Operator alias for attrEnd.
+-}
 (:@$) : Selector -> String -> String -> Selector
 (:@$) = Css.Internal.SelectorCombinators.withAttrValueEnding
 
 {-| Filter elements based on the presence of a certain attribute that contains
 the specified value as a substring.
+-}
+attrHas : Selector -> String -> String -> Selector
+attrHas = Css.Internal.SelectorCombinators.withAttrValueContaining
+
+{-| Operator alias for attrHas.
 -}
 (:@*) : Selector -> String -> String -> Selector
 (:@*) = Css.Internal.SelectorCombinators.withAttrValueContaining
@@ -184,11 +240,21 @@ the specified value as a substring.
 {-| Filter elements based on the presence of a certain attribute that have the
 specified value contained in a space separated list.
 -}
+attrInSpaceList : Selector -> String -> String -> Selector
+attrInSpaceList = Css.Internal.SelectorCombinators.withAttrValueInSpacedList
+
+{-| Operator alias for attrInSpaceList.
+-}
 (:@~) : Selector -> String -> String -> Selector
 (:@~) = Css.Internal.SelectorCombinators.withAttrValueInSpacedList
 
 {-| Filter elements based on the presence of a certain attribute that have the
 specified value contained in a hyphen separated list.
+-}
+attrInHyphenList : Selector -> String -> String -> Selector
+attrInHyphenList = Css.Internal.SelectorCombinators.withAttrValueInHyphenatedList
+
+{-| Operator alias for attrInHyphenList.
 -}
 (:@-) : Selector -> String -> String -> Selector
 (:@-) = Css.Internal.SelectorCombinators.withAttrValueInHyphenatedList
