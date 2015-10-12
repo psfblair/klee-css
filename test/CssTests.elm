@@ -17,7 +17,6 @@ suite = describe "CssTests"
 -- Ultimately the following or something like it needs to work.
 --           , importUrl "http://some.stylesheet.com"
             ]
--- TODO FIXME renderCompact isn't including semicolons!
       in render stylesheet `shouldEqual`
           ("\na" ++
             "\n{\n  -ms-lens-flare-style : really-shiny;" ++

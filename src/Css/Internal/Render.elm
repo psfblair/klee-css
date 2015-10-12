@@ -208,9 +208,8 @@ renderPredicate pred =
 renderProperties : Config -> List (Key (), Value) -> String
 renderProperties cfg propertyRules =
   propertyRules
-    |> List.map toEithers
-    |> List.map (renderProperty cfg)
-    |> concat
+    |> List.concatMap toEithers -- each of the rules generates a list of eithers
+    |> renderProperty cfg
 
 {-  Returns either a pair of key,value (Right), or a prefixed key (Left).
     The prefixes that are carried along by the Prefixed type are concatenated
