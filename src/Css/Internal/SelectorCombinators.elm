@@ -1,5 +1,5 @@
 module Css.Internal.SelectorCombinators (
-    Selector, element, descendant, child, sibling, with, byId, byClass
+    Selector, element, filter, group, descendant, child, sibling, with, byId, byClass
   , pseudo, func, withAttr, withAttrValue, withAttrValueBeginning, withAttrValueEnding
   , withAttrValueEnding, withAttrValueContaining, withAttrValueInSpacedList
   , withAttrValueInHyphenatedList
@@ -16,32 +16,13 @@ import Css.Internal.Stylesheet exposing
   , addRule, extractRuleData
   )
 
-{-
-The DSL's concept of a selector is a function that takes a list of a certain
-subtype of `CssGenerator`, namely, functions that when given a `CssRule` add
-a `RuleTree` and returns `CssRule`. The selector function returns a function
-that when given a `CssRule` adds a `NestedRule` to it and returns that.
-
-We would like to parameterize the types of the functions CssGenerator -> CssGenerator
-without wrapping them.
-`List (RuleTree -> CssRule) -> (NestedRule -> CssRule)` where `RuleTree`
-and `NestedRule` are records made to subtype `CssRule` -- `RuleTree` has
-a `ruleTree` field which is intended to take rules only using the constructors
-`Property` or `Nested`, and `NestedRule` has an additional `selector` field
-and is intended to take only rules using the `Nested` constructor.
-You can pass a `NestedRule` any time you need a `RuleTree`, because it has
-a `ruleTree` field on it.
-
-These constraints are not enforced by the type system, but by construction; however,
-they enforce type constraints in the DSL itself by allowing Selectors to be
-combined only with other Selectors and not with MediaQuery or other rules.
-Since `RuleTree` and `NestedRule` both contain a `rule` field, they can be
-used wherever `CssRule` is used, and so a `Selector` is also of type
-`List (CssRule -> CssRule) -> (CssRule -> CssRule)`, i.e., of type
-`List CssGenerator -> CssGenerator`.
+{-|  A `Selector` represents the selector in a CSS rule. `Selector` is implemented
+as a function that takes a list of rules (either `StyleProperty` or nested
+`PropertyStylesheet` rules) and returns a `PropertyStylesheet`. Selectors may
+be combined using the combinators defined in this module. Most of the selectors
+one would need are predefined in the `Css.Elements` module, though if necessary
+new custom selectors can be defined using the `element` function in that module.
 -}
--- A selector is a function that takes a List of RuleTree to CssRule functions
--- and when given a CssRule adds a NestedRule to it and returns that.
 type alias Selector = List PropertyRuleAppender -> SelectorRuleAppender
 
 -------------------------------------------------------------------------------
@@ -60,14 +41,15 @@ of the predefined pseudo-classes and pseudo functions from `Css.Pseudo`.
 -}
 filter : String -> Refinement
 filter name = filterFromString name
--------------------------------------------------------------------------------
+
 
 -------------------------------------------------------------------------------
 -- ** Composing and refining selectors.
 
--- Maps to `sel1, sel2` in CSS
-combine : Selector -> Selector -> Selector
-combine selector1 selector2 = combineSelectors selector1 selector2 Combined
+{-| The group selector composer. aps to `sel1, sel2` in CSS.
+-}
+group : Selector -> Selector -> Selector
+group selector1 selector2 = combineSelectors selector1 selector2 Combined
 
 {-| The descendant selector composer. Maps to `sel1 sel2` in CSS.
 -}

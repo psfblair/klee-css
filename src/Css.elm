@@ -1,12 +1,13 @@
 module Css
   ( Stylesheet, StyleProperty, PropertyStylesheet, MediaStylesheet
   , KeyframeStylesheet, FontFaceStylesheet, ImportStylesheet
-  , Selector, Refinement, custom
-  , (.*), (.>), (.+), (.|), (.|#), (.|.), pseudo, func, withAttr
-  , (.|@), (.|^), (.|$), (.|*), (.|~), (.|-)
+  , Selector, Refinement
+  , (:..), (:~), (:>), (:+), (:|), (:#), (:.), pseudo, func
+  , (:@), (:@^), (:@$), (:@*), (:@~), (:@-)
+  , Config, render, renderCompact, renderWith
   , MediaType, Feature, query, queryNot, queryOnly
   , keyframes, keyframesFromTo, fontFace, importUrl
-  , Config, render, renderCompact, renderWith
+  , custom, element, filter, withAttr
   )  where
 
 {-| A module for constructing Css in a typesafe way, and rendering the result
@@ -26,8 +27,8 @@ the module Css.Property is also internal.
 
 # The selector language.
 For predefined element selectors, see `Css.Elements`.
-@docs (.*), (.>), (.+), (.|), (.|#), (.|.), pseudo, func, withAttr,
-      (.|@), (.|^), (.|$), (.|*), (.|~), (.|-)
+@docs (:..), (:~), (:>), (:+), (:|), (:#), (:.), pseudo, func,
+      (:@), (:@^), (:@$), (:@*), (:@~), (:@-)
 
 # Rendering stylesheets to CSS strings
 @docs Config, render, renderCompact, renderWith
@@ -36,8 +37,8 @@ For predefined element selectors, see `Css.Elements`.
 @docs MediaType, Feature, query, queryNot, queryOnly, keyframes, keyframesFromTo,
       fontFace, importUrl
 
-# Creating custom properties
-@docs custom
+# Creating custom properties and selectors
+@docs custom, element, filter, withAttr
 -}
 
 import Css.Internal.Stylesheet exposing (Css, MediaType, Feature)
@@ -105,36 +106,42 @@ type alias Refinement = Css.Internal.Selector.Refinement
 -- * The selector language.
 -- ** Composing and refining selectors
 
+{-| The group selector composer. aps to `sel1, sel2` in CSS, but unfortunately
+we can't use commas in an operator.
+-}
+(:..) : Selector -> Selector -> Selector
+(:..) = Css.Internal.SelectorCombinators.group
+
 {-| The descendant selector composer. Maps to `sel1 sel2` in CSS.
 -}
-(.*) : Selector -> Selector -> Selector
-(.*) = Css.Internal.SelectorCombinators.descendant
+(:~) : Selector -> Selector -> Selector
+(:~) = Css.Internal.SelectorCombinators.descendant
 
 {-| The child selector composer. Maps to `sel1 > sel2` in CSS.
 -}
-(.>) : Selector -> Selector -> Selector
-(.>) = Css.Internal.SelectorCombinators.child
+(:>) : Selector -> Selector -> Selector
+(:>) = Css.Internal.SelectorCombinators.child
 
 {-| The next-sibling selector composer. Maps to `sel1 + sel2` in CSS.
 -}
-(.+) : Selector -> Selector -> Selector
-(.+) = Css.Internal.SelectorCombinators.sibling
+(:+) : Selector -> Selector -> Selector
+(:+) = Css.Internal.SelectorCombinators.sibling
 
 {-| The filter selector composer, which adds a filter to a selector. Maps to
 something like `sel#filter` or `sel.filter` in CSS, depending on the filter.
 -}
-(.|) : Selector -> Refinement -> Selector
-(.|) = Css.Internal.SelectorCombinators.with
+(:|) : Selector -> Refinement -> Selector
+(:|) = Css.Internal.SelectorCombinators.with
 
 {-| Given an id and a selector, add an id filter to the selector.
 -}
-(.|#) : Selector -> String -> Selector
-(.|#) = Css.Internal.SelectorCombinators.byId
+(:#) : Selector -> String -> Selector
+(:#) = Css.Internal.SelectorCombinators.byId
 
 {-| Given a class name and a selector, add a class filter to the selector.
 -}
-(.|.) : Selector -> String -> Selector
-(.|.) = Css.Internal.SelectorCombinators.byClass
+(:.) : Selector -> String -> Selector
+(:.) = Css.Internal.SelectorCombinators.byClass
 
 {-| Filter elements of the given selector by pseudo selector or pseudo class.
 The preferred syntax is to use one of the predefined pseudo selectors from "Css.Pseudo".
@@ -150,48 +157,41 @@ func = Css.Internal.SelectorCombinators.func
 
 -- ** Attribute-based refining.
 
-{-| Given an attribute name and a selector, filter elements based on the presence
-of that attribute. The preferred syntax is use one of the predefined attribute
-Refinements from "Css.Attributes".
--}
-withAttr : Selector -> String -> Selector
-withAttr = Css.Internal.SelectorCombinators.withAttr
-
 {-| Filter elements based on the presence of a certain attribute with the
 specified name and value.
 -}
-(.|@) : Selector -> String -> String -> Selector
-(.|@) = Css.Internal.SelectorCombinators.withAttrValue
+(:@) : Selector -> String -> String -> Selector
+(:@) = Css.Internal.SelectorCombinators.withAttrValue
 
 {-| Filter elements based on the presence of a certain attribute that begins
 with the specified value.
 -}
-(.|^) : Selector -> String -> String -> Selector
-(.|^) = Css.Internal.SelectorCombinators.withAttrValueBeginning
+(:@^) : Selector -> String -> String -> Selector
+(:@^) = Css.Internal.SelectorCombinators.withAttrValueBeginning
 
 {-| Filter elements based on the presence of a certain attribute that ends
 with the specified value.
 -}
-(.|$) : Selector -> String -> String -> Selector
-(.|$) = Css.Internal.SelectorCombinators.withAttrValueEnding
+(:@$) : Selector -> String -> String -> Selector
+(:@$) = Css.Internal.SelectorCombinators.withAttrValueEnding
 
 {-| Filter elements based on the presence of a certain attribute that contains
 the specified value as a substring.
 -}
-(.|*) : Selector -> String -> String -> Selector
-(.|*) = Css.Internal.SelectorCombinators.withAttrValueContaining
+(:@*) : Selector -> String -> String -> Selector
+(:@*) = Css.Internal.SelectorCombinators.withAttrValueContaining
 
 {-| Filter elements based on the presence of a certain attribute that have the
 specified value contained in a space separated list.
 -}
-(.|~) : Selector -> String -> String -> Selector
-(.|~) = Css.Internal.SelectorCombinators.withAttrValueInSpacedList
+(:@~) : Selector -> String -> String -> Selector
+(:@~) = Css.Internal.SelectorCombinators.withAttrValueInSpacedList
 
 {-| Filter elements based on the presence of a certain attribute that have the
 specified value contained in a hyphen separated list.
 -}
-(.|-) : Selector -> String -> String -> Selector
-(.|-) = Css.Internal.SelectorCombinators.withAttrValueInHyphenatedList
+(:@-) : Selector -> String -> String -> Selector
+(:@-) = Css.Internal.SelectorCombinators.withAttrValueInHyphenatedList
 
 -------------------------------------------------------------------------------
 -- * Rendering stylesheets to CSS strings.
@@ -290,7 +290,7 @@ importUrl : String -> ImportStylesheet
 importUrl = Css.Internal.Stylesheet.importUrl
 
 -------------------------------------------------------------------------------
--- * Creating custom properties.
+-- * Creating custom properties, selectors, and refinements
 
 {-| The `custom` function can be used to add style rules to the current context
 for which there is no typed version available. Both the key and the value
@@ -300,3 +300,24 @@ various Css sub-modules, since this function provides no type-safety.
 -}
 custom : String -> String -> StyleProperty
 custom = Css.Internal.Stylesheet.custom
+
+{-| Create a new selector by name. The preferred syntax is to
+just use one of the predefined elements from "Css.Elements".
+-}
+element : String -> Selector
+element = Css.Internal.SelectorCombinators.element
+
+{-| Create a new filter by name. The preferred syntax is to
+use `byId` and `byClass` to filter with ids and classes, to use one of the
+predefined attributes from "Css.Attributes" for attributes, or one
+of the predefined pseudo-classes and pseudo functions from `Css.Pseudo`.
+-}
+filter : String -> Refinement
+filter = Css.Internal.SelectorCombinators.filter
+
+{-| Given an attribute name and a selector, filter elements based on the presence
+of that attribute. The preferred syntax is use one of the predefined attribute
+Refinements from "Css.Attributes".
+-}
+withAttr : Selector -> String -> Selector
+withAttr = Css.Internal.SelectorCombinators.withAttr
