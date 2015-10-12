@@ -1,7 +1,9 @@
 module Css.Internal.Stylesheet
-  ( Css, CssGenerator, SelectorScope (..), Rule (..), emptyCss, extractRules
+  ( Css, CssAppender, PropertyRuleAppender, SelectorRuleAppender
+  , MediaQueryRuleAppender, KeyframesRuleAppender, FontFaceRuleAppender
+  , ImportRuleAppender
+  , RuleData (..), emptyCss, addRule, extractRuleData
   , key, prefixed, custom
-  , assignSelector, addStylesAsChild, addFilteredStyles, root
   , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..)
   , query, queryNot, queryOnly
   , Keyframes (..), keyframes, keyframesFromTo, fontFace, importUrl
@@ -11,50 +13,68 @@ import Css.Internal.Property exposing
   ( Key (..), Value, ValueFactory, PrefixedOrNot
   , cast, stringKey, stringValueFactory
   )
-import Css.Internal.Selector exposing (Selector, Refinement)
+import Css.Internal.Selector exposing (SelectorData, Refinement)
+import Css.Internal.Utils exposing (compose)
 
 -------------------------------------------------------------------------------
 
 {-| The `Css` type is used to collect style rules which are mappings
 from selectors to style properties.
 -}
-type Css = Css (List Rule)
-
-{-| An alias for a function of Css -> Css, which is the type allowing for the
-css combinators to be composed.
--}
-type alias CssGenerator a = Css -> Css
+type alias Css = List RuleData
 
 emptyCss : Css
-emptyCss = Css []
+emptyCss = []
 
-compose : List (a -> a) -> a -> a
-compose = List.foldl (>>) identity
+{- A container for a function of Css -> Css, which is the type allowing for the
+css combinators to be composed. This is held in a record so that we can use
+structural typing to enforce some type constraints.
+-}
+type alias CssAppender a = { a | addCss: Css -> Css }
 
-extractRules : List (CssGenerator a) -> (List Rule)
-extractRules cssGenerators =
-  let extract (Css rules) = rules
-  in  emptyCss |> compose cssGenerators |> extract
+{- These rules enforce type safety but we can't use the type system to enforce
+that they themselves are used properly when building the DSL. I.e., since
+records are not recursive, there is no way to enforce that propertyRule always
+contains a property rule. This all has to be observed by the functions
+constructing the records. We don't want to phantom type `RuleData` because then
+Css could not contain a list of heterogeneous types of `RuleData`. It might be
+thought that `addCss` could be of type `Css a -> Css ()` with the type
+enforcement on the level of `addPropertyRule` which might e.g., take something
+like `Css PropertyRule`. However, records cannot call themselves recursively. In
+addition, the `Css` that is the type of the parameter to `addCss` is not the type
+of rule that is added by addCss, but the type of Css that is accumulated as it
+is passed through the composition of all the rules. As a result, even
+`propertyRule` would have to be of type `Css ()`, which would defeat the purpose
+of introducing the phantom type in the first place.
+-}
+type alias PropertyRuleAppender = CssAppender (WithPropertyRule {})
+type alias WithPropertyRule a = { a | propertyRule: RuleData }
 
-addRule : Rule -> Css -> Css
-addRule ruleToAdd (Css rules) = rules ++ [ ruleToAdd ] |> Css
+type alias SelectorRuleAppender = CssAppender (WithSelector (WithPropertyRule {}))
+type alias WithSelector a = { a | selector : SelectorData }
 
-type Rule
+type alias MediaQueryRuleAppender =  CssAppender (WithMediaQueryRule {})
+type alias WithMediaQueryRule a = { a | mediaQueryRule: RuleData }
+
+type alias KeyframesRuleAppender = CssAppender (WithKeyframesRule {})
+type alias WithKeyframesRule a = { a | keyframesRule: RuleData }
+
+type alias FontFaceRuleAppender =  CssAppender (WithFontFaceRule {})
+type alias WithFontFaceRule a = { a | fontFaceRule: RuleData }
+
+type alias ImportRuleAppender = CssAppender (WithImportRule {})
+type alias WithImportRule a = { a | importRule: RuleData }
+
+type RuleData
   = Property (Key ()) Value
-  | Nested   SelectorScope (List Rule)
-  | Query    MediaQuery (List Rule)
-  | Face     (List Rule)
+  | Nested   SelectorData (List RuleData)
+  | Query    MediaQuery (List RuleData)
+  | Face     (List RuleData)
   | Keyframe Keyframes
   | Import   String
 
-{-| A type allowing various selectors to be composed together to indicate the
-scope of a set of rules.
--}
-type SelectorScope
-  = Self   Refinement
-  | Root   Selector
-  | Child  Selector
-  | Sub    Selector
+addRule : RuleData -> Css -> Css
+addRule ruleDataToAdd rules = rules ++ [ ruleDataToAdd ]
 
 {-| Types for the @media rule: @media not|only mediatype and (media feature) { rules }
     The MediaQuery type does not contain the media rules themselves.
@@ -67,7 +87,7 @@ type Feature = Feature String (Maybe Value)
 {-| A @keyframes rule: @keyframes animation-name {keyframes-selector {css-styles;}}
     where keyframes-selector is the percentage of the animation duration.
 -}
-type Keyframes = Keyframes String (List (Float, (List Rule)))
+type Keyframes = Keyframes String (List (Float, (List RuleData)))
 
 -------------------------------------------------------------------------------
 
@@ -75,131 +95,82 @@ type Keyframes = Keyframes String (List (Float, (List Rule)))
 The value can be any type that that can be converted to a `Value` using the
 a record of functions of type `ValueFactory`.
 -}
-key : Key a -> a -> ValueFactory a -> CssGenerator a
-key k v wrapper = Property (cast k) (wrapper.value v) |> addRule
+key : Key a -> a -> ValueFactory a -> PropertyRuleAppender
+key k v wrapper =
+  let ruleData = Property (cast k) (wrapper.value v)
+  in { addCss = addRule ruleData
+     , propertyRule = ruleData
+     }
 
 {- Add a new style property to the stylesheet with the specified `Key` and value
 the same way `key` does, but uses a `PrefixedOrNot` key.
 -}
-prefixed : PrefixedOrNot -> a -> ValueFactory a -> CssGenerator a
+prefixed : PrefixedOrNot -> a -> ValueFactory a -> PropertyRuleAppender
 prefixed prefixedOrNot = key (Key prefixedOrNot)
 
-{-| The custom function can be used to add style rules to the current context
-for which there is no typed version available. Both the key and the value
+{-| The custom function can be used to create property-value style rules for
+which there is no typed version available. Both the key and the value
 are plain text values and rendered as is to the output CSS.
 -}
-custom : String -> String -> CssGenerator ()
+custom : String -> String -> PropertyRuleAppender
 custom k v  = key (stringKey k) v stringValueFactory
-
-{-| Assign a group of style rules to a selector. When the selector is nested inside an
-outer scope it will be composed with `deep`, which maps to @sel1 sel2@ in CSS. This
-function is not exposed by the outer Css module; it is intended to be called only
-when creating the various embedded element functions; the `element` function in
-`Css.Element` also calls it when creating custom selectors.
--}
-assignSelector : Selector -> List (CssGenerator a) -> CssGenerator Selector
-assignSelector sel rulesToAdd = addRule <| Nested (Sub sel) (extractRules rulesToAdd)
-
-{-| Assign a group of style rules to a selector. When the selector is nested inside
-an outer scope it will be composed with `child`, which maps to @sel1 > sel2@ in CSS.
--}
-{-
- Implementation notes: This function takes as its first parameter a function that
- takes a list of Css Generators and returns a `CssGenerator` parameterized by
- `Selector`. These functions are created by assigning selectors using
- `assignSelector` above (e.g., as done in in `Css.Elements`). But `assignSelector`
- returns a `CssGenerator` that assigns rules directly to the selector or to the
- selector composed with an outer scope selector using `deep`. Here we want to
- change the assignment so that the resulting `CssGenerator Selector` instead
- composes with the outer scope selector using `child`. To do so we have to supply
- an empty list of generators to the function to get the `CssGenerator Selector`,
- then extract the selector rule, and finally extract the selector from that. We
- then replace the selector rule with a new rule composing the selector with the
- outer selector using `child`.
-
- By construction, we expect that the passed-in selector function will generate
- only one selector rule, with no rules embedded in it. However, we have to account
- for the possibility that there are some embedded rules. So we will nest as a child
- every selector for which there are rules, but we will not keep any rules from the
- original list that contained no embedded sub-rules.
--}
-addStylesAsChild : (List (CssGenerator a) -> CssGenerator Selector) -> List (CssGenerator a) -> CssGenerator Selector
-addStylesAsChild selectorFunction rulesToEmbed =
-  let emptyListOfCssGenerators = []
-      bareSelectorCssGenerator = selectorFunction emptyListOfCssGenerators
-      rules = extractRules [ bareSelectorCssGenerator ]
-      extractSelector rule = case rule of
-        Nested (Root sel) _ -> Just sel
-        Nested (Sub sel) _ -> Just sel
-        Nested (Child sel) _ -> Just sel
-        _ -> Nothing
-      selectors = rules |> List.filterMap extractSelector
-      rulesToAdd = selectors |> List.map (\sel -> Nested (Child sel) (extractRules rulesToEmbed))
-      containsEmbeddedRules rule = case rule of
-        Nested _ [] -> False
-        _ -> True
-      rulesToKeep = rules |> List.filter containsEmbeddedRules
-  in \css -> List.foldl addRule css (rulesToKeep ++ rulesToAdd)
-
-{-| Assign a group of style rules to a filter selector. When the selector is nested
-inside an outer scope it will be composed with the `with` selector, which maps
-to something like @sel#filter@ or @sel.filter@ in CSS depending on the filter.
--}
-addFilteredStyles : Refinement -> List (CssGenerator a) -> CssGenerator ()
-addFilteredStyles refinemt rulesToAdd = addRule <| Nested (Self refinemt) (extractRules rulesToAdd)
-
-{-| `root` is used to add style rules to the top stylesheet scope. Note that this
-is not the CSS :root selector, which refers to the root of the document, and which
-is defined in `Css.Pseudo`.
--}
-root : Selector -> List (CssGenerator a) -> CssGenerator ()
-root sel rulesToAdd = addRule <| Nested (Root sel) (extractRules rulesToAdd)
 
 -------------------------------------------------------------------------------
 
 {-| A @media rule to apply a set of style rules when a media type and
 feature queries apply.
 -}
-query : MediaType -> (List Feature) -> List (CssGenerator a) -> CssGenerator ()
-query typeOfMedia mediaFeatures mediaRules =
-  extractRules mediaRules
-  |> Query (MediaQuery Nothing typeOfMedia mediaFeatures)
-  |> addRule
+query : MediaType ->
+        List Feature ->
+        List PropertyRuleAppender ->
+        MediaQueryRuleAppender
+query mediaType mediaFeatures mediaRules =
+  createMediaQueryRuleAppender mediaType mediaFeatures Nothing mediaRules
 
 {-| A  @media rule to apply a set of style rules when the media type and
 feature queries do not apply.
 -}
-queryNot : MediaType -> (List Feature) -> List (CssGenerator a) -> CssGenerator ()
-queryNot typeOfMedia mediaFeatures mediaRules =
-  extractRules mediaRules
-  |> Query (MediaQuery (Just Not) typeOfMedia mediaFeatures)
-  |> addRule
+queryNot : MediaType ->
+           List Feature ->
+           List PropertyRuleAppender ->
+           MediaQueryRuleAppender
+queryNot mediaType mediaFeatures mediaRules =
+  createMediaQueryRuleAppender mediaType mediaFeatures (Just Not) mediaRules
 
 {-| A  @media rule to apply a set of style rules only when the media type and
 feature queries apply.
 -}
-queryOnly : MediaType -> (List Feature) -> List (CssGenerator a) -> CssGenerator ()
-queryOnly typeOfMedia mediaFeatures mediaRules =
-  extractRules mediaRules
-  |> Query (MediaQuery (Just Only) typeOfMedia mediaFeatures)
-  |> addRule
+queryOnly : MediaType ->
+            List Feature ->
+            List PropertyRuleAppender ->
+            MediaQueryRuleAppender
+queryOnly mediaType mediaFeatures mediaRules =
+  createMediaQueryRuleAppender mediaType mediaFeatures (Just Only) mediaRules
 
 -------------------------------------------------------------------------------
 {-| Create a CSS @keyframes rule from an animation name and a list of
 (percentage, css rules) pairs.
 -}
-keyframes : String -> (List (Float, List (CssGenerator a))) -> CssGenerator ()
+keyframes : String ->
+            (List (Float, List PropertyRuleAppender)) ->
+            KeyframesRuleAppender
 keyframes animationName frames =
-  frames
-    |> List.map (\(percentage, css) -> (percentage, (extractRules css)))
-    |> Keyframes animationName
-    |> Keyframe
-    |> addRule
+  let ruleToAdd
+      = frames
+      |> List.map (\(percentage, css) -> (percentage, (extractRuleData css)))
+      |> Keyframes animationName
+      |> Keyframe
+  in { addCss = addRule ruleToAdd
+     , keyframesRule = ruleToAdd
+     }
 
 {-| Create a CSS @keyframes rule from an animation name, some css starting rules,
 and some css ending rules.
 -}
-keyframesFromTo : String -> List (CssGenerator a) -> List (CssGenerator a) -> CssGenerator ()
+keyframesFromTo : String ->
+                  List PropertyRuleAppender ->
+                  List PropertyRuleAppender ->
+                  KeyframesRuleAppender
 keyframesFromTo animationName fromRules toRules =
   keyframes animationName [(0, fromRules), (100, toRules)]
 
@@ -207,12 +178,43 @@ keyframesFromTo animationName fromRules toRules =
 
 {-| Create a CSS @font-face rule from some css specifying font properties.
 -}
-fontFace : List (CssGenerator a) -> CssGenerator ()
-fontFace fontProperties = extractRules fontProperties |> Face |> addRule
+
+fontFace : List PropertyRuleAppender -> FontFaceRuleAppender
+fontFace fontProperties =
+  let ruleToAdd = fontProperties |> extractRuleData |> Face
+  in { addCss = addRule ruleToAdd
+     , fontFaceRule = ruleToAdd
+     }
 
 -------------------------------------------------------------------------------
 
 {-| Create a CSS @import rule to import a CSS file from a URL.
 -}
-importUrl : String -> CssGenerator ()
-importUrl url = Import url |> addRule
+importUrl : String -> ImportRuleAppender
+importUrl url =
+  let ruleToAdd = Import url
+  in { addCss = addRule ruleToAdd
+     , importRule = ruleToAdd
+     }
+
+-------------------------------------------------------------------------------
+-- * Ancillary functions used for implementation.
+
+createMediaQueryRuleAppender : MediaType ->
+                               List Feature ->
+                               Maybe NotOrOnly ->
+                               List PropertyRuleAppender ->
+                               MediaQueryRuleAppender
+createMediaQueryRuleAppender mediaType mediaFeatures maybeNotOrOnly mediaRules =
+  let ruleToAdd
+      = mediaRules
+      |> extractRuleData
+      |> Query (MediaQuery maybeNotOrOnly mediaType mediaFeatures)
+  in { addCss = addRule ruleToAdd
+     , mediaQueryRule = ruleToAdd
+     }
+
+extractRuleData : List (CssAppender a) -> List RuleData
+extractRuleData cssAppenders =
+  let wrappedFunctions = cssAppenders |> List.map (\appender -> appender.addCss)
+  in compose wrappedFunctions <| emptyCss

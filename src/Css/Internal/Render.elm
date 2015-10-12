@@ -4,9 +4,9 @@ import String
 import Dict
 
 import Css.Internal.Stylesheet exposing
-  ( Css, CssGenerator, SelectorScope (..), Rule (..)
+  ( Css, CssAppender, RuleData (..)
   , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..)
-  , Keyframes (..), emptyCss, extractRules
+  , Keyframes (..), emptyCss, extractRuleData
   )
 import Css.Common exposing (browsers)
 import Css.Internal.Property exposing
@@ -15,10 +15,13 @@ import Css.Internal.Property exposing
   , plain, unPrefixed, rightValue
   )
 import Css.Internal.Selector exposing
-  ( Selector (..), Refinement (..), Path (..), Predicate (..)
-  , emptySelector, sortPredicate, star, deep, child, with
+  ( SelectorData (..), Refinement (..), Path (..), Predicate (..)
+  , emptySelectorData, sortPredicate
   )
-
+import Css.Internal.SelectorCombinators exposing
+  ( Selector, descendant, child, with
+  )
+import Css.Internal.Utils exposing (mapPairwise)
 -------------------------------------------------------------------------------
 
 type alias Config =
@@ -57,14 +60,14 @@ compact =
   , banner         = False
   }
 
-{-| Render a stylesheet with a custom configuration and an optional outer scope.
-The stylesheet is a function of Css to Css, which render will supply with an
-empty Css as the accumulator.
+{-| Render a stylesheet with a custom configuration. The `CssAppender` argument
+is a stylesheet, represented as a function of `Css -> Css`, which `renderWith`
+will supply with an empty `Css` as an accumulator.
 -}
-renderWith : Config -> (List SelectorScope) -> CssGenerator a -> String
-renderWith cfg outerScope stylesheet
-  = extractRules [ stylesheet ]
-  |> renderRules cfg outerScope
+renderWith : Config -> List (CssAppender a) -> String
+renderWith cfg stylesheets
+  = extractRuleData stylesheets
+  |> renderRules cfg emptySelectorData
   |> renderBanner cfg
 
 -------------------------------------------------------------------------------
@@ -72,7 +75,10 @@ renderWith cfg outerScope stylesheet
 {-| Render a single CSS `Selector`.
  -}
 renderSelector : Selector -> String
-renderSelector = renderSelectorWithConfig compact
+renderSelector selector =
+  let selectorAppender = selector []
+      selectorData = selectorAppender.selector
+  in renderSelectorWithConfig compact selectorData
 
 {-| Adds a "Generated with elm-css" comment to the bottom of the rendered Css.
 -}
@@ -87,15 +93,15 @@ renderBanner cfg =
 by a listing of Scope objects that specifies how the scope is composed of
 its various nested levels.
 -}
-renderRules : Config -> (List SelectorScope) -> (List Rule) -> String
-renderRules cfg scopes ruleList =
+renderRules : Config -> SelectorData -> (List RuleData) -> String
+renderRules cfg selector ruleList =
   let property prop =
         case prop of
           (Property k v) -> Just (k, v)
           _  -> Nothing
       nested n =
         case n of
-          (Nested innerScope nestedRules) -> Just (innerScope, nestedRules)
+          (Nested selectorData nestedRules) -> Just (selectorData, nestedRules)
           _  -> Nothing
       queries qs =
         case qs of
@@ -114,16 +120,16 @@ renderRules cfg scopes ruleList =
           (Import i    ) -> Just i
           _ -> Nothing
   in concat
-      [ renderRule cfg scopes (List.filterMap property ruleList)
+      [ renderRule cfg selector (List.filterMap property ruleList)
       , cfg.newline
       , List.filterMap imports ruleList |> List.map (renderImportRule cfg) |> concat
       , List.filterMap kframes ruleList |> List.map (renderKeyframes cfg) |> concat
       , List.filterMap faces   ruleList |> List.map (renderFontFace cfg) |> concat
       , List.filterMap nested  ruleList
-            |> List.map (\(scope, nestedRules) -> renderRules cfg (scope :: scopes) nestedRules)
+            |> List.map (\(selectorData, nestedRules) -> renderRules cfg selectorData nestedRules)
             |> concat
       , List.filterMap queries ruleList
-            |> List.map (\(qry, nestedRules) -> renderMedia cfg qry scopes nestedRules)
+            |> List.map (\(qry, nestedRules) -> renderMedia cfg qry selector nestedRules)
             |> concat
       ]
 
@@ -132,50 +138,28 @@ property/value rules do not include nested rules or rules for media, keyframes,
 font-face, or imports. The scope is specified by a listing of Scope objects that
 specifies how the scope is composed of its various nested levels.
 -}
-renderRule : Config -> (List SelectorScope)-> (List (Key (), Value)) -> String
-renderRule cfg scopes props =
-  case props of
+renderRule : Config -> SelectorData -> (List (Key (), Value)) -> String
+renderRule cfg selectorData propertyRules =
+  case propertyRules of
     [] -> ""
     (h::t) ->
       concat
-        [ mergeScopes scopes |> renderSelectorWithConfig cfg
+        [ renderSelectorWithConfig cfg selectorData
         , cfg.newline
         , "{"
         , cfg.newline
-        , (List.map toEithers props |> List.map (renderProperty cfg) |> concat)
+        , (List.map toEithers propertyRules
+            |> List.map (renderProperty cfg)
+            |> concat)
         , "}"
         , cfg.newline
         ]
 
-{- Takes a list of scopes and composes together the selectors they contain using
-    the composition functions in the Selector module, and returning the
-    composed selector.
--}
-mergeScopes : (List SelectorScope) -> Selector
-mergeScopes scopes =
-  case scopes of
-    [] -> emptySelector -- TODO Maybe some anomalous behavior here? Clay thinks so.
-    (scope::rest) ->
-      case scope of
-        Root selector -> deep selector (mergeScopes rest)
-        Css.Internal.Stylesheet.Child selector ->
-          case rest of
-            [] -> selector
-            _  -> child (mergeScopes rest) selector
-        Sub selector ->
-          case rest of
-            [] -> selector
-            _  -> deep (mergeScopes rest) selector
-        Self filtr ->
-          case rest of
-            [] -> with star filtr
-            _  -> with (mergeScopes rest) filtr
-
 {- Render a selector to a string, given a `Config` for specifying the
 newline behavior. -}
-renderSelectorWithConfig : Config -> Selector -> String
+renderSelectorWithConfig : Config -> SelectorData -> String
 renderSelectorWithConfig cfg =
-  let expandSelectorIntoStringList (Selector (Refinement preds) selectorPath) =
+  let expandSelectorIntoStringList (SelectorData (Refinement preds) selectorPath) =
         let insertSeparator separator str1 str2 = str1 ++ separator ++ str2
             predString = List.sortWith sortPredicate preds |> List.map renderPredicate |> concat
             appendPredStringToPathComponent predStr component = component ++ predStr
@@ -184,22 +168,23 @@ renderSelectorWithConfig cfg =
                 Star           -> if List.isEmpty preds then ["*"] else [""]
                 Elem t         -> [t]
                 Css.Internal.Selector.Child sel1 sel2 ->
-                  List.map2 (insertSeparator " > ")
-                            (expandSelectorIntoStringList sel1)
-                            (expandSelectorIntoStringList sel2)
-                Deep sel1 sel2 ->
-                  List.map2 (insertSeparator " ")
-                            (expandSelectorIntoStringList sel1)
-                            (expandSelectorIntoStringList sel2)
+                  mapPairwise (insertSeparator " > ")
+                              (expandSelectorIntoStringList sel1)
+                              (expandSelectorIntoStringList sel2)
+                Descendant sel1 sel2 ->
+                  mapPairwise (insertSeparator " ")
+                              (expandSelectorIntoStringList sel1)
+                              (expandSelectorIntoStringList sel2)
                 Adjacent sel1 sel2 ->
-                  List.map2 (insertSeparator " + ")
-                            (expandSelectorIntoStringList sel1)
-                            (expandSelectorIntoStringList sel2)
+                  mapPairwise (insertSeparator " + ")
+                              (expandSelectorIntoStringList sel1)
+                              (expandSelectorIntoStringList sel2)
                 Combined sel1 sel2 ->
                   expandSelectorIntoStringList sel1 ++
                     expandSelectorIntoStringList sel2
         in List.map (appendPredStringToPathComponent predString) pathComponents
   in expandSelectorIntoStringList >> String.join ("," ++ cfg.newline)
+
 
 {- Render to a string a predicate that refines a selector.
 -}
@@ -296,17 +281,17 @@ renderKeyframes cfg (Keyframes animationName listOfFrames) =
 
 {- Render one frame in a CSS @keyframes rule.
 -}
-renderKeyframe : Config -> (Float, (List Rule)) -> String
+renderKeyframe : Config -> (Float, (List RuleData)) -> String
 renderKeyframe cfg (percentage, mediaRules) =
   concat
     [ percentage |> toString
     , "% "
-    , renderRules cfg [] mediaRules
+    , renderRules cfg emptySelectorData mediaRules
     ]
 
 {-| Render a CSS @media rule.
 -}
-renderMedia : Config -> MediaQuery -> (List SelectorScope) -> (List Rule) -> String
+renderMedia : Config -> MediaQuery -> SelectorData -> (List RuleData) -> String
 renderMedia cfg query sel mediaRules =
   concat
     [ renderMediaQuery query
@@ -351,11 +336,11 @@ renderMediaFeature (Feature featureName maybeFeatureValue) =
 
 {-| Render a CSS @font-face rule.
 -}
-renderFontFace : Config -> (List Rule) -> String
+renderFontFace : Config -> (List RuleData) -> String
 renderFontFace cfg faceRules =
   concat
     [ "@font-face"
-    , renderRules cfg [] faceRules
+    , renderRules cfg emptySelectorData faceRules
     ]
 
 {-| Render a CSS import rule.

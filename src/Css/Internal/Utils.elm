@@ -13,11 +13,13 @@ floatMod dividend divisor =
   let numberOfEvenMultiples = dividend / divisor  |> truncate |> toFloat
   in dividend - (numberOfEvenMultiples * divisor)
 
+
 toFixed : Int -> Float -> Float
 toFixed decimalPlaces x =
   let powersOf10 = 10 ^ decimalPlaces
       shiftedAndRounded = x * powersOf10 |> round |> toFloat
   in shiftedAndRounded / powersOf10
+
 
 toHexString : Int -> String
 toHexString num =
@@ -32,6 +34,7 @@ toHexString num =
           let remainder = num % 16
               next = num // 16
           in toHexString next ++ toString remainder
+
 
 fromHexChar : Char -> Result String Int
 fromHexChar ch =
@@ -50,6 +53,7 @@ fromHexChar ch =
       | ch == 'f' -> Ok 15
       | otherwise -> Err ("could not convert char " ++ (toString ch) ++ " to Int")
 
+
 fromHex : String -> Result String Int
 fromHex str =
   let hexDigits =
@@ -59,3 +63,13 @@ fromHex str =
         let convertedResult = fromHexChar digitChar
         in Result.map2 (\accum val -> (accum * 16) + val) result convertedResult
   in hexDigits |> List.foldl mapResultInto (Ok 0)
+
+
+compose : List (a -> a) -> a -> a
+compose = List.foldl (>>) identity
+
+
+mapPairwise : (a -> b -> c) -> List a -> List b -> List c
+mapPairwise combineFn xs ys =
+  let partiallyBoundFns = List.map combineFn xs
+  in partiallyBoundFns |> List.concatMap (\fn -> List.map fn ys)

@@ -11,10 +11,12 @@ suite : Spec
 suite = describe "CssTests"
   [ describe "render"
     [ let stylesheet =
-            a [ custom "-ms-lens-flare-style" "really-shiny"
-              , custom "-ms-lens-flare-style" "really-shiny"
-              ]
-      in render stylesheet `shouldEqual`
+            [ a [ custom "-ms-lens-flare-style" "really-shiny"
+                , custom "-ms-lens-flare-style" "really-shiny"
+                ]
+            , importUrl "http://some.stylesheet.com"
+            ]
+      in renderCompact stylesheet `shouldEqual`
           ("\na" ++
             "\n{\n  -ms-lens-flare-style : really-shiny;" ++
                "\n  -ms-lens-flare-style : really-shiny;" ++

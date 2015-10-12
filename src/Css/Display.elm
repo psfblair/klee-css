@@ -80,7 +80,7 @@ module Css.Display (
 import Css.Internal.Property exposing (Value, ValueFactory, concatenateValues, stringKey
   , stringValueFactory, intValueFactory, floatValueFactory, commaQuadrupleValueFactory
   )
-import Css.Internal.Stylesheet exposing (CssGenerator, key)
+import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
 
 import Css.Common exposing (
     Auto, Inherit, None, Visible, Hidden, Other
@@ -99,7 +99,7 @@ type FloatStyle
 
 type alias FloatStyleDescriptor = FloatStyleFactory -> FloatStyle
 
-float : FloatStyleDescriptor -> CssGenerator FloatStyle
+float : FloatStyleDescriptor -> PropertyRuleAppender
 float descriptor =
   let floatStyle = descriptor floatStyleFactory
   in key (stringKey "float") floatStyle floatStyleValueFactory
@@ -121,7 +121,7 @@ type Clear
 
 type alias ClearDescriptor = ClearFactory -> Clear
 
-clear : ClearDescriptor -> CssGenerator Clear
+clear : ClearDescriptor -> PropertyRuleAppender
 clear descriptor =
   let clearValue = descriptor clearFactory
   in key (stringKey "clear") clearValue clearValueFactory
@@ -145,7 +145,7 @@ type Position
 
 type alias PositionDescriptor = PositionFactory -> Position
 
-position : PositionDescriptor -> CssGenerator Position
+position : PositionDescriptor -> PropertyRuleAppender
 position descriptor =
   let positionValue = descriptor positionFactory
   in key (stringKey "position") positionValue positionValueFactory
@@ -173,7 +173,7 @@ type Display
 
 type alias DisplayDescriptor = DisplayFactory -> Display
 
-display : DisplayDescriptor -> CssGenerator Display
+display : DisplayDescriptor -> PropertyRuleAppender
 display descriptor =
   let displayValue = descriptor displayFactory
   in key (stringKey "display") displayValue displayValueFactory
@@ -254,17 +254,17 @@ type Overflow
 
 type alias OverflowDescriptor = OverflowFactory -> Overflow
 
-overflow : OverflowDescriptor -> CssGenerator Overflow
+overflow : OverflowDescriptor -> PropertyRuleAppender
 overflow descriptor =
   let overflowValue = descriptor overflowFactory
   in key (stringKey "overflow") overflowValue overflowValueFactory
 
-overflowX : OverflowDescriptor -> CssGenerator Overflow
+overflowX : OverflowDescriptor -> PropertyRuleAppender
 overflowX descriptor =
   let overflowValue = descriptor overflowFactory
   in key (stringKey "overflow-x") overflowValue overflowValueFactory
 
-overflowY : OverflowDescriptor -> CssGenerator Overflow
+overflowY : OverflowDescriptor -> PropertyRuleAppender
 overflowY descriptor =
   let overflowValue = descriptor overflowFactory
   in key (stringKey "overflow-y") overflowValue overflowValueFactory
@@ -284,7 +284,7 @@ type Visibility
 
 type alias VisibilityDescriptor = VisibilityFactory -> Visibility
 
-visibility : VisibilityDescriptor -> CssGenerator Visibility
+visibility : VisibilityDescriptor -> PropertyRuleAppender
 visibility descriptor =
   let visibilityValue = descriptor visibilityFactory
   in key (stringKey "visibility") visibilityValue visibilityValueFactory
@@ -306,7 +306,7 @@ type Clip a b c d
 
 type alias ClipDescriptor a b c d = ClipFactory a b c d -> Clip a b c d
 
-clip : ClipDescriptor a b c d -> CssGenerator (Clip a b c d)
+clip : ClipDescriptor a b c d -> PropertyRuleAppender
 clip descriptor =
   let clipValue = descriptor clipFactory
   in key (stringKey "clip") clipValue clipValueFactory
@@ -332,7 +332,7 @@ type Opacity
 
 type alias OpacityDescriptor = OpacityFactory -> Opacity
 
-opacity : OpacityDescriptor -> CssGenerator Opacity
+opacity : OpacityDescriptor -> PropertyRuleAppender
 opacity descriptor =
   let opacityLevel = descriptor opacityFactory
   in key (stringKey "opacity") opacityLevel opacityValueFactory
@@ -351,7 +351,7 @@ type ZIndex
 
 type alias ZIndexDescriptor = ZIndexFactory -> ZIndex
 
-zIndex : ZIndexDescriptor -> CssGenerator ZIndex
+zIndex : ZIndexDescriptor -> PropertyRuleAppender
 zIndex descriptor =
   let zIdx = descriptor zIndexFactory
   in key (stringKey "z-index") zIdx zIndexValueFactory
@@ -372,7 +372,7 @@ type PointerEvents
 
 type alias PointerEventsDescriptor = PointerEventsFactory -> PointerEvents
 
-pointerEvents : PointerEventsDescriptor -> CssGenerator PointerEvents
+pointerEvents : PointerEventsDescriptor -> PropertyRuleAppender
 pointerEvents descriptor =
   let pointerEvts = descriptor pointerEventsFactory
   in key (stringKey "pointer-events") pointerEvts pointerEventsValueFactory
@@ -409,7 +409,7 @@ type VerticalAlign
 
 type alias VerticalAlignDescriptor = VerticalAlignFactory -> VerticalAlign
 
-verticalAlign : VerticalAlignDescriptor -> CssGenerator VerticalAlign
+verticalAlign : VerticalAlignDescriptor -> PropertyRuleAppender
 verticalAlign descriptor =
   let valign = descriptor verticalAlignFactory
   in key (stringKey "vertical-align") valign verticalAlignValueFactory
@@ -447,7 +447,7 @@ type Cursor
 
 type alias CursorDescriptor = CursorFactory -> Cursor
 
-cursor : CursorDescriptor -> CssGenerator Cursor
+cursor : CursorDescriptor -> PropertyRuleAppender
 cursor descriptor =
   let cursorValue = descriptor cursorFactory
   in key (stringKey "cursor") cursorValue cursorValueFactory

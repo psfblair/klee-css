@@ -55,6 +55,8 @@ import Css.Common exposing
   )
 
 -------------------------------------------------------------------------------
+-- This module is tested via the tests of modules that use sizes and angles.
+-------------------------------------------------------------------------------
 
 -- | Sizes can be relative like percentages or rems.
 type Rel = Rel

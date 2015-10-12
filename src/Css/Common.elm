@@ -48,7 +48,7 @@ module Css.Common (
   ) where
 
 import Css.Internal.Property exposing (Value, PrefixedOrNot (..), stringValueFactory)
-import Css.Internal.Stylesheet exposing (CssGenerator)
+import Css.Internal.Stylesheet exposing (CssAppender)
 
 -------------------------------------------------------------------------------
 
@@ -76,13 +76,13 @@ call fn arg = fn ++ "(" ++ arg ++ ")"
 
 {- Shorthands for properties that can be applied separately to multiple sides of a box. -}
 
-sym : (a -> a -> a -> a -> CssGenerator a) -> a -> CssGenerator a
+sym : (a -> a -> a -> a -> (CssAppender b)) -> a -> (CssAppender b)
 sym fourSidedFunction value = fourSidedFunction value value value value
 
-sym3 : (a -> a -> a -> a -> CssGenerator a) -> a -> a -> a -> CssGenerator a
+sym3 : (a -> a -> a -> a -> (CssAppender b)) -> a -> a -> a -> (CssAppender b)
 sym3 fourSidedFunction topBottom left right = fourSidedFunction topBottom left topBottom right
 
-sym2 : (a -> a -> a -> a -> CssGenerator a) -> a -> a -> CssGenerator a
+sym2 : (a -> a -> a -> a -> (CssAppender b)) -> a -> a -> (CssAppender b)
 sym2 fourSidedFunction topBottom leftRight = fourSidedFunction topBottom leftRight topBottom leftRight
 
 -------------------------------------------------------------------------------

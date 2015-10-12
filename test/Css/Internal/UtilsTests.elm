@@ -9,21 +9,14 @@ import Css.Internal.Utils exposing (..)
 suite : Spec
 suite = describe "Css.UtilsTests"
   [ -- floatModTest, toFixedTest, toHexStringTest,
-  fromHexTest, fromHexCharTest ]
-
-fromHexTest : Spec
-fromHexTest =
-  describe "fromHex"
-    [ fromHex "#FF" `shouldEqual` (Ok  255)
-    , fromHex "00" `shouldEqual`  (Ok    0)
-    , fromHex "#10" `shouldEqual` (Ok   16)
-    , fromHex "#0A" `shouldEqual` (Ok   10)
-    , fromHex "FFF" `shouldEqual` (Ok 4095)
-    ]
-
-fromHexCharTest : Spec
-fromHexCharTest =
-  describe "fromHexChar"
+    describe "fromHex"
+      [ fromHex "#FF" `shouldEqual` (Ok  255)
+      , fromHex "00" `shouldEqual`  (Ok    0)
+      , fromHex "#10" `shouldEqual` (Ok   16)
+      , fromHex "#0A" `shouldEqual` (Ok   10)
+      , fromHex "FFF" `shouldEqual` (Ok 4095)
+      ]
+  , describe "fromHexChar"
     [ fromHexChar '0' `shouldEqual` (Ok  0)
     , fromHexChar '1' `shouldEqual` (Ok  1)
     , fromHexChar '2' `shouldEqual` (Ok  2)
@@ -48,3 +41,14 @@ fromHexCharTest =
     , fromHexChar 'F' `shouldEqual` (Ok 15)
     , fromHexChar 'G' `shouldEqual` (Err "could not convert char 'G' to Int")
     ]
+  , describe "mapPairwise"
+    [ let list1 = ["*.class1", "p.class2"]
+          list2 = ["a.class3", "li.class5"]
+          childJoin a b = a ++ " > " ++ b
+      in (mapPairwise childJoin list1 list2) `shouldEqual`
+          ["*.class1 > a.class3",
+           "*.class1 > li.class5",
+           "p.class2 > a.class3",
+           "p.class2 > li.class5"]
+    ]
+  ]

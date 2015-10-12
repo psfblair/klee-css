@@ -10,7 +10,7 @@ import Css.Internal.Property exposing
   ( Value, ValueFactory, prefixedKeys, concatenateValues
   , stringValueFactory, valueValueFactory, spaceListValueFactory
   )
-import Css.Internal.Stylesheet exposing (CssGenerator, prefixed)
+import Css.Internal.Stylesheet exposing (PropertyRuleAppender, prefixed)
 
 import Css.Color exposing (Color, colorValueFactory)
 import Css.Common exposing
@@ -39,7 +39,7 @@ contentBox factory = factory.boxType "content-box"
 
 -------------------------------------------------------------------------------
 
-boxSizing : BoxTypeDescriptor -> CssGenerator BoxType
+boxSizing : BoxTypeDescriptor -> PropertyRuleAppender
 boxSizing descriptor =
   let boxType = descriptor boxTypeFactory
       browserPrefixes = prefixedKeys browsers "box-sizing"
@@ -54,7 +54,7 @@ where the last four (blur, spread, color, inset) are optional
 spread is optional but if you have it you have to have blur
 -}
 
-type Sized = Sized -- used in sizedConstraint phantom type in BoxShadow.
+type Sized = Sized -- used in sizedConstraint constraint type in BoxShadow.
 
 type BoxShadow sizedConstraint xSzTyp ySzTyp blurTyp spreadTyp
   = BoxShadow (Size xSzTyp, Size ySzTyp)
@@ -70,7 +70,7 @@ type alias BoxShadowDescriptor t x y b s
   = BoxShadowFactory x y b s -> BoxShadow t x y b s
 
 
-boxShadow : BoxShadowDescriptor t x y b s -> CssGenerator (BoxShadow t x y b s)
+boxShadow : BoxShadowDescriptor t x y b s -> PropertyRuleAppender
 boxShadow shadowDescriptor =
   let boxShadow = shadowDescriptor boxShadowFactory
       browserPrefixes = prefixedKeys browsers "box-shadow"

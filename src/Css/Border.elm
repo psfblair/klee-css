@@ -38,7 +38,7 @@ import Css.Internal.Property exposing
   , stringValueFactory, spacePairValueFactory
   , spaceTripleValueFactory, spaceQuadrupleValueFactory
   )
-import Css.Internal.Stylesheet exposing (CssGenerator, key)
+import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
 
 import Css.Common exposing (
   Other, Inherit, Auto, None
@@ -92,65 +92,64 @@ outset factory = factory.stroke "outset"
 
 -------------------------------------------------------------------------------
 
-border : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color ->
-            CssGenerator (Stroke, Size Abs, Color )
+border : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
 border strokeDescriptor sizeDescriptor color =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
-      valueFactory = spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
+      valueFactory =
+        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "border") (stroke, size, color) valueFactory
 
-borderTop : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color ->
-              CssGenerator (Stroke, Size Abs, Color )
+borderTop : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
 borderTop strokeDescriptor sizeDescriptor color =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
-      valueFactory = spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
+      valueFactory =
+        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "border-top") (stroke, width, color) valueFactory
 
-borderLeft : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color ->
-                CssGenerator (Stroke, Size Abs, Color )
+borderLeft : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
 borderLeft strokeDescriptor sizeDescriptor color =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
-      valueFactory = spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
+      valueFactory =
+        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "border-left") (stroke, width, color) valueFactory
 
-borderBottom : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color ->
-                  CssGenerator (Stroke, Size Abs, Color )
+borderBottom : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
 borderBottom strokeDescriptor sizeDescriptor color =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
-      valueFactory = spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
+      valueFactory =
+        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "border-bottom") (stroke, width, color) valueFactory
 
-borderRight : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color ->
-                  CssGenerator (Stroke, Size Abs, Color )
+borderRight : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
 borderRight strokeDescriptor sizeDescriptor color =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
-      valueFactory = spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
+      valueFactory =
+        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "border-right") (stroke, width, color) valueFactory
 
 -------------------------------------------------------------------------------
 
-borderColor : Color -> CssGenerator Color
+borderColor : Color -> PropertyRuleAppender
 borderColor color = key (stringKey "border-color") color colorValueFactory
 
-borderLeftColor : Color -> CssGenerator Color
+borderLeftColor : Color -> PropertyRuleAppender
 borderLeftColor color = key (stringKey "border-left-color") color colorValueFactory
 
-borderRightColor : Color -> CssGenerator Color
+borderRightColor : Color -> PropertyRuleAppender
 borderRightColor color = key (stringKey "border-right-color") color colorValueFactory
 
-borderTopColor : Color -> CssGenerator Color
+borderTopColor : Color -> PropertyRuleAppender
 borderTopColor color = key (stringKey "border-top-color") color colorValueFactory
 
-borderBottomColor : Color -> CssGenerator Color
+borderBottomColor : Color -> PropertyRuleAppender
 borderBottomColor color = key (stringKey "border-bottom-color") color colorValueFactory
 
-borderColor4 : Color -> Color -> Color -> Color ->
-                  CssGenerator (Color, Color, Color, Color )
+borderColor4 : Color -> Color -> Color -> Color -> PropertyRuleAppender
 borderColor4 colorA colorB colorC colorD =
   let valueFactory =
     spaceQuadrupleValueFactory colorValueFactory colorValueFactory colorValueFactory colorValueFactory
@@ -158,33 +157,36 @@ borderColor4 colorA colorB colorC colorD =
 
 -------------------------------------------------------------------------------
 
-borderStyle : StrokeDescriptor -> CssGenerator Stroke
+borderStyle : StrokeDescriptor -> PropertyRuleAppender
 borderStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "border-style") style strokeValueFactory
 
-borderLeftStyle : StrokeDescriptor -> CssGenerator Stroke
+borderLeftStyle : StrokeDescriptor -> PropertyRuleAppender
 borderLeftStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "border-left-style") style strokeValueFactory
 
-borderRightStyle : StrokeDescriptor -> CssGenerator Stroke
+borderRightStyle : StrokeDescriptor -> PropertyRuleAppender
 borderRightStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "border-right-style") style strokeValueFactory
 
-borderTopStyle : StrokeDescriptor -> CssGenerator Stroke
+borderTopStyle : StrokeDescriptor -> PropertyRuleAppender
 borderTopStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "border-top-style") style strokeValueFactory
 
-borderBottomStyle : StrokeDescriptor -> CssGenerator Stroke
+borderBottomStyle : StrokeDescriptor -> PropertyRuleAppender
 borderBottomStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "border-bottom-style") style strokeValueFactory
 
-borderStyle4 : StrokeDescriptor -> StrokeDescriptor -> StrokeDescriptor -> StrokeDescriptor ->
-                  CssGenerator (Stroke, Stroke, Stroke, Stroke )
+borderStyle4 : StrokeDescriptor ->
+               StrokeDescriptor ->
+               StrokeDescriptor ->
+               StrokeDescriptor ->
+               PropertyRuleAppender
 borderStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescriptorD =
   let strokeA = strokeDescriptorA strokeFactory
       strokeB = strokeDescriptorB strokeFactory
@@ -196,27 +198,27 @@ borderStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescrip
 
 -------------------------------------------------------------------------------
 
-borderWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
+borderWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 borderWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "border-width") size sizeValueFactory
 
-borderLeftWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
+borderLeftWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 borderLeftWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "border-left-width") size sizeValueFactory
 
-borderRightWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
+borderRightWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 borderRightWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "border-right-width") size sizeValueFactory
 
-borderTopWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
+borderTopWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 borderTopWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "border-top-width") size sizeValueFactory
 
-borderBottomWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
+borderBottomWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 borderBottomWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "border-bottom-width") size sizeValueFactory
@@ -225,7 +227,7 @@ borderWidth4 : SizeDescriptor (Size Abs) Abs ->
                SizeDescriptor (Size Abs) Abs ->
                SizeDescriptor (Size Abs) Abs ->
                SizeDescriptor (Size Abs) Abs ->
-               CssGenerator (Size Abs, Size Abs, Size Abs, Size Abs )
+               PropertyRuleAppender
 borderWidth4 sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory
@@ -238,8 +240,7 @@ borderWidth4 sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-outline : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color ->
-            CssGenerator (Stroke, Size Abs, Color)
+outline : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
 outline strokeDescriptor sizeDescriptor color =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
@@ -247,8 +248,7 @@ outline strokeDescriptor sizeDescriptor color =
         spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "outline") (stroke, size, color) valueFactory
 
-outlineTop : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color ->
-              CssGenerator (Stroke, Size Abs, Color)
+outlineTop : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
 outlineTop strokeDescriptor sizeDescriptor color =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
@@ -256,8 +256,7 @@ outlineTop strokeDescriptor sizeDescriptor color =
         spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "outline-top") (stroke, size, color) valueFactory
 
-outlineLeft : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color ->
-                CssGenerator (Stroke, Size Abs, Color)
+outlineLeft : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
 outlineLeft strokeDescriptor sizeDescriptor color =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
@@ -265,8 +264,7 @@ outlineLeft strokeDescriptor sizeDescriptor color =
         spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "outline-left") (stroke, size, color) valueFactory
 
-outlineBottom : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color ->
-                    CssGenerator (Stroke, Size Abs, Color)
+outlineBottom : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
 outlineBottom strokeDescriptor sizeDescriptor color =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
@@ -274,8 +272,7 @@ outlineBottom strokeDescriptor sizeDescriptor color =
         spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "outline-bottom") (stroke, size, color) valueFactory
 
-outlineRight : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color ->
-                  CssGenerator (Stroke, Size Abs, Color)
+outlineRight : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
 outlineRight strokeDescriptor sizeDescriptor color =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
@@ -285,22 +282,22 @@ outlineRight strokeDescriptor sizeDescriptor color =
 
 -------------------------------------------------------------------------------
 
-outlineColor : Color -> CssGenerator Color
+outlineColor : Color -> PropertyRuleAppender
 outlineColor color = key (stringKey "outline-color") color colorValueFactory
 
-outlineLeftColor : Color -> CssGenerator Color
+outlineLeftColor : Color -> PropertyRuleAppender
 outlineLeftColor color = key (stringKey "outline-left-color") color colorValueFactory
 
-outlineRightColor : Color -> CssGenerator Color
+outlineRightColor : Color -> PropertyRuleAppender
 outlineRightColor color = key (stringKey "outline-right-color") color colorValueFactory
 
-outlineTopColor : Color -> CssGenerator Color
+outlineTopColor : Color -> PropertyRuleAppender
 outlineTopColor color = key (stringKey "outline-top-color") color colorValueFactory
 
-outlineBottomColor : Color -> CssGenerator Color
+outlineBottomColor : Color -> PropertyRuleAppender
 outlineBottomColor color = key (stringKey "outline-bottom-color") color colorValueFactory
 
-outlineColor4 : Color -> Color -> Color -> Color -> CssGenerator (Color, Color, Color, Color )
+outlineColor4 : Color -> Color -> Color -> Color -> PropertyRuleAppender
 outlineColor4 colorA colorB colorC colorD =
   let valueFactory =
     spaceQuadrupleValueFactory colorValueFactory colorValueFactory colorValueFactory colorValueFactory
@@ -308,33 +305,36 @@ outlineColor4 colorA colorB colorC colorD =
 
 -------------------------------------------------------------------------------
 
-outlineStyle : StrokeDescriptor -> CssGenerator Stroke
+outlineStyle : StrokeDescriptor -> PropertyRuleAppender
 outlineStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "outline-style") style strokeValueFactory
 
-outlineLeftStyle : StrokeDescriptor -> CssGenerator Stroke
+outlineLeftStyle : StrokeDescriptor -> PropertyRuleAppender
 outlineLeftStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "outline-left-style") style strokeValueFactory
 
-outlineRightStyle : StrokeDescriptor -> CssGenerator Stroke
+outlineRightStyle : StrokeDescriptor -> PropertyRuleAppender
 outlineRightStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "outline-right-style") style strokeValueFactory
 
-outlineTopStyle : StrokeDescriptor -> CssGenerator Stroke
+outlineTopStyle : StrokeDescriptor -> PropertyRuleAppender
 outlineTopStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "outline-top-style") style strokeValueFactory
 
-outlineBottomStyle : StrokeDescriptor -> CssGenerator Stroke
+outlineBottomStyle : StrokeDescriptor -> PropertyRuleAppender
 outlineBottomStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "outline-bottom-style") style strokeValueFactory
 
-outlineStyle4 : StrokeDescriptor -> StrokeDescriptor -> StrokeDescriptor -> StrokeDescriptor ->
-                  CssGenerator (Stroke, Stroke, Stroke, Stroke )
+outlineStyle4 : StrokeDescriptor ->
+                StrokeDescriptor ->
+                StrokeDescriptor ->
+                StrokeDescriptor ->
+                PropertyRuleAppender
 outlineStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescriptorD =
   let strokeA = strokeDescriptorA strokeFactory
       strokeB = strokeDescriptorB strokeFactory
@@ -346,32 +346,32 @@ outlineStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescri
 
 -------------------------------------------------------------------------------
 
-outlineWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
+outlineWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 outlineWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "outline-width") size sizeValueFactory
 
-outlineLeftWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
+outlineLeftWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 outlineLeftWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "outline-left-width") size sizeValueFactory
 
-outlineRightWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
+outlineRightWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 outlineRightWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "outline-right-width") size sizeValueFactory
 
-outlineTopWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
+outlineTopWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 outlineTopWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "outline-top-width") size sizeValueFactory
 
-outlineBottomWidth : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
+outlineBottomWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 outlineBottomWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "outline-bottom-width") size sizeValueFactory
 
-outlineOffset : SizeDescriptor (Size Abs) Abs -> CssGenerator (Size Abs)
+outlineOffset : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 outlineOffset sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "outline-offset") size sizeValueFactory
@@ -380,7 +380,7 @@ outlineWidth4 : SizeDescriptor (Size Abs) Abs ->
                 SizeDescriptor (Size Abs) Abs ->
                 SizeDescriptor (Size Abs) Abs ->
                 SizeDescriptor (Size Abs) Abs ->
-                CssGenerator (Size Abs, Size Abs, Size Abs, Size Abs )
+                PropertyRuleAppender
 outlineWidth4 sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory
@@ -397,7 +397,7 @@ borderRadius : SizeDescriptor (Size a) a ->
                SizeDescriptor (Size b) b ->
                SizeDescriptor (Size c) c ->
                SizeDescriptor (Size d) d ->
-               CssGenerator (Size a, Size b, Size c, Size d)
+               PropertyRuleAppender
 borderRadius sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory
@@ -409,7 +409,7 @@ borderRadius sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
 
 borderTopLeftRadius : SizeDescriptor (Size a) a ->
                       SizeDescriptor (Size b) b ->
-                      CssGenerator (Size a, Size b)
+                      PropertyRuleAppender
 borderTopLeftRadius sizeDescriptorA sizeDescriptorB =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory
@@ -418,7 +418,7 @@ borderTopLeftRadius sizeDescriptorA sizeDescriptorB =
 
 borderTopRightRadius : SizeDescriptor (Size a) a ->
                        SizeDescriptor (Size b) b ->
-                       CssGenerator (Size a, Size b)
+                       PropertyRuleAppender
 borderTopRightRadius sizeDescriptorA sizeDescriptorB =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory
@@ -427,7 +427,7 @@ borderTopRightRadius sizeDescriptorA sizeDescriptorB =
 
 borderBottomLeftRadius : SizeDescriptor (Size a) a ->
                          SizeDescriptor (Size b) b ->
-                         CssGenerator (Size a, Size b)
+                         PropertyRuleAppender
 borderBottomLeftRadius sizeDescriptorA sizeDescriptorB =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory
@@ -436,7 +436,7 @@ borderBottomLeftRadius sizeDescriptorA sizeDescriptorB =
 
 borderBottomRightRadius : SizeDescriptor (Size a) a ->
                           SizeDescriptor (Size b) b ->
-                          CssGenerator (Size a, Size b)
+                          PropertyRuleAppender
 borderBottomRightRadius sizeDescriptorA sizeDescriptorB =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory
@@ -446,19 +446,19 @@ borderBottomRightRadius sizeDescriptorA sizeDescriptorB =
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-borderCollapse : VisibilityDescriptor -> CssGenerator Visibility
+borderCollapse : VisibilityDescriptor -> PropertyRuleAppender
 borderCollapse visibilityDescriptor =
   let visibility = visibilityDescriptor visibilityFactory
   in key (stringKey "border-collapse") visibility visibilityValueFactory
 
-borderSpacing : SizeDescriptor (Size a) a -> CssGenerator (Size a)
+borderSpacing : SizeDescriptor (Size a) a -> PropertyRuleAppender
 borderSpacing sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "border-spacing") size sizeValueFactory
 
 borderSpacing2 : SizeDescriptor (Size a) a ->
                  SizeDescriptor (Size b) b ->
-                 CssGenerator (Size a, Size b)
+                 PropertyRuleAppender
 borderSpacing2 sizeDescriptorA sizeDescriptorB =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory

@@ -1,8 +1,7 @@
 module Css.Elements where
 
-import Css.Internal.Selector exposing (Selector, star, text)
-
-import Css.Internal.Stylesheet exposing (CssGenerator, assignSelector)
+import Css.Internal.Selector exposing (SelectorData, star, selectorDataFromString)
+import Css.Internal.SelectorCombinators exposing (Selector, createSelector)
 
 -------------------------------------------------------------------------------
 
@@ -10,356 +9,350 @@ import Css.Internal.Stylesheet exposing (CssGenerator, assignSelector)
 
 {-| The star selector applies to all elements. Maps to @*@ in CSS.
 -}
-star : List (CssGenerator a) -> CssGenerator Selector
-star = Css.Internal.Selector.star |> assignSelector
-
-{-| Select elements by name. The preferred syntax is to just use one of
-the predefined elements from "Css.Elements".
--}
-element : String -> List (CssGenerator a) -> CssGenerator Selector
-element name = text name |> assignSelector
+star : Selector
+star = Css.Internal.Selector.star |> createSelector
 
 {-| Special cases, these items occur both as an HTML tag and an HTML
 attribute. These will need qualified imports. -}
-abbr : List (CssGenerator a) -> CssGenerator Selector
-abbr = "abbr" |> text |> assignSelector
+abbr : Selector
+abbr = "abbr" |> selectorDataFromString |> createSelector
 
-cite : List (CssGenerator a) -> CssGenerator Selector
-cite = "cite" |> text |> assignSelector
+cite : Selector
+cite = "cite" |> selectorDataFromString |> createSelector
 
-command : List (CssGenerator a) -> CssGenerator Selector
-command = "command" |> text |> assignSelector
+command : Selector
+command = "command" |> selectorDataFromString |> createSelector
 
-data_ : List (CssGenerator a) -> CssGenerator Selector
-data_ = "data" |> text |> assignSelector
+data_ : Selector
+data_ = "data" |> selectorDataFromString |> createSelector
 
-form : List (CssGenerator a) -> CssGenerator Selector
-form = "form" |> text |> assignSelector
+form : Selector
+form = "form" |> selectorDataFromString |> createSelector
 
-label : List (CssGenerator a) -> CssGenerator Selector
-label = "label" |> text |> assignSelector
+label : Selector
+label = "label" |> selectorDataFromString |> createSelector
 
-span : List (CssGenerator a) -> CssGenerator Selector
-span = "span" |> text |> assignSelector
+span : Selector
+span = "span" |> selectorDataFromString |> createSelector
 
-style : List (CssGenerator a) -> CssGenerator Selector
-style = "style" |> text |> assignSelector
+style : Selector
+style = "style" |> selectorDataFromString |> createSelector
 
-title : List (CssGenerator a) -> CssGenerator Selector
-title = "title" |> text |> assignSelector
+title : Selector
+title = "title" |> selectorDataFromString |> createSelector
 
 
-a : List (CssGenerator a) -> CssGenerator Selector
-a = "a" |> text |> assignSelector
+a : Selector
+a = "a" |> selectorDataFromString |> createSelector
 
-address : List (CssGenerator a) -> CssGenerator Selector
-address = "address" |> text |> assignSelector
+address : Selector
+address = "address" |> selectorDataFromString |> createSelector
 
-area : List (CssGenerator a) -> CssGenerator Selector
-area = "area" |> text |> assignSelector
+area : Selector
+area = "area" |> selectorDataFromString |> createSelector
 
-article : List (CssGenerator a) -> CssGenerator Selector
-article = "article" |> text |> assignSelector
+article : Selector
+article = "article" |> selectorDataFromString |> createSelector
 
-aside : List (CssGenerator a) -> CssGenerator Selector
-aside = "aside" |> text |> assignSelector
+aside : Selector
+aside = "aside" |> selectorDataFromString |> createSelector
 
-audio : List (CssGenerator a) -> CssGenerator Selector
-audio = "audio" |> text |> assignSelector
+audio : Selector
+audio = "audio" |> selectorDataFromString |> createSelector
 
-b : List (CssGenerator a) -> CssGenerator Selector
-b = "b" |> text |> assignSelector
+b : Selector
+b = "b" |> selectorDataFromString |> createSelector
 
-base : List (CssGenerator a) -> CssGenerator Selector
-base = "base" |> text |> assignSelector
+base : Selector
+base = "base" |> selectorDataFromString |> createSelector
 
-bdi : List (CssGenerator a) -> CssGenerator Selector
-bdi = "bdi" |> text |> assignSelector
+bdi : Selector
+bdi = "bdi" |> selectorDataFromString |> createSelector
 
-bdo : List (CssGenerator a) -> CssGenerator Selector
-bdo = "bdo" |> text |> assignSelector
+bdo : Selector
+bdo = "bdo" |> selectorDataFromString |> createSelector
 
-blockquote : List (CssGenerator a) -> CssGenerator Selector
-blockquote = "blockquote" |> text |> assignSelector
+blockquote : Selector
+blockquote = "blockquote" |> selectorDataFromString |> createSelector
 
-body : List (CssGenerator a) -> CssGenerator Selector
-body = "body" |> text |> assignSelector
+body : Selector
+body = "body" |> selectorDataFromString |> createSelector
 
-br : List (CssGenerator a) -> CssGenerator Selector
-br = "br" |> text |> assignSelector
+br : Selector
+br = "br" |> selectorDataFromString |> createSelector
 
-button : List (CssGenerator a) -> CssGenerator Selector
-button = "button" |> text |> assignSelector
+button : Selector
+button = "button" |> selectorDataFromString |> createSelector
 
-canvas : List (CssGenerator a) -> CssGenerator Selector
-canvas = "canvas" |> text |> assignSelector
+canvas : Selector
+canvas = "canvas" |> selectorDataFromString |> createSelector
 
-caption : List (CssGenerator a) -> CssGenerator Selector
-caption = "caption" |> text |> assignSelector
+caption : Selector
+caption = "caption" |> selectorDataFromString |> createSelector
 
-code : List (CssGenerator a) -> CssGenerator Selector
-code = "code" |> text |> assignSelector
+code : Selector
+code = "code" |> selectorDataFromString |> createSelector
 
-col : List (CssGenerator a) -> CssGenerator Selector
-col = "col" |> text |> assignSelector
+col : Selector
+col = "col" |> selectorDataFromString |> createSelector
 
-colgroup : List (CssGenerator a) -> CssGenerator Selector
-colgroup = "colgroup" |> text |> assignSelector
+colgroup : Selector
+colgroup = "colgroup" |> selectorDataFromString |> createSelector
 
-datalist : List (CssGenerator a) -> CssGenerator Selector
-datalist = "datalist" |> text |> assignSelector
+datalist : Selector
+datalist = "datalist" |> selectorDataFromString |> createSelector
 
-dd : List (CssGenerator a) -> CssGenerator Selector
-dd = "dd" |> text |> assignSelector
+dd : Selector
+dd = "dd" |> selectorDataFromString |> createSelector
 
-del : List (CssGenerator a) -> CssGenerator Selector
-del = "del" |> text |> assignSelector
+del : Selector
+del = "del" |> selectorDataFromString |> createSelector
 
-details : List (CssGenerator a) -> CssGenerator Selector
-details = "details" |> text |> assignSelector
+details : Selector
+details = "details" |> selectorDataFromString |> createSelector
 
-dfn : List (CssGenerator a) -> CssGenerator Selector
-dfn = "dfn" |> text |> assignSelector
+dfn : Selector
+dfn = "dfn" |> selectorDataFromString |> createSelector
 
-dialog : List (CssGenerator a) -> CssGenerator Selector
-dialog = "dialog" |> text |> assignSelector
+dialog : Selector
+dialog = "dialog" |> selectorDataFromString |> createSelector
 
-div : List (CssGenerator a) -> CssGenerator Selector
-div = "div" |> text |> assignSelector
+div : Selector
+div = "div" |> selectorDataFromString |> createSelector
 
-dl : List (CssGenerator a) -> CssGenerator Selector
-dl = "dl" |> text |> assignSelector
+dl : Selector
+dl = "dl" |> selectorDataFromString |> createSelector
 
-dt : List (CssGenerator a) -> CssGenerator Selector
-dt = "dt" |> text |> assignSelector
+dt : Selector
+dt = "dt" |> selectorDataFromString |> createSelector
 
-em : List (CssGenerator a) -> CssGenerator Selector
-em = "em" |> text |> assignSelector
+em : Selector
+em = "em" |> selectorDataFromString |> createSelector
 
-embed : List (CssGenerator a) -> CssGenerator Selector
-embed = "embed" |> text |> assignSelector
+embed : Selector
+embed = "embed" |> selectorDataFromString |> createSelector
 
-fieldset : List (CssGenerator a) -> CssGenerator Selector
-fieldset = "fieldset" |> text |> assignSelector
+fieldset : Selector
+fieldset = "fieldset" |> selectorDataFromString |> createSelector
 
-figcaption : List (CssGenerator a) -> CssGenerator Selector
-figcaption = "figcaption" |> text |> assignSelector
+figcaption : Selector
+figcaption = "figcaption" |> selectorDataFromString |> createSelector
 
-figure : List (CssGenerator a) -> CssGenerator Selector
-figure = "figure" |> text |> assignSelector
+figure : Selector
+figure = "figure" |> selectorDataFromString |> createSelector
 
-footer : List (CssGenerator a) -> CssGenerator Selector
-footer = "footer" |> text |> assignSelector
+footer : Selector
+footer = "footer" |> selectorDataFromString |> createSelector
 
-h1 : List (CssGenerator a) -> CssGenerator Selector
-h1 = "h1" |> text |> assignSelector
+h1 : Selector
+h1 = "h1" |> selectorDataFromString |> createSelector
 
-h2 : List (CssGenerator a) -> CssGenerator Selector
-h2 = "h2" |> text |> assignSelector
+h2 : Selector
+h2 = "h2" |> selectorDataFromString |> createSelector
 
-h3 : List (CssGenerator a) -> CssGenerator Selector
-h3 = "h3" |> text |> assignSelector
+h3 : Selector
+h3 = "h3" |> selectorDataFromString |> createSelector
 
-h4 : List (CssGenerator a) -> CssGenerator Selector
-h4 = "h4" |> text |> assignSelector
+h4 : Selector
+h4 = "h4" |> selectorDataFromString |> createSelector
 
-h5 : List (CssGenerator a) -> CssGenerator Selector
-h5 = "h5" |> text |> assignSelector
+h5 : Selector
+h5 = "h5" |> selectorDataFromString |> createSelector
 
-h6 : List (CssGenerator a) -> CssGenerator Selector
-h6 = "h6" |> text |> assignSelector
+h6 : Selector
+h6 = "h6" |> selectorDataFromString |> createSelector
 
-head : List (CssGenerator a) -> CssGenerator Selector
-head = "head" |> text |> assignSelector
+head : Selector
+head = "head" |> selectorDataFromString |> createSelector
 
-header : List (CssGenerator a) -> CssGenerator Selector
-header = "header" |> text |> assignSelector
+header : Selector
+header = "header" |> selectorDataFromString |> createSelector
 
-hgroup : List (CssGenerator a) -> CssGenerator Selector
-hgroup = "hgroup" |> text |> assignSelector
+hgroup : Selector
+hgroup = "hgroup" |> selectorDataFromString |> createSelector
 
-hr : List (CssGenerator a) -> CssGenerator Selector
-hr = "hr" |> text |> assignSelector
+hr : Selector
+hr = "hr" |> selectorDataFromString |> createSelector
 
-html : List (CssGenerator a) -> CssGenerator Selector
-html = "html" |> text |> assignSelector
+html : Selector
+html = "html" |> selectorDataFromString |> createSelector
 
-i : List (CssGenerator a) -> CssGenerator Selector
-i = "i" |> text |> assignSelector
+i : Selector
+i = "i" |> selectorDataFromString |> createSelector
 
-iframe : List (CssGenerator a) -> CssGenerator Selector
-iframe = "iframe" |> text |> assignSelector
+iframe : Selector
+iframe = "iframe" |> selectorDataFromString |> createSelector
 
-img : List (CssGenerator a) -> CssGenerator Selector
-img = "img" |> text |> assignSelector
+img : Selector
+img = "img" |> selectorDataFromString |> createSelector
 
-input : List (CssGenerator a) -> CssGenerator Selector
-input = "input" |> text |> assignSelector
+input : Selector
+input = "input" |> selectorDataFromString |> createSelector
 
-ins : List (CssGenerator a) -> CssGenerator Selector
-ins = "ins" |> text |> assignSelector
+ins : Selector
+ins = "ins" |> selectorDataFromString |> createSelector
 
-kbd : List (CssGenerator a) -> CssGenerator Selector
-kbd = "kbd" |> text |> assignSelector
+kbd : Selector
+kbd = "kbd" |> selectorDataFromString |> createSelector
 
-keygen : List (CssGenerator a) -> CssGenerator Selector
-keygen = "keygen" |> text |> assignSelector
+keygen : Selector
+keygen = "keygen" |> selectorDataFromString |> createSelector
 
-legend : List (CssGenerator a) -> CssGenerator Selector
-legend = "legend" |> text |> assignSelector
+legend : Selector
+legend = "legend" |> selectorDataFromString |> createSelector
 
-li : List (CssGenerator a) -> CssGenerator Selector
-li = "li" |> text |> assignSelector
+li : Selector
+li = "li" |> selectorDataFromString |> createSelector
 
-link : List (CssGenerator a) -> CssGenerator Selector
-link = "link" |> text |> assignSelector
+link : Selector
+link = "link" |> selectorDataFromString |> createSelector
 
-main_ : List (CssGenerator a) -> CssGenerator Selector
-main_ = "main" |> text |> assignSelector
+main_ : Selector
+main_ = "main" |> selectorDataFromString |> createSelector
 
-map : List (CssGenerator a) -> CssGenerator Selector
-map = "map" |> text |> assignSelector
+map : Selector
+map = "map" |> selectorDataFromString |> createSelector
 
-mark : List (CssGenerator a) -> CssGenerator Selector
-mark = "mark" |> text |> assignSelector
+mark : Selector
+mark = "mark" |> selectorDataFromString |> createSelector
 
-menu : List (CssGenerator a) -> CssGenerator Selector
-menu = "menu" |> text |> assignSelector
+menu : Selector
+menu = "menu" |> selectorDataFromString |> createSelector
 
-meta : List (CssGenerator a) -> CssGenerator Selector
-meta = "meta" |> text |> assignSelector
+meta : Selector
+meta = "meta" |> selectorDataFromString |> createSelector
 
-meter : List (CssGenerator a) -> CssGenerator Selector
-meter = "meter" |> text |> assignSelector
+meter : Selector
+meter = "meter" |> selectorDataFromString |> createSelector
 
-math : List (CssGenerator a) -> CssGenerator Selector
-math = "math" |> text |> assignSelector
+math : Selector
+math = "math" |> selectorDataFromString |> createSelector
 
-nav : List (CssGenerator a) -> CssGenerator Selector
-nav = "nav" |> text |> assignSelector
+nav : Selector
+nav = "nav" |> selectorDataFromString |> createSelector
 
-noscript : List (CssGenerator a) -> CssGenerator Selector
-noscript = "noscript" |> text |> assignSelector
+noscript : Selector
+noscript = "noscript" |> selectorDataFromString |> createSelector
 
-object : List (CssGenerator a) -> CssGenerator Selector
-object = "object" |> text |> assignSelector
+object : Selector
+object = "object" |> selectorDataFromString |> createSelector
 
-ol : List (CssGenerator a) -> CssGenerator Selector
-ol = "ol" |> text |> assignSelector
+ol : Selector
+ol = "ol" |> selectorDataFromString |> createSelector
 
-optgroup : List (CssGenerator a) -> CssGenerator Selector
-optgroup = "optgroup" |> text |> assignSelector
+optgroup : Selector
+optgroup = "optgroup" |> selectorDataFromString |> createSelector
 
-option : List (CssGenerator a) -> CssGenerator Selector
-option = "option" |> text |> assignSelector
+option : Selector
+option = "option" |> selectorDataFromString |> createSelector
 
-output : List (CssGenerator a) -> CssGenerator Selector
-output = "output" |> text |> assignSelector
+output : Selector
+output = "output" |> selectorDataFromString |> createSelector
 
-p : List (CssGenerator a) -> CssGenerator Selector
-p = "p" |> text |> assignSelector
+p : Selector
+p = "p" |> selectorDataFromString |> createSelector
 
-param : List (CssGenerator a) -> CssGenerator Selector
-param = "param" |> text |> assignSelector
+param : Selector
+param = "param" |> selectorDataFromString |> createSelector
 
-pre : List (CssGenerator a) -> CssGenerator Selector
-pre = "pre" |> text |> assignSelector
+pre : Selector
+pre = "pre" |> selectorDataFromString |> createSelector
 
-progress : List (CssGenerator a) -> CssGenerator Selector
-progress = "progress" |> text |> assignSelector
+progress : Selector
+progress = "progress" |> selectorDataFromString |> createSelector
 
-q : List (CssGenerator a) -> CssGenerator Selector
-q = "q" |> text |> assignSelector
+q : Selector
+q = "q" |> selectorDataFromString |> createSelector
 
-rp : List (CssGenerator a) -> CssGenerator Selector
-rp = "rp" |> text |> assignSelector
+rp : Selector
+rp = "rp" |> selectorDataFromString |> createSelector
 
-rt : List (CssGenerator a) -> CssGenerator Selector
-rt = "rt" |> text |> assignSelector
+rt : Selector
+rt = "rt" |> selectorDataFromString |> createSelector
 
-ruby : List (CssGenerator a) -> CssGenerator Selector
-ruby = "ruby" |> text |> assignSelector
+ruby : Selector
+ruby = "ruby" |> selectorDataFromString |> createSelector
 
-s : List (CssGenerator a) -> CssGenerator Selector
-s = "s" |> text |> assignSelector
+s : Selector
+s = "s" |> selectorDataFromString |> createSelector
 
-samp : List (CssGenerator a) -> CssGenerator Selector
-samp = "samp" |> text |> assignSelector
+samp : Selector
+samp = "samp" |> selectorDataFromString |> createSelector
 
-script : List (CssGenerator a) -> CssGenerator Selector
-script = "script" |> text |> assignSelector
+script : Selector
+script = "script" |> selectorDataFromString |> createSelector
 
-section : List (CssGenerator a) -> CssGenerator Selector
-section = "section" |> text |> assignSelector
+section : Selector
+section = "section" |> selectorDataFromString |> createSelector
 
-select : List (CssGenerator a) -> CssGenerator Selector
-select = "select" |> text |> assignSelector
+select : Selector
+select = "select" |> selectorDataFromString |> createSelector
 
-small : List (CssGenerator a) -> CssGenerator Selector
-small = "small" |> text |> assignSelector
+small : Selector
+small = "small" |> selectorDataFromString |> createSelector
 
-source : List (CssGenerator a) -> CssGenerator Selector
-source = "source" |> text |> assignSelector
+source : Selector
+source = "source" |> selectorDataFromString |> createSelector
 
-strong : List (CssGenerator a) -> CssGenerator Selector
-strong = "strong" |> text |> assignSelector
+strong : Selector
+strong = "strong" |> selectorDataFromString |> createSelector
 
-sub : List (CssGenerator a) -> CssGenerator Selector
-sub = "sub" |> text |> assignSelector
+sub : Selector
+sub = "sub" |> selectorDataFromString |> createSelector
 
-summary : List (CssGenerator a) -> CssGenerator Selector
-summary = "summary" |> text |> assignSelector
+summary : Selector
+summary = "summary" |> selectorDataFromString |> createSelector
 
-sup : List (CssGenerator a) -> CssGenerator Selector
-sup = "sup" |> text |> assignSelector
+sup : Selector
+sup = "sup" |> selectorDataFromString |> createSelector
 
-svg : List (CssGenerator a) -> CssGenerator Selector
-svg = "svg" |> text |> assignSelector
+svg : Selector
+svg = "svg" |> selectorDataFromString |> createSelector
 
-table : List (CssGenerator a) -> CssGenerator Selector
-table = "table" |> text |> assignSelector
+table : Selector
+table = "table" |> selectorDataFromString |> createSelector
 
-tbody : List (CssGenerator a) -> CssGenerator Selector
-tbody = "tbody" |> text |> assignSelector
+tbody : Selector
+tbody = "tbody" |> selectorDataFromString |> createSelector
 
-td : List (CssGenerator a) -> CssGenerator Selector
-td = "td" |> text |> assignSelector
+td : Selector
+td = "td" |> selectorDataFromString |> createSelector
 
-template : List (CssGenerator a) -> CssGenerator Selector
-template = "template" |> text |> assignSelector
+template : Selector
+template = "template" |> selectorDataFromString |> createSelector
 
-textarea : List (CssGenerator a) -> CssGenerator Selector
-textarea = "textarea" |> text |> assignSelector
+textarea : Selector
+textarea = "textarea" |> selectorDataFromString |> createSelector
 
-tfoot : List (CssGenerator a) -> CssGenerator Selector
-tfoot = "tfoot" |> text |> assignSelector
+tfoot : Selector
+tfoot = "tfoot" |> selectorDataFromString |> createSelector
 
-th : List (CssGenerator a) -> CssGenerator Selector
-th = "th" |> text |> assignSelector
+th : Selector
+th = "th" |> selectorDataFromString |> createSelector
 
-thead : List (CssGenerator a) -> CssGenerator Selector
-thead = "thead" |> text |> assignSelector
+thead : Selector
+thead = "thead" |> selectorDataFromString |> createSelector
 
-time : List (CssGenerator a) -> CssGenerator Selector
-time = "time" |> text |> assignSelector
+time : Selector
+time = "time" |> selectorDataFromString |> createSelector
 
-tr : List (CssGenerator a) -> CssGenerator Selector
-tr = "tr" |> text |> assignSelector
+tr : Selector
+tr = "tr" |> selectorDataFromString |> createSelector
 
-track : List (CssGenerator a) -> CssGenerator Selector
-track = "track" |> text |> assignSelector
+track : Selector
+track = "track" |> selectorDataFromString |> createSelector
 
-u : List (CssGenerator a) -> CssGenerator Selector
-u = "u" |> text |> assignSelector
+u : Selector
+u = "u" |> selectorDataFromString |> createSelector
 
-ul : List (CssGenerator a) -> CssGenerator Selector
-ul = "ul" |> text |> assignSelector
+ul : Selector
+ul = "ul" |> selectorDataFromString |> createSelector
 
-var : List (CssGenerator a) -> CssGenerator Selector
-var = "var" |> text |> assignSelector
+var : Selector
+var = "var" |> selectorDataFromString |> createSelector
 
-video : List (CssGenerator a) -> CssGenerator Selector
-video = "video" |> text |> assignSelector
+video : Selector
+video = "video" |> selectorDataFromString |> createSelector
 
-wbr : List (CssGenerator a) -> CssGenerator Selector
-wbr = "wbr" |> text |> assignSelector
+wbr : Selector
+wbr = "wbr" |> selectorDataFromString |> createSelector

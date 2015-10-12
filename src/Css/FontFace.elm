@@ -20,7 +20,7 @@ type FontFaceSrc
 
 type FontFaceFormat = WOFF | TrueType | OpenType | EmbeddedOpenType | SVG
 
-fontFaceSrc : List FontFaceSrc -> CssGenerator FontFaceSrc
+fontFaceSrc : List FontFaceSrc -> PropertyRuleAppender
 fontFaceSrc fontFaceSrcList =
   key (stringKey "src") fontFaceSrcList (commaListValueFactory fontFaceValueFactory)
 
