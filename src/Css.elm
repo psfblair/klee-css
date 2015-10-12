@@ -6,7 +6,7 @@ module Css
   , byId, (:#), byClass, (:.), pseudo, func
   , attr, (:@), attrBegin, (:@^), attrEnd, (:@$), attrHas, (:@*)
   , attrInSpaceList, (:@~), attrInHyphenList, (:@-)
-  , Config, render, renderCompact, renderWith
+  , Config, render, renderCompact, renderProperties, renderWith
   , MediaType, Feature, query, queryNot, queryOnly
   , keyframes, keyframesFromTo, fontFace, importUrl
   , custom, element, filter, withAttr
@@ -32,7 +32,7 @@ For predefined element selectors, see `Css.Elements`, for pseudo-selectors see
       attrInSpaceList, (:@~), attrInHyphenList, (:@-)
 
 # Rendering stylesheets to CSS strings
-@docs Config, render, renderCompact, renderWith
+@docs Config, render, renderCompact, renderProperties, renderWith
 
 # Special rules
 @docs MediaType, Feature, query, queryNot, queryOnly, keyframes, keyframesFromTo,
@@ -274,8 +274,18 @@ render = Css.Internal.Render.renderWith pretty
 
 {-| Render a stylesheet in compact format.
 -}
-renderCompact : List ( Css.Internal.Stylesheet.CssAppender a ) -> String
+renderCompact : List (Stylesheet a) -> String
 renderCompact = Css.Internal.Render.renderWith compact
+
+{-| Render a list of properties t in compact format, in a style suitable for an
+HTML style attribute.
+-}
+renderProperties : List StyleProperty -> String
+renderProperties styleProperties
+  = styleProperties
+  |> List.map (\property -> property.propertyRule)
+  |> Css.Internal.Render.ruleProperties
+  |> Css.Internal.Render.renderProperties compact
 
 {-| Render a stylesheet with a custom print configuration.
 -}

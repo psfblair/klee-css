@@ -95,11 +95,7 @@ its various nested levels.
 -}
 renderRules : Config -> SelectorData -> (List RuleData) -> String
 renderRules cfg selector ruleList =
-  let property prop =
-        case prop of
-          (Property k v) -> Just (k, v)
-          _  -> Nothing
-      nested n =
+  let nested n =
         case n of
           (Nested selectorData nestedRules) -> Just (selectorData, nestedRules)
           _  -> Nothing
@@ -120,7 +116,7 @@ renderRules cfg selector ruleList =
           (Import i    ) -> Just i
           _ -> Nothing
   in concat
-      [ renderRule cfg selector (List.filterMap property ruleList)
+      [ renderRule cfg selector (ruleProperties ruleList)
       , cfg.newline
       , List.filterMap imports ruleList |> List.map (renderImportRule cfg) |> concat
       , List.filterMap kframes ruleList |> List.map (renderKeyframes cfg) |> concat
@@ -132,6 +128,14 @@ renderRules cfg selector ruleList =
             |> List.map (\(qry, nestedRules) -> renderMedia cfg qry selector nestedRules)
             |> concat
       ]
+
+ruleProperties : List RuleData -> List (Key (), Value)
+ruleProperties ruleList =
+  let property prop =
+      case prop of
+        (Property k v) -> Just (k, v)
+        _  -> Nothing
+  in List.filterMap property ruleList
 
 {-| Renders to a string a set of property/value rules inside a given scope. (The
 property/value rules do not include nested rules or rules for media, keyframes,
@@ -148,9 +152,7 @@ renderRule cfg selectorData propertyRules =
         , cfg.newline
         , "{"
         , cfg.newline
-        , (List.map toEithers propertyRules
-            |> List.map (renderProperty cfg)
-            |> concat)
+        , renderProperties cfg propertyRules
         , "}"
         , cfg.newline
         ]
@@ -202,6 +204,13 @@ renderPredicate pred =
     AttrHyph     a v -> "[" ++ a ++ "|='" ++ v ++ "']"
     Pseudo       a   -> ":" ++ a
     PseudoFunc   a args -> ":" ++ a ++ "(" ++ (String.join "," args) ++ ")"
+
+renderProperties : Config -> List (Key (), Value) -> String
+renderProperties cfg propertyRules =
+  propertyRules
+    |> List.map toEithers
+    |> List.map (renderProperty cfg)
+    |> concat
 
 {-  Returns either a pair of key,value (Right), or a prefixed key (Left).
     The prefixes that are carried along by the Prefixed type are concatenated
