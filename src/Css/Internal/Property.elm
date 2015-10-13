@@ -1,7 +1,7 @@
 module Css.Internal.Property
   ( Key (..), Value (..), PrefixedOrNot (..)
   , unPrefixed, plain, quote, stringKey, prefixedKeys, cast
-  , ValueFactory, emptyValue, appendUnits, concatenateValues
+  , ValueFactory, emptyValue, appendValues, concatenateValues
   , stringValueFactory, intValueFactory, floatValueFactory, valueValueFactory
   , maybeValueFactory, commaListValueFactory, spaceListValueFactory, spacePairValueFactory
   , spaceTripleValueFactory, spaceQuadrupleValueFactory, commaQuadrupleValueFactory
@@ -25,9 +25,6 @@ type PrefixedOrNot
 
 unPrefixed : PrefixedOrNot -> List (String, String)
 unPrefixed (Prefixed inner) = inner
-
-unPlain : PrefixedOrNot -> String
-unPlain (Plain str) = str
 
 plain : PrefixedOrNot -> String
 plain prefixedOrNot =
@@ -68,18 +65,12 @@ stringKey str = Plain str |> Key
 prefixedKeys : PrefixedOrNot -> String -> PrefixedOrNot
 prefixedKeys prefixes rootKey = Plain rootKey |> merge prefixes
 
-unKeys : Key PrefixedOrNot -> PrefixedOrNot
-unKeys (Key a) = a
-
 cast : Key a -> Key ()
 cast (Key k) = Key k
 
 -------------------------------------------------------------------------------
 
 type Value = Value PrefixedOrNot
-
-unValue : Value -> PrefixedOrNot
-unValue (Value v) = v
 
 emptyValue : Value
 emptyValue = Value (Plain "")
@@ -89,10 +80,6 @@ appendValues (Value v1) (Value v2) = merge v1 v2 |> Value
 
 concatenateValues : List Value -> Value
 concatenateValues = List.foldr (\val accum -> appendValues val accum) emptyValue
-
-appendUnits : Float -> String -> Value
-appendUnits qty unit =
-  appendValues (floatValueFactory.value qty) (stringValueFactory.value unit)
 
 intersperse : String -> List Value -> Value
 intersperse str values =

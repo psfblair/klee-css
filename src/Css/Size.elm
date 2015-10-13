@@ -45,7 +45,7 @@ module Css.Size (
 
 import Css.Internal.Property exposing
   ( Value, ValueFactory
-  , appendUnits, stringValueFactory, floatValueFactory
+  , appendValues, stringValueFactory, floatValueFactory
   )
 
 import Css.Common exposing
@@ -248,3 +248,7 @@ angleValueFactory =
         InheritAngle -> inheritValueFactory.inherit
         OtherAngle val -> otherValueFactory.other val
   }
+
+appendUnits : Float -> String -> Value
+appendUnits qty unit =
+  appendValues (floatValueFactory.value qty) (stringValueFactory.value unit)
