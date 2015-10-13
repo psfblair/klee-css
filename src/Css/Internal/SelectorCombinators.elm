@@ -16,14 +16,17 @@ import Css.Internal.Stylesheet exposing
   , addRule, extractRuleData
   )
 
-{-|  A `Selector` represents the selector in a CSS rule. `Selector` is implemented
-as a function that takes a list of rules (either `StyleProperty` or nested
-`PropertyStylesheet` rules) and returns a `PropertyStylesheet`. Selectors may
-be combined using the combinators defined in this module. Most of the selectors
-one would need are predefined in the `Css.Elements` module, though if necessary
-new custom selectors can be defined using the `element` function in that module.
+{-|  A `Selector` represents the selector in a CSS rule. `Selector` is
+implemented as a function that takes twp list of rules (one of `StyleProperty`
+and one of nested `PropertyStylesheet` rules) and returns a `PropertyStylesheet`.
+Selectors may be combined using the combinators defined in this module. Most of
+the selectors one would need are predefined in the `Css.Elements` module, though
+if necessary new custom selectors can be defined using the `element` function in
+that module.
 -}
-type alias Selector = List PropertyRuleAppender -> SelectorRuleAppender
+type alias Selector = List PropertyRuleAppender ->
+                      List SelectorRuleAppender ->
+                      SelectorRuleAppender
 
 -------------------------------------------------------------------------------
 -- ** Creating selectors
@@ -163,9 +166,14 @@ selectors.
 Note that `List PropertyRuleAppender -> SelectorRuleAppender` is the same as
 `Selector`, but we leave it expanded for clarity.
 -}
-createSelector : SelectorData -> List PropertyRuleAppender -> SelectorRuleAppender
-createSelector selectorData propertyRuleAppenders =
-  let nestedRule = Nested selectorData (extractRuleData propertyRuleAppenders)
+createSelector : SelectorData ->
+                 List PropertyRuleAppender ->
+                 List SelectorRuleAppender ->
+                 SelectorRuleAppender
+createSelector selectorData propertyRuleAppenders nestedRuleAppenders =
+  let propertyRules = extractRuleData propertyRuleAppenders
+      nestedRules = extractRuleData nestedRuleAppenders
+      nestedRule = Nested selectorData (propertyRules ++ nestedRules)
   in { addCss = addRule nestedRule
      , propertyRule = nestedRule
      , selector = selectorData
@@ -188,17 +196,24 @@ combineSelectors : Selector ->
                    Selector ->
                    BinaryPathConstructor ->
                    List PropertyRuleAppender ->
+                   List SelectorRuleAppender ->
                    SelectorRuleAppender
-combineSelectors selector1 selector2 pathConstructor propertyRuleAppenders =
+combineSelectors selector1
+                 selector2
+                 pathConstructor
+                 propertyRuleAppenders
+                 nestedRuleAppenders =
   -- each selector is a List PropertyRuleAppender -> SelectorRuleAppender
-  let selector1Appender = selector1 []
+  let selector1Appender = selector1 [] []
       selector1Data = selector1Appender.selector
-      selector2Appender = selector2 []
+      selector2Appender = selector2 [] []
       selector2Data = selector2Appender.selector
       combinedSelectorData =
         SelectorData (Refinement []) (pathConstructor selector1Data selector2Data)
+      propertyRules = extractRuleData propertyRuleAppenders
+      nestedRules = extractRuleData nestedRuleAppenders
       combinedRule =
-        Nested combinedSelectorData (extractRuleData propertyRuleAppenders)
+        Nested combinedSelectorData (propertyRules ++ nestedRules)
   in { addCss = addRule combinedRule
      , propertyRule = combinedRule
      , selector = combinedSelectorData
@@ -215,17 +230,23 @@ implementation clearer.
 addRefinementToSelector : Selector ->
                           Refinement ->
                           List PropertyRuleAppender ->
+                          List SelectorRuleAppender ->
                           SelectorRuleAppender
-addRefinementToSelector sel (Refinement filtersToAdd) propertyRuleAppenders =
+addRefinementToSelector sel
+                        (Refinement filtersToAdd)
+                        propertyRuleAppenders
+                        nestedRuleAppenders =
   -- each selector is a List PropertyRuleAppender -> SelectorRuleAppender
-  let selectorAppender = sel []
+  let selectorAppender = sel [] []
       selectorData = selectorAppender.selector
       (selectorFilters, selectorPath) = case selectorData of
         SelectorData (Refinement filters) path -> (filters, path)
       newSelectorData =
         SelectorData (Refinement (selectorFilters ++ filtersToAdd)) selectorPath
+      propertyRules = extractRuleData propertyRuleAppenders
+      nestedRules = extractRuleData nestedRuleAppenders
       refinedRule =
-        Nested newSelectorData (extractRuleData propertyRuleAppenders)
+        Nested newSelectorData (propertyRules ++ nestedRules)
   in { addCss = addRule refinedRule
      , propertyRule = refinedRule
      , selector = newSelectorData

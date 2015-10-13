@@ -67,7 +67,7 @@ will supply with an empty `Css` as an accumulator.
 renderWith : Config -> List (CssAppender a) -> String
 renderWith cfg stylesheets
   = extractRuleData stylesheets
-  |> renderRules cfg emptySelectorData
+  |> renderRules cfg []
   |> renderBanner cfg
 
 -------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ renderWith cfg stylesheets
  -}
 renderSelector : Selector -> String
 renderSelector selector =
-  let selectorAppender = selector []
+  let selectorAppender = selector [] []
       selectorData = selectorAppender.selector
   in renderSelectorWithConfig compact selectorData
 
@@ -93,8 +93,8 @@ renderBanner cfg =
 by a listing of Scope objects that specifies how the scope is composed of
 its various nested levels.
 -}
-renderRules : Config -> SelectorData -> (List RuleData) -> String
-renderRules cfg selector ruleList =
+renderRules : Config -> (List SelectorData) -> (List RuleData) -> String
+renderRules cfg selectors ruleList =
   let nested n =
         case n of
           (Nested selectorData nestedRules) -> Just (selectorData, nestedRules)
@@ -116,16 +116,18 @@ renderRules cfg selector ruleList =
           (Import i    ) -> Just i
           _ -> Nothing
   in concat
-      [ renderRule cfg selector (ruleProperties ruleList)
+      [ renderRule cfg selectors (ruleProperties ruleList)
       , cfg.newline
       , List.filterMap imports ruleList |> List.map (renderImportRule cfg) |> concat
       , List.filterMap kframes ruleList |> List.map (renderKeyframes cfg) |> concat
       , List.filterMap faces   ruleList |> List.map (renderFontFace cfg) |> concat
       , List.filterMap nested  ruleList
-            |> List.map (\(selectorData, nestedRules) -> renderRules cfg selectorData nestedRules)
+            |> List.map (\(selectorData, nestedRules) ->
+                          renderRules cfg (selectorData :: selectors) nestedRules)
             |> concat
       , List.filterMap queries ruleList
-            |> List.map (\(qry, nestedRules) -> renderMedia cfg qry selector nestedRules)
+            |> List.map (\(qry, nestedRules) ->
+                            renderMedia cfg qry selectors nestedRules)
             |> concat
       ]
 
@@ -142,13 +144,13 @@ property/value rules do not include nested rules or rules for media, keyframes,
 font-face, or imports. The scope is specified by a listing of Scope objects that
 specifies how the scope is composed of its various nested levels.
 -}
-renderRule : Config -> SelectorData -> (List (Key (), Value)) -> String
-renderRule cfg selectorData propertyRules =
+renderRule : Config -> (List SelectorData) -> (List (Key (), Value)) -> String
+renderRule cfg selectorDatas propertyRules =
   case propertyRules of
     [] -> ""
     (h::t) ->
       concat
-        [ renderSelectorWithConfig cfg selectorData
+        [ merge selectorDatas |> renderSelectorWithConfig cfg
         , cfg.newline
         , "{"
         , cfg.newline
@@ -156,6 +158,18 @@ renderRule cfg selectorData propertyRules =
         , "}"
         , cfg.newline
         ]
+
+-- Unlike Clay, here the only merge we need is to compose all selectors with the
+-- "descendant" relationship. Any other composition is done by the combinators
+-- before we get here.
+-- Note that the way renderRules constructs the list of selector data, the outer
+-- scopes are added to the list before the inner ones. So we traverse the list
+-- from the left, with the innermost scopes first.
+merge : List SelectorData -> SelectorData
+merge selectorDatas =
+  let combineSelectorData selector1Data selector2Data =
+        SelectorData (Refinement []) (Descendant selector1Data selector2Data)
+  in List.foldl combineSelectorData emptySelectorData selectorDatas
 
 {- Render a selector to a string, given a `Config` for specifying the
 newline behavior. -}
@@ -290,16 +304,16 @@ renderKeyframes cfg (Keyframes animationName listOfFrames) =
 {- Render one frame in a CSS @keyframes rule.
 -}
 renderKeyframe : Config -> (Float, (List RuleData)) -> String
-renderKeyframe cfg (percentage, mediaRules) =
+renderKeyframe cfg (percentage, keyframeRules) =
   concat
     [ percentage |> toString
     , "% "
-    , renderRules cfg emptySelectorData mediaRules
+    , renderRules cfg [] keyframeRules
     ]
 
 {-| Render a CSS @media rule.
 -}
-renderMedia : Config -> MediaQuery -> SelectorData -> (List RuleData) -> String
+renderMedia : Config -> MediaQuery -> (List SelectorData) -> (List RuleData) -> String
 renderMedia cfg query sel mediaRules =
   concat
     [ renderMediaQuery query
@@ -348,7 +362,7 @@ renderFontFace : Config -> (List RuleData) -> String
 renderFontFace cfg faceRules =
   concat
     [ "@font-face"
-    , renderRules cfg emptySelectorData faceRules
+    , renderRules cfg [] faceRules
     ]
 
 {-| Render a CSS import rule.
