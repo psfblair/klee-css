@@ -6,6 +6,26 @@ import String
 -------------------------------------------------------------------------------
 -- TODO These need to go into a library of their own
 
+type Either a b = Left a | Right b
+
+
+rightValue : Either a b -> Maybe b
+rightValue either =
+  case either of
+    Right a -> Just a
+    _ -> Nothing
+
+
+compose : List (a -> a) -> a -> a
+compose = List.foldl (>>) identity
+
+
+mapPairwise : (a -> b -> c) -> List a -> List b -> List c
+mapPairwise combineFn xs ys =
+  let partiallyBoundFns = List.map combineFn xs
+  in partiallyBoundFns |> List.concatMap (\fn -> List.map fn ys)
+
+
 {-| Some auxiliary mathematical functions.  -}
 
 floatMod : Float -> Float -> Float
@@ -63,13 +83,3 @@ fromHex str =
         let convertedResult = fromHexChar digitChar
         in Result.map2 (\accum val -> (accum * 16) + val) result convertedResult
   in hexDigits |> List.foldl mapResultInto (Ok 0)
-
-
-compose : List (a -> a) -> a -> a
-compose = List.foldl (>>) identity
-
-
-mapPairwise : (a -> b -> c) -> List a -> List b -> List c
-mapPairwise combineFn xs ys =
-  let partiallyBoundFns = List.map combineFn xs
-  in partiallyBoundFns |> List.concatMap (\fn -> List.map fn ys)

@@ -11,8 +11,7 @@ import Css.Internal.Stylesheet exposing
 import Css.Common exposing (browsers)
 import Css.Internal.Property exposing
   ( Key (..), Value (..), PrefixedOrNot (..)
-  , Either (..)
-  , plain, unPrefixed, rightValue
+  , plain, unPrefixed
   )
 import Css.Internal.Selector exposing
   ( SelectorData (..), Refinement (..), Path (..), Predicate (..)
@@ -21,7 +20,7 @@ import Css.Internal.Selector exposing
 import Css.Internal.SelectorCombinators exposing
   ( Selector, descendant, child, with
   )
-import Css.Internal.Utils exposing (mapPairwise)
+import Css.Internal.Utils exposing (Either (..), rightValue, mapPairwise)
 -------------------------------------------------------------------------------
 
 type alias Config =

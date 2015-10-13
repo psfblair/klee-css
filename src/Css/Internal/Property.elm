@@ -1,6 +1,6 @@
 module Css.Internal.Property
-  ( Key (..), Value (..), PrefixedOrNot (..), Either (..)
-  , rightValue, unPrefixed, plain, quote, stringKey, prefixedKeys, cast
+  ( Key (..), Value (..), PrefixedOrNot (..)
+  , unPrefixed, plain, quote, stringKey, prefixedKeys, cast
   , ValueFactory, emptyValue, appendUnits, concatenateValues
   , stringValueFactory, intValueFactory, floatValueFactory, valueValueFactory
   , maybeValueFactory, commaListValueFactory, spaceListValueFactory, spacePairValueFactory
@@ -11,19 +11,11 @@ module Css.Internal.Property
 import Dict exposing (fromList, get)
 import Regex exposing (regex, replace)
 
-import Css.Internal.Utils exposing (toFixed)
+import Css.Internal.Utils exposing (Either (..), rightValue, toFixed)
 
 -------------------------------------------------------------------------------
 
 type Literal = Literal String
-
-type Either a b = Left a | Right b
-
-rightValue : Either a b -> Maybe b
-rightValue either =
-  case either of
-    Right a -> Just a
-    _ -> Nothing
 
 -------------------------------------------------------------------------------
 -- Prefixed is for properties with browser prefixes.
