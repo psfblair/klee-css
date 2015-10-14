@@ -17,9 +17,6 @@ import Css.Internal.Selector exposing
   ( SelectorData (..), Refinement (..), Path (..), Predicate (..)
   , emptySelectorData, sortPredicate
   )
-import Css.Internal.SelectorCombinators exposing
-  ( Selector, descendant, child, with
-  )
 import Css.Internal.Utils exposing (Either (..), rightValue, mapPairwise)
 -------------------------------------------------------------------------------
 
@@ -33,7 +30,7 @@ type alias Config =
   , banner         : Bool
   }
 
-{-| Configuration to print to a pretty human readable CSS output.
+{- Configuration to print to a pretty human readable CSS output.
 -}
 pretty : Config
 pretty =
@@ -46,7 +43,7 @@ pretty =
   , banner         = True
   }
 
-{-| Configuration to print to a compacted unreadable CSS output.
+{- Configuration to print to a compacted unreadable CSS output.
 -}
 compact : Config
 compact =
@@ -59,7 +56,7 @@ compact =
   , banner         = False
   }
 
-{-| Render a stylesheet with a custom configuration. The `CssAppender` argument
+{- Render a stylesheet with a custom configuration. The `CssAppender` argument
 is a stylesheet, represented as a function of `Css -> Css`, which `renderWith`
 will supply with an empty `Css` as an accumulator.
 -}
@@ -69,17 +66,7 @@ renderWith cfg stylesheets
   |> renderRules cfg []
   |> renderBanner cfg
 
--------------------------------------------------------------------------------
-
-{-| Render a single CSS `Selector`.
- -}
-renderSelector : Selector -> String
-renderSelector selector =
-  let selectorAppender = selector [] []
-      selectorData = selectorAppender.selector
-  in renderSelectorWithConfig compact selectorData
-
-{-| Adds a "Generated with elm-css" comment to the bottom of the rendered Css.
+{- Adds a "Generated with elm-css" comment to the bottom of the rendered Css.
 -}
 renderBanner : Config -> String -> String
 renderBanner cfg =
@@ -88,7 +75,7 @@ renderBanner cfg =
 
 -------------------------------------------------------------------------------
 
-{-| Render a list of CSS rules inside a given scope. The scope is specified
+{- Render a list of CSS rules inside a given scope. The scope is specified
 by a listing of Scope objects that specifies how the scope is composed of
 its various nested levels.
 -}
@@ -138,10 +125,9 @@ ruleProperties ruleList =
         _  -> Nothing
   in List.filterMap property ruleList
 
-{-| Renders to a string a set of property/value rules inside a given scope. (The
+{- Render to a string a set of property/value rules inside a given scope. (The
 property/value rules do not include nested rules or rules for media, keyframes,
-font-face, or imports. The scope is specified by a listing of Scope objects that
-specifies how the scope is composed of its various nested levels.
+font-face, or imports.
 -}
 renderRule : Config -> (List SelectorData) -> (List (Key (), Value)) -> String
 renderRule cfg selectorDatas propertyRules =
@@ -158,12 +144,14 @@ renderRule cfg selectorDatas propertyRules =
         , cfg.newline
         ]
 
--- Unlike Clay, here the only merge we need is to compose all selectors with the
--- "descendant" relationship. Any other composition is done by the combinators
--- before we get here.
--- Note that the way renderRules constructs the list of selector data, the outer
--- scopes are added to the list before the inner ones. So we traverse the list
--- from the left, with the innermost scopes first.
+{- Merge selector data from nested scopes into one SelectorData.
+Unlike Clay, here the only merge we need is to compose all selectors with the
+"descendant" relationship. Any other composition is done by the combinators
+before we get here.
+Note that the way renderRules constructs the list of selector data, the outer
+scopes are added to the list before the inner ones. So we traverse the list
+from the left, with the innermost scopes first.
+-}
 merge : List SelectorData -> SelectorData
 merge selectorDatas =
   let combineSelectorData selector1Data selector2Data =
@@ -218,6 +206,8 @@ renderPredicate pred =
     Pseudo       a   -> ":" ++ a
     PseudoFunc   a args -> ":" ++ a ++ "(" ++ (String.join "," args) ++ ")"
 
+{- Render a list of key-value mappings.
+-}
 renderProperties : Config -> List (Key (), Value) -> String
 renderProperties cfg propertyRules =
   propertyRules
@@ -280,7 +270,7 @@ renderProperty cfg eithers =
 
 -------------------------------------------------------------------------------
 
-{-| Render a CSS @keyframes rule.
+{- Render a CSS @keyframes rule.
 -}
 renderKeyframes : Config -> Keyframes -> String
 renderKeyframes cfg (Keyframes animationName listOfFrames) =
@@ -310,7 +300,7 @@ renderKeyframe cfg (percentage, keyframeRules) =
     , renderRules cfg [] keyframeRules
     ]
 
-{-| Render a CSS @media rule.
+{- Render a CSS @media rule.
 -}
 renderMedia : Config -> MediaQuery -> (List SelectorData) -> (List RuleData) -> String
 renderMedia cfg query sel mediaRules =
@@ -355,7 +345,7 @@ renderMediaFeature (Feature featureName maybeFeatureValue) =
     Just (Value v) ->
       concat [ "(" , featureName , ": " , (plain v) , ")" ]
 
-{-| Render a CSS @font-face rule.
+{- Render a CSS @font-face rule.
 -}
 renderFontFace : Config -> (List RuleData) -> String
 renderFontFace cfg faceRules =
@@ -364,7 +354,7 @@ renderFontFace cfg faceRules =
     , renderRules cfg [] faceRules
     ]
 
-{-| Render a CSS import rule.
+{- Render a CSS import rule.
 -}
 renderImportRule : Config -> String -> String
 renderImportRule cfg url =
