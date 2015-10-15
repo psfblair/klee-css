@@ -14,9 +14,28 @@ module Css
 
 {-| A module for constructing Css in a typesafe way, and rendering the result
 to a string (either pretty-printed or compact). This library is based on the
-Haskell Clay CSS preprocessing framework, though some of the operators in the
-selector DSL have been changed in order to avoid clashing with standard Elm
-operators and for various other reasons.
+Haskell Clay CSS preprocessing framework, though lacking some of its more 
+gymnastic combinators. The operators in the selector DSL have also been 
+changed in order to avoid clashing with standard Elm operators and to be easier
+to recognize and remember.
+
+Each of the selector combinators is available as an operator as well as a
+spelled-out version. The operators have been chosen to mimic CSS selector 
+combinators as much as possible. Each selector combinator starts with a colon 
+`:` which character is followed by `>` for `child`, `+` for `sibling`, `#` for 
+`byId`, `.` for `byClass`, and `@` for `attr` (indicating an attribute with a 
+certain name and value). The rest of the attribute-related functions all start 
+with the characters `:@`:
+* `:@^` is `attrBegin` -- matches an attribute beginning with certain characters.
+* `:@$` is `attrEnd` -- matches an attribute ending with certain characters.
+* `:@*` is `attrHas` -- matches an attribute whose value contains a given substring .
+* `:@~` is `attrInSpaceList` -- matches an attribute whose value is a 
+space-separated list containing the given string.
+* `:@-` is `attrInHyphenList` -- matches an attribute whose value is a 
+hyphen-separated list containing the given string.
+Because Elm does not make commas and spaces available for use in operators, the
+mnemonic used is `~` for space and `..` for comma. Thus `:~` is the same as
+`descendant`, and `:..` is `group`.
 
 # Principal Types
 @docs Stylesheet, StyleProperty, PropertyStylesheet, MediaStylesheet,
@@ -24,8 +43,6 @@ operators and for various other reasons.
       Selector, Refinement
 
 # The selector language.
-For predefined element selectors, see `Css.Elements`, for pseudo-selectors see
-`Css.Pseudo`, and for predefined attributes, see `Css.Attributes`.
 @docs group, (:..), descend, (:~), child, (:>), sibling, (:+), with, (:|),
       byId, (:#), byClass, (:.), pseudo, func,
       attr, (:@), attrBegin, (:@^), attrEnd, (:@$),attrHas, (:@*),
@@ -58,42 +75,100 @@ imported rules (`ImportStyleshet`).
 -}
 type alias Stylesheet a = Css.Internal.Stylesheet.CssAppender a
 
+
 {-| A `StyleProperty` represents a mapping from a property to a value. Lists of
 `StyleProperty` may be assigned to selectors, or used in font-face, media, and
-keyframe rules.
+keyframe rules. Style properties may be created using the functions in various
+other modules of this framework, which provide property keys (such as 
+`Css.Display.float` or `Css.Border.borderColor`) that are functions taking 
+values of certain types (such as `` or `Css.Color.green`). For example:
+
+    blueBorderStyle : StyleProperty
+    blueBorderStyle = borderColor blue
+
+will render to:
+
+    border-color: rgba(0,0,255,1)
+
+If there is no type-safe function available for a particular property, a 
+`StyleProperty` may also be created using the `custom` function in this module.
 -}
 type alias StyleProperty = Css.Internal.Stylesheet.PropertyRuleAppender
 
+
 {-| A `PropertyStylesheet` represents an assignment of a list of rules to a
 selector. These rules may be `StyleProperty` mappings, or other nested
-`PropertyStylesheet` rules.
+`PropertyStylesheet` rules. A property stylesheet may be created using the
+predefined selectors such as the element selectors in `Css.Elements`, 
+the pseudo-selectors in `Css.Pseudo`, and the attributes in `Css.Attributes`.
+For example:
+
+    p [ borderStyle solid ]
+      [ a [ custom "-ms-lens-flare-style" "really-shiny" ] [] ] 
+
+will render to:
+
+    p 
+    {
+      border-style : solid;
+    }
+    
+    p a 
+    {
+      -ms-lens-flare-style : really-shiny;
+    }
+
+If there is no type-safe function available for a particular selector, custom 
+selectors may be created using the `element` and `filter` functions in
+this module.
 -}
 type alias PropertyStylesheet = Css.Internal.Stylesheet.SelectorRuleAppender
+
 
 {-| A `FontFaceStylesheet` represents a Css @font-face rule.
 -}
 type alias FontFaceStylesheet = Css.Internal.Stylesheet.FontFaceRuleAppender
 
+
 {-| A `MediaStylesheet` represents a Css @media rule.
 -}
 type alias MediaStylesheet = Css.Internal.Stylesheet.MediaQueryRuleAppender
+
 
 {-| A `KeyframeStylesheet` represents a Css @keyframes rule.
 -}
 type alias KeyframeStylesheet = Css.Internal.Stylesheet.KeyframesRuleAppender
 
+
 {-| An `ImportStylesheet` represents a Css @import rule.
 -}
 type alias ImportStylesheet = Css.Internal.Stylesheet.ImportRuleAppender
 
+
 {-|  A `Selector` represents the selector in a CSS rule. `Selector` is implemented
 as a function that takes a list of rules (either `StyleProperty` or nested
 `PropertyStylesheet` rules) and returns a `PropertyStylesheet`. Selectors may
-be combined using the combinators defined in this module. Most of the selectors
-one would need are predefined in the `Css.Elements` module, though if necessary
-new custom selectors can be defined using the `element` function in that module.
+be combined using the combinators defined in this module. For example:
+
+    (p `byClass` "error") [ float floatLeft ] []
+
+or equivalently
+
+    (p :. "error") [ float floatLeft ] []
+
+will render to
+
+    p.error 
+    {
+      float : left;
+    }
+
+Most common selectors are predefined in the `Css.Elements` module, though if 
+necessary new custom selectors can be defined using the `element` function in 
+this module.
 -}
 type alias Selector = Css.Internal.SelectorCombinators.Selector
+
 
 {-|  A `Refinement` is a type that represents refinements on a selector; i.e.,
 CSS classes, ids, attributes etc. that may be applied to a selector at a
@@ -180,7 +255,8 @@ byClass = Css.Internal.SelectorCombinators.byClass
 (:.) = Css.Internal.SelectorCombinators.byClass
 
 {-| Filter elements of the given selector by pseudo selector or pseudo class.
-The preferred syntax is to use one of the predefined pseudo selectors from "Css.Pseudo".
+The preferred syntax is to use one of the predefined pseudo selectors from 
+"Css.Pseudo".
 -}
 pseudo : Selector -> String -> Selector
 pseudo = Css.Internal.SelectorCombinators.pseudo
@@ -269,7 +345,7 @@ type alias Config = Css.Internal.Render.Config
 
 {-| Render a stylesheet with the default configuration, using the pretty printer.
 -}
-render : List ( {a | addCss: Css -> Css } ) -> String
+render : List (Stylesheet a) -> String
 render = Css.Internal.Render.renderWith pretty
 
 {-| Render a stylesheet in compact format.
@@ -360,6 +436,7 @@ keyframesFromTo = Css.Internal.Stylesheet.keyframesFromTo
 -------------------------------------------------------------------------------
 -- ** The @import rule.
 
+-- TODO Media-dependent import rules
 {-| Create a CSS @import rule to import a CSS file from a URL.
 -}
 importUrl : String -> ImportStylesheet
