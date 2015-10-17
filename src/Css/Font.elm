@@ -1,8 +1,8 @@
 module Css.Font
   (
   -- * Generic font property.
+  font
 
-    font
   -- * Color.
 
   , fontColor
@@ -94,7 +94,7 @@ So we accommodate:
 -}
 type alias Font a sz = { a | font : FontAlternative sz }
 type alias WithComponents sz = { fontComponents : FontComponents sz }
-type alias ComposedFont sz = Font sz (WithComponents sz)
+type alias ComposedFont sz = Font (WithComponents sz) sz
 
 type FontAlternative sz
   = NamedFont String
@@ -102,6 +102,7 @@ type FontAlternative sz
   | InitialFont
   | InheritFont
   | OtherFont Value
+
 
 -- Font sizes can be absolute or relative
 type FontComponents sz
@@ -112,43 +113,47 @@ type FontComponents sz
   | WithVariant FontVariant (ComposedFont sz)
   | WithStyle FontStyle (ComposedFont sz)
 
+
+type alias FontDescriptor a sz = FontFactory sz -> Font a sz
+
+
 font : FontDescriptor a sz -> PropertyRuleAppender
 font fontDescriptor = 
   key (stringKey "font") (fontDescriptor fontFactory) fontValueFactory
 
-type alias FontDescriptor a sz = FontFactory sz -> Font a sz
 
 type alias FontFactory sz =
-  { named : String -> Font {} sz
-  , leaf : Size sz -> List String -> List GenericFontFamily -> ComposedFont sz
-  , composite : (ComposedFont sz -> FontComponents) -> ComposedFont sz -> ComposedFont sz
+  { leaf : Size sz -> List String -> List GenericFontFamily -> ComposedFont sz
+  , composite : (ComposedFont sz -> FontComponents sz) -> ComposedFont sz -> ComposedFont sz 
+  , named : String -> Font {} sz
   , initial : Font {} sz
   , inherit : Font {} sz
   , other : Value -> Font {} sz
   }
 
+
 fontFactory : FontFactory sz
 fontFactory =
   { leaf size customFonts genericFonts = 
-      let leaf = BaseComponent size customFonts genericFonts 
-      in { font = CompositeFont leaf, fontComponents = baseFont }
-  , composite composer innerCompositeFont =
-      let newComponents = innerCompositeFont.fontComponents |> composer
-      in { font = CompositeFont newComponents, fontComponents = newComponents }
+      let baseComponent = BaseComponent size customFonts genericFonts 
+      in { font = CompositeFont baseComponent, fontComponents = baseComponent }
+  , composite composer innerComposedFont =
+      let newComponents = composer innerComposedFont
+      in { font = CompositeFont newComponents, fontComponents = newComponents } 
   , named str = { font = NamedFont str}
-  , initial = { font = InitialFontFamily }
-  , inherit = { font = InheritFontFamily }
-  , other val = { font = OtherFontFamily val }
+  , initial   = { font = InitialFont }
+  , inherit   = { font = InheritFont }
+  , other val = { font = OtherFont val }
   }
     
 type alias ComposedFontDescriptor sz = FontFactory sz -> ComposedFont sz
 
 {- Equivalent to
-baseFont : SizeDescriptor a c -> 
+baseFont : SizeDescriptor (Size sz) sz -> 
            List String -> 
            List GenericFontFamily -> 
-           FontFactory ComposedFont Font -> 
-           Font
+           FontFactory sz -> 
+           ComposedFont sz
 -}  
 baseFont : SizeDescriptor (Size sz) sz -> 
            List String -> 
@@ -159,36 +164,44 @@ baseFont sizeDescriptor customFonts genericFonts compositeFactory =
   in compositeFactory.leaf size customFonts genericFonts
 
 {- Equivalent to
-withLineHeight :  SizeDescriptor -> 
-                  (FontFactory ComposedFont Font -> Font) -> 
-                  FontFactory ComposedFont Font  -> 
-                  Font
+withLineHeight :  SizeDescriptor (Size sz) sz -> 
+                  (FontFactory sz -> ComposedFont sz)
+                  FontFactory sz -> 
+                  ComposedFont sz
 -}
 withLineHeight : SizeDescriptor (Size sz) sz -> 
                  ComposedFontDescriptor sz -> 
                  ComposedFontDescriptor sz
-withLineHeight style lineHeightDescriptor compositeDescriptor compositeFactory =
-   let components = (compositeDescriptor compositeFactory).fontComponents
-       rewrapWithLineHeight fontComponents lineHeight = 
-         case fontComponents of
-           BaseComponent size customFonts genericFonts -> 
-             WithLineHeight size lineHeight customFonts genericFonts
+withLineHeight lineHeightDescriptor compositeDescriptor compositeFactory =
+   let composedFont = compositeDescriptor compositeFactory
+       rewrapWithLineHeight fontWithComponents lineHeight = 
+         case fontWithComponents.fontComponents of
            -- If withLineHeight is called twice, the later (outer) one wins, which 
            -- means that if this leaf has already been created, so don't touch it.
-           WithLineHeight _ _ _ _ as leaf -> leaf
-           WithWeight weight compositeFont -> 
-             WithWeight weight (rewrapWithLineHeight compositeFont lineHeight)
-           WithVariant variant compositeFont ->
-             WithVariant variant (rewrapWithLineHeight compositeFont lineHeight)
-           WithStyle style compositeFont -> 
-             WithStyle style (rewrapWithLineHeight compositeFont lineHeight)
-   in rewrapWithLineHeight components (lineHeightDescriptor sizeFactory)
-    
+           WithLineHeight _ _ _ _ as leaf -> fontWithComponents
+           BaseComponent size customFonts genericFonts -> 
+             let components = 
+               WithLineHeight size lineHeight customFonts genericFonts
+             in { font = CompositeFont components, fontComponents = components }
+           WithWeight weight innerComposedFont -> 
+            let components = 
+              WithWeight weight (rewrapWithLineHeight innerComposedFont lineHeight)
+             in { font = CompositeFont components, fontComponents = components }
+           WithVariant variant innerComposedFont ->
+             let components =
+               WithVariant variant (rewrapWithLineHeight innerComposedFont lineHeight)
+             in { font = CompositeFont components, fontComponents = components }
+           WithStyle style innerComposedFont -> 
+             let components =
+               WithStyle style (rewrapWithLineHeight innerComposedFont lineHeight)
+             in { font = CompositeFont components, fontComponents = components }
+   in rewrapWithLineHeight composedFont (lineHeightDescriptor sizeFactory)
+
 {- Equivalent to 
 withWeight : FontWeight -> 
-             (FontFactory ComposedFont Font -> Font) -> 
-             FontFactory ComposedFont Font  -> 
-             Font
+             (FontFactory sz -> ComposedFont sz)
+             FontFactory sz -> 
+             ComposedFont sz
 -}
 withWeight : FontWeight -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
 withWeight weight descriptor compositeFactory =
@@ -197,9 +210,9 @@ withWeight weight descriptor compositeFactory =
   
 {- Equivalent to 
 withVariant : FontVariant -> 
-              (FontFactory ComposedFont Font -> Font) -> 
-              FontFactory ComposedFont Font  -> 
-              Font
+              (FontFactory sz -> ComposedFont sz)
+              FontFactory sz -> 
+              ComposedFont sz
 -}
 withVariant : FontVariant -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
 withVariant variant descriptor compositeFactory =
@@ -208,15 +221,16 @@ withVariant variant descriptor compositeFactory =
 
 {- Equivalent to 
 withStyle : FontStyle -> 
-            (FontFactory ComposedFont Font -> Font) -> 
-            FontFactory ComposedFont Font  -> 
-            Font
+            (FontFactory sz -> ComposedFont sz)
+            FontFactory sz -> 
+            ComposedFont sz
 -}
 withStyle : FontStyle -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
 withStyle style descriptor compositeFactory =
    let innerFont = descriptor compositeFactory
    in compositeFactory.composite (WithStyle style) innerFont
-  
+   
+
 fontValueFactory : ValueFactory (Font a sz)
 fontValueFactory =
   { value font = 
@@ -227,10 +241,12 @@ fontValueFactory =
         OtherFont val -> otherValueFactory.other val
         CompositeFont fontComponents -> componentsToValue fontComponents
   }
-  
+
+
 componentsToValue : FontComponents sz -> Value
 componentsToValue fontComponents = 
   componentsToValueRecursive fontComponents Nothing Nothing Nothing
+
 
 componentsToValueRecursive : FontComponents sz -> 
                              Maybe FontWeight ->
@@ -247,21 +263,21 @@ componentsToValueRecursive components maybeWeight maybeVariant maybeStyle =
           Just weight -> 
             componentsToValueRecursive inner maybeWeight maybeVariant maybeStyle
           Nothing -> 
-            componentsToValueRecursive inner weight maybeVariant maybeStyle
+            componentsToValueRecursive inner (Just weight) maybeVariant maybeStyle
       WithVariant variant innerComposedFont ->
         let inner = innerComposedFont.fontComponents
         in case maybeVariant of
           Just variant -> 
             componentsToValueRecursive inner maybeWeight maybeVariant maybeStyle
           Nothing -> 
-            componentsToValueRecursive inner maybeWeight variant maybeStyle
+            componentsToValueRecursive inner maybeWeight (Just variant) maybeStyle
       WithStyle style innerComposedFont ->
         let inner = innerComposedFont.fontComponents
         in case maybeStyle of
           Just style -> 
             componentsToValueRecursive inner maybeWeight maybeVariant maybeStyle
           Nothing -> 
-            componentsToValueRecursive inner maybeWeight maybeVariant style
+            componentsToValueRecursive inner maybeWeight maybeVariant (Just style)
       BaseComponent fontSize customFamilies genericFamilies -> 
         -- should go to "italic bold 15px arial, sans-serif"
         let fontSizeValue = sizeValueFactory.value fontSize
@@ -302,9 +318,9 @@ componentsLeafToValue sizeValue
                       maybeVariant 
                       maybeStyle =
         let customFamilyValues = 
-              customFamilies |> List.map Literal |> literalValueFactory.value
+              customFamilies |> List.map Literal |> List.map literalValueFactory.value
             genericFamilyValues = 
-              genericFamilies |> List.map genericFontFamilyValueFactory
+              genericFamilies |> List.map genericFontFamilyValueFactory.value
             familyValues = customFamilyValues ++ genericFamilyValues
             familiesValue = 
               (commaListValueFactory valueValueFactory).value familyValues
@@ -341,20 +357,20 @@ statusBar factory = factory.named "status-bar"
 
 -------------------------------------------------------------------------------
 color : Color -> PropertyRuleAppender
-color colour = key "color" colour colorValueFactory
+color colour = key (stringKey "color") colour colorValueFactory
 
 -- | An alias for `color`.
 fontColor : Color -> PropertyRuleAppender
-fontColor colour = key "color" colour colorValueFactory
+fontColor colour = key (stringKey "color") colour colorValueFactory
 
 -------------------------------------------------------------------------------
 -- | The five generic font families.
 -- <http://www.w3.org/TR/css3-fonts/#generic-font-families>.
 type GenericFontFamily 
   = GenericFontFamily String
-  | InitialFontFamily
-  | InheritFontFamily
-  | OtherFontFamily Value
+  | InitialGenericFontFamily
+  | InheritGenericFontFamily
+  | OtherGenericFontFamily Value
 
 
 type alias GenericFontFamilyDescriptor = 
@@ -387,9 +403,11 @@ fontFamily : List String -> List GenericFontFamilyDescriptor -> PropertyRuleAppe
 fontFamily customFamilies genericFamilies = 
   let customLiteralValues = 
         customFamilies |> List.map Literal |> List.map literalValueFactory.value
-      genericValues = List.map genericFontFamilyValueFactory.value genericFamilies
+      genericValues = 
+        List.map (\descriptor -> descriptor genericFontFamilyFactory) genericFamilies
+        |> List.map genericFontFamilyValueFactory.value
       valueFactory = commaListValueFactory valueValueFactory
-   in key "font-family" (customLiteralValues ++ genericValues) valueFactory
+   in key (stringKey "font-family") (customLiteralValues ++ genericValues) valueFactory
 
 
 type alias GenericFontFamilyFactory =
@@ -405,9 +423,9 @@ genericFontFamilyFactory : GenericFontFamilyFactory
 genericFontFamilyFactory =
   {
     family str = GenericFontFamily str
-  , initial = InitialFontFamily
-  , inherit = InheritFontFamily
-  , other val = OtherFontFamily val
+  , initial = InitialGenericFontFamily
+  , inherit = InheritGenericFontFamily
+  , other val = OtherGenericFontFamily val
   }
 
 
@@ -416,9 +434,9 @@ genericFontFamilyValueFactory =
   { value fontFamily =
       case fontFamily of
         GenericFontFamily str -> stringValueFactory.value str
-        InitialFontFamily -> initialValueFactory.initial
-        InheritFontFamily -> inheritValueFactory.inherit
-        OtherFontFamily value -> otherValueFactory.other value
+        InitialGenericFontFamily -> initialValueFactory.initial
+        InheritGenericFontFamily -> inheritValueFactory.inherit
+        OtherGenericFontFamily value -> otherValueFactory.other value
   }
 
 -------------------------------------------------------------------------------
@@ -472,7 +490,7 @@ larger factory = factory.size "larger"
 -- TODO Test that we can pass size descriptors here too.
 fontSize : FontSizeDescriptor -> PropertyRuleAppender
 fontSize sizeDescriptor = 
-  key "font-size" (sizeDescriptor fontSizeFactory) fontSizeValueFactory
+  key (stringKey "font-size") (sizeDescriptor fontSizeFactory) fontSizeValueFactory
 
 
 type alias FontSizeFactory =
@@ -517,17 +535,17 @@ type FontStyle
 type alias FontStyleDescriptor = FontStyleFactory -> FontStyle
 
 
-italic : FontStyle
+italic : FontStyleDescriptor
 italic factory = factory.style "italic"
 
 
-oblique : FontStyle
+oblique : FontStyleDescriptor
 oblique factory = factory.style "oblique"
 
 
 fontStyle : FontStyleDescriptor -> PropertyRuleAppender
 fontStyle styleDescriptor = 
-  key "font-style" (styleDescriptor fontStyleFactory) fontStyleValueFactory
+  key (stringKey "font-style") (styleDescriptor fontStyleFactory) fontStyleValueFactory
 
 
 type alias FontStyleFactory =
@@ -578,7 +596,7 @@ smallCaps factory = factory.variant "small-caps"
 
 fontVariant : FontVariantDescriptor -> PropertyRuleAppender
 fontVariant variantDescriptor = 
-  key "font-variant" (variantDescriptor fontVariantFactory) fontVariantValueFactory
+  key (stringKey "font-variant") (variantDescriptor fontVariantFactory) fontVariantValueFactory
 
 
 type alias FontVariantFactory =
@@ -644,7 +662,7 @@ weight i factory = factory.weight (toString i)
 
 fontWeight : FontWeightDescriptor -> PropertyRuleAppender
 fontWeight descriptor = 
-  key "font-weight" (descriptor fontWeightFactory) fontWeightValueFactory
+  key (stringKey "font-weight") (descriptor fontWeightFactory) fontWeightValueFactory
 
 
 type alias FontWeightFactory =
@@ -681,6 +699,6 @@ fontWeightValueFactory =
 
 -------------------------------------------------------------------------------
 
-lineHeight : SizeDescriptor a c -> PropertyRuleAppender
+lineHeight : SizeDescriptor (Size c) c -> PropertyRuleAppender
 lineHeight descriptor = 
-  key "line-height" (descriptor sizeFactory) sizeValueFactory
+  key (stringKey "line-height") (descriptor sizeFactory) sizeValueFactory
