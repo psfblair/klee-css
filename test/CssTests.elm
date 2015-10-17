@@ -13,18 +13,35 @@ suite : Spec
 suite = describe "CssTests"
   [ describe "render"
     [ let stylesheet =
-            [ p [ borderStyle solid, borderColor green ]
-                [ a [ custom "-ms-lens-flare-style" "really-shiny" ] [] ]
-            , (p `byClass` "error") [ float floatLeft ] 
-                                  [ (a `byId` "fred") [ clear both ] [] ]    
-            ]
+        [ p [ borderStyle solid, borderColor green ]
+            [ a [ custom "-ms-lens-flare-style" "really-shiny" ] [] ]
+        , (p `byClass` "error") 
+            [ float floatLeft ] 
+            [ (a `byId` "fred") [ clear both ] [] ]    
+        ]
       in render stylesheet `shouldEqual` expectedPropertyStylesheet
     ]
   -- , describe "renderExtended"
-  -- Ultimately the following or something like it needs to work.
-  --           , importUrl "http://some.stylesheet.com"
-
+  --   [ let stylesheet = 
+  --       { imports = 
+  --           [ importUrl "http://some.stylesheet.com" 
+  --           , importUrl "http://some.stylesheet.org" 
+  --           ]
+  --       , fontFaces = 
+  --           [ fontFace [ fontFamily: "face"
+  --                      , fontFaceSrc [FontFaceSrcLocal "face.woff"] 
+  --                      ]
+  --           , fontFace [ fontFaceSrc 
+  --                         [ FontFaceSrcLocal "face.woff"]
+  --                         , FontFaceSrcUrl "http://font.url" (Just TrueType)
+  --                         ]
+  --           ]
+  --       }
+  --     in renderExtended stylesheet `shouldEqual` expectedExtendedStylesheet  
+  -- ]
   ]
+
+
 
 expectedPropertyStylesheet : String
 expectedPropertyStylesheet = """
@@ -51,3 +68,18 @@ p a
 
 
 /* Generated with elm-css */"""
+
+expectedExtendedStylesheet : String 
+expectedExtendedStylesheet = """
+@import url("http://some.stylesheet.com")
+
+@import url("http://some.stylesheet.org")
+
+@font-face 
+{
+  font-family: "Bitstream Vera Serif Bold";
+  src: url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf");
+}
+
+
+ /* Generated with elm-css */"""

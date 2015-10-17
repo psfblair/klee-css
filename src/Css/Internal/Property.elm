@@ -1,11 +1,11 @@
 module Css.Internal.Property
-  ( Key (..), Value (..), PrefixedOrNot (..)
+  ( Key (..), Value (..), PrefixedOrNot (..), Literal (..)
   , unPrefixed, plain, quote, stringKey, prefixedKeys, cast
-  , ValueFactory, emptyValue, appendValues, concatenateValues
-  , stringValueFactory, intValueFactory, floatValueFactory, valueValueFactory
-  , maybeValueFactory, commaListValueFactory, spaceListValueFactory, spacePairValueFactory
-  , spaceTripleValueFactory, spaceQuadrupleValueFactory, commaQuadrupleValueFactory
-  , eitherValueFactory
+  , ValueFactory, emptyValue, appendValues, concatenateValues, intersperse
+  , stringValueFactory, literalValueFactory, intValueFactory, floatValueFactory
+  , valueValueFactory, maybeValueFactory, commaListValueFactory
+  , spaceListValueFactory, spacePairValueFactory, spaceTripleValueFactory
+  , spaceQuadrupleValueFactory, commaQuadrupleValueFactory, eitherValueFactory
   ) where
 
 import Dict exposing (fromList, get)
