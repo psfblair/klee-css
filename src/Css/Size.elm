@@ -50,8 +50,7 @@ import Css.Internal.Property exposing
 
 import Css.Common exposing
   ( Auto, Normal, Inherit, None, Other
-  , autoValueFactory, normalValueFactory, inheritValueFactory, noneValueFactory
-  , otherValueFactory
+  , autoValue, normalValue, inheritValue, noneValue, otherValue
   )
 
 -------------------------------------------------------------------------------
@@ -70,7 +69,7 @@ type Size a -- Phantom type, for type safety. The type parameter is for Abs or R
   | NormalSize
   | InheritSize
   | NoSize
-  | OtherSize Value
+  | OtherSize String
 
 -- See the bottom of this file for why there are two type parameters.
 type alias SizeDescriptor a c = SizeFactory a c -> a -- c is the constraint type (Abs or Rel)
@@ -160,7 +159,7 @@ type Angle a -- Phantom type, for type safety. The type parameter is for Deg, Ra
   = Angle Value
   | AutoAngle
   | InheritAngle
-  | OtherAngle Value
+  | OtherAngle String
 
 type alias AngleDescriptor a = AngleFactory a -> Angle a
 
@@ -198,7 +197,7 @@ type alias SizeFactory a c = -- c is the constraint type (Abs or Rel)
   , normal: Size c
   , inherit: Size c
   , none: Size c
-  , other: Value -> Size c
+  , other: String -> Size c
   }
 
 sizeFactory : SizeFactory (Size a) a
@@ -209,7 +208,7 @@ sizeFactory =
   , normal = NormalSize
   , inherit = InheritSize
   , none = NoSize
-  , other val = OtherSize val
+  , other str = OtherSize str
   }
 
 sizeValueFactory : ValueFactory (Size a)
@@ -217,18 +216,18 @@ sizeValueFactory =
   { value size =
       case size of
         Size val -> val
-        AutoSize -> autoValueFactory.auto
-        NormalSize -> normalValueFactory.normal
-        InheritSize -> inheritValueFactory.inherit
-        NoSize -> noneValueFactory.none
-        OtherSize val -> otherValueFactory.other val
+        AutoSize -> autoValue
+        NormalSize -> normalValue
+        InheritSize -> inheritValue
+        NoSize -> noneValue
+        OtherSize str -> otherValue str
   }
 
 type alias AngleFactory a =
   { angle: Value -> Angle a
   , auto: Angle a
   , inherit: Angle a
-  , other: Value -> Angle a
+  , other: String -> Angle a
   }
 
 angleFactory : AngleFactory a
@@ -236,7 +235,7 @@ angleFactory =
   { angle value = Angle value
   , auto = AutoAngle
   , inherit = InheritAngle
-  , other value = OtherAngle value
+  , other str = OtherAngle str
   }
 
 angleValueFactory : ValueFactory (Angle a)
@@ -244,9 +243,9 @@ angleValueFactory =
   { value angle =
       case angle of
         Angle val -> val
-        AutoAngle -> autoValueFactory.auto
-        InheritAngle -> inheritValueFactory.inherit
-        OtherAngle val -> otherValueFactory.other val
+        AutoAngle -> autoValue
+        InheritAngle -> inheritValue
+        OtherAngle str -> otherValue str
   }
 
 appendUnits : Float -> String -> Value

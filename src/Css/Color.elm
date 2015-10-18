@@ -722,13 +722,13 @@ colorValueFactory =
   in { value = \x -> wrapped x }
 
 noneColorFactory : None Color
-noneColorFactory  = { none  = Other <| stringValueFactory.value "none" }
+noneColorFactory  = { none_  = Other <| stringValueFactory.value "none" }
 
 autoColorFactory : Auto Color
-autoColorFactory  = { auto  = Other <| stringValueFactory.value "auto" }
+autoColorFactory  = { auto_  = Other <| stringValueFactory.value "auto" }
 
 inheritColorFactory : Inherit Color
-inheritColorFactory  = { inherit  = Other <| stringValueFactory.value "inherit"  }
+inheritColorFactory  = { inherit_  = Other <| stringValueFactory.value "inherit"  }
 
 otherColorFactory : Other Color
-otherColorFactory  = { other  = Other }
+otherColorFactory  = { other_ str  = Other <| stringValueFactory.value str }

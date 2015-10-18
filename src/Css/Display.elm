@@ -84,8 +84,8 @@ import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
 
 import Css.Common exposing (
     Auto, Inherit, None, Visible, Hidden, Other
-  , autoValueFactory, baselineValueFactory, inheritValueFactory, initialValueFactory
-  , noneValueFactory, visibleValueFactory, hiddenValueFactory, otherValueFactory
+  , autoValue, baselineValue, inheritValue, initialValue
+  , noneValue, visibleValue, hiddenValue, otherValue
   )
 import Css.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValueFactory)
 
@@ -96,6 +96,7 @@ type FloatStyle
   | NoFloat
   | InheritFloat
   | InitialFloat
+  | OtherFloat String
 
 type alias FloatStyleDescriptor = FloatStyleFactory -> FloatStyle
 
@@ -117,7 +118,7 @@ type Clear
   | NoClear
   | InheritClear
   | InitialClear
-  | OtherClear Value
+  | OtherClear String
 
 type alias ClearDescriptor = ClearFactory -> Clear
 
@@ -141,7 +142,7 @@ type Position
   = Position String
   | InheritPosition
   | InitialPosition
-  | OtherPosition Value
+  | OtherPosition String
 
 type alias PositionDescriptor = PositionFactory -> Position
 
@@ -169,7 +170,7 @@ type Display
   | NoDisplay
   | InheritDisplay
   | InitialDisplay
-  | OtherDisplay Value
+  | OtherDisplay String
 
 type alias DisplayDescriptor = DisplayFactory -> Display
 
@@ -250,7 +251,7 @@ type Overflow
   | InheritOverflow
   | InitialOverflow
   | AutoOverflow
-  | OtherOverflow Value
+  | OtherOverflow String
 
 type alias OverflowDescriptor = OverflowFactory -> Overflow
 
@@ -280,7 +281,7 @@ type Visibility
   | HiddenVisibility
   | InheritVisibility
   | InitialVisibility
-  | OtherVisibility Value
+  | OtherVisibility String
 
 type alias VisibilityDescriptor = VisibilityFactory -> Visibility
 
@@ -302,7 +303,7 @@ type Clip a b c d
   | AutoClip
   | InheritClip
   | InitialClip
-  | OtherClip Value
+  | OtherClip String
 
 type alias ClipDescriptor a b c d = ClipFactory a b c d -> Clip a b c d
 
@@ -329,6 +330,7 @@ type Opacity
   = Opacity Float
   | InheritOpacity
   | InitialOpacity
+  | OtherOpacity String
 
 type alias OpacityDescriptor = OpacityFactory -> Opacity
 
@@ -347,7 +349,7 @@ type ZIndex
   | AutoZIndex
   | InheritZIndex
   | InitialZIndex
-  | OtherZIndex Value
+  | OtherZIndex String
 
 type alias ZIndexDescriptor = ZIndexFactory -> ZIndex
 
@@ -368,7 +370,7 @@ type PointerEvents
   | InitialPointerEvents
   | AutoPointerEvents
   | NoPointerEvents
-  | OtherPointerEvents Value
+  | OtherPointerEvents String
 
 type alias PointerEventsDescriptor = PointerEventsFactory -> PointerEvents
 
@@ -405,7 +407,7 @@ type VerticalAlign
   | BaselineVerticalAlign
   | InitialVerticalAlign
   | InheritVerticalAlign
-  | OtherVerticalAlign Value
+  | OtherVerticalAlign String
 
 type alias VerticalAlignDescriptor = VerticalAlignFactory -> VerticalAlign
 
@@ -443,7 +445,7 @@ type Cursor
   | NoCursor
   | InheritCursor
   | InitialCursor
-  | OtherCursor Value
+  | OtherCursor String
 
 type alias CursorDescriptor = CursorFactory -> Cursor
 
@@ -570,6 +572,7 @@ type alias FloatStyleFactory =
   , none: FloatStyle
   , inherit: FloatStyle
   , initial: FloatStyle
+  , other: String -> FloatStyle
   }
 
 floatStyleFactory : FloatStyleFactory
@@ -579,6 +582,7 @@ floatStyleFactory =
   , none = NoFloat
   , inherit = InheritFloat
   , initial = InitialFloat
+  , other str = OtherFloat str
   }
 
 floatStyleValueFactory : ValueFactory FloatStyle
@@ -586,9 +590,10 @@ floatStyleValueFactory =
   { value floatStyle =
       case floatStyle of
         FloatStyle str -> stringValueFactory.value str
-        NoFloat -> noneValueFactory.none
-        InheritFloat -> inheritValueFactory.inherit
-        InitialFloat -> initialValueFactory.initial
+        NoFloat -> noneValue
+        InheritFloat -> inheritValue
+        InitialFloat -> initialValue
+        OtherFloat str -> otherValue str
   }
 
 -------------------------------------------------------------------------------
@@ -599,7 +604,7 @@ type alias ClearFactory =
   , none: Clear
   , inherit: Clear
   , initial: Clear
-  , other: Value -> Clear
+  , other: String -> Clear
   }
 
 clearFactory : ClearFactory
@@ -609,7 +614,7 @@ clearFactory =
   , none = NoClear
   , inherit = InheritClear
   , initial = InitialClear
-  , other val = OtherClear val
+  , other str = OtherClear str
   }
 
 clearValueFactory : ValueFactory Clear
@@ -617,10 +622,10 @@ clearValueFactory =
   { value clearValue =
       case clearValue of
         Clear str -> stringValueFactory.value str
-        NoClear -> noneValueFactory.none
-        InheritClear -> inheritValueFactory.inherit
-        InitialClear -> initialValueFactory.initial
-        OtherClear value -> otherValueFactory.other value
+        NoClear -> noneValue
+        InheritClear -> inheritValue
+        InitialClear -> initialValue
+        OtherClear str -> otherValue str
   }
 
 -------------------------------------------------------------------------------
@@ -630,7 +635,7 @@ type alias PositionFactory =
     position: String -> Position
   , inherit: Position
   , initial: Position
-  , other: Value -> Position
+  , other: String -> Position
   }
 
 positionFactory : PositionFactory
@@ -639,7 +644,7 @@ positionFactory =
     position str = Position str
   , inherit = InheritPosition
   , initial = InitialPosition
-  , other val = OtherPosition val
+  , other str = OtherPosition str
   }
 
 positionValueFactory : ValueFactory Position
@@ -647,9 +652,9 @@ positionValueFactory =
   { value positionValue =
       case positionValue of
         Position str -> stringValueFactory.value str
-        InheritPosition -> inheritValueFactory.inherit
-        InitialPosition -> initialValueFactory.initial
-        OtherPosition value -> otherValueFactory.other value
+        InheritPosition -> inheritValue
+        InitialPosition -> initialValue
+        OtherPosition str -> otherValue str
   }
 
 -------------------------------------------------------------------------------
@@ -660,7 +665,7 @@ type alias DisplayFactory =
   , none: Display
   , inherit: Display
   , initial: Display
-  , other: Value -> Display
+  , other: String -> Display
   }
 
 displayFactory : DisplayFactory
@@ -670,7 +675,7 @@ displayFactory =
   , none = NoDisplay
   , inherit = InheritDisplay
   , initial = InitialDisplay
-  , other val = OtherDisplay val
+  , other str = OtherDisplay str
   }
 
 displayValueFactory : ValueFactory Display
@@ -678,10 +683,10 @@ displayValueFactory =
   { value displayValue =
       case displayValue of
         Display str -> stringValueFactory.value str
-        NoDisplay -> noneValueFactory.none
-        InheritDisplay -> inheritValueFactory.inherit
-        InitialDisplay -> inheritValueFactory.inherit
-        OtherDisplay value -> otherValueFactory.other value
+        NoDisplay -> noneValue
+        InheritDisplay -> inheritValue
+        InitialDisplay -> inheritValue
+        OtherDisplay str -> otherValue str
   }
 
 -------------------------------------------------------------------------------
@@ -694,7 +699,7 @@ type alias OverflowFactory =
   , inherit: Overflow
   , initial: Overflow
   , auto: Overflow
-  , other: Value -> Overflow
+  , other: String -> Overflow
   }
 
 overflowFactory : OverflowFactory
@@ -706,7 +711,7 @@ overflowFactory =
   , inherit = InheritOverflow
   , initial = InitialOverflow
   , auto = AutoOverflow
-  , other val = OtherOverflow val
+  , other str = OtherOverflow str
   }
 
 overflowValueFactory : ValueFactory Overflow
@@ -714,12 +719,12 @@ overflowValueFactory =
   { value overflowValue =
       case overflowValue of
         Overflow str -> stringValueFactory.value str
-        VisibleOverflow -> visibleValueFactory.visible
-        HiddenOverflow -> hiddenValueFactory.hidden
-        InheritOverflow -> inheritValueFactory.inherit
-        InitialOverflow -> initialValueFactory.initial
-        AutoOverflow -> autoValueFactory.auto
-        OtherOverflow value -> otherValueFactory.other value
+        VisibleOverflow -> visibleValue
+        HiddenOverflow -> hiddenValue
+        InheritOverflow -> inheritValue
+        InitialOverflow -> initialValue
+        AutoOverflow -> autoValue
+        OtherOverflow str -> otherValue str
   }
 
 -------------------------------------------------------------------------------
@@ -731,7 +736,7 @@ type alias VisibilityFactory =
   , hidden: Visibility
   , inherit: Visibility
   , initial: Visibility
-  , other: Value -> Visibility
+  , other: String -> Visibility
   }
 
 visibilityFactory : VisibilityFactory
@@ -742,7 +747,7 @@ visibilityFactory =
   , hidden = HiddenVisibility
   , inherit = InheritVisibility
   , initial = InitialVisibility
-  , other val = OtherVisibility val
+  , other str = OtherVisibility str
   }
 
 visibilityValueFactory : ValueFactory Visibility
@@ -750,11 +755,11 @@ visibilityValueFactory =
   { value visibilityValue =
       case visibilityValue of
         Visibility str -> stringValueFactory.value str
-        VisibleVisibility -> visibleValueFactory.visible
-        HiddenVisibility -> hiddenValueFactory.hidden
-        InheritVisibility -> inheritValueFactory.inherit
-        InitialVisibility -> initialValueFactory.initial
-        OtherVisibility value -> otherValueFactory.other value
+        VisibleVisibility -> visibleValue
+        HiddenVisibility -> hiddenValue
+        InheritVisibility -> inheritValue
+        InitialVisibility -> initialValue
+        OtherVisibility str -> otherValue str
   }
 
 -------------------------------------------------------------------------------
@@ -765,7 +770,7 @@ type alias ClipFactory a b c d =
   , auto: Clip a b c d
   , inherit: Clip a b c d
   , initial: Clip a b c d
-  , other: Value -> Clip a b c d
+  , other: String -> Clip a b c d
   }
 
 clipFactory : ClipFactory a b c d
@@ -775,7 +780,7 @@ clipFactory =
   , auto = AutoClip
   , inherit = InheritClip
   , initial = InitialClip
-  , other val = OtherClip val
+  , other str = OtherClip str
   }
 
 clipValueFactory : ValueFactory (Clip a b c d)
@@ -789,19 +794,20 @@ clipValueFactory =
               prefixValue = stringValueFactory.value "rect("
               suffixValue = stringValueFactory.value ")"
           in concatenateValues [ prefixValue, quadrupleValue, suffixValue ]
-        AutoClip -> autoValueFactory.auto
-        InheritClip -> inheritValueFactory.inherit
-        InitialClip -> initialValueFactory.initial
-        OtherClip value -> otherValueFactory.other value
+        AutoClip -> autoValue
+        InheritClip -> inheritValue
+        InitialClip -> initialValue
+        OtherClip str -> otherValue str
   }
 
 -------------------------------------------------------------------------------
 
 type alias OpacityFactory =
   {
-    opacity: Float -> Opacity
-  , inherit: Opacity
-  , initial: Opacity
+    opacity : Float -> Opacity
+  , inherit : Opacity
+  , initial : Opacity
+  , other : String -> Opacity
   }
 
 opacityFactory : OpacityFactory
@@ -810,6 +816,7 @@ opacityFactory =
     opacity num = Opacity num
   , inherit = InheritOpacity
   , initial = InitialOpacity
+  , other str = OtherOpacity str
   }
 
 opacityValueFactory : ValueFactory Opacity
@@ -817,8 +824,9 @@ opacityValueFactory =
   { value opacityLevel =
       case opacityLevel of
         Opacity num -> floatValueFactory.value num
-        InheritOpacity -> inheritValueFactory.inherit
-        InitialOpacity -> inheritValueFactory.inherit
+        InheritOpacity -> inheritValue
+        InitialOpacity -> inheritValue
+        OtherOpacity str -> otherValue str
   }
 
 -------------------------------------------------------------------------------
@@ -829,7 +837,7 @@ type alias ZIndexFactory =
   , auto: ZIndex
   , inherit: ZIndex
   , initial: ZIndex
-  , other: Value -> ZIndex
+  , other: String -> ZIndex
   }
 
 zIndexFactory : ZIndexFactory
@@ -839,7 +847,7 @@ zIndexFactory =
   , auto = AutoZIndex
   , inherit = InheritZIndex
   , initial = InitialZIndex
-  , other val = OtherZIndex val
+  , other str = OtherZIndex str
   }
 
 zIndexValueFactory : ValueFactory ZIndex
@@ -847,10 +855,10 @@ zIndexValueFactory =
   { value zIdx =
       case zIdx of
         ZIndex num -> intValueFactory.value num
-        AutoZIndex -> autoValueFactory.auto
-        InheritZIndex -> inheritValueFactory.inherit
-        InitialZIndex -> initialValueFactory.initial
-        OtherZIndex value -> otherValueFactory.other value
+        AutoZIndex -> autoValue
+        InheritZIndex -> inheritValue
+        InitialZIndex -> initialValue
+        OtherZIndex str -> otherValue str
   }
 
 -------------------------------------------------------------------------------
@@ -861,7 +869,7 @@ type alias PointerEventsFactory =
   , auto: PointerEvents
   , inherit: PointerEvents
   , initial: PointerEvents
-  , other: Value -> PointerEvents
+  , other: String -> PointerEvents
   }
 
 pointerEventsFactory : PointerEventsFactory
@@ -871,7 +879,7 @@ pointerEventsFactory =
   , auto = AutoPointerEvents
   , inherit = InheritPointerEvents
   , initial = InitialPointerEvents
-  , other val = OtherPointerEvents val
+  , other str = OtherPointerEvents str
   }
 
 pointerEventsValueFactory : ValueFactory PointerEvents
@@ -879,10 +887,10 @@ pointerEventsValueFactory =
   { value pointerEvts =
       case pointerEvts of
         PointerEvents str -> stringValueFactory.value str
-        AutoPointerEvents -> autoValueFactory.auto
-        InheritPointerEvents -> inheritValueFactory.inherit
-        InitialPointerEvents -> initialValueFactory.initial
-        OtherPointerEvents value -> otherValueFactory.other value
+        AutoPointerEvents -> autoValue
+        InheritPointerEvents -> inheritValue
+        InitialPointerEvents -> initialValue
+        OtherPointerEvents str -> otherValue str
   }
 
 -------------------------------------------------------------------------------
@@ -898,7 +906,7 @@ type alias VerticalAlignFactory =
   , baseline: VerticalAlign
   , initial: VerticalAlign
   , inherit: VerticalAlign
-  , other: Value -> VerticalAlign
+  , other: String -> VerticalAlign
   }
 
 verticalAlignFactory : VerticalAlignFactory
@@ -908,7 +916,7 @@ verticalAlignFactory =
   , baseline = BaselineVerticalAlign
   , initial = InitialVerticalAlign
   , inherit = InheritVerticalAlign
-  , other value = OtherVerticalAlign value
+  , other str = OtherVerticalAlign str
   }
 
 verticalAlignValueFactory : ValueFactory VerticalAlign
@@ -916,10 +924,10 @@ verticalAlignValueFactory =
   { value valign =
       case valign of
         VerticalAlign value -> value
-        BaselineVerticalAlign -> baselineValueFactory.baseline
-        InitialVerticalAlign -> initialValueFactory.initial
-        InheritVerticalAlign -> inheritValueFactory.inherit
-        OtherVerticalAlign value -> otherValueFactory.other value
+        BaselineVerticalAlign -> baselineValue
+        InitialVerticalAlign -> initialValue
+        InheritVerticalAlign -> inheritValue
+        OtherVerticalAlign str -> otherValue str
   }
 
 -------------------------------------------------------------------------------
@@ -932,7 +940,7 @@ type alias CursorFactory =
   , none : Cursor
   , inherit: Cursor
   , initial: Cursor
-  , other: Value -> Cursor
+  , other: String -> Cursor
   }
 
 cursorFactory : CursorFactory
@@ -943,7 +951,7 @@ cursorFactory =
   , none = NoCursor
   , inherit = InheritCursor
   , initial = InitialCursor
-  , other val = OtherCursor val
+  , other str = OtherCursor str
   }
 
 cursorValueFactory : ValueFactory Cursor
@@ -951,9 +959,9 @@ cursorValueFactory =
   { value cursorValue =
       case cursorValue of
         Cursor str -> stringValueFactory.value str
-        AutoCursor -> autoValueFactory.auto
-        NoCursor -> noneValueFactory.none
-        InheritCursor -> inheritValueFactory.inherit
-        InitialCursor -> initialValueFactory.initial
-        OtherCursor value -> otherValueFactory.other value
+        AutoCursor -> autoValue
+        NoCursor -> noneValue
+        InheritCursor -> inheritValue
+        InitialCursor -> initialValue
+        OtherCursor str -> otherValue str
   }

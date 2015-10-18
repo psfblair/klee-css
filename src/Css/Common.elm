@@ -32,18 +32,18 @@ module Css.Common (
   , Unset
   , Other
 
-  , allValueFactory
-  , autoValueFactory
-  , baselineValueFactory
-  , centerValueFactory
-  , inheritValueFactory
-  , normalValueFactory
-  , noneValueFactory
-  , visibleValueFactory
-  , hiddenValueFactory
-  , initialValueFactory
-  , unsetValueFactory
-  , otherValueFactory
+  , allValue 
+  , autoValue 
+  , baselineValue 
+  , centerValue 
+  , inheritValue 
+  , normalValue 
+  , noneValue 
+  , visibleValue 
+  , hiddenValue 
+  , initialValue 
+  , unsetValue 
+  , otherValue 
 
   ) where
 
@@ -91,46 +91,46 @@ sym2 fourSidedFunction topBottom leftRight = fourSidedFunction topBottom leftRig
  `auto`, `inherit`, `none`, `normal` and several more. These are generic and can be passed to
   property descriptors that take many different type; e.g., borderStyle, borderWidth, etc.
 -}
-all : All a -> a
-all factory = factory.all
+all : All a rec -> a
+all factory = factory.all_
 
-auto : Auto a -> a
-auto factory = factory.auto
+auto : Auto a rec -> a
+auto factory = factory.auto_
 
-baseline : Baseline a -> a
-baseline factory = factory.baseline
+baseline : Baseline a rec -> a
+baseline factory = factory.baseline_
 
-center : Center a -> a
-center factory = factory.center
+center : Center a rec -> a
+center factory = factory.center_
 
-inherit : Inherit a -> a
-inherit factory = factory.inherit
+inherit : Inherit a rec -> a
+inherit factory = factory.inherit_
 
-normal : Normal a -> a
-normal factory = factory.normal
+normal : Normal a rec -> a
+normal factory = factory.normal_
 
-none : None a -> a
-none factory = factory.none
+none : None a rec -> a
+none factory = factory.none_
 
-visible : Visible a -> a
-visible factory = factory.visible
+visible : Visible a rec -> a
+visible factory = factory.visible_
 
-hidden : Hidden a -> a
-hidden factory = factory.hidden
+hidden : Hidden a rec -> a
+hidden factory = factory.hidden_
 
-initial : Initial a -> a
-initial factory = factory.initial
+initial : Initial a rec -> a
+initial factory = factory.initial_
 
-unset : Unset a -> a
-unset factory = factory.unset
+unset : Unset a rec -> a
+unset factory = factory.unset_
 
 {- The generic `other` value descriptor is used to escape from the type safety
 introduced by embedding CSS properties in the typed world. The `other` function
 allows you to extract a specific value type out of any `Value` and use it as
 the value for any property that accepts `Other.`
 -}
-other : Value -> Other a -> a
-other value factory = factory.other value
+other : String -> Other a rec -> a
+other str factory = factory.other_ str
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -224,55 +224,55 @@ the none function can be passed to borderStroke, which requires a function that
 takes a StrokeFactory.
 -}
 
-type alias All      a = {  all      : a }
-type alias Auto     a = {  auto     : a }
-type alias Baseline a = {  baseline : a }
-type alias Center   a = {  center   : a }
-type alias Inherit  a = {  inherit  : a }
-type alias None     a = {  none     : a }
-type alias Normal   a = {  normal   : a }
-type alias Visible  a = {  visible  : a }
-type alias Hidden   a = {  hidden   : a }
-type alias Initial  a = {  initial  : a }
-type alias Unset    a = {  unset    : a }
-type alias Other    a = {  other: Value -> a }
+type alias All      a rec = { rec | all_      : a }
+type alias Auto     a rec = { rec | auto_     : a }
+type alias Baseline a rec = { rec | baseline_ : a }
+type alias Center   a rec = { rec | center_   : a }
+type alias Inherit  a rec = { rec | inherit_  : a }
+type alias None     a rec = { rec | none_     : a }
+type alias Normal   a rec = { rec | normal_   : a }
+type alias Visible  a rec = { rec | visible_  : a }
+type alias Hidden   a rec = { rec | hidden_   : a }
+type alias Initial  a rec = { rec | initial_  : a }
+type alias Unset    a rec = { rec | unset_    : a }
+type alias Other    a rec = { rec | other_    : String -> a }
 
 {- Implementations of the function records for implementing the creation of generic
 property values such as `all`, `none`, etc. . Again, these are used internally by
 elm-css in other modules and not intended to be used as part of the public Css DSL.
 -}
-allValueFactory : All Value
-allValueFactory  = { all = stringValueFactory.value "all" }
+allValue : Value
+allValue = stringValueFactory.value "all"
 
-autoValueFactory : Auto Value
-autoValueFactory = { auto = stringValueFactory.value "auto" }
+autoValue : Value
+autoValue = stringValueFactory.value "auto" 
 
-baselineValueFactory : Baseline Value
-baselineValueFactory = { baseline = stringValueFactory.value "baseline" }
+baselineValue : Value
+baselineValue = stringValueFactory.value "baseline" 
 
-centerValueFactory : Center Value
-centerValueFactory = { center = stringValueFactory.value "center" }
+centerValue : Value
+centerValue = stringValueFactory.value "center" 
 
-inheritValueFactory : Inherit Value
-inheritValueFactory = { inherit  = stringValueFactory.value "inherit" }
+inheritValue : Value
+inheritValue = stringValueFactory.value "inherit" 
 
-normalValueFactory : Normal Value
-normalValueFactory = { normal = stringValueFactory.value "normal" }
+normalValue : Value
+normalValue = stringValueFactory.value "normal" 
 
-noneValueFactory : None Value
-noneValueFactory = { none = stringValueFactory.value "none" }
+noneValue : Value
+noneValue = stringValueFactory.value "none" 
 
-visibleValueFactory : Visible Value
-visibleValueFactory = { visible  = stringValueFactory.value "visible" }
+visibleValue : Value
+visibleValue = stringValueFactory.value "visible" 
 
-hiddenValueFactory : Hidden Value
-hiddenValueFactory = { hidden = stringValueFactory.value "hidden" }
+hiddenValue : Value
+hiddenValue = stringValueFactory.value "hidden" 
 
-initialValueFactory : Initial Value
-initialValueFactory = { initial  = stringValueFactory.value "initial" }
+initialValue : Value
+initialValue = stringValueFactory.value "initial" 
 
-unsetValueFactory : Unset Value
-unsetValueFactory = { unset = stringValueFactory.value "unset" }
+unsetValue : Value
+unsetValue = stringValueFactory.value "unset" 
 
-otherValueFactory : Other Value
-otherValueFactory = { other value = value }
+otherValue : String -> Value
+otherValue str = stringValueFactory.value str 

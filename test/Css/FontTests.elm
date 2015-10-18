@@ -16,10 +16,9 @@ suite = describe "Css.FontTests"
       [ renderProperties [font caption] `shouldEqual` "font:caption"
       , renderProperties [font icon] `shouldEqual` "font:icon" 
       ]
-    -- , it "can accept common properties initial, inherit and other"
-    --   [ renderProperties [font initial] `shouldEqual` "font:initial"
-    --   , renderProperties [font inherit] `shouldEqual` "font:inherit" 
-    --   , renderProperties [font <| other 1] `shouldEqual` "font:1" 
-    --   ]
+    , it "can accept common properties initial, inherit and other"
+      [ renderProperties [font initial] `shouldEqual` "font:initial"
+      , renderProperties [font inherit] `shouldEqual` "font:inherit" 
+      ]
     ]
   ]
