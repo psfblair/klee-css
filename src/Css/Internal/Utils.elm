@@ -41,19 +41,21 @@ toFixed decimalPlaces x =
   in shiftedAndRounded / powersOf10
 
 
-toHexString : Int -> String
-toHexString num =
-   if | num  < 10 -> toString num
-      | num == 10 -> "A"
-      | num == 11 -> "B"
-      | num == 12 -> "C"
-      | num == 13 -> "D"
-      | num == 14 -> "E"
-      | num == 15 -> "F"
-      | otherwise ->
+toHexString : Int -> Int -> String
+toHexString minimumDigits num =
+  let packed = 
+    if | num  < 10 -> toString num
+       | num == 10 -> "A"
+       | num == 11 -> "B"
+       | num == 12 -> "C"
+       | num == 13 -> "D"
+       | num == 14 -> "E"
+       | num == 15 -> "F"
+       | otherwise ->
           let remainder = num % 16
               next = num // 16
-          in toHexString next ++ toString remainder
+          in toHexString 1 next ++ toHexString 1 remainder
+  in String.padLeft minimumDigits '0' packed
 
 
 fromHexChar : Char -> Result String Int

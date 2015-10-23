@@ -57,7 +57,7 @@ p.error a#fred
 
 p 
 {
-  border-color : rgba(0,128,0,1);
+  border-color : #73D216;
   border-style : solid;
 }
 

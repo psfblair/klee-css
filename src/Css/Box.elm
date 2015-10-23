@@ -12,9 +12,12 @@ import Css.Internal.Property exposing
   )
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, prefixed)
 
-import Css.Color exposing (Color, colorValueFactory)
+import Css.Color exposing 
+  (CssColor, ColorDescriptor
+  , colorFactory, colorValueFactory
+  )
 import Css.Common exposing
-  ( browsers, noneValueFactory, inheritValueFactory, initialValueFactory, otherValueFactory
+  ( browsers, noneValue, inheritValue, initialValue, otherValue
   )
 import Css.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValueFactory)
 
@@ -24,7 +27,7 @@ type BoxType
   = BoxType String
   | InheritBoxType
   | InitialBoxType
-  | OtherBoxType Value
+  | OtherBoxType String
 
 type alias BoxTypeDescriptor = BoxTypeFactory -> BoxType
 
@@ -64,7 +67,7 @@ type BoxShadow sizedConstraint xSzTyp ySzTyp blurTyp spreadTyp
   | NoBoxShadow
   | InitialBoxShadow
   | InheritBoxShadow
-  | OtherBoxShadow Value
+  | OtherBoxShadow String
 
 type alias BoxShadowDescriptor t x y b s
   = BoxShadowFactory x y b s -> BoxShadow t x y b s
@@ -95,11 +98,12 @@ inset shadowDescriptor shadowFactory =
     somethingElse -> somethingElse -- Sized constraint keeps us from getting here
 
 
-withColor : Color ->
+withColor : ColorDescriptor ->
             BoxShadowDescriptor Sized x y b s ->
             BoxShadowDescriptor Sized x y b s
-withColor color shadowDescriptor shadowFactory =
-  case shadowDescriptor shadowFactory of
+withColor colorDescriptor shadowDescriptor shadowFactory =
+  let color = colorDescriptor colorFactory
+  in case shadowDescriptor shadowFactory of
     BoxShadow size _ blur inset -> BoxShadow size (ShadowColor color) blur inset
     somethingElse -> somethingElse -- Sized constraint keeps us from getting here
 
@@ -122,7 +126,7 @@ type alias BoxTypeFactory =
     boxType: String -> BoxType
   , inherit: BoxType
   , initial: BoxType
-  , other: Value -> BoxType
+  , other: String -> BoxType
   }
 
 boxTypeFactory : BoxTypeFactory
@@ -139,9 +143,9 @@ boxTypeValueFactory =
   { value boxTypeValue =
       case boxTypeValue of
         BoxType str -> stringValueFactory.value str
-        InheritBoxType -> inheritValueFactory.inherit
-        InitialBoxType -> initialValueFactory.initial
-        OtherBoxType value -> otherValueFactory.other value
+        InheritBoxType -> inheritValue
+        InitialBoxType -> initialValue
+        OtherBoxType value -> otherValue value
   }
 
 -------------------------------------------------------------------------------
@@ -152,7 +156,7 @@ type Blur blurSizeType spreadSizeType
   | NoBlur
 
 type ShadowColor
-  = ShadowColor Color
+  = ShadowColor CssColor
   | NoShadowColor
 
 type Inset
@@ -165,7 +169,7 @@ type alias BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp =
   , none: BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
   , initial: BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
   , inherit: BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
-  , other: Value -> BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
+  , other: String -> BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
   }
 
 boxShadowFactory : BoxShadowFactory x y b s
@@ -187,10 +191,10 @@ boxShadowValueFactory =
             insetValue = extractInsetValue inset
             valueListFactory = spaceListValueFactory valueValueFactory
         in valueListFactory.value (xyValues ++ blurValues ++ colorValue ++ insetValue)
-      NoBoxShadow -> noneValueFactory.none
-      InitialBoxShadow -> initialValueFactory.initial
-      InheritBoxShadow -> inheritValueFactory.inherit
-      OtherBoxShadow value -> otherValueFactory.other value
+      NoBoxShadow -> noneValue
+      InitialBoxShadow -> initialValue
+      InheritBoxShadow -> inheritValue
+      OtherBoxShadow value -> otherValue value
   }
 
 extractColorValue : ShadowColor -> List Value

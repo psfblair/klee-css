@@ -12,11 +12,7 @@ module Css.Border (
 
   -- * Outline properties.
 
-  , outline, outlineTop, outlineLeft, outlineBottom, outlineRight
-  , outlineColor, outlineLeftColor, outlineRightColor, outlineTopColor, outlineBottomColor, outlineColor4
-  , outlineStyle, outlineLeftStyle, outlineRightStyle, outlineTopStyle, outlineBottomStyle, outlineStyle4
-  , outlineWidth, outlineLeftWidth, outlineRightWidth, outlineTopWidth, outlineBottomWidth, outlineWidth4
-  , outlineOffset
+  , outline, outlineStyle, outlineWidth, outlineOffset, outlineColor, invert
 
   -- * Border radius.
 
@@ -42,10 +38,15 @@ import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
 
 import Css.Common exposing (
   Other, Inherit, Auto, None
-  , otherValueFactory, inheritValueFactory, autoValueFactory, noneValueFactory
+  , otherValue, initialValue, inheritValue, autoValue, noneValue
   )
 import Css.Size exposing (Size, Abs, SizeDescriptor, sizeFactory, sizeValueFactory)
-import Css.Color exposing (Color, colorValueFactory)
+
+import Css.Color exposing 
+  (CssColor (..), ColorDescriptor, ColorFactory
+  , rgbaString, hslaString, colorFactory, colorValueFactory
+  )
+
 import Css.Display exposing
   ( Visibility, VisibilityDescriptor
   , visibilityFactory, visibilityValueFactory
@@ -58,7 +59,7 @@ type Stroke
   | NoStroke
   | InheritStroke
   | AutoStroke
-  | OtherStroke Value
+  | OtherStroke String
 
 -- See bottom of this file for the additional boilerplate types
 type alias StrokeDescriptor = StrokeFactory -> Stroke
@@ -92,67 +93,105 @@ outset factory = factory.stroke "outset"
 
 -------------------------------------------------------------------------------
 
-border : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
-border strokeDescriptor sizeDescriptor color =
+border : StrokeDescriptor -> 
+         SizeDescriptor (Size Abs) Abs -> 
+         ColorDescriptor {} -> 
+           PropertyRuleAppender
+border strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
+      color = colorDescriptor colorFactory
       valueFactory =
         spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "border") (stroke, size, color) valueFactory
 
-borderTop : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
-borderTop strokeDescriptor sizeDescriptor color =
+borderTop : StrokeDescriptor -> 
+            SizeDescriptor (Size Abs) Abs -> 
+            ColorDescriptor {} -> 
+            PropertyRuleAppender
+borderTop strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
+      color = colorDescriptor colorFactory
       valueFactory =
         spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "border-top") (stroke, width, color) valueFactory
 
-borderLeft : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
-borderLeft strokeDescriptor sizeDescriptor color =
+borderLeft : StrokeDescriptor -> 
+             SizeDescriptor (Size Abs) Abs -> 
+             ColorDescriptor {} -> 
+             PropertyRuleAppender
+borderLeft strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
+      color = colorDescriptor colorFactory
       valueFactory =
         spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "border-left") (stroke, width, color) valueFactory
 
-borderBottom : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
-borderBottom strokeDescriptor sizeDescriptor color =
+borderBottom : StrokeDescriptor -> 
+               SizeDescriptor (Size Abs) Abs -> 
+               ColorDescriptor {} -> 
+               PropertyRuleAppender
+borderBottom strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
+      color = colorDescriptor colorFactory
       valueFactory =
         spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "border-bottom") (stroke, width, color) valueFactory
 
-borderRight : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
-borderRight strokeDescriptor sizeDescriptor color =
+borderRight : StrokeDescriptor -> 
+              SizeDescriptor (Size Abs) Abs -> 
+              ColorDescriptor {} -> 
+              PropertyRuleAppender
+borderRight strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
+      color = colorDescriptor colorFactory
       valueFactory =
         spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
   in key (stringKey "border-right") (stroke, width, color) valueFactory
 
 -------------------------------------------------------------------------------
 
-borderColor : Color -> PropertyRuleAppender
-borderColor color = key (stringKey "border-color") color colorValueFactory
+borderColor : ColorDescriptor {} -> PropertyRuleAppender
+borderColor colorDescriptor =
+  let color = colorDescriptor colorFactory
+  in key (stringKey "border-color") color colorValueFactory
 
-borderLeftColor : Color -> PropertyRuleAppender
-borderLeftColor color = key (stringKey "border-left-color") color colorValueFactory
+borderLeftColor : ColorDescriptor {} -> PropertyRuleAppender
+borderLeftColor colorDescriptor =
+  let color = colorDescriptor colorFactory
+  in key (stringKey "border-left-color") color colorValueFactory
 
-borderRightColor : Color -> PropertyRuleAppender
-borderRightColor color = key (stringKey "border-right-color") color colorValueFactory
+borderRightColor : ColorDescriptor {} -> PropertyRuleAppender
+borderRightColor colorDescriptor =
+  let color = colorDescriptor colorFactory
+  in key (stringKey "border-right-color") color colorValueFactory
 
-borderTopColor : Color -> PropertyRuleAppender
-borderTopColor color = key (stringKey "border-top-color") color colorValueFactory
+borderTopColor : ColorDescriptor {} -> PropertyRuleAppender
+borderTopColor colorDescriptor =
+  let color = colorDescriptor colorFactory
+  in key (stringKey "border-top-color") color colorValueFactory
 
-borderBottomColor : Color -> PropertyRuleAppender
-borderBottomColor color = key (stringKey "border-bottom-color") color colorValueFactory
+borderBottomColor : ColorDescriptor {} -> PropertyRuleAppender
+borderBottomColor colorDescriptor =
+  let color = colorDescriptor colorFactory
+  in key (stringKey "border-bottom-color") color colorValueFactory
 
-borderColor4 : Color -> Color -> Color -> Color -> PropertyRuleAppender
-borderColor4 colorA colorB colorC colorD =
-  let valueFactory =
-    spaceQuadrupleValueFactory colorValueFactory colorValueFactory colorValueFactory colorValueFactory
+borderColor4 : ColorDescriptor {} -> 
+               ColorDescriptor {} -> 
+               ColorDescriptor {} -> 
+               ColorDescriptor {} -> 
+               PropertyRuleAppender
+borderColor4 colorDescriptorA colorDescriptorB colorDescriptorC colorDescriptorD =
+  let colorA = colorDescriptorA colorFactory
+      colorB = colorDescriptorB colorFactory
+      colorC = colorDescriptorC colorFactory
+      colorD = colorDescriptorD colorFactory
+      cvf = colorValueFactory
+      valueFactory = spaceQuadrupleValueFactory cvf cvf cvf cvf
   in key (stringKey "border-color") (colorA, colorB, colorC, colorD) valueFactory
 
 -------------------------------------------------------------------------------
@@ -233,162 +272,74 @@ borderWidth4 sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
       sizeB = sizeDescriptorB sizeFactory
       sizeC = sizeDescriptorC sizeFactory
       sizeD = sizeDescriptorD sizeFactory
-      valueFactory =
-        spaceQuadrupleValueFactory sizeValueFactory sizeValueFactory sizeValueFactory sizeValueFactory
+      svf = sizeValueFactory
+      valueFactory = spaceQuadrupleValueFactory svf svf svf svf
   in key (stringKey "border-width") (sizeA, sizeB, sizeC, sizeD) valueFactory
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-
-outline : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
-outline strokeDescriptor sizeDescriptor color =
+  
+outline : StrokeDescriptor -> 
+          SizeDescriptor (Size Abs) Abs -> 
+          OutlineColorDescriptor -> 
+          PropertyRuleAppender
+outline strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
-      valueFactory =
-        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
+      color = colorDescriptor outlineColorFactory
+      svf = strokeValueFactory
+      szf = sizeValueFactory
+      cvf = colorValueFactory
+      valueFactory = spaceTripleValueFactory svf szf cvf
   in key (stringKey "outline") (stroke, size, color) valueFactory
-
-outlineTop : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
-outlineTop strokeDescriptor sizeDescriptor color =
-  let stroke = strokeDescriptor strokeFactory
-      size = sizeDescriptor sizeFactory
-      valueFactory =
-        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
-  in key (stringKey "outline-top") (stroke, size, color) valueFactory
-
-outlineLeft : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
-outlineLeft strokeDescriptor sizeDescriptor color =
-  let stroke = strokeDescriptor strokeFactory
-      size = sizeDescriptor sizeFactory
-      valueFactory =
-        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
-  in key (stringKey "outline-left") (stroke, size, color) valueFactory
-
-outlineBottom : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
-outlineBottom strokeDescriptor sizeDescriptor color =
-  let stroke = strokeDescriptor strokeFactory
-      size = sizeDescriptor sizeFactory
-      valueFactory =
-        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
-  in key (stringKey "outline-bottom") (stroke, size, color) valueFactory
-
-outlineRight : StrokeDescriptor -> SizeDescriptor (Size Abs) Abs -> Color -> PropertyRuleAppender
-outlineRight strokeDescriptor sizeDescriptor color =
-  let stroke = strokeDescriptor strokeFactory
-      size = sizeDescriptor sizeFactory
-      valueFactory =
-        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
-  in key (stringKey "outline-right") (stroke, size, color) valueFactory
-
--------------------------------------------------------------------------------
-
-outlineColor : Color -> PropertyRuleAppender
-outlineColor color = key (stringKey "outline-color") color colorValueFactory
-
-outlineLeftColor : Color -> PropertyRuleAppender
-outlineLeftColor color = key (stringKey "outline-left-color") color colorValueFactory
-
-outlineRightColor : Color -> PropertyRuleAppender
-outlineRightColor color = key (stringKey "outline-right-color") color colorValueFactory
-
-outlineTopColor : Color -> PropertyRuleAppender
-outlineTopColor color = key (stringKey "outline-top-color") color colorValueFactory
-
-outlineBottomColor : Color -> PropertyRuleAppender
-outlineBottomColor color = key (stringKey "outline-bottom-color") color colorValueFactory
-
-outlineColor4 : Color -> Color -> Color -> Color -> PropertyRuleAppender
-outlineColor4 colorA colorB colorC colorD =
-  let valueFactory =
-    spaceQuadrupleValueFactory colorValueFactory colorValueFactory colorValueFactory colorValueFactory
-  in key (stringKey "outline-color") (colorA, colorB, colorC, colorD) valueFactory
-
--------------------------------------------------------------------------------
 
 outlineStyle : StrokeDescriptor -> PropertyRuleAppender
 outlineStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in key (stringKey "outline-style") style strokeValueFactory
 
-outlineLeftStyle : StrokeDescriptor -> PropertyRuleAppender
-outlineLeftStyle strokeDescriptor =
-  let style = strokeDescriptor strokeFactory
-  in key (stringKey "outline-left-style") style strokeValueFactory
-
-outlineRightStyle : StrokeDescriptor -> PropertyRuleAppender
-outlineRightStyle strokeDescriptor =
-  let style = strokeDescriptor strokeFactory
-  in key (stringKey "outline-right-style") style strokeValueFactory
-
-outlineTopStyle : StrokeDescriptor -> PropertyRuleAppender
-outlineTopStyle strokeDescriptor =
-  let style = strokeDescriptor strokeFactory
-  in key (stringKey "outline-top-style") style strokeValueFactory
-
-outlineBottomStyle : StrokeDescriptor -> PropertyRuleAppender
-outlineBottomStyle strokeDescriptor =
-  let style = strokeDescriptor strokeFactory
-  in key (stringKey "outline-bottom-style") style strokeValueFactory
-
-outlineStyle4 : StrokeDescriptor ->
-                StrokeDescriptor ->
-                StrokeDescriptor ->
-                StrokeDescriptor ->
-                PropertyRuleAppender
-outlineStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescriptorD =
-  let strokeA = strokeDescriptorA strokeFactory
-      strokeB = strokeDescriptorB strokeFactory
-      strokeC = strokeDescriptorC strokeFactory
-      strokeD = strokeDescriptorD strokeFactory
-      valueFactory =
-        spaceQuadrupleValueFactory strokeValueFactory strokeValueFactory strokeValueFactory strokeValueFactory
-  in key (stringKey "outline-style") (strokeA, strokeB, strokeC, strokeD) valueFactory
-
--------------------------------------------------------------------------------
-
 outlineWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 outlineWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "outline-width") size sizeValueFactory
-
-outlineLeftWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
-outlineLeftWidth sizeDescriptor =
-  let size = sizeDescriptor sizeFactory
-  in key (stringKey "outline-left-width") size sizeValueFactory
-
-outlineRightWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
-outlineRightWidth sizeDescriptor =
-  let size = sizeDescriptor sizeFactory
-  in key (stringKey "outline-right-width") size sizeValueFactory
-
-outlineTopWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
-outlineTopWidth sizeDescriptor =
-  let size = sizeDescriptor sizeFactory
-  in key (stringKey "outline-top-width") size sizeValueFactory
-
-outlineBottomWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
-outlineBottomWidth sizeDescriptor =
-  let size = sizeDescriptor sizeFactory
-  in key (stringKey "outline-bottom-width") size sizeValueFactory
 
 outlineOffset : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 outlineOffset sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in key (stringKey "outline-offset") size sizeValueFactory
 
-outlineWidth4 : SizeDescriptor (Size Abs) Abs ->
-                SizeDescriptor (Size Abs) Abs ->
-                SizeDescriptor (Size Abs) Abs ->
-                SizeDescriptor (Size Abs) Abs ->
-                PropertyRuleAppender
-outlineWidth4 sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
-  let sizeA = sizeDescriptorA sizeFactory
-      sizeB = sizeDescriptorB sizeFactory
-      sizeC = sizeDescriptorC sizeFactory
-      sizeD = sizeDescriptorD sizeFactory
-      valueFactory =
-        spaceQuadrupleValueFactory sizeValueFactory sizeValueFactory sizeValueFactory sizeValueFactory
-  in key (stringKey "outline-width") (sizeA, sizeB, sizeC, sizeD) valueFactory
+-------------------------------------------------------------------------------
+outlineColor : OutlineColorDescriptor -> PropertyRuleAppender
+outlineColor colorDescriptor = 
+  let color = colorDescriptor outlineColorFactory
+  in key (stringKey "outline-color") color colorValueFactory
+
+invert : OutlineColorDescriptor
+invert factory = factory.invert
+
+-------------------------------------------------------------------------------
+-- NOTE outline-color takes "invert" as well as the standard color descriptors,
+-- which is why we need ColorDescriptor to be parameterized.
+
+type alias OutlineColorDescriptor = OutlineColorFactory -> CssColor
+
+type alias InvertColorFactory = { invert: CssColor }
+
+type alias OutlineColorFactory = ColorFactory InvertColorFactory
+
+outlineColorFactory : OutlineColorFactory
+outlineColorFactory = { colorFactory | invert = OtherColor "invert" }
+
+outlineColorValueFactory : ValueFactory CssColor
+outlineColorValueFactory = 
+    { value cssColor =
+        case cssColor of 
+          CssRgba color ->  rgbaString color |> stringValueFactory.value
+          CssHsla color ->  hslaString color |> stringValueFactory.value
+          InitialColor -> initialValue
+          InheritColor -> inheritValue
+          OtherColor str -> otherValue str
+    }
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -476,7 +427,7 @@ type alias StrokeFactory =
   , none: Stroke
   , inherit: Stroke
   , auto: Stroke
-  , other: Value -> Stroke
+  , other: String -> Stroke
   }
 
 strokeFactory : StrokeFactory
@@ -494,8 +445,8 @@ strokeValueFactory =
   { value stroke =
       case stroke of
         Stroke str -> stringValueFactory.value str
-        NoStroke -> noneValueFactory.none
-        InheritStroke -> inheritValueFactory.inherit
-        AutoStroke -> autoValueFactory.auto
-        OtherStroke val -> otherValueFactory.other val
+        NoStroke -> noneValue
+        InheritStroke -> inheritValue
+        AutoStroke -> autoValue
+        OtherStroke val -> otherValue val
   }

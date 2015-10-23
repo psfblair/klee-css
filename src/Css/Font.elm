@@ -62,7 +62,10 @@ import Css.Common exposing
   ( Auto, Inherit, Normal, Initial, Other
   , inheritValue, initialValue, normalValue, otherValue
   )
-import Css.Color exposing (Color, colorValueFactory)
+import Css.Color exposing 
+  (CssColor, ColorDescriptor
+  , colorFactory, colorValueFactory
+  )
 import Css.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValueFactory)
 
 {- We implement the `font` property to accept multiple value types. This lets 
@@ -352,12 +355,16 @@ statusBar : FontDescriptor {} sz
 statusBar factory = factory.named "status-bar"
 
 -------------------------------------------------------------------------------
-color : Color -> PropertyRuleAppender
-color colour = key (stringKey "color") colour colorValueFactory
+color : ColorDescriptor -> PropertyRuleAppender
+color colorDescriptor = 
+  let colour = colorDescriptor colorFactory
+  in key (stringKey "color") colour colorValueFactory
 
 -- | An alias for `color`.
-fontColor : Color -> PropertyRuleAppender
-fontColor colour = key (stringKey "color") colour colorValueFactory
+fontColor : ColorDescriptor -> PropertyRuleAppender
+fontColor colorDescriptor = 
+  let colour = colorDescriptor colorFactory
+  in key (stringKey "color") colour colorValueFactory
 
 -------------------------------------------------------------------------------
 -- | The five generic font families.

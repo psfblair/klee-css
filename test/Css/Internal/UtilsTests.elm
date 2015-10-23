@@ -8,14 +8,26 @@ import Css.Internal.Utils exposing (..)
 
 suite : Spec
 suite = describe "Css.UtilsTests"
-  [ -- floatModTest, toFixedTest, toHexStringTest,
-    describe "fromHex"
-      [ fromHex "#FF" `shouldEqual` (Ok  255)
-      , fromHex "00" `shouldEqual`  (Ok    0)
-      , fromHex "#10" `shouldEqual` (Ok   16)
-      , fromHex "#0A" `shouldEqual` (Ok   10)
-      , fromHex "FFF" `shouldEqual` (Ok 4095)
-      ]
+  [ -- floatModTest, toFixedTest, 
+    describe  "toHexStringTest"
+    [ toHexString 1 0 `shouldEqual` "0"
+    , toHexString 2 0 `shouldEqual` "00"
+    , toHexString 1 15 `shouldEqual` "F"
+    , toHexString 2 15 `shouldEqual` "0F"
+    , toHexString 1 16 `shouldEqual` "10"
+    , toHexString 2 255 `shouldEqual` "FF"
+    , toHexString 3 240 `shouldEqual` "0F0"
+    , toHexString 2 128 `shouldEqual` "80"
+    , toHexString 2 256 `shouldEqual` "100"
+    , toHexString 4 4095 `shouldEqual` "0FFF"
+    ]
+  , describe "fromHex"
+    [ fromHex "#FF" `shouldEqual` (Ok  255)
+    , fromHex "00" `shouldEqual`  (Ok    0)
+    , fromHex "#10" `shouldEqual` (Ok   16)
+    , fromHex "#0A" `shouldEqual` (Ok   10)
+    , fromHex "FFF" `shouldEqual` (Ok 4095)
+    ]
   , describe "fromHexChar"
     [ fromHexChar '0' `shouldEqual` (Ok  0)
     , fromHexChar '1' `shouldEqual` (Ok  1)

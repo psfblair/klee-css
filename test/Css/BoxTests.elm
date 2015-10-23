@@ -42,19 +42,19 @@ suite = describe "Css.BoxTests"
               "box-shadow:20px 30%")
         , renderProperties [boxShadow <| withColor black <| shadow (px 20) (pct 30)]
             `shouldEqual`
-              ("-webkit-box-shadow:20px 30% rgba(0,0,0,1);" ++
-                "-moz-box-shadow:20px 30% rgba(0,0,0,1);" ++
-                "-ms-box-shadow:20px 30% rgba(0,0,0,1);" ++
-                "-o-box-shadow:20px 30% rgba(0,0,0,1);" ++
-                "box-shadow:20px 30% rgba(0,0,0,1)")
+              ("-webkit-box-shadow:20px 30% #000000;" ++
+                "-moz-box-shadow:20px 30% #000000;" ++
+                "-ms-box-shadow:20px 30% #000000;" ++
+                "-o-box-shadow:20px 30% #000000;" ++
+                "box-shadow:20px 30% #000000")
         , renderProperties
             [boxShadow <| inset <| withColor black <| shadow (px 20) (pct 30)]
             `shouldEqual`
-              ("-webkit-box-shadow:20px 30% rgba(0,0,0,1) inset;" ++
-                "-moz-box-shadow:20px 30% rgba(0,0,0,1) inset;" ++
-                "-ms-box-shadow:20px 30% rgba(0,0,0,1) inset;" ++
-                "-o-box-shadow:20px 30% rgba(0,0,0,1) inset;" ++
-                "box-shadow:20px 30% rgba(0,0,0,1) inset")
+              ("-webkit-box-shadow:20px 30% #000000 inset;" ++
+                "-moz-box-shadow:20px 30% #000000 inset;" ++
+                "-ms-box-shadow:20px 30% #000000 inset;" ++
+                "-o-box-shadow:20px 30% #000000 inset;" ++
+                "box-shadow:20px 30% #000000 inset")
         , renderProperties
             [boxShadow <| withBlur (pct 40) (px 50) <| shadow (px 20) (pct 30)]
             `shouldEqual`
@@ -81,11 +81,11 @@ suite = describe "Css.BoxTests"
               |> withBlur (pct 40) (px 50)
               |> boxShadow]
             `shouldEqual`
-              ("-webkit-box-shadow:20px 30% 40% 50px rgba(0,0,0,1) inset;" ++
-                "-moz-box-shadow:20px 30% 40% 50px rgba(0,0,0,1) inset;" ++
-                "-ms-box-shadow:20px 30% 40% 50px rgba(0,0,0,1) inset;" ++
-                "-o-box-shadow:20px 30% 40% 50px rgba(0,0,0,1) inset;" ++
-                "box-shadow:20px 30% 40% 50px rgba(0,0,0,1) inset")
+              ("-webkit-box-shadow:20px 30% 40% 50px #000000 inset;" ++
+                "-moz-box-shadow:20px 30% 40% 50px #000000 inset;" ++
+                "-ms-box-shadow:20px 30% 40% 50px #000000 inset;" ++
+                "-o-box-shadow:20px 30% 40% 50px #000000 inset;" ++
+                "box-shadow:20px 30% 40% 50px #000000 inset")
         ]
     ]
   ]
