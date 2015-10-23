@@ -13,6 +13,7 @@ import Css.BorderTests
 import Css.BoxTests
 import Css.ColorTests
 import Css.FontTests
+import Css.GeometryTests
 
 -------------------------------------------------------------------------------
 
@@ -26,6 +27,7 @@ allTests =
     , Css.BoxTests.suite
     , Css.ColorTests.suite
     , Css.FontTests.suite
+    , Css.GeometryTests.suite
     ]
 
 testRunner : IO ()
