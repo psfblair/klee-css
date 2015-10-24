@@ -9,7 +9,7 @@ import Css.Internal.Property exposing (ValueFactory, prefixedKeys)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, prefixed)
 import Css.Internal.Box exposing (..)
 
-import Css.Color exposing (ColorDescriptor, colorFactory)
+import Css.Internal.Color exposing (ColorDescriptor, colorFactory)
 import Css.Common exposing (browsers)
 import Css.Size exposing (Size, SizeDescriptor, sizeFactory)
 

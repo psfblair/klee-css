@@ -1,36 +1,18 @@
 module Css.Color
-  ( CssColor (..), ColorDescriptor
-  , rgb, rgba, hsl, hsla, hex
+  ( rgb, rgba, hsl, hsla, hex
   , red, orange, yellow, green, blue, purple, brown
   , lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
   , darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
   , white, lightGrey, lightGray, grey, gray, darkGrey, darkGray
   , lightCharcoal, charcoal, darkCharcoal, black
-    -- used by other modules
-  , ColorFactory, colorFactory, colorValueFactory, rgbaString, hslaString
   ) where
 
-import String
+import String 
+
 import Color exposing (Color)
-
-import Css.Internal.Property exposing (Value, ValueFactory, stringValueFactory)
-import Css.Internal.Utils exposing (floatMod, toFixed, toHexString, fromHex)
-
-import Css.Common exposing 
-  ( Initial, Inherit, Other
-  , initialValue, inheritValue, otherValue
-  )
-
+import Css.Internal.Color exposing (..)
+import Css.Internal.Utils exposing (toFixed, fromHex)
 -------------------------------------------------------------------------------
-type CssColor
-  = CssRgba Color 
-  | CssHsla Color 
-  | InitialColor
-  | InheritColor
-  | InvalidColor String
-  | OtherColor String
-
-type alias ColorDescriptor a = ColorFactory a -> CssColor
   
 rgb : Int -> Int -> Int -> ColorDescriptor a
 rgb r g b factory = 
@@ -192,89 +174,3 @@ darkCharcoal factory = Color.darkCharcoal |> factory.rgbaColor
 
 black : ColorDescriptor a
 black factory = Color.black |> factory.rgbaColor
-
--------------------------------------------------------------------------------
-
--- These functions are not part of the DSL. They integrate the colors with the
--- rest of the Css framework.
-
--- We make ColorFactory extensible because there are some colors that are not 
--- generally applicable. E.g., invert for outline, or transparent for background.
-type alias ColorFactory a =
-  { a | rgbaColor: Color -> CssColor
-      , hslaColor: Color -> CssColor
-      , initial: CssColor
-      , inherit: CssColor
-      , invalid: String -> CssColor
-      , other: String -> CssColor
-  }
-
-colorFactory : ColorFactory {}
-colorFactory =
-  { rgbaColor color = CssRgba color
-  , hslaColor color = CssHsla color
-  , initial = InitialColor
-  , inherit = InheritColor
-  , invalid str = InvalidColor str
-  , other str = OtherColor str
-  }
-
-colorValueFactory : ValueFactory CssColor
-colorValueFactory =
-  { value cssColor =
-      case cssColor of 
-        CssRgba color ->  rgbaString color |> stringValueFactory.value
-        CssHsla color ->  hslaString color |> stringValueFactory.value
-        InitialColor -> initialValue
-        InheritColor -> inheritValue
-        OtherColor str -> otherValue str
-  }
-
-rgbaString : Color -> String
-rgbaString color =
-  let unwrapped = Color.toRgb color
-      fixedStr num = toFixed 2 num |> toString
-  in 
-    if unwrapped.alpha == 1.0
-    then 
-      let hexRed = toHexString 2 unwrapped.red 
-          hexGreen = toHexString 2 unwrapped.green
-          hexBlue = toHexString 2 unwrapped.blue
-      in String.join "" ["#", hexRed, hexGreen, hexBlue] 
-    else
-      let red = toString unwrapped.red
-          green = toString unwrapped.green
-          blue = toString unwrapped.blue
-          alpha = fixedStr unwrapped.alpha
-          valueFactory = stringValueFactory
-      in String.join "" ["rgba(", red, ",", green, ",", blue, ",", alpha, ")"]
-
-hslaString : Color -> String
-hslaString color =
-  let unwrapped = Color.toHsl color
-      percentStr num = num * 100 |> toFixed 0 |> toString |> \x -> x ++ "%"
-      h = unwrapped.hue |> \deg -> deg * 180 / pi |> toFixed 0 |> toString
-      s = unwrapped.saturation |> percentStr 
-      l = unwrapped.lightness |> percentStr 
-  in 
-    if unwrapped.alpha == 1.0
-    then String.join "" ["hsl(", h, ",", s, ",", l, ")"]
-    else
-      let a = unwrapped.alpha |> toFixed 2 |> toString 
-      in String.join "" ["hsla(", h, ",", s, ",", l, ",", a, ")"]
-
-invalidRgb : Int -> Int -> Int -> Bool
-invalidRgb r g b = 
-  let invalidComponent num = num > 255 || num < 0
-  in invalidComponent r || invalidComponent g || invalidComponent b
-
-invalidHsl : Int -> Float -> Float -> Bool
-invalidHsl h s l =
-  let invalidHue num = num > 360 || num < 0      
-  in invalidHue h || invalidFractionOf1 s || invalidFractionOf1 l
-  
-invalidFractionOf1 : Float -> Bool
-invalidFractionOf1 num = num > 1.0 || num < 0
-
-join : List String -> String
-join strings = String.join "," strings

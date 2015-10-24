@@ -10,7 +10,7 @@ import Css.Internal.Property exposing
 import Css.Common exposing 
   ( otherValue, initialValue, inheritValue, autoValue, noneValue )
 
-import Css.Color exposing 
+import Css.Internal.Color exposing 
   (CssColor (..), ColorFactory, colorFactory
   )
 -------------------------------------------------------------------------------

@@ -39,7 +39,7 @@ import Css.Display exposing
   , visibilityFactory, visibilityValueFactory
   )
 
-import Css.Color exposing 
+import Css.Internal.Color exposing 
   (CssColor (..), ColorDescriptor, ColorFactory
   , rgbaString, hslaString, colorFactory, colorValueFactory
   )

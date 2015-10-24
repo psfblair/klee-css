@@ -62,7 +62,7 @@ import Css.Common exposing
   ( Auto, Inherit, Normal, Initial, Other
   , inheritValue, initialValue, normalValue, otherValue
   )
-import Css.Color exposing 
+import Css.Internal.Color exposing 
   (CssColor, ColorDescriptor
   , colorFactory, colorValueFactory
   )

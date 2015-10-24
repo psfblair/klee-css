@@ -19,6 +19,7 @@ module Css.Internal.Background
   ) where
 
 import String
+import Css.Internal.Color exposing (CssColor (..), ColorFactory, colorFactory)
 import Css.Internal.Property exposing 
   ( ValueFactory
   , stringValueFactory, valueValueFactory, spacePairValueFactory
@@ -27,7 +28,6 @@ import Css.Internal.Box exposing (BoxType, boxTypeValueFactory)
   
 import Css.Common exposing 
   (autoValue, initialValue, inheritValue, noneValue, otherValue)
-import Css.Color exposing (CssColor (..), ColorFactory, colorFactory)
 import Css.Size exposing (Size, sizeValueFactory)
 -------------------------------------------------------------------------------
 

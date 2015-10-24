@@ -15,7 +15,7 @@ import Css.Internal.Property exposing
 import Css.Common exposing
   ( noneValue, inheritValue, initialValue, otherValue
   )
-import Css.Color exposing (CssColor, colorValueFactory)
+import Css.Internal.Color exposing (CssColor, colorValueFactory)
 import Css.Size exposing (sizeValueFactory)
 
 -------------------------------------------------------------------------------
