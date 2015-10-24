@@ -4,6 +4,8 @@ module Css.Box
   , boxSizing
   , shadow, inset, withColor, withBlur
   , boxShadow
+  -- used by other modules
+  , boxTypeValueFactory  
   ) where
 
 import Css.Internal.Property exposing
@@ -98,7 +100,7 @@ inset shadowDescriptor shadowFactory =
     somethingElse -> somethingElse -- Sized constraint keeps us from getting here
 
 
-withColor : ColorDescriptor ->
+withColor : ColorDescriptor {} ->
             BoxShadowDescriptor Sized x y b s ->
             BoxShadowDescriptor Sized x y b s
 withColor colorDescriptor shadowDescriptor shadowFactory =

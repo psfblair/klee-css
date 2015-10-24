@@ -319,7 +319,7 @@ invert factory = factory.invert
 
 -------------------------------------------------------------------------------
 -- NOTE outline-color takes "invert" as well as the standard color descriptors,
--- which is why we need ColorDescriptor to be parameterized.
+-- which is one reason we need ColorDescriptor to be parameterized.
 
 type alias OutlineColorDescriptor = OutlineColorFactory -> CssColor
 
@@ -329,17 +329,6 @@ type alias OutlineColorFactory = ColorFactory InvertColorFactory
 
 outlineColorFactory : OutlineColorFactory
 outlineColorFactory = { colorFactory | invert = OtherColor "invert" }
-
-outlineColorValueFactory : ValueFactory CssColor
-outlineColorValueFactory = 
-    { value cssColor =
-        case cssColor of 
-          CssRgba color ->  rgbaString color |> stringValueFactory.value
-          CssHsla color ->  hslaString color |> stringValueFactory.value
-          InitialColor -> initialValue
-          InheritColor -> inheritValue
-          OtherColor str -> otherValue str
-    }
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

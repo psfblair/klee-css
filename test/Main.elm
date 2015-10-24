@@ -14,6 +14,7 @@ import Css.BoxTests
 import Css.ColorTests
 import Css.FontTests
 import Css.GeometryTests
+import Css.BackgroundTests
 
 -------------------------------------------------------------------------------
 
@@ -28,6 +29,7 @@ allTests =
     , Css.ColorTests.suite
     , Css.FontTests.suite
     , Css.GeometryTests.suite
+    , Css.BackgroundTests.suite
     ]
 
 testRunner : IO ()
