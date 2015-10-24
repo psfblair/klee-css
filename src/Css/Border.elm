@@ -32,17 +32,16 @@ import Css.Internal.Property exposing
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
 import Css.Internal.Border exposing (..)
 
-import Css.Size exposing (Size, Abs, SizeDescriptor, sizeFactory, sizeValueFactory)
-
-import Css.Display exposing
-  ( Visibility, VisibilityDescriptor
-  , visibilityFactory, visibilityValueFactory
-  )
-
 import Css.Internal.Color exposing 
   (CssColor (..), ColorDescriptor, ColorFactory
   , rgbaString, hslaString, colorFactory, colorValueFactory
   )
+
+import Css.Internal.Display exposing
+  ( VisibilityDescriptor, visibilityFactory, visibilityValueFactory
+  )
+
+import Css.Size exposing (Size, Abs, SizeDescriptor, sizeFactory, sizeValueFactory)
 
 -------------------------------------------------------------------------------
 

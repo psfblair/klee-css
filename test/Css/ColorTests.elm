@@ -4,6 +4,7 @@ import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
 import Css.Internal.Property exposing (Value, plain, stringValueFactory)
+import Css.Internal.Color exposing (CssColor (..), colorFactory, colorValueFactory)
 
 import Css.Color exposing (..)
 import Color as ElmColor
