@@ -1,7 +1,6 @@
 module Css.Border (
   -- * Stroke type, used for border-style and outline-style.
-    Stroke
-  , solid, dotted, dashed, double, wavy, groove, ridge, inset, outset
+  solid, dotted, dashed, double, wavy, groove, ridge, inset, outset
 
   -- * Border properties.
 
@@ -23,10 +22,6 @@ module Css.Border (
   -- * Collapsing borders model for a table
   , borderCollapse
   , borderSpacing, borderSpacing2
-
-  -- * Used by other modules
-  , StrokeDescriptor
-
   ) where
 
 import Css.Internal.Property exposing
@@ -35,34 +30,21 @@ import Css.Internal.Property exposing
   , spaceTripleValueFactory, spaceQuadrupleValueFactory
   )
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
+import Css.Internal.Border exposing (..)
 
-import Css.Common exposing (
-  Other, Inherit, Auto, None
-  , otherValue, initialValue, inheritValue, autoValue, noneValue
-  )
 import Css.Size exposing (Size, Abs, SizeDescriptor, sizeFactory, sizeValueFactory)
-
-import Css.Color exposing 
-  (CssColor (..), ColorDescriptor, ColorFactory
-  , rgbaString, hslaString, colorFactory, colorValueFactory
-  )
 
 import Css.Display exposing
   ( Visibility, VisibilityDescriptor
   , visibilityFactory, visibilityValueFactory
   )
 
+import Css.Color exposing 
+  (CssColor (..), ColorDescriptor, ColorFactory
+  , rgbaString, hslaString, colorFactory, colorValueFactory
+  )
+
 -------------------------------------------------------------------------------
-
-type Stroke
-  = Stroke String
-  | NoStroke
-  | InheritStroke
-  | AutoStroke
-  | OtherStroke String
-
--- See bottom of this file for the additional boilerplate types
-type alias StrokeDescriptor = StrokeFactory -> Stroke
 
 solid : StrokeDescriptor
 solid factory = factory.stroke "solid"
@@ -96,7 +78,7 @@ outset factory = factory.stroke "outset"
 border : StrokeDescriptor -> 
          SizeDescriptor (Size Abs) Abs -> 
          ColorDescriptor {} -> 
-           PropertyRuleAppender
+         PropertyRuleAppender
 border strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
@@ -314,21 +296,9 @@ outlineColor colorDescriptor =
   let color = colorDescriptor outlineColorFactory
   in key (stringKey "outline-color") color colorValueFactory
 
+-- Note that OutlineColorDescriptor includes all standard color descriptors.
 invert : OutlineColorDescriptor
 invert factory = factory.invert
-
--------------------------------------------------------------------------------
--- NOTE outline-color takes "invert" as well as the standard color descriptors,
--- which is one reason we need ColorDescriptor to be parameterized.
-
-type alias OutlineColorDescriptor = OutlineColorFactory -> CssColor
-
-type alias InvertColorFactory = { invert: CssColor }
-
-type alias OutlineColorFactory = ColorFactory InvertColorFactory
-
-outlineColorFactory : OutlineColorFactory
-outlineColorFactory = { colorFactory | invert = OtherColor "invert" }
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -404,38 +374,3 @@ borderSpacing2 sizeDescriptorA sizeDescriptorB =
       sizeB = sizeDescriptorB sizeFactory
       valueFactory = spacePairValueFactory sizeValueFactory sizeValueFactory
   in key (stringKey "border-spacing") (sizeA, sizeB) valueFactory
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-
--- Ancillary types used for implementation. These substitute for Clay's typeclasses.
-
-type alias StrokeFactory =
-  {
-    stroke: String -> Stroke
-  , none: Stroke
-  , inherit: Stroke
-  , auto: Stroke
-  , other: String -> Stroke
-  }
-
-strokeFactory : StrokeFactory
-strokeFactory =
-  {
-    stroke str = Stroke str
-  , none = NoStroke
-  , inherit = InheritStroke
-  , auto = AutoStroke
-  , other val = OtherStroke val
-  }
-
-strokeValueFactory : ValueFactory Stroke
-strokeValueFactory =
-  { value stroke =
-      case stroke of
-        Stroke str -> stringValueFactory.value str
-        NoStroke -> noneValue
-        InheritStroke -> inheritValue
-        AutoStroke -> autoValue
-        OtherStroke val -> otherValue val
-  }
