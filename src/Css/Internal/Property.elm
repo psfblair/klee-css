@@ -1,11 +1,11 @@
 module Css.Internal.Property
   ( Key (..), Value (..), PrefixedOrNot (..), Literal (..)
-  , unPrefixed, plain, quote, stringKey, prefixedKeys, cast
-  , ValueFactory, emptyValue, appendValues, concatenateValues, intersperse
-  , stringValueFactory, literalValueFactory, intValueFactory, floatValueFactory
-  , valueValueFactory, maybeValueFactory, commaListValueFactory
-  , spaceListValueFactory, spacePairValueFactory, spaceTripleValueFactory
-  , spaceQuadrupleValueFactory, commaQuadrupleValueFactory, eitherValueFactory
+  , unPrefixed, plain, quote, stringKey, prefixedKeys
+  , emptyValue, appendValues, concatenateValues, intersperse
+  , stringValue, literalValue, intValue, floatValue
+  , maybeValue, commaListValue
+  , spaceListValue, spacePairValue, spaceTripleValue, spaceQuadrupleValue
+  , commaQuadrupleValue, resultValue
   ) where
 
 import Dict exposing (fromList, get)
@@ -16,7 +16,6 @@ import Css.Internal.Utils exposing (Either (..), rightValue, toFixed)
 -------------------------------------------------------------------------------
 
 type Literal = Literal String
-
 
 -------------------------------------------------------------------------------
 {- `PrefixedOrNot` is the type for keys and values in properties. 
@@ -69,24 +68,17 @@ merge prefixedOrNot1 prefixedOrNot2 =
 -------------------------------------------------------------------------------
 {- A type that represents the name of a CSS property. The type variable keeps
 the type of the key and value coordinated. -}
-type Key a = Key PrefixedOrNot
+type Key = Key PrefixedOrNot
 
 
 {- Turn a string into a key. -}
-stringKey : String -> Key a
+stringKey : String -> Key
 stringKey str = Plain str |> Key
 
 
 {- Combine a string key with a PrefixedOrNot containing browser prefixes. -}
 prefixedKeys : PrefixedOrNot -> String -> PrefixedOrNot
 prefixedKeys prefixes rootKey = Plain rootKey |> merge prefixes
-
-
-{- Rules store property keys parameterized with the unit type; this allows
-them to be aggregated in a single collection. The `cast` method is used to
-replace any other type parameter with unit. -}
-cast : Key a -> Key ()
-cast (Key k) = Key k
 
 
 -------------------------------------------------------------------------------
@@ -122,138 +114,102 @@ intersperse str values =
   in List.foldr (\val accum -> appendValues val accum) emptyValue interspersed
 
 
--------------------------------------------------------------------------------
-{- The type representing something that converts a value of some type to a 
-value of `Value` type. The `ValueFactory` type is a parameterized type alias for 
-a record holding a function converting something of the type of the parameter to
-a `Value`. `ValueFactory` allows similar polymorphic behavior to a Haskell 
-typeclass, except that the record of functions needs to be passed to any 
-function making use of a value of a type in that "class." -}
-type alias ValueFactory a = { value : a -> Value }
+stringValue : String -> Value 
+stringValue str = Plain str |> Value
 
 
-{- Converts a string to a `Value`. -}
-stringValueFactory : ValueFactory String
-stringValueFactory = { value x = Plain x |> Value}
+literalValue : Literal -> Value 
+literalValue (Literal x) = quote x |> Plain |> Value 
 
 
-{- Converts a `Literal` to a `Value`. -}
-literalValueFactory : ValueFactory Literal
-literalValueFactory = { value (Literal x) = quote x |> Plain |> Value }
+intValue : Int -> Value 
+intValue num = toString num |> Plain |> Value 
 
 
-{- Converts an `Int` to a `Value`. -}
-intValueFactory : ValueFactory Int
-intValueFactory = { value x = toString x |> Plain |> Value }
+floatValue : Float -> Value 
+floatValue num = toFixed 5 num |> toString |> Plain |> Value 
 
 
-{- Converts a `Float` to a `Value`. -}
-floatValueFactory : ValueFactory Float
-floatValueFactory = { value x = toFixed 5 x |> toString |> Plain |> Value }
+maybeValue : (a -> Value) -> Maybe a -> Value
+maybeValue innerConverter innerValue =
+  case innerValue of
+    Just val -> innerConverter val
+    Nothing -> emptyValue
 
 
-{- Converts a `Value` to a `Value`. This is useful in cases where a `Value` 
-needs to be passed to a function that may take other types as well. -}
-valueValueFactory : ValueFactory Value
-valueValueFactory = { value = identity }
+listValue : String -> (a -> Value) -> List a -> Value 
+listValue separator innerConverter xs =
+  List.map innerConverter xs |> intersperse separator
 
 
-{- Converts a `Maybe` to a `Value`. -}
-maybeValueFactory : ValueFactory a -> ValueFactory (Maybe a)
-maybeValueFactory innerFactory =
-  { value x =
-      case x of
-        Just val -> innerFactory.value val
-        Nothing -> emptyValue
-  }
+commaListValue : (a -> Value) -> List a -> Value 
+commaListValue = listValue ","
 
 
-{- Converts a `List a` to a `Value`, given a separator string and a value
-factory for items of type a. -}
-listValueFactory : String -> ValueFactory a -> ValueFactory (List a)
-listValueFactory separator innerFactory =
-  let wrapList xs =
-    case xs of
-      [] -> []
-      (h :: t) -> (innerFactory.value h) :: (wrapList t)
-  in { value = wrapList >> intersperse separator }
+spaceListValue : (a -> Value) -> List a -> Value 
+spaceListValue = listValue " "
 
 
-{- Converts a `List a` to a `Value` of comma-separated items, given a value
-factory for items of type a. -}
-commaListValueFactory : ValueFactory a -> ValueFactory (List a)
-commaListValueFactory = listValueFactory ","
+pairValue : String -> (a -> Value) -> (b -> Value) -> (a, b) -> Value
+pairValue separator innerConverter1 innerConverter2 (x, y) =
+  [ innerConverter1 x, innerConverter2 y ] |> intersperse separator
 
 
-{- Converts a `List a` to a `Value` of space-separated items, given a value
-factory for items of type a. -}
-spaceListValueFactory : ValueFactory a -> ValueFactory (List a)
-spaceListValueFactory = listValueFactory " "
+spacePairValue : (a -> Value) -> (b -> Value) -> (a, b) -> Value
+spacePairValue = pairValue " "
 
 
-{- Converts a pair `(a, b)` to a `Value`, given a separator string and value
-factories for items of type a and of type b. -}
-pairValueFactory : String -> ValueFactory a -> ValueFactory b -> ValueFactory (a, b)
-pairValueFactory separator firstInnerFactory secondInnerFactory =
-  { value (x,y) =
-        [ firstInnerFactory.value x, secondInnerFactory.value y ]
-        |> intersperse separator
-  }
+tripleValue : String -> 
+              (a -> Value) -> 
+              (b -> Value) -> 
+              (c -> Value) -> 
+              (a, b, c) -> 
+              Value
+tripleValue separator innerConverter1 innerConverter2 innerConverter3 (x, y, z) =
+  [ innerConverter1 x, innerConverter2 y, innerConverter3 z ]
+    |> intersperse separator
 
 
-{- Converts a pair `(a, b)` to a `Value` of space-separated items, given value
-factories for items of type a and of type b. -}
-spacePairValueFactory : ValueFactory a -> ValueFactory b -> ValueFactory (a, b)
-spacePairValueFactory = pairValueFactory " "
+spaceTripleValue : (a -> Value) -> 
+                   (b -> Value) -> 
+                   (c -> Value) -> 
+                   (a, b, c) -> 
+                   Value
+spaceTripleValue = tripleValue " "
 
 
-{- Converts a triple `(a, b, c)` to a `Value`, given a separator string and value
-factories for items of type a, of type b, and of type c. -}
-tripleValueFactory : String -> ValueFactory a -> ValueFactory b -> ValueFactory c -> ValueFactory (a, b, c)
-tripleValueFactory separator firstInnerFactory secondInnerFactory thirdInnerFactory =
-  { value (x,y,z) =
-        [ firstInnerFactory.value x, secondInnerFactory.value y, thirdInnerFactory.value z ]
-        |> intersperse separator
-  }
+quadrupleValue : String -> 
+                 (a -> Value) -> 
+                 (b -> Value) -> 
+                 (c -> Value) -> 
+                 (d -> Value) -> 
+                 (a, b, c, d) -> 
+                 Value
+quadrupleValue separator innerConv1 innerConv2 innerConv3 innerConv4 (x, y, z, a) =
+  [ innerConv1 x, innerConv2 y, innerConv3 z, innerConv4 a ] 
+    |> intersperse separator
 
 
-{- Converts a triple `(a, b, c)` to a `Value` of space-separated items, given 
-value factories for items of type a, of type b, and of type c. -}
-spaceTripleValueFactory : ValueFactory a -> ValueFactory b -> ValueFactory c -> ValueFactory (a, b, c)
-spaceTripleValueFactory = tripleValueFactory " "
+spaceQuadrupleValue : (a -> Value) -> 
+                      (b -> Value) -> 
+                      (c -> Value) -> 
+                      (d -> Value) -> 
+                      (a, b, c, d) -> 
+                      Value
+spaceQuadrupleValue = quadrupleValue " "
 
 
-{- Converts a quadruple `(a, b, c, d)` to a `Value`, given a separator string and 
-value factories for items of type a, of type b, of type c, and of type d. -}
-quadrupleValueFactory : String -> ValueFactory a -> ValueFactory b -> ValueFactory c ->
-                          ValueFactory d -> ValueFactory (a, b, c, d)
-quadrupleValueFactory separator firstInnerFactory secondInnerFactory thirdInnerFactory fourthInnerFactory =
-  { value (x,y,z,a) =
-        [ firstInnerFactory.value x, secondInnerFactory.value y, thirdInnerFactory.value z, fourthInnerFactory.value a ]
-        |> intersperse separator
-  }
+commaQuadrupleValue : (a -> Value) -> 
+                      (b -> Value) -> 
+                      (c -> Value) -> 
+                      (d -> Value) -> 
+                      (a, b, c, d) -> 
+                      Value
+commaQuadrupleValue = quadrupleValue ","
 
 
-{- Converts a quadruple `(a, b, c, d)` to a `Value` of space-separated items, 
-given value factories for items of type a, of type b, of type c, and of type d. -}
-spaceQuadrupleValueFactory : ValueFactory a -> ValueFactory b -> ValueFactory c ->
-                                ValueFactory d -> ValueFactory (a, b, c, d)
-spaceQuadrupleValueFactory = quadrupleValueFactory " "
-
-
-{- Converts a quadruple `(a, b, c, d)` to a `Value` of comma-separated items, 
-given value factories for items of type a, of type b, of type c, and of type d. -}
-commaQuadrupleValueFactory : ValueFactory a -> ValueFactory b -> ValueFactory c ->
-                                ValueFactory d -> ValueFactory (a, b, c, d)
-commaQuadrupleValueFactory = quadrupleValueFactory ","
-
-
-{- Converts an `Either a b` to a `Value`, given value factories for items of 
-type a and of type b. -}
-eitherValueFactory : ValueFactory a -> ValueFactory b -> ValueFactory (Either a b)
-eitherValueFactory leftInnerFactory rightInnerFactory =
-  { value x =
-      case x of
-        Left a -> leftInnerFactory.value a
-        Right a -> rightInnerFactory.value a
-  }
+resultValue : (a -> Value) -> (b -> Value) -> (Result a b) -> Value
+resultValue errConverter okConverter val =
+  case val of
+    Err a -> errConverter a
+    Ok  a -> okConverter a

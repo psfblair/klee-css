@@ -29,9 +29,7 @@ module Css.Size (
   , turn
   ) where
 
-import Css.Internal.Property exposing
-  ( appendValues, stringValueFactory, floatValueFactory
-  )
+import Css.Internal.Property exposing (appendValues, stringValue, floatValue)
 
 import Css.Internal.Size exposing (..)
 
@@ -41,11 +39,11 @@ import Css.Internal.Size exposing (..)
 
 -- | Zero size.
 nil : SizeDescriptor a c
-nil = \factory -> factory.size (stringValueFactory.value "0")
+nil = \factory -> factory.size (stringValue "0")
 
 -- | Unitless size (as recommended for line-height).
 unitless : Float -> SizeDescriptor a c
-unitless length = \factory -> factory.size (floatValueFactory.value length)
+unitless length = \factory -> factory.size (floatValue length)
 
 -- | Size in centimeters.
 cm : Float -> SizeDescriptor a Abs

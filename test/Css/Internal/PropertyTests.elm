@@ -14,16 +14,16 @@ suite = describe "Css.PropertyTests"
 stringValueFactoryTest : Spec
 stringValueFactoryTest =
   describe "stringValueFactory"
-    [ stringValueFactory.value "a" `shouldEqual` Value (Plain "a")
+    [ stringValue "a" `shouldEqual` Value (Plain "a")
     ]
 
 commaListValueFactoryTest : Spec
 commaListValueFactoryTest =
   describe "pairValueFactory"
     [ it "should wrap an empty list"
-        [ (commaListValueFactory stringValueFactory).value [] `shouldEqual` emptyValue ]
+        [ commaListValue stringValue [] `shouldEqual` emptyValue ]
     , it "should wrap plain values"
-        [ (commaListValueFactory stringValueFactory).value ["a", "b"] `shouldEqual` Value (Plain "a,b")]
+        [ commaListValue stringValue ["a", "b"] `shouldEqual` Value (Plain "a,b")]
     ]
 
 -- TODO Test wrappers involving prefixed values in order to test merge instead of test below

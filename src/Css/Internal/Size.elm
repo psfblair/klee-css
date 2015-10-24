@@ -1,17 +1,15 @@
 module Css.Internal.Size 
   ( Size, SizeDescriptor, Abs, Rel
-  , sizeFactory, sizeValueFactory
+  , sizeFactory, sizeValue
   , AngleDescriptor, Deg, Rad, Grad, Turn
   , appendUnits
   ) where
 
 import Css.Internal.Property exposing
-  ( Value, ValueFactory
-  , appendValues, stringValueFactory, floatValueFactory
-  )
+  (Value, appendValues, stringValue, floatValue)
 
 import Css.Internal.Common exposing
-  ( autoValue, normalValue, inheritValue, noneValue, otherValue)
+  (autoValue, normalValue, inheritValue, noneValue, otherValue)
 
 -------------------------------------------------------------------------------
 
@@ -60,17 +58,16 @@ sizeFactory =
   , other str = OtherSize str
   }
 
-sizeValueFactory : ValueFactory (Size a)
-sizeValueFactory =
-  { value size =
-      case size of
-        Size val -> val
-        AutoSize -> autoValue
-        NormalSize -> normalValue
-        InheritSize -> inheritValue
-        NoSize -> noneValue
-        OtherSize str -> otherValue str
-  }
+sizeValue : Size a -> Value
+sizeValue size =
+  case size of
+    Size val -> val
+    AutoSize -> autoValue
+    NormalSize -> normalValue
+    InheritSize -> inheritValue
+    NoSize -> noneValue
+    OtherSize str -> otherValue str
+    
 -------------------------------------------------------------------------------
 
 type alias AngleDescriptor a = AngleFactory a -> Angle a
@@ -109,17 +106,15 @@ angleFactory =
   , other str = OtherAngle str
   }
 
-angleValueFactory : ValueFactory (Angle a)
-angleValueFactory =
-  { value angle =
-      case angle of
-        Angle val -> val
-        AutoAngle -> autoValue
-        InheritAngle -> inheritValue
-        OtherAngle str -> otherValue str
-  }
+angleValue : Angle a -> Value 
+angleValue angle =
+  case angle of
+    Angle val -> val
+    AutoAngle -> autoValue
+    InheritAngle -> inheritValue
+    OtherAngle str -> otherValue str
 
 appendUnits : Float -> String -> Value
 appendUnits qty unit =
-  appendValues (floatValueFactory.value qty) (stringValueFactory.value unit)
+  appendValues (floatValue qty) (stringValue unit)
   

@@ -61,8 +61,7 @@ module Css.Display (
   , wResize, wait, zoomIn, zoomOut
   ) where
 
-import Css.Internal.Property exposing (stringKey)
-import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
+import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory)
 import Css.Internal.Display exposing (..) 
 
@@ -71,7 +70,7 @@ import Css.Internal.Display exposing (..)
 float : FloatStyleDescriptor -> PropertyRuleAppender
 float descriptor =
   let floatStyle = descriptor floatStyleFactory
-  in key (stringKey "float") floatStyle floatStyleValueFactory
+  in simpleProperty "float" (floatStyleValue floatStyle)
 
 floatLeft : FloatStyleDescriptor
 floatLeft factory = factory.floatStyle "left"
@@ -83,8 +82,8 @@ floatRight factory = factory.floatStyle "right"
 
 clear : ClearDescriptor -> PropertyRuleAppender
 clear descriptor =
-  let clearValue = descriptor clearFactory
-  in key (stringKey "clear") clearValue clearValueFactory
+  let val = descriptor clearFactory |> clearValue
+  in simpleProperty "clear" val
 
 both : ClearDescriptor
 both factory = factory.clear "both"
@@ -99,8 +98,8 @@ clearRight factory = factory.clear "right"
 
 position : PositionDescriptor -> PropertyRuleAppender
 position descriptor =
-  let positionValue = descriptor positionFactory
-  in key (stringKey "position") positionValue positionValueFactory
+  let val = descriptor positionFactory |> positionValue
+  in simpleProperty "position" val
 
 static : PositionDescriptor
 static factory = factory.position "static"
@@ -118,8 +117,8 @@ relative factory = factory.position "relative"
 
 display : DisplayDescriptor -> PropertyRuleAppender
 display descriptor =
-  let displayValue = descriptor displayFactory
-  in key (stringKey "display") displayValue displayValueFactory
+  let val = descriptor displayFactory |> displayValue
+  in simpleProperty "display" val
 
 inline : DisplayDescriptor
 inline factory = factory.display "inline"
@@ -188,18 +187,18 @@ inlineGrid factory = factory.display "inline-grid"
 
 overflow : OverflowDescriptor -> PropertyRuleAppender
 overflow descriptor =
-  let overflowValue = descriptor overflowFactory
-  in key (stringKey "overflow") overflowValue overflowValueFactory
+  let val = descriptor overflowFactory |> overflowValue
+  in simpleProperty "overflow" val
 
 overflowX : OverflowDescriptor -> PropertyRuleAppender
 overflowX descriptor =
-  let overflowValue = descriptor overflowFactory
-  in key (stringKey "overflow-x") overflowValue overflowValueFactory
+  let val = descriptor overflowFactory |> overflowValue
+  in simpleProperty "overflow-x" val
 
 overflowY : OverflowDescriptor -> PropertyRuleAppender
 overflowY descriptor =
-  let overflowValue = descriptor overflowFactory
-  in key (stringKey "overflow-y") overflowValue overflowValueFactory
+  let val = descriptor overflowFactory |> overflowValue
+  in simpleProperty "overflow-y" val
 
 scroll : OverflowDescriptor
 scroll factory = factory.overflow "scroll"
@@ -208,8 +207,8 @@ scroll factory = factory.overflow "scroll"
 
 visibility : VisibilityDescriptor -> PropertyRuleAppender
 visibility descriptor =
-  let visibilityValue = descriptor visibilityFactory
-  in key (stringKey "visibility") visibilityValue visibilityValueFactory
+  let val = descriptor visibilityFactory |> visibilityValue
+  in simpleProperty "visibility" val
 
 separate : VisibilityDescriptor
 separate factory = factory.visibility "separate"
@@ -221,8 +220,8 @@ collapse factory = factory.visibility "collapse"
 
 clip : ClipDescriptor a b c d -> PropertyRuleAppender
 clip descriptor =
-  let clipValue = descriptor clipFactory
-  in key (stringKey "clip") clipValue clipValueFactory
+  let val = descriptor clipFactory |> clipValue
+  in simpleProperty "clip" val
 
 rect : SizeDescriptor (Size a) a ->
        SizeDescriptor (Size b) b ->
@@ -241,7 +240,7 @@ rect top right bottom left factory =
 opacity : OpacityDescriptor -> PropertyRuleAppender
 opacity descriptor =
   let opacityLevel = descriptor opacityFactory
-  in key (stringKey "opacity") opacityLevel opacityValueFactory
+  in simpleProperty "opacity" (opacityValue opacityLevel)
 
 pctOpacity : Float -> OpacityDescriptor
 pctOpacity level factory = factory.opacity level
@@ -251,7 +250,7 @@ pctOpacity level factory = factory.opacity level
 zIndex : ZIndexDescriptor -> PropertyRuleAppender
 zIndex descriptor =
   let zIdx = descriptor zIndexFactory
-  in key (stringKey "z-index") zIdx zIndexValueFactory
+  in simpleProperty "z-index" (zIndexValue zIdx)
 
 zLevel : Int -> ZIndexDescriptor
 zLevel num factory = factory.zIndex num
@@ -261,7 +260,7 @@ zLevel num factory = factory.zIndex num
 pointerEvents : PointerEventsDescriptor -> PropertyRuleAppender
 pointerEvents descriptor =
   let pointerEvts = descriptor pointerEventsFactory
-  in key (stringKey "pointer-events") pointerEvts pointerEventsValueFactory
+  in simpleProperty "pointer-events" (pointerEventsValue pointerEvts)
 
 visiblePainted : PointerEventsDescriptor
 visiblePainted factory = factory.pointerEvents "visiblePainted"
@@ -289,7 +288,7 @@ allEvents factory = factory.pointerEvents "all"
 verticalAlign : VerticalAlignDescriptor -> PropertyRuleAppender
 verticalAlign descriptor =
   let valign = descriptor verticalAlignFactory
-  in key (stringKey "vertical-align") valign verticalAlignValueFactory
+  in simpleProperty "vertical-align" (verticalAlignValue valign)
 
 middle : VerticalAlignDescriptor
 middle factory = factory.vAlign "middle"
@@ -316,8 +315,8 @@ vAlignBottom factory = factory.vAlign  "bottom"
 
 cursor : CursorDescriptor -> PropertyRuleAppender
 cursor descriptor =
-  let cursorValue = descriptor cursorFactory
-  in key (stringKey "cursor") cursorValue cursorValueFactory
+  let val = descriptor cursorFactory |> cursorValue
+  in simpleProperty "cursor" val
 
 aliasCursor : CursorDescriptor
 aliasCursor factory = factory.cursor "alias"

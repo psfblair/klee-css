@@ -1,6 +1,6 @@
 module Css.Internal.Color
   ( CssColor (..), ColorDescriptor, ColorFactory
-  , colorFactory, colorValueFactory
+  , colorFactory, colorValue
   , rgbaString, hslaString, invalidRgb, invalidHsl
   , invalidFractionOf1, join
   ) where
@@ -9,7 +9,7 @@ import String
 import Color exposing (Color)
 
 import Css.Internal.Common exposing (initialValue, inheritValue, otherValue)
-import Css.Internal.Property exposing (Value, ValueFactory, stringValueFactory)
+import Css.Internal.Property exposing (Value, Value, stringValue)
 import Css.Internal.Utils exposing (toFixed, toHexString)
 
 -------------------------------------------------------------------------------
@@ -45,16 +45,14 @@ colorFactory =
   , other str = OtherColor str
   }
 
-colorValueFactory : ValueFactory CssColor
-colorValueFactory =
-  { value cssColor =
-      case cssColor of 
-        CssRgba color ->  rgbaString color |> stringValueFactory.value
-        CssHsla color ->  hslaString color |> stringValueFactory.value
-        InitialColor -> initialValue
-        InheritColor -> inheritValue
-        OtherColor str -> otherValue str
-  }
+colorValue : CssColor -> Value
+colorValue cssColor =
+  case cssColor of 
+    CssRgba color ->  rgbaString color |> stringValue
+    CssHsla color ->  hslaString color |> stringValue
+    InitialColor -> initialValue
+    InheritColor -> inheritValue
+    OtherColor str -> otherValue str
 
 rgbaString : Color -> String
 rgbaString color =
@@ -72,7 +70,6 @@ rgbaString color =
           green = toString unwrapped.green
           blue = toString unwrapped.blue
           alpha = fixedStr unwrapped.alpha
-          valueFactory = stringValueFactory
       in String.join "" ["rgba(", red, ",", green, ",", blue, ",", alpha, ")"]
 
 hslaString : Color -> String

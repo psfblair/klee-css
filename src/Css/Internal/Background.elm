@@ -1,32 +1,31 @@
 module Css.Internal.Background
   ( BackgroundColorDescriptor, backgroundColorFactory
   , HorizontalSide (..), VerticalSide (..)
-  , horizontalSideValueFactory, verticalSideValueFactory
+  , horizontalSideValue, verticalSideValue
   , BackgroundPositionDescriptor
-  , backgroundPositionFactory, backgroundPositionValueFactory
+  , backgroundPositionFactory, backgroundPositionValue
   , BackgroundSizeDescriptor
-  , backgroundSizeFactory, backgroundSizeValueFactory
+  , backgroundSizeFactory, backgroundSizeValue
   , BackgroundRepeatDescriptor
-  , backgroundRepeatFactory, backgroundRepeatValueFactory
+  , backgroundRepeatFactory, backgroundRepeatValue
   , BackgroundImageDescriptor
-  , backgroundImageFactory, backgroundImageValueFactory
+  , backgroundImageFactory, backgroundImageValue
   , BackgroundOriginDescriptor
-  , backgroundOriginFactory, backgroundOriginValueFactory
+  , backgroundOriginFactory, backgroundOriginValue
   , BackgroundClipDescriptor
-  , backgroundClipFactory, backgroundClipValueFactory
+  , backgroundClipFactory, backgroundClipValue
   , BackgroundAttachmentDescriptor
-  , backgroundAttachmentFactory, backgroundAttachmentValueFactory
+  , backgroundAttachmentFactory, backgroundAttachmentValue
   ) where
 
 import String
 
-import Css.Internal.Box exposing (BoxType, boxTypeValueFactory)  
+import Css.Internal.Box exposing (BoxType, boxTypeValue)  
 import Css.Internal.Color exposing (CssColor (..), ColorFactory, colorFactory)
 import Css.Internal.Common exposing 
   (autoValue, initialValue, inheritValue, noneValue, otherValue)
-import Css.Internal.Property exposing 
-  ( ValueFactory, stringValueFactory, valueValueFactory, spacePairValueFactory)
-import Css.Internal.Size exposing (Size, sizeValueFactory)
+import Css.Internal.Property exposing (Value, stringValue, spacePairValue)
+import Css.Internal.Size exposing (Size, sizeValue)
 -------------------------------------------------------------------------------
 
 type alias BackgroundColorDescriptor = BackgroundColorFactory -> CssColor
@@ -47,15 +46,13 @@ type HorizontalSide
   | InheritHorizontalSide
   | OtherHorizontalSide String
 
-horizontalSideValueFactory : ValueFactory HorizontalSide
-horizontalSideValueFactory = 
-  { value side = 
-      case side of
-        HorizontalSide str -> stringValueFactory.value str
-        InitialHorizontalSide -> initialValue
-        InheritHorizontalSide -> inheritValue
-        OtherHorizontalSide str -> otherValue str
-  }
+horizontalSideValue : HorizontalSide -> Value 
+horizontalSideValue side = 
+  case side of
+    HorizontalSide str -> stringValue str
+    InitialHorizontalSide -> initialValue
+    InheritHorizontalSide -> inheritValue
+    OtherHorizontalSide str -> otherValue str
 
 type VerticalSide
   = VerticalSide String
@@ -63,15 +60,13 @@ type VerticalSide
   | InheritVerticalSide
   | OtherVerticalSide String
 
-verticalSideValueFactory : ValueFactory VerticalSide
-verticalSideValueFactory = 
-  { value side = 
-      case side of
-        VerticalSide str -> stringValueFactory.value str
-        InitialVerticalSide -> initialValue
-        InheritVerticalSide -> inheritValue
-        OtherVerticalSide str -> otherValue str
-  }
+verticalSideValue : VerticalSide -> Value 
+verticalSideValue side = 
+  case side of
+    VerticalSide str -> stringValue str
+    InitialVerticalSide -> initialValue
+    InheritVerticalSide -> inheritValue
+    OtherVerticalSide str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -102,23 +97,18 @@ backgroundPositionFactory =
   , other str = OtherBackgroundPosition str
   }
 
-backgroundPositionValueFactory : ValueFactory (BackgroundPosition sz)
-backgroundPositionValueFactory =
-  { value position = 
-      case position of
-        SizedBackgroundPosition sizes -> 
-          let szf = sizeValueFactory
-              valueFactory = spacePairValueFactory szf szf
-          in valueFactory.value sizes
-        SidedBackgroundPosition sides -> 
-          let hsdf = horizontalSideValueFactory
-              vsdf = verticalSideValueFactory
-              valueFactory = spacePairValueFactory hsdf vsdf
-          in valueFactory.value sides
-        InitialBackgroundPosition -> initialValue
-        InheritBackgroundPosition -> inheritValue
-        OtherBackgroundPosition str -> stringValueFactory.value str
-  }
+backgroundPositionValue : BackgroundPosition sz -> Value 
+backgroundPositionValue position =
+  case position of
+    SizedBackgroundPosition sizes -> 
+      let valueFactory = spacePairValue sizeValue sizeValue
+      in valueFactory sizes
+    SidedBackgroundPosition sides -> 
+      let valueFactory = spacePairValue horizontalSideValue verticalSideValue
+      in valueFactory sides
+    InitialBackgroundPosition -> initialValue
+    InheritBackgroundPosition -> inheritValue
+    OtherBackgroundPosition str -> stringValue str
 
 -------------------------------------------------------------------------------
 
@@ -155,24 +145,20 @@ backgroundSizeFactory =
   , other str = OtherBackgroundSize str
   }
   
-backgroundSizeValueFactory : ValueFactory (BackgroundSize sz)
-backgroundSizeValueFactory =
-  { value bgSize =
-      case bgSize of
-        BackgroundSize width height -> 
-          let szf = sizeValueFactory
-              valueFactory = spacePairValueFactory szf szf
-          in valueFactory.value (width, height)
-        PartiallySpecifiedBackgroundSize width ->
-          let szf = sizeValueFactory
-              valueFactory = spacePairValueFactory szf valueValueFactory
-          in valueFactory.value (width, autoValue)
-        NamedBackgroundSize str -> stringValueFactory.value str
-        AutoBackgroundSize -> autoValue
-        InitialBackgroundSize -> initialValue
-        InheritBackgroundSize -> inheritValue
-        OtherBackgroundSize str -> otherValue str
-  }  
+backgroundSizeValue : BackgroundSize sz -> Value 
+backgroundSizeValue bgSize =
+  case bgSize of
+    BackgroundSize width height -> 
+      let valueFactory = spacePairValue sizeValue sizeValue
+      in valueFactory (width, height)
+    PartiallySpecifiedBackgroundSize width ->
+      let valueFactory = spacePairValue sizeValue identity
+      in valueFactory (width, autoValue)
+    NamedBackgroundSize str -> stringValue str
+    AutoBackgroundSize -> autoValue
+    InitialBackgroundSize -> initialValue
+    InheritBackgroundSize -> inheritValue
+    OtherBackgroundSize str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -200,15 +186,13 @@ backgroundRepeatFactory =
   , other str = OtherBackgroundRepeat str 
   }  
 
-backgroundRepeatValueFactory : ValueFactory BackgroundRepeat
-backgroundRepeatValueFactory = 
-  { value repeat =
-      case repeat of
-        BackgroundRepeat str -> stringValueFactory.value str
-        InitialBackgroundRepeat -> initialValue
-        InheritBackgroundRepeat -> inheritValue
-        OtherBackgroundRepeat str -> otherValue str
-  }
+backgroundRepeatValue : BackgroundRepeat -> Value 
+backgroundRepeatValue repeat = 
+  case repeat of
+    BackgroundRepeat str -> stringValue str
+    InitialBackgroundRepeat -> initialValue
+    InheritBackgroundRepeat -> inheritValue
+    OtherBackgroundRepeat str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -239,17 +223,15 @@ backgroundImageFactory =
   , other str = OtherBackgroundImage str 
   }  
 
-backgroundImageValueFactory : ValueFactory BackgroundImage
-backgroundImageValueFactory = 
-  { value bgImage =
-      case bgImage of
-        BackgroundImage imgUrl -> 
-          stringValueFactory.value (String.concat ["url(\"", imgUrl ,"\")"])
-        NoBackgroundImage -> noneValue
-        InitialBackgroundImage -> initialValue
-        InheritBackgroundImage -> inheritValue
-        OtherBackgroundImage str -> otherValue str
-  }
+backgroundImageValue : BackgroundImage -> Value 
+backgroundImageValue bgImage = 
+  case bgImage of
+    BackgroundImage imgUrl -> 
+      stringValue (String.concat ["url(\"", imgUrl ,"\")"])
+    NoBackgroundImage -> noneValue
+    InitialBackgroundImage -> initialValue
+    InheritBackgroundImage -> inheritValue
+    OtherBackgroundImage str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -277,15 +259,13 @@ backgroundOriginFactory =
   , other str = OtherBackgroundOrigin str 
   }  
 
-backgroundOriginValueFactory : ValueFactory BackgroundOrigin
-backgroundOriginValueFactory = 
-  { value bgOrigin =
-      case bgOrigin of
-        BackgroundOrigin boxType -> boxTypeValueFactory.value boxType
-        InitialBackgroundOrigin -> initialValue
-        InheritBackgroundOrigin -> inheritValue
-        OtherBackgroundOrigin str -> otherValue str
-  }
+backgroundOriginValue : BackgroundOrigin -> Value 
+backgroundOriginValue bgOrigin = 
+  case bgOrigin of
+    BackgroundOrigin boxType -> boxTypeValue boxType
+    InitialBackgroundOrigin -> initialValue
+    InheritBackgroundOrigin -> inheritValue
+    OtherBackgroundOrigin str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -313,15 +293,13 @@ backgroundClipFactory =
   , other str = OtherBackgroundClip str 
   }  
 
-backgroundClipValueFactory : ValueFactory BackgroundClip
-backgroundClipValueFactory = 
-  { value bgClip =
-      case bgClip of
-        BackgroundClip boxType -> boxTypeValueFactory.value boxType
-        InitialBackgroundClip -> initialValue
-        InheritBackgroundClip -> inheritValue
-        OtherBackgroundClip str -> otherValue str
-  }
+backgroundClipValue : BackgroundClip -> Value 
+backgroundClipValue bgClip = 
+  case bgClip of
+    BackgroundClip boxType -> boxTypeValue boxType
+    InitialBackgroundClip -> initialValue
+    InheritBackgroundClip -> inheritValue
+    OtherBackgroundClip str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -349,12 +327,10 @@ backgroundAttachmentFactory =
   , other str = OtherBackgroundAttachment str 
   }  
 
-backgroundAttachmentValueFactory : ValueFactory BackgroundAttachment
-backgroundAttachmentValueFactory = 
-  { value bgAttachment =
-      case bgAttachment of
-        BackgroundAttachment str -> stringValueFactory.value str
-        InitialBackgroundAttachment -> initialValue
-        InheritBackgroundAttachment -> inheritValue
-        OtherBackgroundAttachment str -> otherValue str
-  }
+backgroundAttachmentValue : BackgroundAttachment -> Value 
+backgroundAttachmentValue bgAttachment = 
+  case bgAttachment of
+    BackgroundAttachment str -> stringValue str
+    InitialBackgroundAttachment -> initialValue
+    InheritBackgroundAttachment -> inheritValue
+    OtherBackgroundAttachment str -> otherValue str

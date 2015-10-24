@@ -1,20 +1,16 @@
 module Css.Internal.Box
-  ( BoxType, BoxTypeDescriptor, boxTypeFactory, boxTypeValueFactory
+  ( BoxType, BoxTypeDescriptor, boxTypeFactory, boxTypeValue
   , BoxShadow (..), BoxShadowDescriptor
   , Inset (..), ShadowColor (..), Blur (..), Sized
-  , boxShadowFactory, boxShadowValueFactory
+  , boxShadowFactory, boxShadowValue
   ) where
   
-import Css.Internal.Property exposing
-  ( Value, ValueFactory
-  , stringValueFactory, valueValueFactory, spaceListValueFactory
-  )
-
+import Css.Internal.Property exposing (Value, stringValue, spaceListValue)
 import Css.Internal.Common exposing
   ( noneValue, inheritValue, initialValue, otherValue)
   
-import Css.Internal.Color exposing (CssColor, colorValueFactory)
-import Css.Internal.Size exposing (Size, sizeValueFactory)
+import Css.Internal.Color exposing (CssColor, colorValue)
+import Css.Internal.Size exposing (Size, sizeValue)
 
 -------------------------------------------------------------------------------
 
@@ -43,15 +39,13 @@ boxTypeFactory =
   , other val = OtherBoxType val
   }
 
-boxTypeValueFactory : ValueFactory BoxType
-boxTypeValueFactory =
-  { value boxTypeValue =
-      case boxTypeValue of
-        BoxType str -> stringValueFactory.value str
-        InheritBoxType -> inheritValue
-        InitialBoxType -> initialValue
-        OtherBoxType value -> otherValue value
-  }
+boxTypeValue : BoxType -> Value 
+boxTypeValue boxTypeValue =
+  case boxTypeValue of
+    BoxType str -> stringValue str
+    InheritBoxType -> inheritValue
+    InitialBoxType -> initialValue
+    OtherBoxType value -> otherValue value
 
 -------------------------------------------------------------------------------
 
@@ -92,7 +86,7 @@ type alias BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp =
   , other: String -> BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
   }
 
-boxShadowFactory : BoxShadowFactory x y b s
+boxShadowFactory : BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp
 boxShadowFactory =
   { sizedShadow xSize ySize = BoxShadow (xSize, ySize) NoShadowColor NoBlur NoInset
   , none = NoBoxShadow
@@ -101,41 +95,38 @@ boxShadowFactory =
   , other value = OtherBoxShadow value
   }
 
-boxShadowValueFactory: ValueFactory (BoxShadow t x y b s)
-boxShadowValueFactory =
-  { value boxShadow = case boxShadow of
-      BoxShadow (xSize, ySize) shadowColor blur inset ->
-        let xyValues = [ sizeValueFactory.value xSize, sizeValueFactory.value ySize ]
-            blurValues = extractBlurValues blur
-            colorValue = extractColorValue shadowColor
-            insetValue = extractInsetValue inset
-            valueListFactory = spaceListValueFactory valueValueFactory
-        in valueListFactory.value (xyValues ++ blurValues ++ colorValue ++ insetValue)
-      NoBoxShadow -> noneValue
-      InitialBoxShadow -> initialValue
-      InheritBoxShadow -> inheritValue
-      OtherBoxShadow value -> otherValue value
-  }
+boxShadowValue : BoxShadow sizedTyp xSzTyp ySzTyp blurSzTyp spreadSzTyp -> Value 
+boxShadowValue boxShadow=
+  case boxShadow of
+    BoxShadow (xSize, ySize) shadowColor blur inset ->
+      let xyValues = [ sizeValue xSize, sizeValue ySize ]
+          blurValues = extractBlurValues blur
+          colorValue = extractColorValue shadowColor
+          insetValue = extractInsetValue inset
+          valueListFactory = spaceListValue identity
+      in valueListFactory (xyValues ++ blurValues ++ colorValue ++ insetValue)
+    NoBoxShadow -> noneValue
+    InitialBoxShadow -> initialValue
+    InheritBoxShadow -> inheritValue
+    OtherBoxShadow value -> otherValue value
 
 extractColorValue : ShadowColor -> List Value
 extractColorValue maybeColor =
   case maybeColor of
     NoShadowColor -> []
-    ShadowColor color -> [ colorValueFactory.value color ]
+    ShadowColor color -> [ colorValue color ]
 
 extractBlurValues : Blur b s -> List Value
 extractBlurValues maybeBlur =
   case maybeBlur of
     NoBlur -> []
     Blur blurSize spreadSize ->
-      [ sizeValueFactory.value blurSize
-      , sizeValueFactory.value spreadSize
+      [ sizeValue blurSize
+      , sizeValue spreadSize
       ]
 
 extractInsetValue : Inset -> List Value
 extractInsetValue maybeInset =
   case maybeInset of
     NoInset -> []
-    Inset ->  [ stringValueFactory.value "inset" ]
-
--------------------------------------------------------------------------------
+    Inset ->  [ stringValue "inset" ]

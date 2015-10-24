@@ -3,8 +3,8 @@ module Css.ColorTests where
 import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
-import Css.Internal.Property exposing (Value, plain, stringValueFactory)
-import Css.Internal.Color exposing (CssColor (..), colorFactory, colorValueFactory)
+import Css.Internal.Property exposing (Value, plain, stringValue)
+import Css.Internal.Color exposing (CssColor (..), colorFactory, colorValue)
 
 import Css.Color exposing (..)
 import Color as ElmColor
@@ -118,28 +118,28 @@ suite = describe "Css.ColorTests"
     ]
   , describe "colorValueFactory"
     [ it "yields hex strings for colors specified as RGB without alpha"
-      [ (rgb 255 102 102 colorFactory |> colorValueFactory.value) 
-          `shouldEqual` stringValueFactory.value "#FF6666"
+      [ (rgb 255 102 102 colorFactory |> colorValue) 
+          `shouldEqual` stringValue "#FF6666"
       ]
     , it "yields hex strings for colors specified as RGBA with 1.0 alpha"
-      [ (rgba 255 102 102 1.0 colorFactory |> colorValueFactory.value) 
-          `shouldEqual` stringValueFactory.value "#FF6666"
+      [ (rgba 255 102 102 1.0 colorFactory |> colorValue) 
+          `shouldEqual` stringValue "#FF6666"
       ]
     , it "yields rgba for colors specified as rgba with less than 1.0 alpha"  
-      [ (rgba 255 102 102 0.5 colorFactory |> colorValueFactory.value) 
-          `shouldEqual` stringValueFactory.value "rgba(255,102,102,0.5)"
+      [ (rgba 255 102 102 0.5 colorFactory |> colorValue) 
+          `shouldEqual` stringValue "rgba(255,102,102,0.5)"
       ]
     , it "yields hsl for colors specified as HSL"  
-      [ (hsl 99 0.61 0.82 colorFactory |> colorValueFactory.value) 
-          `shouldEqual` stringValueFactory.value "hsl(99,61%,82%)"
+      [ (hsl 99 0.61 0.82 colorFactory |> colorValue) 
+          `shouldEqual` stringValue "hsl(99,61%,82%)"
       ]
     , it "yields hsl for colors specified as HSL with 1.0 alpha"  
-      [ (hsla 99 0.61 0.82 1.0 colorFactory |> colorValueFactory.value) 
-          `shouldEqual` stringValueFactory.value "hsl(99,61%,82%)"
+      [ (hsla 99 0.61 0.82 1.0 colorFactory |> colorValue) 
+          `shouldEqual` stringValue "hsl(99,61%,82%)"
       ]
     , it "yields hsla for colors specified as HSL with fractional alpha"  
-      [ (hsla 99 0.61 0.82 0.478 colorFactory|> colorValueFactory.value) 
-          `shouldEqual` stringValueFactory.value "hsla(99,61%,82%,0.48)"
+      [ (hsla 99 0.61 0.82 0.478 colorFactory|> colorValue) 
+          `shouldEqual` stringValue "hsla(99,61%,82%,0.48)"
       ]
     ]
   ]

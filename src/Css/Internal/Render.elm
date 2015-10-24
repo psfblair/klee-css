@@ -117,7 +117,7 @@ renderRules cfg selectors ruleList =
             |> concat
       ]
 
-ruleProperties : List RuleData -> List (Key (), Value)
+ruleProperties : List RuleData -> List (Key, Value)
 ruleProperties ruleList =
   let property prop =
       case prop of
@@ -129,7 +129,7 @@ ruleProperties ruleList =
 property/value rules do not include nested rules or rules for media, keyframes,
 font-face, or imports.
 -}
-renderRule : Config -> (List SelectorData) -> (List (Key (), Value)) -> String
+renderRule : Config -> List SelectorData -> List (Key, Value) -> String
 renderRule cfg selectorDatas propertyRules =
   case propertyRules of
     [] -> ""
@@ -208,7 +208,7 @@ renderPredicate pred =
 
 {- Render a list of key-value mappings.
 -}
-renderProperties : Config -> List (Key (), Value) -> String
+renderProperties : Config -> List (Key, Value) -> String
 renderProperties cfg propertyRules =
   propertyRules
     |> List.concatMap toEithers -- each of the rules generates a list of eithers
@@ -224,7 +224,7 @@ renderProperties cfg propertyRules =
     is called by `renderRule` for each of the key-value properties for the rule.
     The results are fed to the properties function below which stringifies them.
  -}
-toEithers : (Key (), Value) -> List (Either String (String, String))
+toEithers : (Key, Value) -> List (Either String (String, String))
 toEithers (Key ky, Value vl) =
   case (ky, vl) of
     ( Plain    k  , Plain    v  ) -> [ Right(k, v) ]

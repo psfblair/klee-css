@@ -48,16 +48,12 @@ module Css.Font
   ) where
 
 import Css.Internal.Property exposing 
-  ( Literal (..)
-  , stringKey
-  , literalValueFactory, valueValueFactory
-  , commaListValueFactory
-  )
-import Css.Internal.Stylesheet exposing (key, PropertyRuleAppender)
+  (Literal (..), literalValue, commaListValue)
+import Css.Internal.Stylesheet exposing (simpleProperty, PropertyRuleAppender)
 import Css.Internal.Color exposing 
-  (ColorDescriptor, colorFactory, colorValueFactory)
+  (ColorDescriptor, colorFactory, colorValue)
 import Css.Internal.Size exposing 
-  (Size, SizeDescriptor, sizeFactory, sizeValueFactory)
+  (Size, SizeDescriptor, sizeFactory, sizeValue)
 
 import Css.Internal.Font exposing (..)  
 
@@ -65,7 +61,7 @@ import Css.Internal.Font exposing (..)
 
 font : FontDescriptor a sz -> PropertyRuleAppender
 font fontDescriptor = 
-  key (stringKey "font") (fontDescriptor fontFactory) fontValueFactory
+  simpleProperty "font" (fontDescriptor fontFactory |> fontValue)
 
 {- Equivalent to
 baseFont : SizeDescriptor (Size sz) sz -> 
@@ -171,13 +167,13 @@ statusBar factory = factory.named "status-bar"
 color : ColorDescriptor {} -> PropertyRuleAppender
 color colorDescriptor = 
   let colour = colorDescriptor colorFactory
-  in key (stringKey "color") colour colorValueFactory
+  in simpleProperty "color" (colorValue colour)
 
 -- | An alias for `color`.
 fontColor : ColorDescriptor {} -> PropertyRuleAppender
 fontColor colorDescriptor = 
   let colour = colorDescriptor colorFactory
-  in key (stringKey "color") colour colorValueFactory
+  in simpleProperty "color" (colorValue colour)
 
 -------------------------------------------------------------------------------
 -- | The `fontFamily` style rule takes two lists of font families: zero or more
@@ -185,12 +181,12 @@ fontColor colorDescriptor =
 fontFamily : List String -> List GenericFontFamilyDescriptor -> PropertyRuleAppender
 fontFamily customFamilies genericFamilies = 
   let customLiteralValues = 
-        customFamilies |> List.map Literal |> List.map literalValueFactory.value
+        customFamilies |> List.map Literal |> List.map literalValue
       genericValues = 
         List.map (\descriptor -> descriptor genericFontFamilyFactory) genericFamilies
-        |> List.map genericFontFamilyValueFactory.value
-      valueFactory = commaListValueFactory valueValueFactory
-   in key (stringKey "font-family") (customLiteralValues ++ genericValues) valueFactory
+        |> List.map genericFontFamilyValue
+      valueFactory = commaListValue identity
+   in simpleProperty "font-family" (valueFactory (customLiteralValues ++ genericValues))
 
 sansSerif : GenericFontFamilyDescriptor 
 sansSerif factory = factory.family "sans-serif"
@@ -254,7 +250,7 @@ larger factory = factory.size "larger"
 -- TODO Test that we can pass size descriptors here too.
 fontSize : FontSizeDescriptor -> PropertyRuleAppender
 fontSize sizeDescriptor = 
-  key (stringKey "font-size") (sizeDescriptor fontSizeFactory) fontSizeValueFactory
+  simpleProperty "font-size" (sizeDescriptor fontSizeFactory |> fontSizeValue) 
 
 
 -------------------------------------------------------------------------------
@@ -262,7 +258,7 @@ fontSize sizeDescriptor =
 
 fontStyle : FontStyleDescriptor -> PropertyRuleAppender
 fontStyle styleDescriptor = 
-  key (stringKey "font-style") (styleDescriptor fontStyleFactory) fontStyleValueFactory
+  simpleProperty "font-style" (styleDescriptor fontStyleFactory |> fontStyleValue) 
 
 
 italic : FontStyleDescriptor
@@ -278,7 +274,7 @@ oblique factory = factory.style "oblique"
 
 fontVariant : FontVariantDescriptor -> PropertyRuleAppender
 fontVariant variantDescriptor = 
-  key (stringKey "font-variant") (variantDescriptor fontVariantFactory) fontVariantValueFactory
+  simpleProperty "font-variant" (variantDescriptor fontVariantFactory |> fontVariantValue) 
 
 smallCaps : FontVariantDescriptor
 smallCaps factory = factory.variant "small-caps"
@@ -287,7 +283,7 @@ smallCaps factory = factory.variant "small-caps"
 
 fontWeight : FontWeightDescriptor -> PropertyRuleAppender
 fontWeight descriptor = 
-  key (stringKey "font-weight") (descriptor fontWeightFactory) fontWeightValueFactory
+  simpleProperty "font-weight" (descriptor fontWeightFactory |> fontWeightValue) 
 
 
 bold : FontWeightDescriptor
@@ -309,4 +305,4 @@ weight i factory = factory.weight (toString i)
 
 lineHeight : SizeDescriptor (Size c) c -> PropertyRuleAppender
 lineHeight descriptor = 
-  key (stringKey "line-height") (descriptor sizeFactory) sizeValueFactory
+  simpleProperty "line-height" (descriptor sizeFactory |> sizeValue) 

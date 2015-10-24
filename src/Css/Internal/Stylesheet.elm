@@ -3,15 +3,15 @@ module Css.Internal.Stylesheet
   , MediaQueryRuleAppender, KeyframesRuleAppender, FontFaceRuleAppender
   , ImportRuleAppender
   , RuleData (..), emptyCss, addRule, extractRuleData
-  , key, prefixed, custom
+  , simpleProperty, prefixed, custom
   , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..)
   , query, queryNot, queryOnly
   , Keyframes (..), keyframes, keyframesFromTo, fontFace, importUrl
   ) where
 
 import Css.Internal.Property exposing
-  ( Key (..), Value, ValueFactory, PrefixedOrNot
-  , cast, stringKey, stringValueFactory
+  ( Key (..), Value, PrefixedOrNot
+  , stringKey, stringValue
   )
 import Css.Internal.Selector exposing (SelectorData, Refinement)
 import Css.Internal.Utils exposing (compose)
@@ -66,7 +66,7 @@ type alias ImportRuleAppender = CssAppender (WithImportRule {})
 type alias WithImportRule a = { a | importRule: RuleData }
 
 type RuleData
-  = Property (Key ()) Value
+  = Property Key Value
   | Nested   SelectorData (List RuleData)
   | Query    MediaQuery (List RuleData)
   | Face     (List RuleData)
@@ -93,27 +93,30 @@ type Keyframes = Keyframes String (List (Float, (List RuleData)))
 
 {- Add a new style property to the stylesheet with the specified `Key` and value.
 The value can be any type that that can be converted to a `Value` using the
-a record of functions of type `ValueFactory`.
+a record of functions of type `Value`.
 -}
-key : Key a -> a -> ValueFactory a -> PropertyRuleAppender
-key k v wrapper =
-  let ruleData = Property (cast k) (wrapper.value v)
+addProperty : Key -> Value -> PropertyRuleAppender
+addProperty key val =
+  let ruleData = Property key val
   in { addCss = addRule ruleData
      , propertyRule = ruleData
      }
 
+simpleProperty : String -> Value -> PropertyRuleAppender
+simpleProperty keyName val = addProperty (stringKey keyName) val
+  
 {- Add a new style property to the stylesheet with the specified `Key` and value
 the same way `key` does, but uses a `PrefixedOrNot` key.
 -}
-prefixed : PrefixedOrNot -> a -> ValueFactory a -> PropertyRuleAppender
-prefixed prefixedOrNot = key (Key prefixedOrNot)
+prefixed : PrefixedOrNot -> Value -> PropertyRuleAppender
+prefixed prefixedOrNot = addProperty (Key prefixedOrNot)
 
 {-| The custom function can be used to create property-value style rules for
 which there is no typed version available. Both the key and the value
 are plain text values and rendered as is to the output CSS.
 -}
 custom : String -> String -> PropertyRuleAppender
-custom k v  = key (stringKey k) v stringValueFactory
+custom keyName val = addProperty (stringKey keyName) (stringValue val)
 
 -------------------------------------------------------------------------------
 

@@ -25,20 +25,19 @@ module Css.Border (
   ) where
 
 import Css.Internal.Property exposing
-  ( Value, ValueFactory, stringKey
-  , stringValueFactory, spacePairValueFactory
-  , spaceTripleValueFactory, spaceQuadrupleValueFactory
+  ( Value, stringValue, spacePairValue
+  , spaceTripleValue, spaceQuadrupleValue
   )
 import Css.Internal.Color exposing 
   (CssColor (..), ColorDescriptor, ColorFactory
-  , rgbaString, hslaString, colorFactory, colorValueFactory
+  , rgbaString, hslaString, colorFactory, colorValue
   )
 import Css.Internal.Display exposing
-  ( VisibilityDescriptor, visibilityFactory, visibilityValueFactory
+  ( VisibilityDescriptor, visibilityFactory, visibilityValue
   )
 import Css.Internal.Size exposing 
-  (Size, Abs, SizeDescriptor, sizeFactory, sizeValueFactory)
-import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
+  (Size, Abs, SizeDescriptor, sizeFactory, sizeValue)
+import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 
 import Css.Internal.Border exposing (..)
 
@@ -81,9 +80,8 @@ border strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
       color = colorDescriptor colorFactory
-      valueFactory =
-        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
-  in key (stringKey "border") (stroke, size, color) valueFactory
+      valueFactory = spaceTripleValue strokeValue sizeValue colorValue
+  in simpleProperty "border" (valueFactory (stroke, size, color))
 
 borderTop : StrokeDescriptor -> 
             SizeDescriptor (Size Abs) Abs -> 
@@ -93,9 +91,8 @@ borderTop strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
       color = colorDescriptor colorFactory
-      valueFactory =
-        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
-  in key (stringKey "border-top") (stroke, width, color) valueFactory
+      valueFactory = spaceTripleValue strokeValue sizeValue colorValue
+  in simpleProperty "border-top" (valueFactory (stroke, width, color))
 
 borderLeft : StrokeDescriptor -> 
              SizeDescriptor (Size Abs) Abs -> 
@@ -105,9 +102,8 @@ borderLeft strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
       color = colorDescriptor colorFactory
-      valueFactory =
-        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
-  in key (stringKey "border-left") (stroke, width, color) valueFactory
+      valueFactory = spaceTripleValue strokeValue sizeValue colorValue
+  in simpleProperty "border-left" (valueFactory (stroke, width, color))
 
 borderBottom : StrokeDescriptor -> 
                SizeDescriptor (Size Abs) Abs -> 
@@ -117,9 +113,8 @@ borderBottom strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
       color = colorDescriptor colorFactory
-      valueFactory =
-        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
-  in key (stringKey "border-bottom") (stroke, width, color) valueFactory
+      valueFactory = spaceTripleValue strokeValue sizeValue colorValue
+  in simpleProperty "border-bottom" (valueFactory (stroke, width, color))
 
 borderRight : StrokeDescriptor -> 
               SizeDescriptor (Size Abs) Abs -> 
@@ -129,36 +124,35 @@ borderRight strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
       color = colorDescriptor colorFactory
-      valueFactory =
-        spaceTripleValueFactory strokeValueFactory sizeValueFactory colorValueFactory
-  in key (stringKey "border-right") (stroke, width, color) valueFactory
+      valueFactory = spaceTripleValue strokeValue sizeValue colorValue
+  in simpleProperty "border-right" (valueFactory (stroke, width, color))
 
 -------------------------------------------------------------------------------
 
 borderColor : ColorDescriptor {} -> PropertyRuleAppender
 borderColor colorDescriptor =
   let color = colorDescriptor colorFactory
-  in key (stringKey "border-color") color colorValueFactory
+  in simpleProperty "border-color" (colorValue color)
 
 borderLeftColor : ColorDescriptor {} -> PropertyRuleAppender
 borderLeftColor colorDescriptor =
   let color = colorDescriptor colorFactory
-  in key (stringKey "border-left-color") color colorValueFactory
+  in simpleProperty "border-left-color" (colorValue color)
 
 borderRightColor : ColorDescriptor {} -> PropertyRuleAppender
 borderRightColor colorDescriptor =
   let color = colorDescriptor colorFactory
-  in key (stringKey "border-right-color") color colorValueFactory
+  in simpleProperty "border-right-color" (colorValue color)
 
 borderTopColor : ColorDescriptor {} -> PropertyRuleAppender
 borderTopColor colorDescriptor =
   let color = colorDescriptor colorFactory
-  in key (stringKey "border-top-color") color colorValueFactory
+  in simpleProperty "border-top-color" (colorValue color)
 
 borderBottomColor : ColorDescriptor {} -> PropertyRuleAppender
 borderBottomColor colorDescriptor =
   let color = colorDescriptor colorFactory
-  in key (stringKey "border-bottom-color") color colorValueFactory
+  in simpleProperty "border-bottom-color" (colorValue color)
 
 borderColor4 : ColorDescriptor {} -> 
                ColorDescriptor {} -> 
@@ -170,36 +164,35 @@ borderColor4 colorDescriptorA colorDescriptorB colorDescriptorC colorDescriptorD
       colorB = colorDescriptorB colorFactory
       colorC = colorDescriptorC colorFactory
       colorD = colorDescriptorD colorFactory
-      cvf = colorValueFactory
-      valueFactory = spaceQuadrupleValueFactory cvf cvf cvf cvf
-  in key (stringKey "border-color") (colorA, colorB, colorC, colorD) valueFactory
+      valueFactory = spaceQuadrupleValue colorValue colorValue colorValue colorValue
+  in simpleProperty "border-color" (valueFactory (colorA, colorB, colorC, colorD))
 
 -------------------------------------------------------------------------------
 
 borderStyle : StrokeDescriptor -> PropertyRuleAppender
 borderStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
-  in key (stringKey "border-style") style strokeValueFactory
+  in simpleProperty "border-style" (strokeValue style)
 
 borderLeftStyle : StrokeDescriptor -> PropertyRuleAppender
 borderLeftStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
-  in key (stringKey "border-left-style") style strokeValueFactory
+  in simpleProperty "border-left-style" (strokeValue style)
 
 borderRightStyle : StrokeDescriptor -> PropertyRuleAppender
 borderRightStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
-  in key (stringKey "border-right-style") style strokeValueFactory
+  in simpleProperty "border-right-style" (strokeValue style)
 
 borderTopStyle : StrokeDescriptor -> PropertyRuleAppender
 borderTopStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
-  in key (stringKey "border-top-style") style strokeValueFactory
+  in simpleProperty "border-top-style" (strokeValue style)
 
 borderBottomStyle : StrokeDescriptor -> PropertyRuleAppender
 borderBottomStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
-  in key (stringKey "border-bottom-style") style strokeValueFactory
+  in simpleProperty "border-bottom-style" (strokeValue style)
 
 borderStyle4 : StrokeDescriptor ->
                StrokeDescriptor ->
@@ -211,36 +204,35 @@ borderStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescrip
       strokeB = strokeDescriptorB strokeFactory
       strokeC = strokeDescriptorC strokeFactory
       strokeD = strokeDescriptorD strokeFactory
-      svf = strokeValueFactory
-      valueFactory = spaceQuadrupleValueFactory svf svf svf svf
-  in key (stringKey "border-style") (strokeA, strokeB, strokeC, strokeD) valueFactory
+      valueFactory = spaceQuadrupleValue strokeValue strokeValue strokeValue strokeValue
+  in simpleProperty "border-style" (valueFactory (strokeA, strokeB, strokeC, strokeD))
 
 -------------------------------------------------------------------------------
 
 borderWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 borderWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
-  in key (stringKey "border-width") size sizeValueFactory
+  in simpleProperty "border-width" (sizeValue size)
 
 borderLeftWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 borderLeftWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
-  in key (stringKey "border-left-width") size sizeValueFactory
+  in simpleProperty "border-left-width" (sizeValue size)
 
 borderRightWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 borderRightWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
-  in key (stringKey "border-right-width") size sizeValueFactory
+  in simpleProperty "border-right-width" (sizeValue size)
 
 borderTopWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 borderTopWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
-  in key (stringKey "border-top-width") size sizeValueFactory
+  in simpleProperty "border-top-width" (sizeValue size)
 
 borderBottomWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 borderBottomWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
-  in key (stringKey "border-bottom-width") size sizeValueFactory
+  in simpleProperty "border-bottom-width" (sizeValue size)
 
 borderWidth4 : SizeDescriptor (Size Abs) Abs ->
                SizeDescriptor (Size Abs) Abs ->
@@ -252,9 +244,8 @@ borderWidth4 sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
       sizeB = sizeDescriptorB sizeFactory
       sizeC = sizeDescriptorC sizeFactory
       sizeD = sizeDescriptorD sizeFactory
-      svf = sizeValueFactory
-      valueFactory = spaceQuadrupleValueFactory svf svf svf svf
-  in key (stringKey "border-width") (sizeA, sizeB, sizeC, sizeD) valueFactory
+      valueFactory = spaceQuadrupleValue sizeValue sizeValue sizeValue sizeValue
+  in simpleProperty "border-width" (valueFactory (sizeA, sizeB, sizeC, sizeD))
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -267,32 +258,32 @@ outline strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
       color = colorDescriptor outlineColorFactory
-      svf = strokeValueFactory
-      szf = sizeValueFactory
-      cvf = colorValueFactory
-      valueFactory = spaceTripleValueFactory svf szf cvf
-  in key (stringKey "outline") (stroke, size, color) valueFactory
+      svf = strokeValue
+      szf = sizeValue
+      cvf = colorValue
+      valueFactory = spaceTripleValue svf szf cvf
+  in simpleProperty "outline" (valueFactory (stroke, size, color))
 
 outlineStyle : StrokeDescriptor -> PropertyRuleAppender
 outlineStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
-  in key (stringKey "outline-style") style strokeValueFactory
+  in simpleProperty "outline-style" (strokeValue style)
 
 outlineWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 outlineWidth sizeDescriptor =
   let size = sizeDescriptor sizeFactory
-  in key (stringKey "outline-width") size sizeValueFactory
+  in simpleProperty "outline-width" (sizeValue size)
 
 outlineOffset : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 outlineOffset sizeDescriptor =
   let size = sizeDescriptor sizeFactory
-  in key (stringKey "outline-offset") size sizeValueFactory
+  in simpleProperty "outline-offset" (sizeValue size)
 
 -------------------------------------------------------------------------------
 outlineColor : OutlineColorDescriptor -> PropertyRuleAppender
 outlineColor colorDescriptor = 
   let color = colorDescriptor outlineColorFactory
-  in key (stringKey "outline-color") color colorValueFactory
+  in simpleProperty "outline-color" (colorValue color)
 
 -- Note that OutlineColorDescriptor includes all standard color descriptors.
 invert : OutlineColorDescriptor
@@ -311,9 +302,8 @@ borderRadius sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
       sizeB = sizeDescriptorB sizeFactory
       sizeC = sizeDescriptorC sizeFactory
       sizeD = sizeDescriptorD sizeFactory
-      szf = sizeValueFactory
-      valueFactory = spaceQuadrupleValueFactory szf szf szf szf
-  in key (stringKey "border-radius") (sizeA, sizeB, sizeC, sizeD) valueFactory
+      valueFactory = spaceQuadrupleValue sizeValue sizeValue sizeValue sizeValue
+  in simpleProperty "border-radius" (valueFactory (sizeA, sizeB, sizeC, sizeD))
 
 borderTopLeftRadius : SizeDescriptor (Size a) a ->
                       SizeDescriptor (Size b) b ->
@@ -321,8 +311,8 @@ borderTopLeftRadius : SizeDescriptor (Size a) a ->
 borderTopLeftRadius sizeDescriptorA sizeDescriptorB =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory
-      valueFactory = spacePairValueFactory sizeValueFactory sizeValueFactory
-  in key (stringKey "border-top-left-radius") (sizeA, sizeB) valueFactory
+      valueFactory = spacePairValue sizeValue sizeValue
+  in simpleProperty "border-top-left-radius" (valueFactory (sizeA, sizeB))
 
 borderTopRightRadius : SizeDescriptor (Size a) a ->
                        SizeDescriptor (Size b) b ->
@@ -330,8 +320,8 @@ borderTopRightRadius : SizeDescriptor (Size a) a ->
 borderTopRightRadius sizeDescriptorA sizeDescriptorB =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory
-      valueFactory = spacePairValueFactory sizeValueFactory sizeValueFactory
-  in key (stringKey "border-top-right-radius") (sizeA, sizeB) valueFactory
+      valueFactory = spacePairValue sizeValue sizeValue
+  in simpleProperty "border-top-right-radius" (valueFactory (sizeA, sizeB))
 
 borderBottomLeftRadius : SizeDescriptor (Size a) a ->
                          SizeDescriptor (Size b) b ->
@@ -339,8 +329,8 @@ borderBottomLeftRadius : SizeDescriptor (Size a) a ->
 borderBottomLeftRadius sizeDescriptorA sizeDescriptorB =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory
-      valueFactory = spacePairValueFactory sizeValueFactory sizeValueFactory
-  in key (stringKey "border-bottom-left-radius") (sizeA, sizeB) valueFactory
+      valueFactory = spacePairValue sizeValue sizeValue
+  in simpleProperty "border-bottom-left-radius" (valueFactory (sizeA, sizeB))
 
 borderBottomRightRadius : SizeDescriptor (Size a) a ->
                           SizeDescriptor (Size b) b ->
@@ -348,8 +338,8 @@ borderBottomRightRadius : SizeDescriptor (Size a) a ->
 borderBottomRightRadius sizeDescriptorA sizeDescriptorB =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory
-      valueFactory = spacePairValueFactory sizeValueFactory sizeValueFactory
-  in key (stringKey "border-bottom-right-radius") (sizeA, sizeB) valueFactory
+      valueFactory = spacePairValue sizeValue sizeValue
+  in simpleProperty "border-bottom-right-radius" (valueFactory (sizeA, sizeB))
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -357,12 +347,12 @@ borderBottomRightRadius sizeDescriptorA sizeDescriptorB =
 borderCollapse : VisibilityDescriptor -> PropertyRuleAppender
 borderCollapse visibilityDescriptor =
   let visibility = visibilityDescriptor visibilityFactory
-  in key (stringKey "border-collapse") visibility visibilityValueFactory
+  in simpleProperty "border-collapse" (visibilityValue visibility)
 
 borderSpacing : SizeDescriptor (Size a) a -> PropertyRuleAppender
 borderSpacing sizeDescriptor =
   let size = sizeDescriptor sizeFactory
-  in key (stringKey "border-spacing") size sizeValueFactory
+  in simpleProperty "border-spacing" (sizeValue size)
 
 borderSpacing2 : SizeDescriptor (Size a) a ->
                  SizeDescriptor (Size b) b ->
@@ -370,5 +360,5 @@ borderSpacing2 : SizeDescriptor (Size a) a ->
 borderSpacing2 sizeDescriptorA sizeDescriptorB =
   let sizeA = sizeDescriptorA sizeFactory
       sizeB = sizeDescriptorB sizeFactory
-      valueFactory = spacePairValueFactory sizeValueFactory sizeValueFactory
-  in key (stringKey "border-spacing") (sizeA, sizeB) valueFactory
+      valueFactory = spacePairValue sizeValue sizeValue
+  in simpleProperty "border-spacing" (valueFactory (sizeA, sizeB))

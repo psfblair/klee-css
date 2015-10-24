@@ -5,7 +5,7 @@ module Css.Box
   , boxShadow
   ) where
 
-import Css.Internal.Property exposing (ValueFactory, prefixedKeys)
+import Css.Internal.Property exposing (Value, prefixedKeys)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, prefixed)
 import Css.Internal.Color exposing (ColorDescriptor, colorFactory)
 import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory)
@@ -20,7 +20,7 @@ boxSizing : BoxTypeDescriptor -> PropertyRuleAppender
 boxSizing descriptor =
   let boxType = descriptor boxTypeFactory
       browserPrefixes = prefixedKeys browsers "box-sizing"
-  in prefixed browserPrefixes boxType boxTypeValueFactory
+  in prefixed browserPrefixes (boxTypeValue boxType) 
 
 paddingBox : BoxTypeDescriptor
 paddingBox factory = factory.boxType "padding-box"
@@ -43,7 +43,7 @@ boxShadow : BoxShadowDescriptor t x y b s -> PropertyRuleAppender
 boxShadow shadowDescriptor =
   let boxShadow = shadowDescriptor boxShadowFactory
       browserPrefixes = prefixedKeys browsers "box-shadow"
-  in prefixed browserPrefixes boxShadow boxShadowValueFactory
+  in prefixed browserPrefixes (boxShadowValue boxShadow)
 
 -- * Composable shadow descriptors.
 

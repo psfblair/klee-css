@@ -1,18 +1,15 @@
 module Css.Internal.Border 
-  ( StrokeDescriptor, strokeFactory, strokeValueFactory
+  ( StrokeDescriptor, strokeFactory, strokeValue
   , OutlineColorDescriptor, outlineColorFactory
   ) where
 
-import Css.Internal.Property exposing
-  ( ValueFactory, stringValueFactory
-  )
+import Css.Internal.Property exposing (Value, stringValue)
 
 import Css.Internal.Common exposing 
   ( otherValue, initialValue, inheritValue, autoValue, noneValue )
 
 import Css.Internal.Color exposing 
-  (CssColor (..), ColorFactory, colorFactory
-  )
+  (CssColor (..), ColorFactory, colorFactory)
 -------------------------------------------------------------------------------
 
 type alias StrokeDescriptor = StrokeFactory -> Stroke
@@ -43,16 +40,14 @@ strokeFactory =
   , other val = OtherStroke val
   }
 
-strokeValueFactory : ValueFactory Stroke
-strokeValueFactory =
-  { value stroke =
-      case stroke of
-        Stroke str -> stringValueFactory.value str
-        NoStroke -> noneValue
-        InheritStroke -> inheritValue
-        AutoStroke -> autoValue
-        OtherStroke val -> otherValue val
-  }
+strokeValue : Stroke -> Value 
+strokeValue stroke =
+  case stroke of
+    Stroke str -> stringValue str
+    NoStroke -> noneValue
+    InheritStroke -> inheritValue
+    AutoStroke -> autoValue
+    OtherStroke val -> otherValue val
 
 -------------------------------------------------------------------------------
 -- NOTE outline-color takes "invert" as well as the standard color descriptors,

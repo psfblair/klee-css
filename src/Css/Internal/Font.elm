@@ -1,23 +1,23 @@
 module Css.Internal.Font
   ( FontDescriptor, ComposedFontDescriptor
-  , FontAlternative (..), FontComponents (..), fontFactory, fontValueFactory
+  , FontAlternative (..), FontComponents (..), fontFactory, fontValue
   , GenericFontFamily, GenericFontFamilyDescriptor
-  , genericFontFamilyFactory, genericFontFamilyValueFactory
-  , FontSize, FontSizeDescriptor, fontSizeFactory, fontSizeValueFactory
-  , FontStyle, FontStyleDescriptor, fontStyleFactory, fontStyleValueFactory
-  , FontVariant, FontVariantDescriptor, fontVariantFactory, fontVariantValueFactory
-  , FontWeight, FontWeightDescriptor, fontWeightFactory, fontWeightValueFactory
+  , genericFontFamilyFactory, genericFontFamilyValue
+  , FontSize, FontSizeDescriptor, fontSizeFactory, fontSizeValue
+  , FontStyle, FontStyleDescriptor, fontStyleFactory, fontStyleValue
+  , FontVariant, FontVariantDescriptor, fontVariantFactory, fontVariantValue
+  , FontWeight, FontWeightDescriptor, fontWeightFactory, fontWeightValue
   ) where
 
 import Css.Internal.Common exposing 
   (inheritValue, initialValue, normalValue, otherValue)
 import Css.Internal.Property exposing 
-  ( Value, ValueFactory, Literal (..)
-  , stringValueFactory, literalValueFactory, valueValueFactory, maybeValueFactory
-  , commaListValueFactory, spaceListValueFactory
+  ( Value, Value, Literal (..)
+  , stringValue, literalValue, maybeValue
+  , commaListValue, spaceListValue
   , intersperse
   )
-import Css.Internal.Size exposing (Size, sizeValueFactory)
+import Css.Internal.Size exposing (Size, sizeValue)
 
 -------------------------------------------------------------------------------
 
@@ -92,15 +92,13 @@ fontFactory =
     
 type alias ComposedFontDescriptor sz = FontFactory sz -> ComposedFont sz
 
-fontValueFactory : ValueFactory (Font a sz)
-fontValueFactory =
-  { value font = 
-      case font.font of
-        NamedFont str -> stringValueFactory.value str
-        InitialFont -> initialValue
-        InheritFont -> inheritValue
-        CompositeFont fontComponents -> componentsToValue fontComponents
-  }
+fontValue : Font a sz -> Value
+fontValue font =
+  case font.font of
+    NamedFont str -> stringValue str
+    InitialFont -> initialValue
+    InheritFont -> inheritValue
+    CompositeFont fontComponents -> componentsToValue fontComponents
 
 componentsToValue : FontComponents sz -> Value
 componentsToValue fontComponents = 
@@ -139,7 +137,7 @@ componentsToValueRecursive components maybeWeight maybeVariant maybeStyle =
             componentsToValueRecursive inner maybeWeight maybeVariant (Just style)
       BaseComponent fontSize customFamilies genericFamilies -> 
         -- should go to "italic bold 15px arial, sans-serif"
-        let fontSizeValue = sizeValueFactory.value fontSize
+        let fontSizeValue = sizeValue fontSize
         in componentsLeafToValue fontSizeValue
                                  customFamilies 
                                  genericFamilies 
@@ -148,8 +146,8 @@ componentsToValueRecursive components maybeWeight maybeVariant maybeStyle =
                                  maybeStyle
       WithLineHeight fontSize lineHeight customFamilies genericFamilies -> 
         -- should go to "italic bold 12px/30px Georgia, serif"
-        let fontSizeValue = sizeValueFactory.value lineHeight
-            lineHeightValue = sizeValueFactory.value fontSize
+        let fontSizeValue = sizeValue lineHeight
+            lineHeightValue = sizeValue fontSize
             sizes = intersperse "/" [ fontSizeValue, lineHeightValue ]
         in componentsLeafToValue fontSizeValue
                                  customFamilies 
@@ -177,22 +175,18 @@ componentsLeafToValue sizeValue
                       maybeVariant 
                       maybeStyle =
         let customFamilyValues = 
-              customFamilies |> List.map Literal |> List.map literalValueFactory.value
+              customFamilies |> List.map Literal |> List.map literalValue
             genericFamilyValues = 
-              genericFamilies |> List.map genericFontFamilyValueFactory.value
+              genericFamilies |> List.map genericFontFamilyValue
             familyValues = customFamilyValues ++ genericFamilyValues
-            familiesValue = 
-              (commaListValueFactory valueValueFactory).value familyValues
-            fontStyleValue = 
-              (maybeValueFactory fontStyleValueFactory).value maybeStyle
-            fontVariantValue =
-              (maybeValueFactory fontVariantValueFactory).value maybeVariant
-            fontWeightValue =   
-              (maybeValueFactory fontWeightValueFactory).value maybeWeight
-        in (spaceListValueFactory valueValueFactory).value 
-            [ fontStyleValue
-            , fontVariantValue
-            , fontWeightValue
+            familiesValue = commaListValue identity familyValues
+            fontStyleVal = maybeValue fontStyleValue maybeStyle
+            fontVariantVal = maybeValue fontVariantValue maybeVariant
+            fontWeightVal = maybeValue fontWeightValue maybeWeight
+        in spaceListValue identity 
+            [ fontStyleVal
+            , fontVariantVal
+            , fontWeightVal
             , sizeValue
             , familiesValue] 
 
@@ -229,15 +223,14 @@ genericFontFamilyFactory =
   }
 
 
-genericFontFamilyValueFactory : ValueFactory GenericFontFamily
-genericFontFamilyValueFactory =
-  { value fontFamily =
-      case fontFamily of
-        GenericFontFamily str -> stringValueFactory.value str
-        InitialGenericFontFamily -> initialValue
-        InheritGenericFontFamily -> inheritValue
-        OtherGenericFontFamily str -> otherValue str
-  }
+genericFontFamilyValue : GenericFontFamily -> Value 
+genericFontFamilyValue fontFamily =
+  case fontFamily of
+    GenericFontFamily str -> stringValue str
+    InitialGenericFontFamily -> initialValue
+    InheritGenericFontFamily -> inheritValue
+    OtherGenericFontFamily str -> otherValue str
+    
 -------------------------------------------------------------------------------
 
 type alias FontSizeDescriptor = FontSizeFactory -> FontSize
@@ -267,15 +260,13 @@ fontSizeFactory =
   }
 
 
-fontSizeValueFactory : ValueFactory FontSize
-fontSizeValueFactory =
-  { value fontSize =
-      case fontSize of
-        FontSize str -> stringValueFactory.value str
-        InitialFontSize -> initialValue
-        InheritFontSize -> inheritValue
-        OtherFontSize str -> otherValue str
-  }
+fontSizeValue : FontSize -> Value 
+fontSizeValue fontSize =
+  case fontSize of
+    FontSize str -> stringValue str
+    InitialFontSize -> initialValue
+    InheritFontSize -> inheritValue
+    OtherFontSize str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -307,15 +298,13 @@ fontStyleFactory =
   }
 
 
-fontStyleValueFactory : ValueFactory FontStyle
-fontStyleValueFactory =
-  { value fontStyle =
-      case fontStyle of
-        FontStyle str -> stringValueFactory.value str
-        InitialFontStyle -> initialValue
-        InheritFontStyle -> inheritValue
-        OtherFontStyle str -> otherValue str
-  }
+fontStyleValue : FontStyle -> Value 
+fontStyleValue fontStyle =
+  case fontStyle of
+    FontStyle str -> stringValue str
+    InitialFontStyle -> initialValue
+    InheritFontStyle -> inheritValue
+    OtherFontStyle str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -337,7 +326,6 @@ type alias FontVariantFactory =
   , other: String -> FontVariant
   }
 
-
 fontVariantFactory : FontVariantFactory
 fontVariantFactory =
   {
@@ -348,17 +336,14 @@ fontVariantFactory =
   , other str = OtherFontVariant str
   }
 
-
-fontVariantValueFactory : ValueFactory FontVariant
-fontVariantValueFactory =
-  { value fontVariant =
-      case fontVariant of
-        FontVariant str -> stringValueFactory.value str
-        NormalFontVariant -> normalValue
-        InitialFontVariant -> initialValue
-        InheritFontVariant -> inheritValue
-        OtherFontVariant str -> otherValue str
-  }
+fontVariantValue : FontVariant -> Value 
+fontVariantValue fontVariant =
+  case fontVariant of
+    FontVariant str -> stringValue str
+    NormalFontVariant -> normalValue
+    InitialFontVariant -> initialValue
+    InheritFontVariant -> inheritValue
+    OtherFontVariant str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -393,15 +378,11 @@ fontWeightFactory =
   }
 
 
-fontWeightValueFactory : ValueFactory FontWeight
-fontWeightValueFactory =
-  { value fontWeight =
-      case fontWeight of
-        FontWeight str -> stringValueFactory.value str
-        NormalFontWeight -> normalValue
-        InitialFontWeight -> initialValue
-        InheritFontWeight -> inheritValue
-        OtherFontWeight str -> otherValue str
-  }
-
--------------------------------------------------------------------------------
+fontWeightValue : FontWeight -> Value 
+fontWeightValue fontWeight =
+  case fontWeight of
+    FontWeight str -> stringValue str
+    NormalFontWeight -> normalValue
+    InitialFontWeight -> initialValue
+    InheritFontWeight -> inheritValue
+    OtherFontWeight str -> otherValue str

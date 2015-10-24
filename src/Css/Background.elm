@@ -55,13 +55,10 @@ module Css.Background
   , sideMiddle
   ) where
   
-import Css.Internal.Property exposing
-  ( Value, ValueFactory
-  , stringKey, stringValueFactory
-  )
-import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
+import Css.Internal.Property exposing (Value, stringValue)
+import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Box exposing (BoxType)
-import Css.Internal.Color exposing (colorValueFactory)
+import Css.Internal.Color exposing (colorValue)
 import Css.Internal.Size exposing (Size)
 
 import Css.Internal.Background exposing (..)
@@ -109,7 +106,7 @@ instance Background BackgroundImage
 backgroundColor : BackgroundColorDescriptor -> PropertyRuleAppender
 backgroundColor colorDescriptor = 
   let color = colorDescriptor backgroundColorFactory
-  in key (stringKey "background-color") color colorValueFactory
+  in simpleProperty "background-color" (colorValue color)
 
 transparent : BackgroundColorDescriptor
 transparent factory = factory.transparent
@@ -119,7 +116,7 @@ transparent factory = factory.transparent
 backgroundPosition : BackgroundPositionDescriptor sz -> PropertyRuleAppender
 backgroundPosition descriptor = 
   let value = descriptor backgroundPositionFactory
-  in key (stringKey "background-position") value backgroundPositionValueFactory
+  in simpleProperty "background-position" (backgroundPositionValue value)
   
 placed : HorizontalSide -> VerticalSide -> BackgroundPositionDescriptor sz
 placed horiz vert factory = factory.sidedPosition horiz vert
@@ -154,7 +151,7 @@ sideMiddle = VerticalSide "middle"
 backgroundSize : BackgroundSizeDescriptor sz -> PropertyRuleAppender
 backgroundSize descriptor = 
   let bgSize = descriptor backgroundSizeFactory
-  in key (stringKey "background-size") bgSize backgroundSizeValueFactory
+  in simpleProperty "background-size" (backgroundSizeValue bgSize)
 
 contain : BackgroundSizeDescriptor sz
 contain factory = backgroundSizeFactory.named "contain"
@@ -173,7 +170,7 @@ bgWidth width factory = backgroundSizeFactory.partial width
 backgroundRepeat : BackgroundRepeatDescriptor -> PropertyRuleAppender
 backgroundRepeat descriptor = 
   let repeat = descriptor backgroundRepeatFactory
-  in key (stringKey "background-repeat") repeat backgroundRepeatValueFactory
+  in simpleProperty "background-repeat" (backgroundRepeatValue repeat)
 
 repeat : BackgroundRepeatDescriptor
 repeat factory = backgroundRepeatFactory.repeat "repeat"
@@ -198,7 +195,7 @@ repeatY factory = backgroundRepeatFactory.repeat "repeat-y"
 backgroundImage : BackgroundImageDescriptor -> PropertyRuleAppender
 backgroundImage descriptor = 
   let bgImage = descriptor backgroundImageFactory
-  in key (stringKey "background-image") bgImage backgroundImageValueFactory
+  in simpleProperty "background-image" (backgroundImageValue bgImage)
 
 -- TODO Validate that it's a proper url?
 url : String -> BackgroundImageDescriptor
@@ -209,7 +206,7 @@ url bgImageUrl factory = factory.url bgImageUrl
 backgroundOrigin : BackgroundOriginDescriptor -> PropertyRuleAppender
 backgroundOrigin descriptor = 
   let bgOrigin = descriptor backgroundOriginFactory
-  in key (stringKey "background-origin") bgOrigin backgroundOriginValueFactory
+  in simpleProperty "background-origin" (backgroundOriginValue bgOrigin)
 
 origin : BoxType -> BackgroundOriginDescriptor
 origin boxType factory = factory.origin boxType
@@ -219,7 +216,7 @@ origin boxType factory = factory.origin boxType
 backgroundClip : BackgroundClipDescriptor -> PropertyRuleAppender
 backgroundClip descriptor = 
   let bgClip = descriptor backgroundClipFactory
-  in key (stringKey "background-clip") bgClip backgroundClipValueFactory
+  in simpleProperty "background-clip" (backgroundClipValue bgClip)
 
 boxClip : BoxType -> BackgroundClipDescriptor
 boxClip boxType factory = factory.clip boxType
@@ -229,7 +226,7 @@ boxClip boxType factory = factory.clip boxType
 backgroundAttachment : BackgroundAttachmentDescriptor -> PropertyRuleAppender
 backgroundAttachment descriptor = 
   let bgAttachment = descriptor backgroundAttachmentFactory
-  in key (stringKey "background-attachment") bgAttachment backgroundAttachmentValueFactory
+  in simpleProperty "background-attachment" (backgroundAttachmentValue bgAttachment)
 
 attachFixed : BackgroundAttachmentDescriptor
 attachFixed factory = factory.bgAttachment "fixed"

@@ -27,7 +27,7 @@ module Css.Internal.Common
 
   ) where
   
-import Css.Internal.Property exposing (Value, stringValueFactory)  
+import Css.Internal.Property exposing (Value, stringValue)  
 
 {- The following are types that represent records of functions for implementing
 common values shared between multiple CSS properties, like `auto`, `inherit`,
@@ -81,9 +81,9 @@ strokeFactory =
 
 The None that is wrapped in the NoStroke is itself a record containing a function
 none that turns a None into a value, so that when it comes time to convert the
-Stroke to a Value, we have a ValueFactory Stroke which looks like this:
+Stroke to a Value, we have a Value Stroke which looks like this:
 
-strokeValueFactory =
+strokeValue =
   { value stroke =
       case stroke of
         Stroke val -> val
@@ -133,37 +133,37 @@ property values such as `all`, `none`, etc. . Again, these are used internally b
 elm-css in other modules and not intended to be used as part of the public Css DSL.
 -}
 allValue : Value
-allValue = stringValueFactory.value "all"
+allValue = stringValue "all"
 
 autoValue : Value
-autoValue = stringValueFactory.value "auto" 
+autoValue = stringValue "auto" 
 
 baselineValue : Value
-baselineValue = stringValueFactory.value "baseline" 
+baselineValue = stringValue "baseline" 
 
 centerValue : Value
-centerValue = stringValueFactory.value "center" 
+centerValue = stringValue "center" 
 
 inheritValue : Value
-inheritValue = stringValueFactory.value "inherit" 
+inheritValue = stringValue "inherit" 
 
 normalValue : Value
-normalValue = stringValueFactory.value "normal" 
+normalValue = stringValue "normal" 
 
 noneValue : Value
-noneValue = stringValueFactory.value "none" 
+noneValue = stringValue "none" 
 
 visibleValue : Value
-visibleValue = stringValueFactory.value "visible" 
+visibleValue = stringValue "visible" 
 
 hiddenValue : Value
-hiddenValue = stringValueFactory.value "hidden" 
+hiddenValue = stringValue "hidden" 
 
 initialValue : Value
-initialValue = stringValueFactory.value "initial" 
+initialValue = stringValue "initial" 
 
 unsetValue : Value
-unsetValue = stringValueFactory.value "unset" 
+unsetValue = stringValue "unset" 
 
 otherValue : String -> Value
-otherValue str = stringValueFactory.value str 
+otherValue str = stringValue str 

@@ -1,21 +1,21 @@
 module Css.Internal.Display
-  ( FloatStyleDescriptor, floatStyleFactory, floatStyleValueFactory
-  , ClearDescriptor, clearFactory, clearValueFactory
-  , PositionDescriptor, positionFactory, positionValueFactory
-  , DisplayDescriptor, displayFactory, displayValueFactory
-  , OverflowDescriptor, overflowFactory, overflowValueFactory
-  , VisibilityDescriptor, visibilityFactory, visibilityValueFactory
-  , ClipDescriptor, clipFactory, clipValueFactory
-  , OpacityDescriptor, opacityFactory, opacityValueFactory
-  , ZIndexDescriptor, zIndexFactory, zIndexValueFactory
-  , PointerEventsDescriptor, pointerEventsFactory, pointerEventsValueFactory
-  , VerticalAlignDescriptor, verticalAlignFactory, verticalAlignValueFactory
-  , CursorDescriptor, cursorFactory, cursorValueFactory 
+  ( FloatStyleDescriptor, floatStyleFactory, floatStyleValue
+  , ClearDescriptor, clearFactory, clearValue
+  , PositionDescriptor, positionFactory, positionValue
+  , DisplayDescriptor, displayFactory, displayValue
+  , OverflowDescriptor, overflowFactory, overflowValue
+  , VisibilityDescriptor, visibilityFactory, visibilityValue
+  , ClipDescriptor, clipFactory, clipValue
+  , OpacityDescriptor, opacityFactory, opacityValue
+  , ZIndexDescriptor, zIndexFactory, zIndexValue
+  , PointerEventsDescriptor, pointerEventsFactory, pointerEventsValue
+  , VerticalAlignDescriptor, verticalAlignFactory, verticalAlignValue
+  , CursorDescriptor, cursorFactory, cursorValue 
   ) where
 
 import Css.Internal.Property exposing 
-  ( Value, ValueFactory, concatenateValues, stringValueFactory
-  , intValueFactory, floatValueFactory, commaQuadrupleValueFactory
+  ( Value, Value, concatenateValues, stringValue
+  , intValue, floatValue, commaQuadrupleValue
   )
 
 import Css.Internal.Common exposing 
@@ -23,7 +23,7 @@ import Css.Internal.Common exposing
   , noneValue, visibleValue, hiddenValue, otherValue
   )
  
-import Css.Internal.Size exposing (Size, sizeValueFactory)
+import Css.Internal.Size exposing (Size, sizeValue)
 
 -------------------------------------------------------------------------------
 
@@ -55,16 +55,14 @@ floatStyleFactory =
   , other str = OtherFloat str
   }
 
-floatStyleValueFactory : ValueFactory FloatStyle
-floatStyleValueFactory =
-  { value floatStyle =
-      case floatStyle of
-        FloatStyle str -> stringValueFactory.value str
-        NoFloat -> noneValue
-        InheritFloat -> inheritValue
-        InitialFloat -> initialValue
-        OtherFloat str -> otherValue str
-  }
+floatStyleValue : FloatStyle -> Value 
+floatStyleValue floatStyle =
+  case floatStyle of
+    FloatStyle str -> stringValue str
+    NoFloat -> noneValue
+    InheritFloat -> inheritValue
+    InitialFloat -> initialValue
+    OtherFloat str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -96,16 +94,14 @@ clearFactory =
   , other str = OtherClear str
   }
 
-clearValueFactory : ValueFactory Clear
-clearValueFactory =
-  { value clearValue =
-      case clearValue of
-        Clear str -> stringValueFactory.value str
-        NoClear -> noneValue
-        InheritClear -> inheritValue
-        InitialClear -> initialValue
-        OtherClear str -> otherValue str
-  }
+clearValue : Clear -> Value 
+clearValue clearValue =
+  case clearValue of
+    Clear str -> stringValue str
+    NoClear -> noneValue
+    InheritClear -> inheritValue
+    InitialClear -> initialValue
+    OtherClear str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -134,15 +130,13 @@ positionFactory =
   , other str = OtherPosition str
   }
 
-positionValueFactory : ValueFactory Position
-positionValueFactory =
-  { value positionValue =
-      case positionValue of
-        Position str -> stringValueFactory.value str
-        InheritPosition -> inheritValue
-        InitialPosition -> initialValue
-        OtherPosition str -> otherValue str
-  }
+positionValue : Position -> Value 
+positionValue positionValue =
+  case positionValue of
+    Position str -> stringValue str
+    InheritPosition -> inheritValue
+    InitialPosition -> initialValue
+    OtherPosition str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -174,16 +168,14 @@ displayFactory =
   , other str = OtherDisplay str
   }
 
-displayValueFactory : ValueFactory Display
-displayValueFactory =
-  { value displayValue =
-      case displayValue of
-        Display str -> stringValueFactory.value str
-        NoDisplay -> noneValue
-        InheritDisplay -> inheritValue
-        InitialDisplay -> inheritValue
-        OtherDisplay str -> otherValue str
-  }
+displayValue : Display -> Value 
+displayValue displayValue =
+  case displayValue of
+    Display str -> stringValue str
+    NoDisplay -> noneValue
+    InheritDisplay -> inheritValue
+    InitialDisplay -> inheritValue
+    OtherDisplay str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -221,18 +213,16 @@ overflowFactory =
   , other str = OtherOverflow str
   }
 
-overflowValueFactory : ValueFactory Overflow
-overflowValueFactory =
-  { value overflowValue =
-      case overflowValue of
-        Overflow str -> stringValueFactory.value str
-        VisibleOverflow -> visibleValue
-        HiddenOverflow -> hiddenValue
-        InheritOverflow -> inheritValue
-        InitialOverflow -> initialValue
-        AutoOverflow -> autoValue
-        OtherOverflow str -> otherValue str
-  }
+overflowValue : Overflow -> Value 
+overflowValue overflowValue =
+  case overflowValue of
+    Overflow str -> stringValue str
+    VisibleOverflow -> visibleValue
+    HiddenOverflow -> hiddenValue
+    InheritOverflow -> inheritValue
+    InitialOverflow -> initialValue
+    AutoOverflow -> autoValue
+    OtherOverflow str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -267,17 +257,15 @@ visibilityFactory =
   , other str = OtherVisibility str
   }
 
-visibilityValueFactory : ValueFactory Visibility
-visibilityValueFactory =
-  { value visibilityValue =
-      case visibilityValue of
-        Visibility str -> stringValueFactory.value str
-        VisibleVisibility -> visibleValue
-        HiddenVisibility -> hiddenValue
-        InheritVisibility -> inheritValue
-        InitialVisibility -> initialValue
-        OtherVisibility str -> otherValue str
-  }
+visibilityValue : Visibility -> Value 
+visibilityValue visibilityValue =
+  case visibilityValue of
+    Visibility str -> stringValue str
+    VisibleVisibility -> visibleValue
+    HiddenVisibility -> hiddenValue
+    InheritVisibility -> inheritValue
+    InitialVisibility -> initialValue
+    OtherVisibility str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -309,22 +297,19 @@ clipFactory =
   , other str = OtherClip str
   }
 
-clipValueFactory : ValueFactory (Clip a b c d)
-clipValueFactory =
-  { value clipValue =
-      case clipValue of
-        Rect top right bottom left ->
-          let szv = sizeValueFactory
-              quadrupleValueFactory = commaQuadrupleValueFactory szv szv szv szv
-              quadrupleValue = quadrupleValueFactory.value (top, right, bottom, left)
-              prefixValue = stringValueFactory.value "rect("
-              suffixValue = stringValueFactory.value ")"
-          in concatenateValues [ prefixValue, quadrupleValue, suffixValue ]
-        AutoClip -> autoValue
-        InheritClip -> inheritValue
-        InitialClip -> initialValue
-        OtherClip str -> otherValue str
-  }
+clipValue : Clip a b c d -> Value
+clipValue clipValue =
+  case clipValue of
+    Rect top right bottom left ->
+      let szv = sizeValue
+          quadrupleValue = commaQuadrupleValue szv szv szv szv (top, right, bottom, left)
+          prefixValue = stringValue "rect("
+          suffixValue = stringValue ")"
+      in concatenateValues [ prefixValue, quadrupleValue, suffixValue ]
+    AutoClip -> autoValue
+    InheritClip -> inheritValue
+    InitialClip -> initialValue
+    OtherClip str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -353,15 +338,13 @@ opacityFactory =
   , other str = OtherOpacity str
   }
 
-opacityValueFactory : ValueFactory Opacity
-opacityValueFactory =
-  { value opacityLevel =
-      case opacityLevel of
-        Opacity num -> floatValueFactory.value num
-        InheritOpacity -> inheritValue
-        InitialOpacity -> inheritValue
-        OtherOpacity str -> otherValue str
-  }
+opacityValue : Opacity -> Value 
+opacityValue opacityLevel =
+  case opacityLevel of
+    Opacity num -> floatValue num
+    InheritOpacity -> inheritValue
+    InitialOpacity -> inheritValue
+    OtherOpacity str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -393,16 +376,14 @@ zIndexFactory =
   , other str = OtherZIndex str
   }
 
-zIndexValueFactory : ValueFactory ZIndex
-zIndexValueFactory =
-  { value zIdx =
-      case zIdx of
-        ZIndex num -> intValueFactory.value num
-        AutoZIndex -> autoValue
-        InheritZIndex -> inheritValue
-        InitialZIndex -> initialValue
-        OtherZIndex str -> otherValue str
-  }
+zIndexValue : ZIndex -> Value 
+zIndexValue zIdx =
+  case zIdx of
+    ZIndex num -> intValue num
+    AutoZIndex -> autoValue
+    InheritZIndex -> inheritValue
+    InitialZIndex -> initialValue
+    OtherZIndex str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -436,16 +417,14 @@ pointerEventsFactory =
   , other str = OtherPointerEvents str
   }
 
-pointerEventsValueFactory : ValueFactory PointerEvents
-pointerEventsValueFactory =
-  { value pointerEvts =
-      case pointerEvts of
-        PointerEvents str -> stringValueFactory.value str
-        AutoPointerEvents -> autoValue
-        InheritPointerEvents -> inheritValue
-        InitialPointerEvents -> initialValue
-        OtherPointerEvents str -> otherValue str
-  }
+pointerEventsValue : PointerEvents -> Value 
+pointerEventsValue pointerEvts =
+  case pointerEvts of
+    PointerEvents str -> stringValue str
+    AutoPointerEvents -> autoValue
+    InheritPointerEvents -> inheritValue
+    InitialPointerEvents -> initialValue
+    OtherPointerEvents str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -475,23 +454,21 @@ type alias VerticalAlignFactory =
 verticalAlignFactory : VerticalAlignFactory
 verticalAlignFactory =
   { size value = VerticalAlign value
-  , vAlign str = stringValueFactory.value str |> VerticalAlign
+  , vAlign str = stringValue str |> VerticalAlign
   , baseline = BaselineVerticalAlign
   , initial = InitialVerticalAlign
   , inherit = InheritVerticalAlign
   , other str = OtherVerticalAlign str
   }
 
-verticalAlignValueFactory : ValueFactory VerticalAlign
-verticalAlignValueFactory =
-  { value valign =
-      case valign of
-        VerticalAlign value -> value
-        BaselineVerticalAlign -> baselineValue
-        InitialVerticalAlign -> initialValue
-        InheritVerticalAlign -> inheritValue
-        OtherVerticalAlign str -> otherValue str
-  }
+verticalAlignValue : VerticalAlign -> Value 
+verticalAlignValue valign =
+  case valign of
+    VerticalAlign value -> value
+    BaselineVerticalAlign -> baselineValue
+    InitialVerticalAlign -> initialValue
+    InheritVerticalAlign -> inheritValue
+    OtherVerticalAlign str -> otherValue str
 
 -------------------------------------------------------------------------------
 
@@ -517,8 +494,7 @@ type alias CursorFactory =
 
 cursorFactory : CursorFactory
 cursorFactory =
-  {
-    cursor str = Cursor str
+  { cursor str = Cursor str
   , auto = AutoCursor
   , none = NoCursor
   , inherit = InheritCursor
@@ -526,14 +502,12 @@ cursorFactory =
   , other str = OtherCursor str
   }
 
-cursorValueFactory : ValueFactory Cursor
-cursorValueFactory =
-  { value cursorValue =
-      case cursorValue of
-        Cursor str -> stringValueFactory.value str
-        AutoCursor -> autoValue
-        NoCursor -> noneValue
-        InheritCursor -> inheritValue
-        InitialCursor -> initialValue
-        OtherCursor str -> otherValue str
-  }
+cursorValue : Cursor -> Value 
+cursorValue cursorValue =
+  case cursorValue of
+    Cursor str -> stringValue str
+    AutoCursor -> autoValue
+    NoCursor -> noneValue
+    InheritCursor -> inheritValue
+    InitialCursor -> initialValue
+    OtherCursor str -> otherValue str

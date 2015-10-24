@@ -5,10 +5,8 @@ module Css.FontFace
   ) where
 
 import Css.Internal.Property exposing
-  ( PrefixedOrNot, Value, ValueFactory, stringKey, quote
-  , stringValueFactory, commaListValueFactory
-  )
-import Css.Internal.Stylesheet exposing (CssGenerator, key)
+  (PrefixedOrNot, Value, quote, stringValue, commaListValue)
+import Css.Internal.Stylesheet exposing (CssGenerator, simpleProperty)
 
 import Css.Common exposing (call)
 
@@ -22,12 +20,12 @@ type FontFaceFormat = WOFF | TrueType | OpenType | EmbeddedOpenType | SVG
 
 fontFaceSrc : List FontFaceSrc -> PropertyRuleAppender
 fontFaceSrc fontFaceSrcList =
-  key (stringKey "src") fontFaceSrcList (commaListValueFactory fontFaceValueFactory)
+  key (stringKey "src") (commaListValue fontFaceValue fontFaceSrcList)
 
 -------------------------------------------------------------------------------
 
-fontFaceValueFactory : ValueFactory FontFaceSrc
-fontFaceValueFactory =
+fontFaceValue : Value FontFaceSrc
+fontFaceValue =
   { value fontFaceSrc =
       let srcString = case fontFaceSrc of
         FontFaceSrcLocal name -> call "local" (quote name)
@@ -37,7 +35,7 @@ fontFaceValueFactory =
                 maybeFormat |> Maybe.map toFormatString |> Maybe.withDefault ""
               urlString = call "url" (quote url)
           in urlString ++ formatString
-      in stringValueFactory.value srcString
+      in stringValue.value srcString
   }
 
 -- | name of format according to CSS specification
