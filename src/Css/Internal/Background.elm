@@ -19,14 +19,14 @@ module Css.Internal.Background
   ) where
 
 import String
+
 import Css.Internal.Box exposing (BoxType, boxTypeValueFactory)  
 import Css.Internal.Color exposing (CssColor (..), ColorFactory, colorFactory)
 import Css.Internal.Common exposing 
   (autoValue, initialValue, inheritValue, noneValue, otherValue)
 import Css.Internal.Property exposing 
   ( ValueFactory, stringValueFactory, valueValueFactory, spacePairValueFactory)
-
-import Css.Size exposing (Size, sizeValueFactory)
+import Css.Internal.Size exposing (Size, sizeValueFactory)
 -------------------------------------------------------------------------------
 
 type alias BackgroundColorDescriptor = BackgroundColorFactory -> CssColor

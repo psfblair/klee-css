@@ -56,8 +56,10 @@ import Css.Internal.Property exposing
 import Css.Internal.Stylesheet exposing (key, PropertyRuleAppender)
 import Css.Internal.Color exposing 
   (ColorDescriptor, colorFactory, colorValueFactory)
+import Css.Internal.Size exposing 
+  (Size, SizeDescriptor, sizeFactory, sizeValueFactory)
+
 import Css.Internal.Font exposing (..)  
-import Css.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValueFactory)
 
 -------------------------------------------------------------------------------
 

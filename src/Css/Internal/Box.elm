@@ -5,8 +5,6 @@ module Css.Internal.Box
   , boxShadowFactory, boxShadowValueFactory
   ) where
   
-import Css.Size exposing (Size)
-
 import Css.Internal.Property exposing
   ( Value, ValueFactory
   , stringValueFactory, valueValueFactory, spaceListValueFactory
@@ -16,7 +14,7 @@ import Css.Internal.Common exposing
   ( noneValue, inheritValue, initialValue, otherValue)
   
 import Css.Internal.Color exposing (CssColor, colorValueFactory)
-import Css.Size exposing (sizeValueFactory)
+import Css.Internal.Size exposing (Size, sizeValueFactory)
 
 -------------------------------------------------------------------------------
 

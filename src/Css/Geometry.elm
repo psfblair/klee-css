@@ -17,7 +17,8 @@ module Css.Geometry
 
 import Css.Internal.Property exposing (stringKey, spaceQuadrupleValueFactory)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
-import Css.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValueFactory)
+import Css.Internal.Size exposing 
+  (Size, SizeDescriptor, sizeFactory, sizeValueFactory)
 
 -------------------------------------------------------------------------------
 

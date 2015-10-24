@@ -23,7 +23,7 @@ import Css.Internal.Common exposing
   , noneValue, visibleValue, hiddenValue, otherValue
   )
  
-import Css.Size exposing (Size, sizeValueFactory)
+import Css.Internal.Size exposing (Size, sizeValueFactory)
 
 -------------------------------------------------------------------------------
 

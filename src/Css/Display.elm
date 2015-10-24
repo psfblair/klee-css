@@ -63,7 +63,7 @@ module Css.Display (
 
 import Css.Internal.Property exposing (stringKey)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
-import Css.Size exposing (Size, SizeDescriptor, sizeFactory)
+import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory)
 import Css.Internal.Display exposing (..) 
 
 -------------------------------------------------------------------------------

@@ -7,11 +7,12 @@ module Css.Box
 
 import Css.Internal.Property exposing (ValueFactory, prefixedKeys)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, prefixed)
+import Css.Internal.Color exposing (ColorDescriptor, colorFactory)
+import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory)
+
 import Css.Internal.Box exposing (..)
 
-import Css.Internal.Color exposing (ColorDescriptor, colorFactory)
 import Css.Common exposing (browsers)
-import Css.Size exposing (Size, SizeDescriptor, sizeFactory)
 
 -------------------------------------------------------------------------------
 

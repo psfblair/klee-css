@@ -60,11 +60,11 @@ import Css.Internal.Property exposing
   , stringKey, stringValueFactory
   )
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
-import Css.Internal.Background exposing (..)
 import Css.Internal.Box exposing (BoxType)
-
 import Css.Internal.Color exposing (colorValueFactory)
-import Css.Size exposing (Size)
+import Css.Internal.Size exposing (Size)
+
+import Css.Internal.Background exposing (..)
 
 {-
 The background shorthand property sets all the background properties in one declaration.

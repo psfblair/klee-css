@@ -17,7 +17,7 @@ import Css.Internal.Property exposing
   , commaListValueFactory, spaceListValueFactory
   , intersperse
   )
-import Css.Size exposing (Size, sizeValueFactory)
+import Css.Internal.Size exposing (Size, sizeValueFactory)
 
 -------------------------------------------------------------------------------
 
