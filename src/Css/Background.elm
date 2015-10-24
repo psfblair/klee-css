@@ -61,8 +61,8 @@ import Css.Internal.Property exposing
   )
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
 import Css.Internal.Background exposing (..)
+import Css.Internal.Box exposing (BoxType)
 
-import Css.Box exposing (BoxType)
 import Css.Color exposing (colorValueFactory)
 import Css.Size exposing (Size)
 

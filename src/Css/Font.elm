@@ -355,13 +355,13 @@ statusBar : FontDescriptor {} sz
 statusBar factory = factory.named "status-bar"
 
 -------------------------------------------------------------------------------
-color : ColorDescriptor -> PropertyRuleAppender
+color : ColorDescriptor {} -> PropertyRuleAppender
 color colorDescriptor = 
   let colour = colorDescriptor colorFactory
   in key (stringKey "color") colour colorValueFactory
 
 -- | An alias for `color`.
-fontColor : ColorDescriptor -> PropertyRuleAppender
+fontColor : ColorDescriptor {} -> PropertyRuleAppender
 fontColor colorDescriptor = 
   let colour = colorDescriptor colorFactory
   in key (stringKey "color") colour colorValueFactory

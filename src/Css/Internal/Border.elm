@@ -15,14 +15,14 @@ import Css.Color exposing
   )
 -------------------------------------------------------------------------------
 
+type alias StrokeDescriptor = StrokeFactory -> Stroke
+
 type Stroke
   = Stroke String
   | NoStroke
   | InheritStroke
   | AutoStroke
   | OtherStroke String
-
-type alias StrokeDescriptor = StrokeFactory -> Stroke
 
 type alias StrokeFactory =
   {
