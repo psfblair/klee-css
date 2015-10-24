@@ -12,9 +12,9 @@ import Css.Internal.Property exposing
   , stringValueFactory, valueValueFactory, spaceListValueFactory
   )
 
-import Css.Common exposing
-  ( noneValue, inheritValue, initialValue, otherValue
-  )
+import Css.Internal.Common exposing
+  ( noneValue, inheritValue, initialValue, otherValue)
+  
 import Css.Internal.Color exposing (CssColor, colorValueFactory)
 import Css.Size exposing (sizeValueFactory)
 

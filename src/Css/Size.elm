@@ -48,10 +48,8 @@ import Css.Internal.Property exposing
   , appendValues, stringValueFactory, floatValueFactory
   )
 
-import Css.Common exposing
-  ( Auto, Normal, Inherit, None, Other
-  , autoValue, normalValue, inheritValue, noneValue, otherValue
-  )
+import Css.Internal.Common exposing
+  ( autoValue, normalValue, inheritValue, noneValue, otherValue)
 
 -------------------------------------------------------------------------------
 -- This module is tested via the tests of modules that use sizes and angles.

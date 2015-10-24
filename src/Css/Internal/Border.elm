@@ -7,7 +7,7 @@ import Css.Internal.Property exposing
   ( ValueFactory, stringValueFactory
   )
 
-import Css.Common exposing 
+import Css.Internal.Common exposing 
   ( otherValue, initialValue, inheritValue, autoValue, noneValue )
 
 import Css.Internal.Color exposing 

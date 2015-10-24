@@ -58,10 +58,8 @@ import Css.Internal.Property exposing
   , intersperse
   ) 
 import Css.Internal.Stylesheet exposing (key, PropertyRuleAppender)
-import Css.Common exposing 
-  ( Auto, Inherit, Normal, Initial, Other
-  , inheritValue, initialValue, normalValue, otherValue
-  )
+import Css.Internal.Common exposing 
+  (inheritValue, initialValue, normalValue, otherValue)
 import Css.Internal.Color exposing 
   (CssColor, ColorDescriptor
   , colorFactory, colorValueFactory

@@ -82,9 +82,8 @@ import Css.Internal.Property exposing (Value, ValueFactory, concatenateValues, s
   )
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, key)
 
-import Css.Common exposing (
-    Auto, Inherit, None, Visible, Hidden, Other
-  , autoValue, baselineValue, inheritValue, initialValue
+import Css.Internal.Common exposing 
+  ( autoValue, baselineValue, inheritValue, initialValue
   , noneValue, visibleValue, hiddenValue, otherValue
   )
 import Css.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValueFactory)

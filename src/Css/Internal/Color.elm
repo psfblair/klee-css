@@ -7,10 +7,10 @@ module Css.Internal.Color
 
 import String
 import Color exposing (Color)
+
+import Css.Internal.Common exposing (initialValue, inheritValue, otherValue)
 import Css.Internal.Property exposing (Value, ValueFactory, stringValueFactory)
 import Css.Internal.Utils exposing (toFixed, toHexString)
-
-import Css.Common exposing ( initialValue, inheritValue, otherValue)
 
 -------------------------------------------------------------------------------
 
