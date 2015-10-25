@@ -9,13 +9,6 @@ import String
 type Either a b = Left a | Right b
 
 
-rightValue : Either a b -> Maybe b
-rightValue either =
-  case either of
-    Right a -> Just a
-    _ -> Nothing
-
-
 compose : List (a -> a) -> a -> a
 compose = List.foldl (>>) identity
 

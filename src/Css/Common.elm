@@ -20,7 +20,7 @@ module Css.Common (
   , other
   ) where
 
-import Css.Internal.Property exposing (PrefixedOrNot (..))
+import Css.Internal.Property exposing (ValueElement, prefixedElements)
 import Css.Internal.Stylesheet exposing (CssAppender)
 import Css.Internal.Common exposing (..)
 
@@ -29,15 +29,15 @@ import Css.Internal.Common exposing (..)
 {-| List of browser prefixes to make experimental properties work in
 different browsers. -}
 
-browsers : PrefixedOrNot
+browsers : ValueElement
 browsers =
-  Prefixed
-  [ ( "-webkit-", "" )
-  , (    "-moz-", "" )
-  , (     "-ms-", "" )
-  , (      "-o-", "" )
-  , (         "", "" )
-  ]
+  prefixedElements
+    [ ( "-webkit-", "" )
+    , (    "-moz-", "" )
+    , (     "-ms-", "" )
+    , (      "-o-", "" )
+    , (         "", "" )
+    ]
 
 -------------------------------------------------------------------------------
 
@@ -106,7 +106,7 @@ introduced by embedding CSS properties in the typed world. The `other` function
 allows you to extract a specific value type out of any `Value` and use it as
 the value for any property that accepts `Other.`
 -}
-other : String -> Other a rec -> a
+other : ValueElement -> Other a rec -> a
 other str factory = factory.other_ str
 
 -------------------------------------------------------------------------------

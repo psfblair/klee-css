@@ -1,7 +1,6 @@
 module Css.Internal.Render where
 
 import String
-import Dict
 
 import Css.Internal.Stylesheet exposing
   ( Css, CssAppender, RuleData (..)
@@ -10,14 +9,13 @@ import Css.Internal.Stylesheet exposing
   )
 import Css.Common exposing (browsers)
 import Css.Internal.Property exposing
-  ( Key (..), Value (..), PrefixedOrNot (..)
-  , plain, unPrefixed
-  )
+  ( Key, Value, ValueElement
+  , unPrefixed, managePrefixes)
 import Css.Internal.Selector exposing
   ( SelectorData (..), Refinement (..), Path (..), Predicate (..)
   , emptySelectorData, sortPredicate
   )
-import Css.Internal.Utils exposing (Either (..), rightValue, mapPairwise)
+import Css.Internal.Utils exposing (Either (..), mapPairwise)
 -------------------------------------------------------------------------------
 
 type alias Config =
@@ -211,44 +209,19 @@ renderPredicate pred =
 renderProperties : Config -> List (Key, Value) -> String
 renderProperties cfg propertyRules =
   propertyRules
-    |> List.concatMap toEithers -- each of the rules generates a list of eithers
+    |> List.concatMap managePrefixes -- each of the rules generates a list of eithers
     |> renderProperty cfg
 
-{-  Returns either a pair of key,value (Right), or a prefixed key (Left).
-    The prefixes that are carried along by the Prefixed type are concatenated
-    with the keys or values respectively if they pertain to one or the other.
-    If both the keys and values are prefixed, for each of the key prefixes
-    the corresponding value is looked up and the prefix is concatenated with
-    both the key and value in the returned Right; if no value is found for
-    the prefix, a Left containing the prefixed key is returned. This function
-    is called by `renderRule` for each of the key-value properties for the rule.
-    The results are fed to the properties function below which stringifies them.
- -}
-toEithers : (Key, Value) -> List (Either String (String, String))
-toEithers (Key ky, Value vl) =
-  case (ky, vl) of
-    ( Plain    k  , Plain    v  ) -> [ Right(k, v) ]
-    ( Prefixed ks , Plain    v  ) -> ks |> List.map (\(prefix, k) -> Right(prefix ++ k, v))
-    ( Plain    k  , Prefixed vs ) -> vs |> List.map (\(prefix, v) -> Right(k, prefix ++ v))
-    ( Prefixed ks , Prefixed vs ) ->
-        ks |> List.map
-                (\(prefix, k) ->
-                  let default = Left (prefix ++ k)
-                      rightFromVal val = Right(prefix ++ k, prefix ++ val)
-                      maybeVal = Dict.get prefix (Dict.fromList vs)
-                  in Maybe.map rightFromVal maybeVal |> Maybe.withDefault default
-                )
-
 {-  Takes a key-value property for a rule in the form of either a pair of
-    key,value (Right), or a prefixed key (Left). Returns a string representation
+    key,value (Ok), or a prefixed key (Err). Returns a string representation
     of the property.
  -}
-renderProperty : Config -> List (Either String (String, String)) -> String
-renderProperty cfg eithers =
+renderProperty : Config -> List (Result String (String, String)) -> String
+renderProperty cfg results =
   let finalSemi  = if cfg.finalSemicolon then ";" else ""
       indent     = cfg.indentation
       endline    = cfg.newline
-      goodKeys   = eithers |> List.filterMap rightValue |> List.map fst
+      goodKeys   = results |> List.filterMap Result.toMaybe |> List.map fst
       alignWidth = List.map String.length goodKeys
                       |> List.maximum
                       |> Maybe.withDefault (String.length indent)
@@ -257,14 +230,14 @@ renderProperty cfg eithers =
         if cfg.align
         then " " |> String.repeat (alignWidth - String.length theKey) --empty if length is negative
         else ""
-      stringify either =
-        case either of
-          Right (k, val) -> concat [indent, k, (paddingFor k), ":", cfg.sep, val]
-          Left orphan ->
+      stringify result =
+        case result of
+          Ok (k, val) -> concat [indent, k, (paddingFor k), ":", cfg.sep, val]
+          Err orphan ->
             if cfg.warn
             then indent ++ "/* no value for " ++ orphan ++ " */" ++ endline
             else ""
-  in List.map stringify eithers
+  in List.map stringify results
       |> String.join (";" ++ endline)
       |> \x -> x ++ finalSemi ++ endline
 
@@ -275,20 +248,20 @@ renderProperty cfg eithers =
 renderKeyframes : Config -> Keyframes -> String
 renderKeyframes cfg (Keyframes animationName listOfFrames) =
   unPrefixed browsers
-  |> List.map
-    ( \(browser, _) ->
-      concat [ "@" ++ browser ++ "keyframes "
-              , animationName
-              , cfg.newline
-              , "{"
-              , cfg.newline
-              , (listOfFrames |> List.map (renderKeyframe cfg) |> concat)
-              , "}"
-              , cfg.newline
-              , cfg.newline
-              ]
-      )
-  |> concat
+    |> List.map
+      ( \(browser, _) ->
+        concat [ "@" ++ browser ++ "keyframes "
+                , animationName
+                , cfg.newline
+                , "{"
+                , cfg.newline
+                , (listOfFrames |> List.map (renderKeyframe cfg) |> concat)
+                , "}"
+                , cfg.newline
+                , cfg.newline
+                ]
+        )
+    |> concat
 
 {- Render one frame in a CSS @keyframes rule.
 -}
@@ -334,7 +307,7 @@ renderMediaQuery (MediaQuery notOrOnly typeOfMedia mediaFeatures) =
 {- Render the media type in the media query part of a CSS @media rule.
 -}
 renderMediaType : MediaType -> String
-renderMediaType (MediaType (Value v)) = plain v
+renderMediaType (MediaType str) = str
 
 {- Render a media feature in the media query part of a CSS @media rule.
 -}
@@ -342,8 +315,8 @@ renderMediaFeature : Feature -> String
 renderMediaFeature (Feature featureName maybeFeatureValue) =
   case maybeFeatureValue of
     Nothing        -> featureName
-    Just (Value v) ->
-      concat [ "(" , featureName , ": " , (plain v) , ")" ]
+    Just str ->
+      concat [ "(" , featureName , ": " , str , ")" ]
 
 {- Render a CSS @font-face rule.
 -}

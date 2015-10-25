@@ -3,7 +3,7 @@ module Css.ColorTests where
 import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
-import Css.Internal.Property exposing (Value, plain, stringValue)
+import Css.Internal.Property exposing (Value, stringValue)
 import Css.Internal.Color exposing (CssColor (..), colorFactory, colorValue)
 
 import Css.Color exposing (..)

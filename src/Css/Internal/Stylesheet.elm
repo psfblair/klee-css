@@ -10,8 +10,8 @@ module Css.Internal.Stylesheet
   ) where
 
 import Css.Internal.Property exposing
-  ( Key (..), Value, PrefixedOrNot
-  , stringKey, stringValue
+  ( Key, Value, ValueElement
+  , stringKey, prefixedKey, stringValue
   )
 import Css.Internal.Selector exposing (SelectorData, Refinement)
 import Css.Internal.Utils exposing (compose)
@@ -80,9 +80,9 @@ addRule ruleDataToAdd rules = rules ++ [ ruleDataToAdd ]
     The MediaQuery type does not contain the media rules themselves.
 -}
 type MediaQuery = MediaQuery (Maybe NotOrOnly) MediaType (List Feature)
-type MediaType = MediaType Value
+type MediaType = MediaType String
 type NotOrOnly = Not | Only
-type Feature = Feature String (Maybe Value)
+type Feature = Feature String (Maybe String)
 
 {-| A @keyframes rule: @keyframes animation-name {keyframes-selector {css-styles;}}
     where keyframes-selector is the percentage of the animation duration.
@@ -108,8 +108,8 @@ simpleProperty keyName val = addProperty (stringKey keyName) val
 {- Add a new style property to the stylesheet with the specified `Key` and value
 the same way `key` does, but uses a `PrefixedOrNot` key.
 -}
-prefixed : PrefixedOrNot -> Value -> PropertyRuleAppender
-prefixed prefixedOrNot = addProperty (Key prefixedOrNot)
+prefixed : ValueElement -> Value -> PropertyRuleAppender
+prefixed prefixedOrNot = addProperty (prefixedKey prefixedOrNot)
 
 {-| The custom function can be used to create property-value style rules for
 which there is no typed version available. Both the key and the value

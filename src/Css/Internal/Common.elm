@@ -27,7 +27,10 @@ module Css.Internal.Common
 
   ) where
   
-import Css.Internal.Property exposing (Value, stringValue)  
+import Css.Internal.Property exposing 
+  ( Value, ValueElement
+  , elementValue, stringValue
+  )  
 
 {- The following are types that represent records of functions for implementing
 common values shared between multiple CSS properties, like `auto`, `inherit`,
@@ -126,7 +129,7 @@ type alias Visible  a rec = { rec | visible_  : a }
 type alias Hidden   a rec = { rec | hidden_   : a }
 type alias Initial  a rec = { rec | initial_  : a }
 type alias Unset    a rec = { rec | unset_    : a }
-type alias Other    a rec = { rec | other_    : String -> a }
+type alias Other    a rec = { rec | other_    : ValueElement -> a }
 
 {- Implementations of the function records for implementing the creation of generic
 property values such as `all`, `none`, etc. . Again, these are used internally by
@@ -165,5 +168,5 @@ initialValue = stringValue "initial"
 unsetValue : Value
 unsetValue = stringValue "unset" 
 
-otherValue : String -> Value
-otherValue str = stringValue str 
+otherValue : ValueElement -> Value
+otherValue valElement = elementValue valElement

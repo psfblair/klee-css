@@ -14,7 +14,7 @@ module Css.Internal.Display
   ) where
 
 import Css.Internal.Property exposing 
-  ( Value, Value, concatenateValues, stringValue
+  ( Value, ValueElement, concatenateValues, stringValue
   , intValue, floatValue, commaQuadrupleValue
   )
 
@@ -34,7 +34,7 @@ type FloatStyle
   | NoFloat
   | InheritFloat
   | InitialFloat
-  | OtherFloat String
+  | OtherFloat ValueElement
 
 type alias FloatStyleFactory =
   {
@@ -42,7 +42,7 @@ type alias FloatStyleFactory =
   , none: FloatStyle
   , inherit: FloatStyle
   , initial: FloatStyle
-  , other: String -> FloatStyle
+  , other: ValueElement -> FloatStyle
   }
 
 floatStyleFactory : FloatStyleFactory
@@ -52,7 +52,7 @@ floatStyleFactory =
   , none = NoFloat
   , inherit = InheritFloat
   , initial = InitialFloat
-  , other str = OtherFloat str
+  , other valElement = OtherFloat valElement
   }
 
 floatStyleValue : FloatStyle -> Value 
@@ -62,7 +62,7 @@ floatStyleValue floatStyle =
     NoFloat -> noneValue
     InheritFloat -> inheritValue
     InitialFloat -> initialValue
-    OtherFloat str -> otherValue str
+    OtherFloat valElement -> otherValue valElement
 
 -------------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@ type Clear
   | NoClear
   | InheritClear
   | InitialClear
-  | OtherClear String
+  | OtherClear ValueElement
 
 type alias ClearFactory =
   {
@@ -81,7 +81,7 @@ type alias ClearFactory =
   , none: Clear
   , inherit: Clear
   , initial: Clear
-  , other: String -> Clear
+  , other: ValueElement -> Clear
   }
 
 clearFactory : ClearFactory
@@ -91,7 +91,7 @@ clearFactory =
   , none = NoClear
   , inherit = InheritClear
   , initial = InitialClear
-  , other str = OtherClear str
+  , other valElement = OtherClear valElement
   }
 
 clearValue : Clear -> Value 
@@ -111,14 +111,14 @@ type Position
   = Position String
   | InheritPosition
   | InitialPosition
-  | OtherPosition String
+  | OtherPosition ValueElement
 
 type alias PositionFactory =
   {
     position: String -> Position
   , inherit: Position
   , initial: Position
-  , other: String -> Position
+  , other: ValueElement -> Position
   }
 
 positionFactory : PositionFactory
@@ -127,7 +127,7 @@ positionFactory =
     position str = Position str
   , inherit = InheritPosition
   , initial = InitialPosition
-  , other str = OtherPosition str
+  , other valElement = OtherPosition valElement
   }
 
 positionValue : Position -> Value 
@@ -147,7 +147,7 @@ type Display
   | NoDisplay
   | InheritDisplay
   | InitialDisplay
-  | OtherDisplay String
+  | OtherDisplay ValueElement
 
 type alias DisplayFactory =
   {
@@ -155,7 +155,7 @@ type alias DisplayFactory =
   , none: Display
   , inherit: Display
   , initial: Display
-  , other: String -> Display
+  , other: ValueElement -> Display
   }
 
 displayFactory : DisplayFactory
@@ -165,7 +165,7 @@ displayFactory =
   , none = NoDisplay
   , inherit = InheritDisplay
   , initial = InitialDisplay
-  , other str = OtherDisplay str
+  , other valElement = OtherDisplay valElement
   }
 
 displayValue : Display -> Value 
@@ -188,7 +188,7 @@ type Overflow
   | InheritOverflow
   | InitialOverflow
   | AutoOverflow
-  | OtherOverflow String
+  | OtherOverflow ValueElement
 
 type alias OverflowFactory =
   {
@@ -198,7 +198,7 @@ type alias OverflowFactory =
   , inherit: Overflow
   , initial: Overflow
   , auto: Overflow
-  , other: String -> Overflow
+  , other: ValueElement -> Overflow
   }
 
 overflowFactory : OverflowFactory
@@ -210,7 +210,7 @@ overflowFactory =
   , inherit = InheritOverflow
   , initial = InitialOverflow
   , auto = AutoOverflow
-  , other str = OtherOverflow str
+  , other valElement = OtherOverflow valElement
   }
 
 overflowValue : Overflow -> Value 
@@ -234,7 +234,7 @@ type Visibility
   | HiddenVisibility
   | InheritVisibility
   | InitialVisibility
-  | OtherVisibility String
+  | OtherVisibility ValueElement
 
 type alias VisibilityFactory =
   {
@@ -243,7 +243,7 @@ type alias VisibilityFactory =
   , hidden: Visibility
   , inherit: Visibility
   , initial: Visibility
-  , other: String -> Visibility
+  , other: ValueElement -> Visibility
   }
 
 visibilityFactory : VisibilityFactory
@@ -254,7 +254,7 @@ visibilityFactory =
   , hidden = HiddenVisibility
   , inherit = InheritVisibility
   , initial = InitialVisibility
-  , other str = OtherVisibility str
+  , other valElement = OtherVisibility valElement
   }
 
 visibilityValue : Visibility -> Value 
@@ -276,7 +276,7 @@ type Clip a b c d
   | AutoClip
   | InheritClip
   | InitialClip
-  | OtherClip String
+  | OtherClip ValueElement
 
 type alias ClipFactory a b c d =
   {
@@ -284,7 +284,7 @@ type alias ClipFactory a b c d =
   , auto: Clip a b c d
   , inherit: Clip a b c d
   , initial: Clip a b c d
-  , other: String -> Clip a b c d
+  , other: ValueElement -> Clip a b c d
   }
 
 clipFactory : ClipFactory a b c d
@@ -294,7 +294,7 @@ clipFactory =
   , auto = AutoClip
   , inherit = InheritClip
   , initial = InitialClip
-  , other str = OtherClip str
+  , other valElement = OtherClip valElement
   }
 
 clipValue : Clip a b c d -> Value
@@ -319,14 +319,14 @@ type Opacity
   = Opacity Float
   | InheritOpacity
   | InitialOpacity
-  | OtherOpacity String
+  | OtherOpacity ValueElement
 
 type alias OpacityFactory =
   {
     opacity : Float -> Opacity
   , inherit : Opacity
   , initial : Opacity
-  , other : String -> Opacity
+  , other : ValueElement -> Opacity
   }
 
 opacityFactory : OpacityFactory
@@ -335,7 +335,7 @@ opacityFactory =
     opacity num = Opacity num
   , inherit = InheritOpacity
   , initial = InitialOpacity
-  , other str = OtherOpacity str
+  , other valElement = OtherOpacity valElement
   }
 
 opacityValue : Opacity -> Value 
@@ -355,7 +355,7 @@ type ZIndex
   | AutoZIndex
   | InheritZIndex
   | InitialZIndex
-  | OtherZIndex String
+  | OtherZIndex ValueElement
 
 type alias ZIndexFactory =
   {
@@ -363,7 +363,7 @@ type alias ZIndexFactory =
   , auto: ZIndex
   , inherit: ZIndex
   , initial: ZIndex
-  , other: String -> ZIndex
+  , other: ValueElement -> ZIndex
   }
 
 zIndexFactory : ZIndexFactory
@@ -373,7 +373,7 @@ zIndexFactory =
   , auto = AutoZIndex
   , inherit = InheritZIndex
   , initial = InitialZIndex
-  , other str = OtherZIndex str
+  , other valElement = OtherZIndex valElement
   }
 
 zIndexValue : ZIndex -> Value 
@@ -396,7 +396,7 @@ type PointerEvents
   | InitialPointerEvents
   | AutoPointerEvents
   | NoPointerEvents
-  | OtherPointerEvents String
+  | OtherPointerEvents ValueElement
 
 type alias PointerEventsFactory =
   {
@@ -404,7 +404,7 @@ type alias PointerEventsFactory =
   , auto: PointerEvents
   , inherit: PointerEvents
   , initial: PointerEvents
-  , other: String -> PointerEvents
+  , other: ValueElement -> PointerEvents
   }
 
 pointerEventsFactory : PointerEventsFactory
@@ -414,7 +414,7 @@ pointerEventsFactory =
   , auto = AutoPointerEvents
   , inherit = InheritPointerEvents
   , initial = InitialPointerEvents
-  , other str = OtherPointerEvents str
+  , other valElement = OtherPointerEvents valElement
   }
 
 pointerEventsValue : PointerEvents -> Value 
@@ -435,7 +435,7 @@ type VerticalAlign
   | BaselineVerticalAlign
   | InitialVerticalAlign
   | InheritVerticalAlign
-  | OtherVerticalAlign String
+  | OtherVerticalAlign ValueElement
 
 -- Since SizeDescriptor is parameterized by a generic type `a` rather than
 -- simply by `Size a`, that means that for dimensioned sizes it just calls
@@ -448,7 +448,7 @@ type alias VerticalAlignFactory =
   , baseline: VerticalAlign
   , initial: VerticalAlign
   , inherit: VerticalAlign
-  , other: String -> VerticalAlign
+  , other: ValueElement -> VerticalAlign
   }
 
 verticalAlignFactory : VerticalAlignFactory
@@ -458,7 +458,7 @@ verticalAlignFactory =
   , baseline = BaselineVerticalAlign
   , initial = InitialVerticalAlign
   , inherit = InheritVerticalAlign
-  , other str = OtherVerticalAlign str
+  , other valElement = OtherVerticalAlign valElement
   }
 
 verticalAlignValue : VerticalAlign -> Value 
@@ -480,7 +480,7 @@ type Cursor
   | NoCursor
   | InheritCursor
   | InitialCursor
-  | OtherCursor String
+  | OtherCursor ValueElement
 
 type alias CursorFactory =
   {
@@ -489,7 +489,7 @@ type alias CursorFactory =
   , none : Cursor
   , inherit: Cursor
   , initial: Cursor
-  , other: String -> Cursor
+  , other: ValueElement -> Cursor
   }
 
 cursorFactory : CursorFactory
@@ -499,7 +499,7 @@ cursorFactory =
   , none = NoCursor
   , inherit = InheritCursor
   , initial = InitialCursor
-  , other str = OtherCursor str
+  , other valElement = OtherCursor valElement
   }
 
 cursorValue : Cursor -> Value 

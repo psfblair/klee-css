@@ -24,7 +24,10 @@ import Css.Internal.Box exposing (BoxType, boxTypeValue)
 import Css.Internal.Color exposing (CssColor (..), ColorFactory, colorFactory)
 import Css.Internal.Common exposing 
   (autoValue, initialValue, inheritValue, noneValue, otherValue)
-import Css.Internal.Property exposing (Value, stringValue, spacePairValue)
+import Css.Internal.Property exposing 
+  ( Value, ValueElement
+  , simpleElement, stringValue, spacePairValue
+  )
 import Css.Internal.Size exposing (Size, sizeValue)
 -------------------------------------------------------------------------------
 
@@ -36,7 +39,7 @@ type alias BackgroundColorFactory = ColorFactory TransparentColorFactory
 
 backgroundColorFactory : BackgroundColorFactory
 backgroundColorFactory = 
-  { colorFactory | transparent = OtherColor "transparent" }
+  { colorFactory | transparent = OtherColor (simpleElement "transparent") }
 
 -------------------------------------------------------------------------------
 
@@ -44,7 +47,7 @@ type HorizontalSide
   = HorizontalSide String
   | InitialHorizontalSide
   | InheritHorizontalSide
-  | OtherHorizontalSide String
+  | OtherHorizontalSide ValueElement
 
 horizontalSideValue : HorizontalSide -> Value 
 horizontalSideValue side = 
@@ -52,13 +55,13 @@ horizontalSideValue side =
     HorizontalSide str -> stringValue str
     InitialHorizontalSide -> initialValue
     InheritHorizontalSide -> inheritValue
-    OtherHorizontalSide str -> otherValue str
+    OtherHorizontalSide valElement -> otherValue valElement
 
 type VerticalSide
   = VerticalSide String
   | InitialVerticalSide
   | InheritVerticalSide
-  | OtherVerticalSide String
+  | OtherVerticalSide ValueElement
 
 verticalSideValue : VerticalSide -> Value 
 verticalSideValue side = 
@@ -66,7 +69,7 @@ verticalSideValue side =
     VerticalSide str -> stringValue str
     InitialVerticalSide -> initialValue
     InheritVerticalSide -> inheritValue
-    OtherVerticalSide str -> otherValue str
+    OtherVerticalSide valElement -> otherValue valElement
 
 -------------------------------------------------------------------------------
 
@@ -122,7 +125,7 @@ type BackgroundSize sz
   | AutoBackgroundSize
   | InitialBackgroundSize
   | InheritBackgroundSize
-  | OtherBackgroundSize String
+  | OtherBackgroundSize ValueElement
 
 type alias BackgroundSizeFactory sz =
   { backgroundSize : (Size sz) -> (Size sz) -> BackgroundSize sz
@@ -131,7 +134,7 @@ type alias BackgroundSizeFactory sz =
   , auto : BackgroundSize sz
   , initial: BackgroundSize sz
   , inherit: BackgroundSize sz
-  , other: String -> BackgroundSize sz
+  , other: ValueElement -> BackgroundSize sz
   }
 
 backgroundSizeFactory : BackgroundSizeFactory sz
@@ -142,7 +145,7 @@ backgroundSizeFactory =
   , auto = AutoBackgroundSize
   , initial = InitialBackgroundSize
   , inherit = InheritBackgroundSize
-  , other str = OtherBackgroundSize str
+  , other valElement = OtherBackgroundSize valElement
   }
   
 backgroundSizeValue : BackgroundSize sz -> Value 
@@ -158,7 +161,7 @@ backgroundSizeValue bgSize =
     AutoBackgroundSize -> autoValue
     InitialBackgroundSize -> initialValue
     InheritBackgroundSize -> inheritValue
-    OtherBackgroundSize str -> otherValue str
+    OtherBackgroundSize valElement -> otherValue valElement
 
 -------------------------------------------------------------------------------
 
@@ -169,13 +172,13 @@ type BackgroundRepeat
   = BackgroundRepeat String
   | InitialBackgroundRepeat
   | InheritBackgroundRepeat
-  | OtherBackgroundRepeat String
+  | OtherBackgroundRepeat ValueElement
 
 type alias BackgroundRepeatFactory =
   { repeat : String -> BackgroundRepeat 
   , initial : BackgroundRepeat 
   , inherit : BackgroundRepeat 
-  , other : String -> BackgroundRepeat 
+  , other : ValueElement -> BackgroundRepeat 
   }  
 
 backgroundRepeatFactory : BackgroundRepeatFactory
@@ -183,7 +186,7 @@ backgroundRepeatFactory =
   { repeat str = BackgroundRepeat str 
   , initial = InitialBackgroundRepeat 
   , inherit = InheritBackgroundRepeat 
-  , other str = OtherBackgroundRepeat str 
+  , other valElement = OtherBackgroundRepeat valElement 
   }  
 
 backgroundRepeatValue : BackgroundRepeat -> Value 
@@ -192,7 +195,7 @@ backgroundRepeatValue repeat =
     BackgroundRepeat str -> stringValue str
     InitialBackgroundRepeat -> initialValue
     InheritBackgroundRepeat -> inheritValue
-    OtherBackgroundRepeat str -> otherValue str
+    OtherBackgroundRepeat valElement -> otherValue valElement
 
 -------------------------------------------------------------------------------
 
@@ -204,14 +207,14 @@ type BackgroundImage
   | NoBackgroundImage
   | InitialBackgroundImage
   | InheritBackgroundImage
-  | OtherBackgroundImage String
+  | OtherBackgroundImage ValueElement
 
 type alias BackgroundImageFactory =
   { url : String -> BackgroundImage 
   , none : BackgroundImage 
   , initial : BackgroundImage 
   , inherit : BackgroundImage 
-  , other : String -> BackgroundImage 
+  , other : ValueElement -> BackgroundImage 
   }  
 
 backgroundImageFactory : BackgroundImageFactory
@@ -220,7 +223,7 @@ backgroundImageFactory =
   , none = NoBackgroundImage
   , initial = InitialBackgroundImage 
   , inherit = InheritBackgroundImage 
-  , other str = OtherBackgroundImage str 
+  , other valElement = OtherBackgroundImage valElement 
   }  
 
 backgroundImageValue : BackgroundImage -> Value 
@@ -231,7 +234,7 @@ backgroundImageValue bgImage =
     NoBackgroundImage -> noneValue
     InitialBackgroundImage -> initialValue
     InheritBackgroundImage -> inheritValue
-    OtherBackgroundImage str -> otherValue str
+    OtherBackgroundImage valElement -> otherValue valElement
 
 -------------------------------------------------------------------------------
 
@@ -242,13 +245,13 @@ type BackgroundOrigin
   = BackgroundOrigin BoxType
   | InitialBackgroundOrigin
   | InheritBackgroundOrigin
-  | OtherBackgroundOrigin String
+  | OtherBackgroundOrigin ValueElement
 
 type alias BackgroundOriginFactory =
   { origin : BoxType -> BackgroundOrigin 
   , initial : BackgroundOrigin 
   , inherit : BackgroundOrigin 
-  , other : String -> BackgroundOrigin 
+  , other : ValueElement -> BackgroundOrigin 
   }  
 
 backgroundOriginFactory : BackgroundOriginFactory
@@ -256,7 +259,7 @@ backgroundOriginFactory =
   { origin boxType = BackgroundOrigin boxType 
   , initial = InitialBackgroundOrigin 
   , inherit = InheritBackgroundOrigin 
-  , other str = OtherBackgroundOrigin str 
+  , other valElement = OtherBackgroundOrigin valElement 
   }  
 
 backgroundOriginValue : BackgroundOrigin -> Value 
@@ -265,7 +268,7 @@ backgroundOriginValue bgOrigin =
     BackgroundOrigin boxType -> boxTypeValue boxType
     InitialBackgroundOrigin -> initialValue
     InheritBackgroundOrigin -> inheritValue
-    OtherBackgroundOrigin str -> otherValue str
+    OtherBackgroundOrigin valElement -> otherValue valElement
 
 -------------------------------------------------------------------------------
 
@@ -276,13 +279,13 @@ type BackgroundClip
   = BackgroundClip BoxType
   | InitialBackgroundClip
   | InheritBackgroundClip
-  | OtherBackgroundClip String
+  | OtherBackgroundClip ValueElement
 
 type alias BackgroundClipFactory =
   { clip : BoxType -> BackgroundClip 
   , initial : BackgroundClip 
   , inherit : BackgroundClip 
-  , other : String -> BackgroundClip 
+  , other : ValueElement -> BackgroundClip 
   }  
 
 backgroundClipFactory : BackgroundClipFactory
@@ -290,7 +293,7 @@ backgroundClipFactory =
   { clip boxType = BackgroundClip boxType 
   , initial = InitialBackgroundClip 
   , inherit = InheritBackgroundClip 
-  , other str = OtherBackgroundClip str 
+  , other valElement = OtherBackgroundClip valElement 
   }  
 
 backgroundClipValue : BackgroundClip -> Value 
@@ -299,7 +302,7 @@ backgroundClipValue bgClip =
     BackgroundClip boxType -> boxTypeValue boxType
     InitialBackgroundClip -> initialValue
     InheritBackgroundClip -> inheritValue
-    OtherBackgroundClip str -> otherValue str
+    OtherBackgroundClip valElement -> otherValue valElement
 
 -------------------------------------------------------------------------------
 
@@ -310,13 +313,13 @@ type BackgroundAttachment
   = BackgroundAttachment String
   | InitialBackgroundAttachment
   | InheritBackgroundAttachment
-  | OtherBackgroundAttachment String
+  | OtherBackgroundAttachment ValueElement
 
 type alias BackgroundAttachmentFactory =
   { bgAttachment : String -> BackgroundAttachment 
   , initial : BackgroundAttachment 
   , inherit : BackgroundAttachment 
-  , other : String -> BackgroundAttachment 
+  , other : ValueElement -> BackgroundAttachment 
   }  
 
 backgroundAttachmentFactory : BackgroundAttachmentFactory
@@ -324,7 +327,7 @@ backgroundAttachmentFactory =
   { bgAttachment str = BackgroundAttachment str 
   , initial = InitialBackgroundAttachment 
   , inherit = InheritBackgroundAttachment 
-  , other str = OtherBackgroundAttachment str 
+  , other valElement = OtherBackgroundAttachment valElement 
   }  
 
 backgroundAttachmentValue : BackgroundAttachment -> Value 
@@ -333,4 +336,4 @@ backgroundAttachmentValue bgAttachment =
     BackgroundAttachment str -> stringValue str
     InitialBackgroundAttachment -> initialValue
     InheritBackgroundAttachment -> inheritValue
-    OtherBackgroundAttachment str -> otherValue str
+    OtherBackgroundAttachment valElement -> otherValue valElement
