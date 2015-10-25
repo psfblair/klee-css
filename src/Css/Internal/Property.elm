@@ -1,9 +1,9 @@
 module Css.Internal.Property
-  ( Prefixed, Element, Key, Value, Literal (..)
-  , toPrefixed, unPrefixed, simpleElement, prefixedElement, quote
-  , stringKey, prefixedKey, addPrefixes
+  ( Prefixed, Key, Value, Literal
+  , toLiteral, toPrefixed, unPrefixed, quote
+  , stringKey, prefixedKey, appendToPrefixedRoot, prependToPrefixedRoot
   , emptyValue, appendValues, concatenateValues, intersperse
-  , elementValue, stringValue, literalValue, intValue, floatValue
+  , stringValue, prefixedValue, literalValue, intValue, floatValue
   , maybeValue, commaListValue
   , spaceListValue, spacePairValue, spaceTripleValue, spaceQuadrupleValue
   , commaQuadrupleValue, resultValue
@@ -18,6 +18,9 @@ import Css.Internal.Utils exposing (toFixed)
 -------------------------------------------------------------------------------
 
 type Literal = Literal String
+
+toLiteral : String -> Literal
+toLiteral str = Literal str
 
 -------------------------------------------------------------------------------
 {- `Prefixed` is for properties with browser prefixes.
@@ -35,19 +38,6 @@ type Element
      = SimpleElement String
      | PrefixedElement Prefixed
 
-simpleElement : String -> Element
-simpleElement str = SimpleElement str
-
--- TODO This needs to be exposed at the top level for creating custom values
-prefixedElement : Prefixed -> Element
-prefixedElement prefixed = PrefixedElement prefixed
-
-{- Combine a string with a Prefixed containing browser prefixes. -}
-addPrefixes : Prefixed -> String -> Element
-addPrefixes prefixes rootKey = 
-  let prefixedElement = PrefixedElement prefixes
-  in SimpleElement rootKey |> merge prefixedElement
-
 -- TODO Move to utils
 {- Escape quotes in a string. -}
 quote : String -> String
@@ -55,27 +45,40 @@ quote str =
    let escaped = str |> replace Regex.All (regex "\"") (\_ -> "\\\"")
    in "\"" ++ escaped ++ "\""
 
+{- Combine a string with a Prefixed containing browser prefixes. -}
+appendToPrefixedRoot : Prefixed -> String -> Prefixed
+appendToPrefixedRoot (Prefixed xs) str = 
+  xs |> List.map (\(k, x) -> (k, x ++ str)) |> Prefixed
 
-{- Combine the elements of two keys or values with/without prefixes. -}
+prependToPrefixedRoot : String -> Prefixed -> Prefixed
+prependToPrefixedRoot str (Prefixed ys) = 
+  ys |> List.map (\(k, y) -> (k, str ++ y)) |> Prefixed 
+
+mergePrefixed : Prefixed -> Prefixed -> Prefixed
+mergePrefixed (Prefixed xs) (Prefixed ys) =
+  let kxs = List.map fst xs
+      kys = List.map fst ys
+      xsWithKeysInKys = List.partition (fst >> (\x -> List.member x kys)) xs
+                                   |> fst
+                                   |> List.sort
+      ysWithKeysInKxs = List.partition (fst >> (\y -> List.member y kxs)) ys
+                                   |> fst
+                                   |> List.sort
+  in List.map2 (\(p, a) (_, b) -> (p, a ++ b)) xsWithKeysInKys ysWithKeysInKxs
+                                  |> Prefixed
+  
+{- Combine the Elements of two keys or values with/without prefixes. -}
 merge : Element -> Element -> Element
-merge value1 value2 =
-  case (value1, value2) of
-    (SimpleElement x, SimpleElement y) -> SimpleElement (x ++ y)
-    (SimpleElement x, PrefixedElement (Prefixed ys)) -> 
-      ys |> List.map (\(k, y) -> (k, x ++ y)) |> Prefixed |> PrefixedElement
-    (PrefixedElement (Prefixed xs), SimpleElement y) -> 
-      xs |> List.map (\(k, x) -> (k, x ++ y)) |> Prefixed |> PrefixedElement
-    (PrefixedElement (Prefixed xs), PrefixedElement (Prefixed ys)) ->
-      let kxs = List.map fst xs
-          kys = List.map fst ys
-          xsWithKeysInKys = List.partition (fst >> (\x -> List.member x kys)) xs
-                                       |> fst
-                                       |> List.sort
-          ysWithKeysInKxs = List.partition (fst >> (\y -> List.member y kxs)) ys
-                                       |> fst
-                                       |> List.sort
-      in List.map2 (\(p, a) (_, b) -> (p, a ++ b)) xsWithKeysInKys ysWithKeysInKxs
-                                      |> Prefixed |> PrefixedElement
+merge element1 element2 =
+  case (element1, element2) of
+    (SimpleElement x, SimpleElement y) -> 
+      SimpleElement (x ++ y)
+    (PrefixedElement prefixed, SimpleElement y) -> 
+      appendToPrefixedRoot prefixed y |> PrefixedElement
+    (SimpleElement x, PrefixedElement prefixed) -> 
+      prependToPrefixedRoot x prefixed |> PrefixedElement
+    (PrefixedElement prefixed1, PrefixedElement prefixed2) -> 
+      mergePrefixed prefixed1 prefixed2 |> PrefixedElement
 
 -------------------------------------------------------------------------------
 {- A type that represents the name of a CSS property. The type variable keeps
@@ -86,8 +89,8 @@ type Key = Key Element
 stringKey : String -> Key
 stringKey str = SimpleElement str |> Key
 
-prefixedKey : Element -> Key
-prefixedKey prefixed = Key prefixed
+prefixedKey : Prefixed -> Key
+prefixedKey prefixed = PrefixedElement prefixed |> Key
 
 
 -------------------------------------------------------------------------------
@@ -101,10 +104,6 @@ a fold. -}
 emptyValue : Value
 emptyValue = Value (SimpleElement "")
 
-
-elementValue : Element -> Value
-elementValue propertyValue = Value propertyValue
-
 {- Concatenate two values, respecting the fact that one or the other might be
 prefixed. -}
 appendValues : Value -> Value -> Value
@@ -116,7 +115,7 @@ concatenateValues : List Value -> Value
 concatenateValues = List.foldr (\val accum -> appendValues val accum) emptyValue
 
 
-{- Add a separator value between each of the elements of a list of values, 
+{- Add a separator value between each of the Elements of a list of values, 
 and concatenate the result. -}
 intersperse : String -> List Value -> Value
 intersperse str values =
@@ -128,6 +127,8 @@ intersperse str values =
 stringValue : String -> Value 
 stringValue str = SimpleElement str |> Value
 
+prefixedValue : Prefixed -> Value
+prefixedValue prefixed = PrefixedElement prefixed |> Value
 
 literalValue : Literal -> Value 
 literalValue (Literal x) = quote x |> SimpleElement |> Value 

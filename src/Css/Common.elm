@@ -20,7 +20,7 @@ module Css.Common (
   , other
   ) where
 
-import Css.Internal.Property exposing (Prefixed, Element, toPrefixed)
+import Css.Internal.Property exposing (Value, Prefixed, toPrefixed)
 import Css.Internal.Stylesheet exposing (CssAppender)
 import Css.Internal.Common exposing (..)
 
@@ -106,7 +106,7 @@ introduced by embedding CSS properties in the typed world. The `other` function
 allows you to extract a specific value type out of any `Value` and use it as
 the value for any property that accepts `Other.`
 -}
-other : Element -> Other a rec -> a
+other : Value -> Other a rec -> a
 other str factory = factory.other_ str
 
 -------------------------------------------------------------------------------

@@ -26,8 +26,8 @@ selectorDataFromString str =
 emptySelectorData : SelectorData
 emptySelectorData = selectorDataFromString ""
 
--- The star selector applies to all elements.
--- This is used by `star` in `Css.Elements` which is what clients should use.
+-- The star selector applies to all vals.
+-- This is used by `star` in `Css.vals` which is what clients should use.
 star : SelectorData
 star = SelectorData (Refinement []) Star
 

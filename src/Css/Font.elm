@@ -47,8 +47,7 @@ module Css.Font
   , lineHeight
   ) where
 
-import Css.Internal.Property exposing 
-  (Literal (..), literalValue, commaListValue)
+import Css.Internal.Property exposing (toLiteral, literalValue, commaListValue)
 import Css.Internal.Stylesheet exposing (simpleProperty, PropertyRuleAppender)
 import Css.Internal.Color exposing 
   (ColorDescriptor, colorFactory, colorValue)
@@ -181,7 +180,7 @@ fontColor colorDescriptor =
 fontFamily : List String -> List GenericFontFamilyDescriptor -> PropertyRuleAppender
 fontFamily customFamilies genericFamilies = 
   let customLiteralValues = 
-        customFamilies |> List.map Literal |> List.map literalValue
+        customFamilies |> List.map toLiteral |> List.map literalValue
       genericValues = 
         List.map (\descriptor -> descriptor genericFontFamilyFactory) genericFamilies
         |> List.map genericFontFamilyValue

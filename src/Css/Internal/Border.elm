@@ -3,10 +3,7 @@ module Css.Internal.Border
   , OutlineColorDescriptor, outlineColorFactory
   ) where
 
-import Css.Internal.Property exposing 
-  ( Value, Element
-  , simpleElement, stringValue
-  )
+import Css.Internal.Property exposing (Value, stringValue)
 
 import Css.Internal.Common exposing 
   ( otherValue, initialValue, inheritValue, autoValue, noneValue )
@@ -22,7 +19,7 @@ type Stroke
   | NoStroke
   | InheritStroke
   | AutoStroke
-  | OtherStroke Element
+  | OtherStroke Value
 
 type alias StrokeFactory =
   {
@@ -30,7 +27,7 @@ type alias StrokeFactory =
   , none: Stroke
   , inherit: Stroke
   , auto: Stroke
-  , other: Element -> Stroke
+  , other: Value -> Stroke
   }
 
 strokeFactory : StrokeFactory
@@ -40,7 +37,7 @@ strokeFactory =
   , none = NoStroke
   , inherit = InheritStroke
   , auto = AutoStroke
-  , other valElement = OtherStroke valElement
+  , other val = OtherStroke val
   }
 
 strokeValue : Stroke -> Value 
@@ -50,7 +47,7 @@ strokeValue stroke =
     NoStroke -> noneValue
     InheritStroke -> inheritValue
     AutoStroke -> autoValue
-    OtherStroke valElement -> otherValue valElement
+    OtherStroke val -> otherValue val
 
 -------------------------------------------------------------------------------
 -- NOTE outline-color takes "invert" as well as the standard color descriptors,
@@ -63,5 +60,5 @@ type alias InvertColorFactory = { invert: CssColor }
 type alias OutlineColorFactory = ColorFactory InvertColorFactory
 
 outlineColorFactory : OutlineColorFactory
-outlineColorFactory = { colorFactory | invert = OtherColor (simpleElement "invert") }
+outlineColorFactory = { colorFactory | invert = OtherColor (stringValue "invert") }
   

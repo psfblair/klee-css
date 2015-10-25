@@ -8,9 +8,7 @@ import Css.Internal.Stylesheet exposing
   , Keyframes (..), emptyCss, extractRuleData
   )
 import Css.Common exposing (browsers)
-import Css.Internal.Property exposing
-  ( Key, Value, Element
-  , unPrefixed, managePrefixes)
+import Css.Internal.Property exposing (Key, Value, unPrefixed, managePrefixes)
 import Css.Internal.Selector exposing
   ( SelectorData (..), Refinement (..), Path (..), Predicate (..)
   , emptySelectorData, sortPredicate

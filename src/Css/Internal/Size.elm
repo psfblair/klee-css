@@ -6,7 +6,7 @@ module Css.Internal.Size
   ) where
 
 import Css.Internal.Property exposing
-  (Value, Element, appendValues, stringValue, floatValue)
+  (Value, appendValues, stringValue, floatValue)
 
 import Css.Internal.Common exposing
   (autoValue, normalValue, inheritValue, noneValue, otherValue)
@@ -22,7 +22,7 @@ type Size a -- Phantom type, for type safety. The type parameter is for Abs or R
   | NormalSize
   | InheritSize
   | NoSize
-  | OtherSize Element
+  | OtherSize Value
 
 -- | Sizes can be relative like percentages or rems.
 type Rel = Rel
@@ -44,7 +44,7 @@ type alias SizeFactory a c = -- c is the constraint type (Abs or Rel)
   , normal: Size c
   , inherit: Size c
   , none: Size c
-  , other: Element -> Size c
+  , other: Value -> Size c
   }
 
 sizeFactory : SizeFactory (Size a) a
@@ -55,7 +55,7 @@ sizeFactory =
   , normal = NormalSize
   , inherit = InheritSize
   , none = NoSize
-  , other valElement = OtherSize valElement
+  , other val = OtherSize val
   }
 
 sizeValue : Size a -> Value
@@ -66,7 +66,7 @@ sizeValue size =
     NormalSize -> normalValue
     InheritSize -> inheritValue
     NoSize -> noneValue
-    OtherSize valElement -> otherValue valElement
+    OtherSize val -> otherValue val
     
 -------------------------------------------------------------------------------
 
@@ -76,7 +76,7 @@ type Angle a -- Phantom type, for type safety. The type parameter is for Deg, Ra
   = Angle Value
   | AutoAngle
   | InheritAngle
-  | OtherAngle Element
+  | OtherAngle Value
 
 type Deg = Deg
 type Rad = Rad
@@ -95,7 +95,7 @@ type alias AngleFactory a =
   { angle: Value -> Angle a
   , auto: Angle a
   , inherit: Angle a
-  , other: Element -> Angle a
+  , other: Value -> Angle a
   }
 
 angleFactory : AngleFactory a
@@ -103,7 +103,7 @@ angleFactory =
   { angle value = Angle value
   , auto = AutoAngle
   , inherit = InheritAngle
-  , other valElement = OtherAngle valElement
+  , other val = OtherAngle val
   }
 
 angleValue : Angle a -> Value 
@@ -112,7 +112,7 @@ angleValue angle =
     Angle val -> val
     AutoAngle -> autoValue
     InheritAngle -> inheritValue
-    OtherAngle valElement -> otherValue valElement
+    OtherAngle val -> otherValue val
 
 appendUnits : Float -> String -> Value
 appendUnits qty unit =

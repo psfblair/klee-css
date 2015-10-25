@@ -9,7 +9,7 @@ import String
 import Color exposing (Color)
 
 import Css.Internal.Common exposing (initialValue, inheritValue, otherValue)
-import Css.Internal.Property exposing (Value, Element, stringValue)
+import Css.Internal.Property exposing (Value, stringValue)
 import Css.Internal.Utils exposing (toFixed, toHexString)
 
 -------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ type CssColor
   | InitialColor
   | InheritColor
   | InvalidColor String
-  | OtherColor Element
+  | OtherColor Value
 
 -- We make ColorFactory extensible because there are some colors that are not 
 -- generally applicable. E.g., invert for outline, or transparent for background.
@@ -32,7 +32,7 @@ type alias ColorFactory a =
       , initial: CssColor
       , inherit: CssColor
       , invalid: String -> CssColor
-      , other: Element -> CssColor
+      , other: Value -> CssColor
   }
 
 colorFactory : ColorFactory {}
@@ -42,7 +42,7 @@ colorFactory =
   , initial = InitialColor
   , inherit = InheritColor
   , invalid str = InvalidColor str
-  , other valElement = OtherColor valElement
+  , other val = OtherColor val
   }
 
 colorValue : CssColor -> Value
@@ -52,7 +52,7 @@ colorValue cssColor =
     CssHsla color ->  hslaString color |> stringValue
     InitialColor -> initialValue
     InheritColor -> inheritValue
-    OtherColor valElement -> otherValue valElement
+    OtherColor val -> otherValue val
 
 rgbaString : Color -> String
 rgbaString color =

@@ -28,8 +28,7 @@ module Css.Internal.Common
   ) where
   
 import Css.Internal.Property exposing 
-  ( Value, Element
-  , elementValue, stringValue
+  ( Value, stringValue
   )  
 
 {- The following are types that represent records of functions for implementing
@@ -129,7 +128,8 @@ type alias Visible  a rec = { rec | visible_  : a }
 type alias Hidden   a rec = { rec | hidden_   : a }
 type alias Initial  a rec = { rec | initial_  : a }
 type alias Unset    a rec = { rec | unset_    : a }
-type alias Other    a rec = { rec | other_    : Element -> a }
+{- Other takes a Value so that it can be either a SimpleValue or PrefixedValue. -}
+type alias Other    a rec = { rec | other_    : Value -> a }
 
 {- Implementations of the function records for implementing the creation of generic
 property values such as `all`, `none`, etc. . Again, these are used internally by
@@ -168,5 +168,5 @@ initialValue = stringValue "initial"
 unsetValue : Value
 unsetValue = stringValue "unset" 
 
-otherValue : Element -> Value
-otherValue valElement = elementValue valElement
+otherValue : Value -> Value
+otherValue val = val

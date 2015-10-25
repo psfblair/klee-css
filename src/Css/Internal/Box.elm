@@ -5,10 +5,7 @@ module Css.Internal.Box
   , boxShadowFactory, boxShadowValue
   ) where
   
-import Css.Internal.Property exposing 
-  ( Value, Element
-  , stringValue, spaceListValue
-  )
+import Css.Internal.Property exposing (Value, stringValue, spaceListValue)
 import Css.Internal.Common exposing
   ( noneValue, inheritValue, initialValue, otherValue)
   
@@ -23,14 +20,14 @@ type BoxType
   = BoxType String
   | InheritBoxType
   | InitialBoxType
-  | OtherBoxType Element
+  | OtherBoxType Value
 
 type alias BoxTypeFactory =
   {
     boxType: String -> BoxType
   , inherit: BoxType
   , initial: BoxType
-  , other: Element -> BoxType
+  , other: Value -> BoxType
   }
 
 boxTypeFactory : BoxTypeFactory
@@ -39,7 +36,7 @@ boxTypeFactory =
     boxType str = BoxType str
   , inherit = InheritBoxType
   , initial = InitialBoxType
-  , other valElement = OtherBoxType valElement
+  , other val = OtherBoxType val
   }
 
 boxTypeValue : BoxType -> Value 
@@ -48,7 +45,7 @@ boxTypeValue boxTypeValue =
     BoxType str -> stringValue str
     InheritBoxType -> inheritValue
     InitialBoxType -> initialValue
-    OtherBoxType valElement -> otherValue valElement
+    OtherBoxType val -> otherValue val
 
 -------------------------------------------------------------------------------
 
@@ -64,7 +61,7 @@ type BoxShadow sizedConstraint xSzTyp ySzTyp blurTyp spreadTyp
   | NoBoxShadow
   | InitialBoxShadow
   | InheritBoxShadow
-  | OtherBoxShadow Element
+  | OtherBoxShadow Value
 
 type Sized = Sized -- used in sizedConstraint constraint type in BoxShadow.
 
@@ -86,7 +83,7 @@ type alias BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp =
   , none: BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
   , initial: BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
   , inherit: BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
-  , other: Element -> BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
+  , other: Value -> BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
   }
 
 boxShadowFactory : BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp
@@ -95,7 +92,7 @@ boxShadowFactory =
   , none = NoBoxShadow
   , initial = InitialBoxShadow
   , inherit = InheritBoxShadow
-  , other valElement = OtherBoxShadow valElement
+  , other val = OtherBoxShadow val
   }
 
 boxShadowValue : BoxShadow sizedTyp xSzTyp ySzTyp blurSzTyp spreadSzTyp -> Value 
@@ -111,7 +108,7 @@ boxShadowValue boxShadow=
     NoBoxShadow -> noneValue
     InitialBoxShadow -> initialValue
     InheritBoxShadow -> inheritValue
-    OtherBoxShadow valElement -> otherValue valElement
+    OtherBoxShadow val -> otherValue val
 
 extractColorValue : ShadowColor -> List Value
 extractColorValue maybeColor =

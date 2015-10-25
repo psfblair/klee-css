@@ -5,7 +5,7 @@ module Css.Box
   , boxShadow
   ) where
 
-import Css.Internal.Property exposing (Value, addPrefixes)
+import Css.Internal.Property exposing (Value, appendToPrefixedRoot)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, prefixed)
 import Css.Internal.Color exposing (ColorDescriptor, colorFactory)
 import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory)
@@ -19,7 +19,7 @@ import Css.Common exposing (browsers)
 boxSizing : BoxTypeDescriptor -> PropertyRuleAppender
 boxSizing descriptor =
   let boxType = descriptor boxTypeFactory
-      prefixedKeys = addPrefixes browsers "box-sizing"
+      prefixedKeys = appendToPrefixedRoot browsers "box-sizing"
   in prefixed prefixedKeys (boxTypeValue boxType) 
 
 paddingBox : BoxTypeDescriptor
@@ -42,7 +42,7 @@ spread is optional but if you have it you have to have blur
 boxShadow : BoxShadowDescriptor t x y b s -> PropertyRuleAppender
 boxShadow shadowDescriptor =
   let boxShadow = shadowDescriptor boxShadowFactory
-      prefixedKeys = addPrefixes browsers "box-shadow"
+      prefixedKeys = appendToPrefixedRoot browsers "box-shadow"
   in prefixed prefixedKeys (boxShadowValue boxShadow)
 
 -- * Composable shadow descriptors.
