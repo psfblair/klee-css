@@ -9,8 +9,12 @@ module Css.Internal.Stylesheet
   , Keyframes (..), keyframes, keyframesFromTo, fontFace, importUrl
   ) where
 
+import Css.Internal.Browser exposing (toBrowserPrefix)
 import Css.Internal.Property exposing
-  (Key, Value, Prefixed, stringKey, prefixedKey, stringValue)
+  ( Key, Value, Prefixed
+  , stringKey, stringValue
+  , toPrefixed, prefixedKey, prefixedValue
+  )
 import Css.Internal.Selector exposing (SelectorData, Refinement)
 import Css.Internal.Utils exposing (compose)
 
@@ -104,10 +108,10 @@ simpleProperty : String -> Value -> PropertyRuleAppender
 simpleProperty keyName val = addProperty (stringKey keyName) val
   
 {- Add a new style property to the stylesheet with the specified `Key` and value
-the same way `key` does, but uses a `PrefixedOrNot` key.
+the same way `simpleProperty` does, but uses a `Prefixed` key.
 -}
 prefixed : Prefixed -> Value -> PropertyRuleAppender
-prefixed prefxd = addProperty (prefixedKey prefxd)
+prefixed keyWithPrefix val = addProperty (prefixedKey keyWithPrefix) val
 
 {-| The custom function can be used to create property-value style rules for
 which there is no typed version available. Both the key and the value
@@ -115,6 +119,16 @@ are plain text values and rendered as is to the output CSS.
 -}
 custom : String -> String -> PropertyRuleAppender
 custom keyName val = addProperty (stringKey keyName) (stringValue val)
+
+customPrefixed : List (String, String) -> List (String, String) -> PropertyRuleAppender
+customPrefixed keysWithPrefixes valuesWithPrefixes =
+  let makePrefixed prefixedItems = 
+        prefixedItems 
+          |> List.map (\(browser,root) -> (toBrowserPrefix browser, root))
+          |> toPrefixed
+      key =   makePrefixed keysWithPrefixes
+      value = makePrefixed valuesWithPrefixes |> prefixedValue
+  in prefixed key value
 
 -------------------------------------------------------------------------------
 
