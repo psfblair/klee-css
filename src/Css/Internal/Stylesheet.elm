@@ -10,7 +10,7 @@ module Css.Internal.Stylesheet
   ) where
 
 import Css.Internal.Property exposing
-  ( Key, Value, ValueElement
+  ( Key, Value, Element
   , stringKey, prefixedKey, stringValue
   )
 import Css.Internal.Selector exposing (SelectorData, Refinement)
@@ -108,7 +108,7 @@ simpleProperty keyName val = addProperty (stringKey keyName) val
 {- Add a new style property to the stylesheet with the specified `Key` and value
 the same way `key` does, but uses a `PrefixedOrNot` key.
 -}
-prefixed : ValueElement -> Value -> PropertyRuleAppender
+prefixed : Element -> Value -> PropertyRuleAppender
 prefixed prefixedOrNot = addProperty (prefixedKey prefixedOrNot)
 
 {-| The custom function can be used to create property-value style rules for

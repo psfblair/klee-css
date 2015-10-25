@@ -1,6 +1,6 @@
 module Css.Internal.Property
-  ( Key, Value, ValueElement, Literal (..)
-  , simpleElement, unPrefixed, prefixedElements, quote
+  ( Prefixed, Element, Key, Value, Literal (..)
+  , toPrefixed, unPrefixed, simpleElement, prefixedElement, quote
   , stringKey, prefixedKey, addPrefixes
   , emptyValue, appendValues, concatenateValues, intersperse
   , elementValue, stringValue, literalValue, intValue, floatValue
@@ -20,27 +20,35 @@ import Css.Internal.Utils exposing (toFixed)
 type Literal = Literal String
 
 -------------------------------------------------------------------------------
-{- `PrefixedOrNot` is the type for keys and values in properties. 
-`Prefixed` is for properties with browser prefixes.
+{- `Prefixed` is for properties with browser prefixes.
 -}
-type ValueElement
-     = SimpleValue String
-     | Prefixed (List (String, String))
+type Prefixed = Prefixed (List (String, String))
 
-simpleElement : String -> ValueElement
-simpleElement str = SimpleValue str
+toPrefixed : List (String, String) -> Prefixed
+toPrefixed items = Prefixed items
 
 {- Unwrap a Prefixed. Used in rendering. -}
-unPrefixed : ValueElement -> List (String, String)
-unPrefixed (Prefixed inner) = inner
+unPrefixed : Prefixed -> List (String, String)
+unPrefixed (Prefixed items) = items
 
-prefixedElements : List (String, String) -> ValueElement
-prefixedElements listing = Prefixed listing
+type Element
+     = SimpleElement String
+     | PrefixedElement Prefixed
 
-{- Combine a string key with a PrefixedOrNot containing browser prefixes. -}
-addPrefixes : ValueElement -> String -> ValueElement
-addPrefixes prefixes rootKey = SimpleValue rootKey |> merge prefixes
+simpleElement : String -> Element
+simpleElement str = SimpleElement str
 
+-- TODO This needs to be exposed at the top level for creating custom values
+prefixedElement : Prefixed -> Element
+prefixedElement prefixed = PrefixedElement prefixed
+
+{- Combine a string with a Prefixed containing browser prefixes. -}
+addPrefixes : Prefixed -> String -> Element
+addPrefixes prefixes rootKey = 
+  let prefixedElement = PrefixedElement prefixes
+  in SimpleElement rootKey |> merge prefixedElement
+
+-- TODO Move to utils
 {- Escape quotes in a string. -}
 quote : String -> String
 quote str =
@@ -48,16 +56,16 @@ quote str =
    in "\"" ++ escaped ++ "\""
 
 
-{- Combine two keys or values with/without prefixes. -}
-merge : ValueElement -> ValueElement -> ValueElement
-merge prefixedOrNot1 prefixedOrNot2 =
-  case (prefixedOrNot1, prefixedOrNot2) of
-    ((SimpleValue x), (SimpleValue y)) -> SimpleValue (x ++ y)
-    ((SimpleValue x), (Prefixed   ys)) -> 
-      ys |> List.map (\(k, y) -> (k, x ++ y)) |> Prefixed
-    ((Prefixed   xs), (SimpleValue y)) -> 
-      xs |> List.map (\(k, x) -> (k, x ++ y)) |> Prefixed
-    ((Prefixed   xs), (Prefixed   ys)) ->
+{- Combine the elements of two keys or values with/without prefixes. -}
+merge : Element -> Element -> Element
+merge value1 value2 =
+  case (value1, value2) of
+    (SimpleElement x, SimpleElement y) -> SimpleElement (x ++ y)
+    (SimpleElement x, PrefixedElement (Prefixed ys)) -> 
+      ys |> List.map (\(k, y) -> (k, x ++ y)) |> Prefixed |> PrefixedElement
+    (PrefixedElement (Prefixed xs), SimpleElement y) -> 
+      xs |> List.map (\(k, x) -> (k, x ++ y)) |> Prefixed |> PrefixedElement
+    (PrefixedElement (Prefixed xs), PrefixedElement (Prefixed ys)) ->
       let kxs = List.map fst xs
           kys = List.map fst ys
           xsWithKeysInKys = List.partition (fst >> (\x -> List.member x kys)) xs
@@ -67,19 +75,18 @@ merge prefixedOrNot1 prefixedOrNot2 =
                                        |> fst
                                        |> List.sort
       in List.map2 (\(p, a) (_, b) -> (p, a ++ b)) xsWithKeysInKys ysWithKeysInKxs
-                                      |> Prefixed
+                                      |> Prefixed |> PrefixedElement
 
 -------------------------------------------------------------------------------
 {- A type that represents the name of a CSS property. The type variable keeps
 the type of the key and value coordinated. -}
-type Key = Key ValueElement
-
+type Key = Key Element
 
 {- Turn a string into a key. -}
 stringKey : String -> Key
-stringKey str = SimpleValue str |> Key
+stringKey str = SimpleElement str |> Key
 
-prefixedKey : ValueElement -> Key
+prefixedKey : Element -> Key
 prefixedKey prefixed = Key prefixed
 
 
@@ -87,15 +94,15 @@ prefixedKey prefixed = Key prefixed
 {- A type that represents the property value in a CSS property. Values can also
 have prefixes, indicating that they pertain only to certain browser implementations
 of the property. -}
-type Value = Value ValueElement
+type Value = Value Element
   
 {- A value containing an empty string. Useful primarily as the starting value for
 a fold. -}
 emptyValue : Value
-emptyValue = Value (SimpleValue "")
+emptyValue = Value (SimpleElement "")
 
 
-elementValue : ValueElement -> Value
+elementValue : Element -> Value
 elementValue propertyValue = Value propertyValue
 
 {- Concatenate two values, respecting the fact that one or the other might be
@@ -113,25 +120,25 @@ concatenateValues = List.foldr (\val accum -> appendValues val accum) emptyValue
 and concatenate the result. -}
 intersperse : String -> List Value -> Value
 intersperse str values =
-  let separatorValue = SimpleValue str |> Value
+  let separatorValue = SimpleElement str |> Value
       interspersed = List.intersperse separatorValue values
   in List.foldr (\val accum -> appendValues val accum) emptyValue interspersed
 
 
 stringValue : String -> Value 
-stringValue str = SimpleValue str |> Value
+stringValue str = SimpleElement str |> Value
 
 
 literalValue : Literal -> Value 
-literalValue (Literal x) = quote x |> SimpleValue |> Value 
+literalValue (Literal x) = quote x |> SimpleElement |> Value 
 
 
 intValue : Int -> Value 
-intValue num = toString num |> SimpleValue |> Value 
+intValue num = toString num |> SimpleElement |> Value 
 
 
 floatValue : Float -> Value 
-floatValue num = toFixed 5 num |> toString |> SimpleValue |> Value 
+floatValue num = toFixed 5 num |> toString |> SimpleElement |> Value 
 
 
 maybeValue : (a -> Value) -> Maybe a -> Value
@@ -234,12 +241,12 @@ resultValue errConverter okConverter val =
 managePrefixes : (Key, Value) -> List (Result String (String, String))
 managePrefixes (Key ky, Value vl) =
   case (ky, vl) of
-    ( SimpleValue k  , SimpleValue v  ) -> [ Ok (k, v) ]
-    ( Prefixed    ks , SimpleValue v  ) -> 
+    (SimpleElement k, SimpleElement v) -> [ Ok (k, v) ]
+    (PrefixedElement (Prefixed ks), SimpleElement v) -> 
         ks |> List.map (\(prefix, k) -> Ok (prefix ++ k, v))
-    ( SimpleValue k  , Prefixed    vs ) -> 
+    (SimpleElement k, PrefixedElement (Prefixed vs)) -> 
         vs |> List.map (\(prefix, v) -> Ok (k, prefix ++ v))
-    ( Prefixed    ks , Prefixed    vs ) ->
+    (PrefixedElement (Prefixed ks), PrefixedElement (Prefixed vs)) ->
         ks |> List.map
                 (\(prefix, k) ->
                   let default = Err (prefix ++ k)

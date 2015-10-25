@@ -6,7 +6,7 @@ module Css.Internal.Box
   ) where
   
 import Css.Internal.Property exposing 
-  ( Value, ValueElement
+  ( Value, Element
   , stringValue, spaceListValue
   )
 import Css.Internal.Common exposing
@@ -23,14 +23,14 @@ type BoxType
   = BoxType String
   | InheritBoxType
   | InitialBoxType
-  | OtherBoxType ValueElement
+  | OtherBoxType Element
 
 type alias BoxTypeFactory =
   {
     boxType: String -> BoxType
   , inherit: BoxType
   , initial: BoxType
-  , other: ValueElement -> BoxType
+  , other: Element -> BoxType
   }
 
 boxTypeFactory : BoxTypeFactory
@@ -64,7 +64,7 @@ type BoxShadow sizedConstraint xSzTyp ySzTyp blurTyp spreadTyp
   | NoBoxShadow
   | InitialBoxShadow
   | InheritBoxShadow
-  | OtherBoxShadow ValueElement
+  | OtherBoxShadow Element
 
 type Sized = Sized -- used in sizedConstraint constraint type in BoxShadow.
 
@@ -86,7 +86,7 @@ type alias BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp =
   , none: BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
   , initial: BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
   , inherit: BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
-  , other: ValueElement -> BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
+  , other: Element -> BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
   }
 
 boxShadowFactory : BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp

@@ -25,7 +25,7 @@ import Css.Internal.Color exposing (CssColor (..), ColorFactory, colorFactory)
 import Css.Internal.Common exposing 
   (autoValue, initialValue, inheritValue, noneValue, otherValue)
 import Css.Internal.Property exposing 
-  ( Value, ValueElement
+  ( Value, Element
   , simpleElement, stringValue, spacePairValue
   )
 import Css.Internal.Size exposing (Size, sizeValue)
@@ -47,7 +47,7 @@ type HorizontalSide
   = HorizontalSide String
   | InitialHorizontalSide
   | InheritHorizontalSide
-  | OtherHorizontalSide ValueElement
+  | OtherHorizontalSide Element
 
 horizontalSideValue : HorizontalSide -> Value 
 horizontalSideValue side = 
@@ -61,7 +61,7 @@ type VerticalSide
   = VerticalSide String
   | InitialVerticalSide
   | InheritVerticalSide
-  | OtherVerticalSide ValueElement
+  | OtherVerticalSide Element
 
 verticalSideValue : VerticalSide -> Value 
 verticalSideValue side = 
@@ -125,7 +125,7 @@ type BackgroundSize sz
   | AutoBackgroundSize
   | InitialBackgroundSize
   | InheritBackgroundSize
-  | OtherBackgroundSize ValueElement
+  | OtherBackgroundSize Element
 
 type alias BackgroundSizeFactory sz =
   { backgroundSize : (Size sz) -> (Size sz) -> BackgroundSize sz
@@ -134,7 +134,7 @@ type alias BackgroundSizeFactory sz =
   , auto : BackgroundSize sz
   , initial: BackgroundSize sz
   , inherit: BackgroundSize sz
-  , other: ValueElement -> BackgroundSize sz
+  , other: Element -> BackgroundSize sz
   }
 
 backgroundSizeFactory : BackgroundSizeFactory sz
@@ -172,13 +172,13 @@ type BackgroundRepeat
   = BackgroundRepeat String
   | InitialBackgroundRepeat
   | InheritBackgroundRepeat
-  | OtherBackgroundRepeat ValueElement
+  | OtherBackgroundRepeat Element
 
 type alias BackgroundRepeatFactory =
   { repeat : String -> BackgroundRepeat 
   , initial : BackgroundRepeat 
   , inherit : BackgroundRepeat 
-  , other : ValueElement -> BackgroundRepeat 
+  , other : Element -> BackgroundRepeat 
   }  
 
 backgroundRepeatFactory : BackgroundRepeatFactory
@@ -207,14 +207,14 @@ type BackgroundImage
   | NoBackgroundImage
   | InitialBackgroundImage
   | InheritBackgroundImage
-  | OtherBackgroundImage ValueElement
+  | OtherBackgroundImage Element
 
 type alias BackgroundImageFactory =
   { url : String -> BackgroundImage 
   , none : BackgroundImage 
   , initial : BackgroundImage 
   , inherit : BackgroundImage 
-  , other : ValueElement -> BackgroundImage 
+  , other : Element -> BackgroundImage 
   }  
 
 backgroundImageFactory : BackgroundImageFactory
@@ -245,13 +245,13 @@ type BackgroundOrigin
   = BackgroundOrigin BoxType
   | InitialBackgroundOrigin
   | InheritBackgroundOrigin
-  | OtherBackgroundOrigin ValueElement
+  | OtherBackgroundOrigin Element
 
 type alias BackgroundOriginFactory =
   { origin : BoxType -> BackgroundOrigin 
   , initial : BackgroundOrigin 
   , inherit : BackgroundOrigin 
-  , other : ValueElement -> BackgroundOrigin 
+  , other : Element -> BackgroundOrigin 
   }  
 
 backgroundOriginFactory : BackgroundOriginFactory
@@ -279,13 +279,13 @@ type BackgroundClip
   = BackgroundClip BoxType
   | InitialBackgroundClip
   | InheritBackgroundClip
-  | OtherBackgroundClip ValueElement
+  | OtherBackgroundClip Element
 
 type alias BackgroundClipFactory =
   { clip : BoxType -> BackgroundClip 
   , initial : BackgroundClip 
   , inherit : BackgroundClip 
-  , other : ValueElement -> BackgroundClip 
+  , other : Element -> BackgroundClip 
   }  
 
 backgroundClipFactory : BackgroundClipFactory
@@ -313,13 +313,13 @@ type BackgroundAttachment
   = BackgroundAttachment String
   | InitialBackgroundAttachment
   | InheritBackgroundAttachment
-  | OtherBackgroundAttachment ValueElement
+  | OtherBackgroundAttachment Element
 
 type alias BackgroundAttachmentFactory =
   { bgAttachment : String -> BackgroundAttachment 
   , initial : BackgroundAttachment 
   , inherit : BackgroundAttachment 
-  , other : ValueElement -> BackgroundAttachment 
+  , other : Element -> BackgroundAttachment 
   }  
 
 backgroundAttachmentFactory : BackgroundAttachmentFactory

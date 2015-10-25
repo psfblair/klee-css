@@ -4,7 +4,7 @@ module Css.Internal.Border
   ) where
 
 import Css.Internal.Property exposing 
-  ( Value, ValueElement
+  ( Value, Element
   , simpleElement, stringValue
   )
 
@@ -22,7 +22,7 @@ type Stroke
   | NoStroke
   | InheritStroke
   | AutoStroke
-  | OtherStroke ValueElement
+  | OtherStroke Element
 
 type alias StrokeFactory =
   {
@@ -30,7 +30,7 @@ type alias StrokeFactory =
   , none: Stroke
   , inherit: Stroke
   , auto: Stroke
-  , other: ValueElement -> Stroke
+  , other: Element -> Stroke
   }
 
 strokeFactory : StrokeFactory

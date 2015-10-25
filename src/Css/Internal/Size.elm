@@ -6,7 +6,7 @@ module Css.Internal.Size
   ) where
 
 import Css.Internal.Property exposing
-  (Value, ValueElement, appendValues, stringValue, floatValue)
+  (Value, Element, appendValues, stringValue, floatValue)
 
 import Css.Internal.Common exposing
   (autoValue, normalValue, inheritValue, noneValue, otherValue)
@@ -22,7 +22,7 @@ type Size a -- Phantom type, for type safety. The type parameter is for Abs or R
   | NormalSize
   | InheritSize
   | NoSize
-  | OtherSize ValueElement
+  | OtherSize Element
 
 -- | Sizes can be relative like percentages or rems.
 type Rel = Rel
@@ -44,7 +44,7 @@ type alias SizeFactory a c = -- c is the constraint type (Abs or Rel)
   , normal: Size c
   , inherit: Size c
   , none: Size c
-  , other: ValueElement -> Size c
+  , other: Element -> Size c
   }
 
 sizeFactory : SizeFactory (Size a) a
@@ -76,7 +76,7 @@ type Angle a -- Phantom type, for type safety. The type parameter is for Deg, Ra
   = Angle Value
   | AutoAngle
   | InheritAngle
-  | OtherAngle ValueElement
+  | OtherAngle Element
 
 type Deg = Deg
 type Rad = Rad
@@ -95,7 +95,7 @@ type alias AngleFactory a =
   { angle: Value -> Angle a
   , auto: Angle a
   , inherit: Angle a
-  , other: ValueElement -> Angle a
+  , other: Element -> Angle a
   }
 
 angleFactory : AngleFactory a

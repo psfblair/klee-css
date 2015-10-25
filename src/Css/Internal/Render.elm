@@ -9,7 +9,7 @@ import Css.Internal.Stylesheet exposing
   )
 import Css.Common exposing (browsers)
 import Css.Internal.Property exposing
-  ( Key, Value, ValueElement
+  ( Key, Value, Element
   , unPrefixed, managePrefixes)
 import Css.Internal.Selector exposing
   ( SelectorData (..), Refinement (..), Path (..), Predicate (..)

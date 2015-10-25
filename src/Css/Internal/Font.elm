@@ -12,7 +12,7 @@ module Css.Internal.Font
 import Css.Internal.Common exposing 
   (inheritValue, initialValue, normalValue, otherValue)
 import Css.Internal.Property exposing 
-  ( Value, ValueElement, Literal (..)
+  ( Value, Element, Literal (..)
   , stringValue, literalValue, maybeValue
   , commaListValue, spaceListValue
   , intersperse
@@ -202,14 +202,14 @@ type GenericFontFamily
   = GenericFontFamily String
   | InitialGenericFontFamily
   | InheritGenericFontFamily
-  | OtherGenericFontFamily ValueElement
+  | OtherGenericFontFamily Element
 
 type alias GenericFontFamilyFactory =
   {
     family: String -> GenericFontFamily
   , initial: GenericFontFamily
   , inherit: GenericFontFamily
-  , other: ValueElement -> GenericFontFamily
+  , other: Element -> GenericFontFamily
   }
 
 
@@ -239,14 +239,14 @@ type FontSize
   = FontSize String
   | InitialFontSize
   | InheritFontSize
-  | OtherFontSize ValueElement
+  | OtherFontSize Element
 
 type alias FontSizeFactory =
   {
     size: String -> FontSize
   , initial: FontSize
   , inherit: FontSize
-  , other: ValueElement -> FontSize
+  , other: Element -> FontSize
   }
 
 
@@ -277,14 +277,14 @@ type FontStyle
   | NormalFontStyle
   | InheritFontStyle
   | InitialFontStyle
-  | OtherFontStyle ValueElement
+  | OtherFontStyle Element
 
 type alias FontStyleFactory =
   {
     style: String -> FontStyle
   , initial: FontStyle
   , inherit: FontStyle
-  , other: ValueElement -> FontStyle
+  , other: Element -> FontStyle
   }
 
 
@@ -315,7 +315,7 @@ type FontVariant
   | NormalFontVariant
   | InheritFontVariant
   | InitialFontVariant
-  | OtherFontVariant ValueElement
+  | OtherFontVariant Element
 
 type alias FontVariantFactory =
   {
@@ -323,7 +323,7 @@ type alias FontVariantFactory =
   , normal: FontVariant
   , initial: FontVariant
   , inherit: FontVariant
-  , other: ValueElement -> FontVariant
+  , other: Element -> FontVariant
   }
 
 fontVariantFactory : FontVariantFactory
@@ -354,7 +354,7 @@ type FontWeight
   | NormalFontWeight
   | InheritFontWeight
   | InitialFontWeight
-  | OtherFontWeight ValueElement
+  | OtherFontWeight Element
 
 
 type alias FontWeightFactory =
@@ -363,7 +363,7 @@ type alias FontWeightFactory =
   , normal: FontWeight
   , initial: FontWeight
   , inherit: FontWeight
-  , other: ValueElement -> FontWeight
+  , other: Element -> FontWeight
   }
 
 
