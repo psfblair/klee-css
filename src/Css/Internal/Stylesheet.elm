@@ -9,7 +9,6 @@ module Css.Internal.Stylesheet
   , Keyframes (..), keyframes, keyframesFromTo, fontFace, importUrl
   ) where
 
-import Css.Internal.Browser exposing (toBrowserPrefix)
 import Css.Internal.Property exposing
   ( Key, Value, Prefixed
   , stringKey, stringValue
@@ -34,20 +33,7 @@ structural typing to enforce some type constraints.
 -}
 type alias CssAppender a = { a | addCss: Css -> Css }
 
-{- These rules enforce type safety but we can't use the type system to enforce
-that they themselves are used properly when building the DSL. I.e., since
-records are not recursive, there is no way to enforce that propertyRule always
-contains a property rule. This all has to be observed by the functions
-constructing the records. We don't want to phantom type `RuleData` because then
-Css could not contain a list of heterogeneous types of `RuleData`. It might be
-thought that `addCss` could be of type `Css a -> Css ()` with the type
-enforcement on the level of `addPropertyRule` which might e.g., take something
-like `Css PropertyRule`. However, records cannot call themselves recursively. In
-addition, the `Css` that is the type of the parameter to `addCss` is not the type
-of rule that is added by addCss, but the type of Css that is accumulated as it
-is passed through the composition of all the rules. As a result, even
-`propertyRule` would have to be of type `Css ()`, which would defeat the purpose
-of introducing the phantom type in the first place.
+{- These different rule types enforce type safety.
 -}
 type alias PropertyRuleAppender = CssAppender (WithPropertyRule {})
 type alias WithPropertyRule a = { a | propertyRule: RuleData }
@@ -93,42 +79,34 @@ type Keyframes = Keyframes String (List (Float, (List RuleData)))
 
 -------------------------------------------------------------------------------
 
-{- Add a new style property to the stylesheet with the specified `Key` and value.
-The value can be any type that that can be converted to a `Value` using the
-a record of functions of type `Value`.
+{- Add a new style property to the stylesheet with the string as key and and 
+the given value.
 -}
-addProperty : Key -> Value -> PropertyRuleAppender
-addProperty key val =
-  let ruleData = Property key val
-  in { addCss = addRule ruleData
-     , propertyRule = ruleData
-     }
-
 simpleProperty : String -> Value -> PropertyRuleAppender
 simpleProperty keyName val = addProperty (stringKey keyName) val
   
 {- Add a new style property to the stylesheet with the specified `Key` and value
-the same way `simpleProperty` does, but uses a `Prefixed` key.
+the same way `simpleProperty` does, but uses a `Prefixed` key. In general this
+will mean the `browsers` key from `Css.Common`. You can also make a custom
+browser list and custom browser-specific values using the functions in 
+`Css.Common`.
 -}
 prefixed : Prefixed -> Value -> PropertyRuleAppender
 prefixed keyWithPrefix val = addProperty (prefixedKey keyWithPrefix) val
 
-{-| The custom function can be used to create property-value style rules for
+{-| The `custom` function can be used to create property-value style rules for
 which there is no typed version available. Both the key and the value
 are plain text values and rendered as is to the output CSS.
 -}
 custom : String -> String -> PropertyRuleAppender
 custom keyName val = addProperty (stringKey keyName) (stringValue val)
 
-customPrefixed : List (String, String) -> List (String, String) -> PropertyRuleAppender
-customPrefixed keysWithPrefixes valuesWithPrefixes =
-  let makePrefixed prefixedItems = 
-        prefixedItems 
-          |> List.map (\(browser,root) -> (toBrowserPrefix browser, root))
-          |> toPrefixed
-      key =   makePrefixed keysWithPrefixes
-      value = makePrefixed valuesWithPrefixes |> prefixedValue
-  in prefixed key value
+addProperty : Key -> Value -> PropertyRuleAppender
+addProperty key val =
+  let ruleData = Property key val
+  in { addCss = addRule ruleData
+     , propertyRule = ruleData
+     }
 
 -------------------------------------------------------------------------------
 

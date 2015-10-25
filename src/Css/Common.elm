@@ -21,8 +21,11 @@ module Css.Common (
   , other
   ) where
 
-import Css.Internal.Browser exposing (BrowserPrefix, toBrowserPrefix)
-import Css.Internal.Property exposing (Value, Prefixed, toPrefixed)
+import Css.Internal.Browser as Browser
+import Css.Internal.Property exposing 
+  ( Value, Prefixed
+  , toPrefixed, appendToPrefixedRoot, prefixedValue
+  )
 import Css.Internal.Stylesheet exposing (CssAppender)
 import Css.Internal.Common exposing (..)
 
@@ -30,31 +33,38 @@ import Css.Internal.Common exposing (..)
 
 {-| List of browser prefixes to make experimental properties work in
 different browsers. -}
+type alias BrowserPrefix = Browser.BrowserPrefix
 
 browsers : Prefixed
-browsers =
-  toPrefixed
-    [ (    webkit_, "" )
-    , (       moz_, "" )
-    , (        ms_, "" )
-    , (         o_, "" )
-    , (emptyPrefix, "" )
-    ]
+browsers = toBrowserPrefixed [ webkit_, moz_, ms_, o_, emptyPrefix ]
 
+toBrowserPrefix : String -> BrowserPrefix
+toBrowserPrefix = Browser.toBrowserPrefix
+
+toBrowserPrefixed : List BrowserPrefix -> Prefixed
+toBrowserPrefixed browserPrefixes =
+  let toPair prefix = (prefix, "")
+  in browserPrefixes |> List.map toPair |> toPrefixed
+  
+toPrefixedValue : List BrowserPrefix -> String -> Value  
+toPrefixedValue browserPrefixes val =
+    let prefixed = toBrowserPrefixed browserPrefixes 
+    in appendToPrefixedRoot prefixed val |> prefixedValue
+    
 webkit_ : BrowserPrefix
-webkit_ = toBrowserPrefix "-webkit-"
+webkit_ = Browser.toBrowserPrefix "-webkit-"
 
 moz_ : BrowserPrefix
-moz_ = toBrowserPrefix "-moz-"
+moz_ = Browser.toBrowserPrefix "-moz-"
 
 ms_ : BrowserPrefix
-ms_ = toBrowserPrefix "-ms-"
+ms_ = Browser.toBrowserPrefix "-ms-"
 
 o_ : BrowserPrefix
-o_ = toBrowserPrefix "-o-"
+o_ = Browser.toBrowserPrefix "-o-"
 
 emptyPrefix : BrowserPrefix
-emptyPrefix = toBrowserPrefix ""
+emptyPrefix = Browser.toBrowserPrefix ""
 
 -------------------------------------------------------------------------------
 
