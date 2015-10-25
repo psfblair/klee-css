@@ -13,6 +13,7 @@ module Css.Internal.Property
 import Dict
 import Regex exposing (regex, replace)
 
+import Css.Internal.Browser exposing (BrowserPrefix, stringPrefix)
 import Css.Internal.Utils exposing (toFixed)
 
 -------------------------------------------------------------------------------
@@ -25,14 +26,16 @@ toLiteral str = Literal str
 -------------------------------------------------------------------------------
 {- `Prefixed` is for properties with browser prefixes.
 -}
-type Prefixed = Prefixed (List (String, String))
+type Prefixed = Prefixed (List (BrowserPrefix, String))
 
-toPrefixed : List (String, String) -> Prefixed
+toPrefixed : List (BrowserPrefix, String) -> Prefixed
 toPrefixed items = Prefixed items
 
-{- Unwrap a Prefixed. Used in rendering. -}
+{- Unwrap a Prefixed. -}
 unPrefixed : Prefixed -> List (String, String)
-unPrefixed (Prefixed items) = items
+unPrefixed (Prefixed items) = 
+  let toStringPair (prefix, root) = (stringPrefix prefix, root)
+  in List.map toStringPair items
 
 type Element
      = SimpleElement String
@@ -58,14 +61,14 @@ mergePrefixed : Prefixed -> Prefixed -> Prefixed
 mergePrefixed (Prefixed xs) (Prefixed ys) =
   let kxs = List.map fst xs
       kys = List.map fst ys
-      xsWithKeysInKys = List.partition (fst >> (\x -> List.member x kys)) xs
-                                   |> fst
-                                   |> List.sort
-      ysWithKeysInKxs = List.partition (fst >> (\y -> List.member y kxs)) ys
-                                   |> fst
-                                   |> List.sort
-  in List.map2 (\(p, a) (_, b) -> (p, a ++ b)) xsWithKeysInKys ysWithKeysInKxs
-                                  |> Prefixed
+      xsWithKeysInKys = xs |> List.partition (fst >> (\x -> List.member x kys)) 
+                           |> fst
+                           |> List.sortBy (\(pfx, prop) -> (stringPrefix pfx, prop))
+      ysWithKeysInKxs = ys |> List.partition (fst >> (\y -> List.member y kxs)) 
+                           |> fst
+                           |> List.sortBy (\(pfx, prop) -> (stringPrefix pfx, prop))  
+  in List.map2 (\(p, a) (_, b) -> 
+      (p, a ++ b)) xsWithKeysInKys ysWithKeysInKxs |> Prefixed
   
 {- Combine the Elements of two keys or values with/without prefixes. -}
 merge : Element -> Element -> Element
@@ -243,14 +246,15 @@ managePrefixes : (Key, Value) -> List (Result String (String, String))
 managePrefixes (Key ky, Value vl) =
   case (ky, vl) of
     (SimpleElement k, SimpleElement v) -> [ Ok (k, v) ]
-    (PrefixedElement (Prefixed ks), SimpleElement v) -> 
-        ks |> List.map (\(prefix, k) -> Ok (prefix ++ k, v))
-    (SimpleElement k, PrefixedElement (Prefixed vs)) -> 
-        vs |> List.map (\(prefix, v) -> Ok (k, prefix ++ v))
-    (PrefixedElement (Prefixed ks), PrefixedElement (Prefixed vs)) ->
-        ks |> List.map
+    (PrefixedElement ks, SimpleElement v) -> 
+        ks |> unPrefixed |> List.map (\(prefix, k) -> Ok (prefix ++ k, v))
+    (SimpleElement k, PrefixedElement vs) -> 
+        vs |> unPrefixed |> List.map (\(prefix, v) -> Ok (k, prefix ++ v))
+    (PrefixedElement ks, PrefixedElement vs) ->
+        ks |> unPrefixed 
+           |> List.map
                 (\(prefix, k) ->
                   let default = Err (prefix ++ k)
                       okFromVal val = Ok (prefix ++ k, prefix ++ val)
-                      maybeVal = Dict.get prefix (Dict.fromList vs)
+                      maybeVal = Dict.get prefix (Dict.fromList (unPrefixed vs))
                   in Maybe.map okFromVal maybeVal |> Maybe.withDefault default)

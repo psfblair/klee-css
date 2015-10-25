@@ -1,5 +1,6 @@
 module Css.Common (
-   browsers
+   browsers, webkit_, moz_, ms_, o_, emptyPrefix
+   
   , call
 
   , sym
@@ -20,6 +21,7 @@ module Css.Common (
   , other
   ) where
 
+import Css.Internal.Browser exposing (BrowserPrefix, toBrowserPrefix)
 import Css.Internal.Property exposing (Value, Prefixed, toPrefixed)
 import Css.Internal.Stylesheet exposing (CssAppender)
 import Css.Internal.Common exposing (..)
@@ -32,12 +34,27 @@ different browsers. -}
 browsers : Prefixed
 browsers =
   toPrefixed
-    [ ( "-webkit-", "" )
-    , (    "-moz-", "" )
-    , (     "-ms-", "" )
-    , (      "-o-", "" )
-    , (         "", "" )
+    [ (    webkit_, "" )
+    , (       moz_, "" )
+    , (        ms_, "" )
+    , (         o_, "" )
+    , (emptyPrefix, "" )
     ]
+
+webkit_ : BrowserPrefix
+webkit_ = toBrowserPrefix "-webkit-"
+
+moz_ : BrowserPrefix
+moz_ = toBrowserPrefix "-moz-"
+
+ms_ : BrowserPrefix
+ms_ = toBrowserPrefix "-ms-"
+
+o_ : BrowserPrefix
+o_ = toBrowserPrefix "-o-"
+
+emptyPrefix : BrowserPrefix
+emptyPrefix = toBrowserPrefix ""
 
 -------------------------------------------------------------------------------
 
