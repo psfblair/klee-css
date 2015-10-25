@@ -3,8 +3,10 @@ module Css.Internal.PropertyTests where
 import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
-import Css.Internal.Property exposing (..)
+import Css.Internal.Stylesheet exposing (simpleProperty)
+import Css exposing (renderProperties)
 
+import Css.Internal.Property exposing (..)
 -------------------------------------------------------------------------------
 
 suite : Spec
@@ -14,16 +16,21 @@ suite = describe "Css.PropertyTests"
 stringValueFactoryTest : Spec
 stringValueFactoryTest =
   describe "stringValueFactory"
-    [ stringValue "a" `shouldEqual` Value (Plain "a")
-    ]
+    [ renderProperties [simpleProperty "key" (stringValue "a") ]
+        `shouldEqual` "key:a" ]
 
 commaListValueFactoryTest : Spec
 commaListValueFactoryTest =
   describe "pairValueFactory"
     [ it "should wrap an empty list"
-        [ commaListValue stringValue [] `shouldEqual` emptyValue ]
+      [ renderProperties [ commaListValue stringValue [] |> simpleProperty "key" ]
+         `shouldEqual` "key:" 
+      ]
     , it "should wrap plain values"
-        [ commaListValue stringValue ["a", "b"] `shouldEqual` Value (Plain "a,b")]
+        [ renderProperties 
+              [ commaListValue stringValue ["a", "b"]  |> simpleProperty "key" ]
+            `shouldEqual` "key:a,b" 
+        ]
     ]
 
 -- TODO Test wrappers involving prefixed values in order to test merge instead of test below
