@@ -33,7 +33,7 @@ import Css.Internal.Property exposing
 
 {- The following are types that represent records of functions for implementing
 common values shared between multiple CSS properties, like `auto`, `inherit`,
-`none`, `normal` and several more. These are used by modules within elm-css and
+`none`, `normal` and several more. These are used by modules within css-elm and
 not intended to be used as part of the Css DSL.
 
 Implementation notes:
@@ -43,7 +43,7 @@ types such as Stroke and Size to derive from the default implementations of the
 typeclasses Val, Other, Inherit, Auto, and None. This makes the Haskell code
 quite succinct.
 
-In elm-css we instead pass around records of functions to wrap the types. These
+In css-elm we instead pass around records of functions to wrap the types. These
 are referred to as factories. Example:
 
  So then suppose we have a border-stroke property:
@@ -133,7 +133,7 @@ type alias Other    a rec = { rec | other_    : Value -> a }
 
 {- Implementations of the function records for implementing the creation of generic
 property values such as `all`, `none`, etc. . Again, these are used internally by
-elm-css in other modules and not intended to be used as part of the public Css DSL.
+css-elm in other modules and not intended to be used as part of the public Css DSL.
 -}
 allValue : Value
 allValue = stringValue "all"

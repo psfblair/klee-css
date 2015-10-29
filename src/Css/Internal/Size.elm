@@ -35,7 +35,7 @@ We won't make an equivalent for Clay's making Size Abs and Size Rel instances of
 Num and Fractional typeclasses so that fromInteger = px . fromInteger, 
 fromRational = px . fromRational for Size Abs and 
 fromInteger = pct . fromInteger, fromRational = pct . fromRational for Size Rel.
-In elm-css, units will always need to be specified.
+In css-elm, units will always need to be specified.
 -}
 
 type alias SizeFactory a c = -- c is the constraint type (Abs or Rel)
@@ -88,7 +88,7 @@ type Turn = Turn
 -- Angle Grad, and Angle Turn instances of the Num and Fractional typeclasses 
 -- so that for Angle Deg fromInteger = deg . fromInteger,
 -- fromRational = deg . fromRational and similarly for the others.
--- In elm-css, units will always need to be specified.
+-- In css-elm, units will always need to be specified.
 -------------------------------------------------------------------------------
 
 type alias AngleFactory a =

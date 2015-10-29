@@ -76,7 +76,7 @@ p.error a#fred
 }
 
 
-/* Generated with elm-css */"""
+/* Generated with css-elm */"""
 
 expectedFullStylesheet : String 
 expectedFullStylesheet = """
@@ -111,4 +111,4 @@ p.error a#fred
 }
 
 
-/* Generated with elm-css */"""
+/* Generated with css-elm */"""
