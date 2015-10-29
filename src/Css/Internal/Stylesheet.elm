@@ -62,7 +62,9 @@ type RuleData
   | Import   String
 
 addRule : RuleData -> Css -> Css
-addRule ruleDataToAdd rules = rules ++ [ ruleDataToAdd ]
+addRule ruleDataToAdd rules = 
+  -- We prepend because the compose function called in extractRules reverses the list.
+  ruleDataToAdd :: rules 
 
 {-| Types for the @media rule: @media not|only mediatype and (media feature) { rules }
     The MediaQuery type does not contain the media rules themselves.

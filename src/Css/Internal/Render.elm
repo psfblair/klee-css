@@ -207,7 +207,7 @@ renderPredicate pred =
 renderProperties : Config -> List (Key, Value) -> String
 renderProperties cfg propertyRules =
   propertyRules
-    |> List.concatMap managePrefixes -- each of the rules generates a list of eithers
+    |> List.concatMap managePrefixes -- each of the rules generates a `List Result`
     |> renderProperty cfg
 
 {-  Takes a key-value property for a rule in the form of either a pair of
@@ -330,9 +330,9 @@ renderFontFace cfg faceRules =
 renderImportRule : Config -> String -> String
 renderImportRule cfg url =
   concat
-    [ "@import url("
+    [ "@import url(\""
     , url
-    , ");"
+    , "\");"
     , cfg.newline
     ]
 

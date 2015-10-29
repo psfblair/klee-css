@@ -4,7 +4,7 @@ module Css.Internal.Property
   , stringKey, prefixedKey, appendToPrefixedRoot, prependToPrefixedRoot
   , emptyValue, appendValues, concatenateValues, intersperse
   , stringValue, prefixedValue, literalValue, intValue, floatValue
-  , maybeValue, commaListValue
+  , maybeValue, listValue, commaListValue
   , spaceListValue, spacePairValue, spaceTripleValue, spaceQuadrupleValue
   , commaQuadrupleValue, resultValue
   , managePrefixes

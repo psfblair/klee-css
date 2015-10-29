@@ -6,7 +6,7 @@ module Css
   , byId, (:#), byClass, (:.), pseudo, func
   , attr, (:@), attrBegin, (:@^), attrEnd, (:@$), attrHas, (:@*)
   , attrInSpaceList, (:@~), attrInHyphenList, (:@-)
-  , Config, render, renderCompact, renderProperties, renderWith
+  , Config, append, render, renderCompact, renderProperties, renderWith
   , MediaType, Feature, query, queryNot, queryOnly
   , keyframes, keyframesFromTo, fontFace, importUrl
   , custom, element, filter, withAttr
@@ -49,7 +49,7 @@ mnemonic used is `~` for space and `..` for comma. Thus `:~` is the same as
       attrInSpaceList, (:@~), attrInHyphenList, (:@-)
 
 # Rendering stylesheets to CSS strings
-@docs Config, render, renderCompact, renderProperties, renderWith
+@docs Config, append, render, renderCompact, renderProperties, renderWith
 
 # Special rules
 @docs MediaType, Feature, query, queryNot, queryOnly, keyframes, keyframesFromTo,
@@ -342,6 +342,15 @@ attrInHyphenList = Css.Internal.SelectorCombinators.withAttrValueInHyphenatedLis
 newlines, etc.
 -}
 type alias Config = Css.Internal.Render.Config
+
+{-| The `append` function allows stylesheets of different types (e.g., a list of 
+`ImportStylesheet` and a list of `PropertyStylesheet`) to be combined into a
+single list that can be passed to `render`.
+-}
+append : List (Stylesheet a) -> List (Stylesheet b) -> List (Stylesheet {})
+append sheets1 sheets2 = 
+  let generify sheets = sheets |> List.map (\sheet -> { addCss = sheet.addCss })
+  in (generify sheets1) ++ (generify sheets2)
 
 {-| Render a stylesheet with the default configuration, using the pretty printer.
 -}

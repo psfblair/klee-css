@@ -7,6 +7,11 @@ import Css.Elements exposing (..)
 import Css.Border exposing (borderStyle, borderColor, solid)
 import Css.Color exposing (green)
 import Css.Display exposing (float, floatLeft, clear, both)
+import Css.FontFace exposing 
+  ( FontFaceFormat(..)
+  , fontFaceSrc, localFontFaceSrc, urlFontFaceSrc
+  )
+import Css.Font exposing (fontFamily)
 -------------------------------------------------------------------------------
 
 suite : Spec
@@ -21,30 +26,45 @@ suite = describe "CssTests"
         ]
       in render stylesheet `shouldEqual` expectedPropertyStylesheet
     ]
-  -- , describe "renderExtended"
-  --   [ let stylesheet = 
-  --       { imports = 
-  --           [ importUrl "http://some.stylesheet.com" 
-  --           , importUrl "http://some.stylesheet.org" 
-  --           ]
-  --       , fontFaces = 
-  --           [ fontFace [ fontFamily: "face"
-  --                      , fontFaceSrc [FontFaceSrcLocal "face.woff"] 
-  --                      ]
-  --           , fontFace [ fontFaceSrc 
-  --                         [ FontFaceSrcLocal "face.woff"]
-  --                         , FontFaceSrcUrl "http://font.url" (Just TrueType)
-  --                         ]
-  --           ]
-  --       }
-  --     in renderExtended stylesheet `shouldEqual` expectedExtendedStylesheet  
-  -- ]
+  , describe "extended render"
+    [ let imports = 
+            [ importUrl "http://some.stylesheet.com" 
+            , importUrl "http://some.stylesheet.org" 
+            ]
+          fontFaces = 
+            [ fontFace 
+              [ fontFamily [ "Bitstream Vera Serif Bold" ] []
+              , fontFaceSrc 
+                [ localFontFaceSrc "VeraBold.woff"
+                , urlFontFaceSrc "http://font.url" (Just TrueType)
+                ]
+              ]
+            ]
+          stylesheet =
+              [ p [ borderStyle solid, borderColor green ]
+                  [ a [ custom "-ms-lens-flare-style" "really-shiny" ] [] ]
+              , (p `byClass` "error") 
+                  [ float floatLeft ] 
+                  [ (a `byId` "fred") [ clear both ] [] ]    
+              ]
+      in render (append imports stylesheet |> append fontFaces) `shouldEqual` expectedFullStylesheet  
+    ]
   ]
-
 
 
 expectedPropertyStylesheet : String
 expectedPropertyStylesheet = """
+p 
+{
+  border-style : solid;
+  border-color : #73D216;
+}
+
+p a 
+{
+  -ms-lens-flare-style : really-shiny;
+}
+
 p.error 
 {
   float : left;
@@ -55,10 +75,24 @@ p.error a#fred
   clear : both;
 }
 
+
+/* Generated with elm-css */"""
+
+expectedFullStylesheet : String 
+expectedFullStylesheet = """
+@import url("http://some.stylesheet.com");
+@import url("http://some.stylesheet.org");
+@font-face
+{
+  font-family : "Bitstream Vera Serif Bold";
+  src         : local("VeraBold.woff"),
+      url("http://font.url") format("truetype");
+}
+
 p 
 {
-  border-color : #73D216;
   border-style : solid;
+  border-color : #73D216;
 }
 
 p a 
@@ -66,20 +100,15 @@ p a
   -ms-lens-flare-style : really-shiny;
 }
 
-
-/* Generated with elm-css */"""
-
-expectedExtendedStylesheet : String 
-expectedExtendedStylesheet = """
-@import url("http://some.stylesheet.com")
-
-@import url("http://some.stylesheet.org")
-
-@font-face 
+p.error 
 {
-  font-family: "Bitstream Vera Serif Bold";
-  src: url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf");
+  float : left;
+}
+
+p.error a#fred 
+{
+  clear : both;
 }
 
 
- /* Generated with elm-css */"""
+/* Generated with elm-css */"""
