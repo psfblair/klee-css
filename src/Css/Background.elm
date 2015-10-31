@@ -1,23 +1,28 @@
 module Css.Background
   (
-  -- * Generic background property.
-
---    Background (background)
-
-  -- * The background-color.
-
-  backgroundColor
-
   -- * The background-position.
 
-  , backgroundPosition
+    backgroundPosition
   , placed
   , positioned
+
+  -- * Specifying sides.
+
+  , sideTop
+  , sideLeft
+  , sideRight
+  , sideBottom
+  , sideCenter
+  , sideMiddle
 
   -- * The background-size.
 
   , backgroundSize
   , contain, cover
+
+  -- * The background-color.
+
+  , backgroundColor
 
   -- * The background-repeat.
 
@@ -45,71 +50,18 @@ module Css.Background
   , backgroundImage
   , url
 
-  -- * Specifying sides.
+  -- * Generic background property.
 
-  , sideTop
-  , sideLeft
-  , sideRight
-  , sideBottom
-  , sideCenter
-  , sideMiddle
+  , background
+
   ) where
-  
-import Css.Internal.Property exposing (Value, stringValue)
+
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Box exposing (BoxType)
 import Css.Internal.Color exposing (colorValue)
 import Css.Internal.Size exposing (Size)
 
 import Css.Internal.Background exposing (..)
-
-{-
-The background shorthand property sets all the background properties in one declaration.
-The properties that can be set, are: background-color, background-image, background-position, 
-background-size, background-repeat, background-origin, background-clip, and 
-background-attachment. These can be in any order.
-
-background: color image position/size repeat origin clip attachment initial|inherit;
-
-If one of the properties in the shorthand declaration is the background-size property, 
-you must use a / (slash) to separate it from the background-position property, e.g. 
-background:url(smiley.gif) 10px 20px/50px 50px; will result in a background image, 
-positioned 10 pixels from the left, 20 pixels from the top, and the size of the 
-image will be 50 pixels wide and 50 pixels high.
--}
-{-
--- | We implement the generic background property as a type class that accepts
--- multiple value types. This allows us to combine different background aspects
--- into a shorthand syntax.
-
-class Val a => Background a where
-  background : a -> PropertyRuleAppender
-  background = key "background"
-
-instance Background a => Background [a]
-instance (Background a, Background b) => Background (a, b)
-
-instance Background Color
-instance Background BackgroundPosition
-instance Background BackgroundSize
-instance Background BackgroundRepeat
-instance Background BackgroundOrigin
-instance Background BackgroundClip
-instance Background BackgroundAttachment
-instance Background BackgroundImage
--}
--------------------------------------------------------------------------------
-
--- NOTE background-color takes "transparent" as well as the standard color 
--- descriptors, which is one reason we need ColorDescriptor to be parameterized.
-
-backgroundColor : BackgroundColorDescriptor -> PropertyRuleAppender
-backgroundColor colorDescriptor = 
-  let color = colorDescriptor backgroundColorFactory
-  in simpleProperty "background-color" (colorValue color)
-
-transparent : BackgroundColorDescriptor
-transparent factory = factory.transparent
 
 -------------------------------------------------------------------------------
 
@@ -167,6 +119,29 @@ bgWidth width factory = backgroundSizeFactory.partial width
 
 -------------------------------------------------------------------------------
 
+-- NOTE background-color takes "transparent" as well as the standard color 
+-- descriptors, which is one reason we need ColorDescriptor to be parameterized.
+backgroundColor : BackgroundColorDescriptor -> PropertyRuleAppender
+backgroundColor colorDescriptor = 
+  let color = colorDescriptor backgroundColorFactory
+  in simpleProperty "background-color" (colorValue color)
+
+transparent : BackgroundColorDescriptor
+transparent factory = factory.transparent
+
+-------------------------------------------------------------------------------
+
+backgroundImage : BackgroundImageDescriptor -> PropertyRuleAppender
+backgroundImage descriptor = 
+  let bgImage = descriptor backgroundImageFactory
+  in simpleProperty "background-image" (backgroundImageValue bgImage)
+
+-- TODO Validate that it's a proper url?
+url : String -> BackgroundImageDescriptor
+url bgImageUrl factory = factory.url bgImageUrl
+
+-------------------------------------------------------------------------------
+
 backgroundRepeat : BackgroundRepeatDescriptor -> PropertyRuleAppender
 backgroundRepeat descriptor = 
   let repeat = descriptor backgroundRepeatFactory
@@ -189,17 +164,6 @@ repeatX factory = backgroundRepeatFactory.repeat "repeat-x"
 
 repeatY : BackgroundRepeatDescriptor
 repeatY factory = backgroundRepeatFactory.repeat "repeat-y"
-
--------------------------------------------------------------------------------
-
-backgroundImage : BackgroundImageDescriptor -> PropertyRuleAppender
-backgroundImage descriptor = 
-  let bgImage = descriptor backgroundImageFactory
-  in simpleProperty "background-image" (backgroundImageValue bgImage)
-
--- TODO Validate that it's a proper url?
-url : String -> BackgroundImageDescriptor
-url bgImageUrl factory = factory.url bgImageUrl
 
 -------------------------------------------------------------------------------
 
@@ -233,3 +197,99 @@ attachFixed factory = factory.bgAttachment "fixed"
 
 attachScroll : BackgroundAttachmentDescriptor
 attachScroll factory = factory.bgAttachment "scroll"
+
+-------------------------------------------------------------------------------
+{-
+The background shorthand property sets all the background properties in one declaration.
+The properties that can be set, are: background-color, background-image, background-position, 
+background-size, background-repeat, background-origin, background-clip, and 
+background-attachment. These can be in any order.
+
+background: color image position/size repeat origin clip attachment initial|inherit;
+
+If one of the properties in the shorthand declaration is the background-size property, 
+you must use a / (slash) to separate it from the background-position property, e.g. 
+background:url(smiley.gif) 10px 20px/50px 50px; will result in a background image, 
+positioned 10 pixels from the left, 20 pixels from the top, and the size of the 
+image will be 50 pixels wide and 50 pixels high.
+-}
+background : BackgroundDescriptor a sz1 sz2 -> PropertyRuleAppender
+background backgroundDescriptor = 
+  --   BackgroundFactory a b sz1 sz2 -> (Background a sz1 sz2 -> Background b sz1 sz2)
+  let bgValue = 
+    (backgroundDescriptor backgroundFactory) emptyBackground
+    |> backgroundValue
+  in simpleProperty "background" bgValue
+
+{- Equivalent to 
+withBgColor : BackgroundColorFactory -> CssColor -> 
+             (BackgroundFactory sz1 sz2 -> (Background a sz1 sz2 -> Background a sz1 sz2))
+             BackgroundFactory sz1 sz2  -> 
+             (BackgroundFactory sz1 sz2 -> (Background a sz1 sz2 -> Background a sz1 sz2))
+
+The previous combinator in the chain doesn't bind either the innerDescriptor
+or the compositeFactory. So `background` binds the compositeFactory to get 
+out the fully-composed function of Background to Background, and then binds
+with an empty background to get the ultimate background.
+-}
+withBgColor : BackgroundColorDescriptor -> 
+              ComposedBackgroundDescriptor a sz1 sz2 -> 
+              ComposedBackgroundDescriptor a sz1 sz2
+withBgColor colorDescriptor innerDescriptor compositeFactory = 
+   let color = colorDescriptor backgroundColorFactory
+       innerBg = innerDescriptor compositeFactory
+   in compositeFactory.composite (WithColor color) innerBg
+
+withPosition : BackgroundPositionDescriptor sz1 -> 
+               Maybe (BackgroundSizeDescriptor sz2) -> 
+               ComposedBackgroundDescriptor a sz1 sz2 -> 
+               ComposedBackgroundDescriptor a sz1 sz2
+withPosition positionDescriptor 
+             maybeSizeDescriptor 
+             innerDescriptor 
+             compositeFactory =
+   let position = positionDescriptor backgroundPositionFactory
+       maybeSize = 
+         maybeSizeDescriptor |> Maybe.map (\desc -> desc backgroundSizeFactory)
+       innerBg = innerDescriptor compositeFactory
+   in compositeFactory.composite (WithPositionAndSize position maybeSize) innerBg
+
+withRepeat : BackgroundRepeatDescriptor -> 
+             ComposedBackgroundDescriptor a sz1 sz2 -> 
+             ComposedBackgroundDescriptor a sz1 sz2
+withRepeat repeatDescriptor innerDescriptor compositeFactory =
+   let repeat = repeatDescriptor backgroundRepeatFactory
+       innerBg = innerDescriptor compositeFactory
+   in compositeFactory.composite (WithRepeat repeat) innerBg
+
+withImage : BackgroundImageDescriptor -> 
+            ComposedBackgroundDescriptor a sz1 sz2 -> 
+            ComposedBackgroundDescriptor a sz1 sz2
+withImage imageDescriptor innerDescriptor compositeFactory =
+   let image = imageDescriptor backgroundImageFactory
+       innerBg = innerDescriptor compositeFactory
+   in compositeFactory.composite (WithImage image) innerBg
+
+withOrigin : BackgroundOriginDescriptor -> 
+             ComposedBackgroundDescriptor a sz1 sz2 -> 
+             ComposedBackgroundDescriptor a sz1 sz2
+withOrigin originDescriptor innerDescriptor compositeFactory =
+   let origin = originDescriptor backgroundOriginFactory
+       innerBg = innerDescriptor compositeFactory
+   in compositeFactory.composite (WithOrigin origin) innerBg
+  
+withClip : BackgroundClipDescriptor -> 
+           ComposedBackgroundDescriptor a sz1 sz2 -> 
+           ComposedBackgroundDescriptor a sz1 sz2
+withClip clipDescriptor innerDescriptor compositeFactory =
+   let clip = clipDescriptor backgroundClipFactory
+       innerBg = innerDescriptor compositeFactory
+   in compositeFactory.composite (WithClip clip) innerBg
+
+withAttachment : BackgroundAttachmentDescriptor -> 
+                 ComposedBackgroundDescriptor a sz1 sz2 -> 
+                 ComposedBackgroundDescriptor a sz1 sz2
+withAttachment attachmentDescriptor innerDescriptor compositeFactory =
+   let attachment = attachmentDescriptor backgroundAttachmentFactory
+       innerBg = innerDescriptor compositeFactory
+   in compositeFactory.composite (WithAttachment attachment) innerBg

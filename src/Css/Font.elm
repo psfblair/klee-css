@@ -1,11 +1,8 @@
 module Css.Font
   (
-  -- * Generic font property.
-  font
-
   -- * Color.
 
-  , fontColor
+    fontColor
   , color
 
   -- * Font-family.
@@ -45,6 +42,11 @@ module Css.Font
   -- * Line-height.
 
   , lineHeight
+  
+  -- * Generic font property.
+    
+  , font
+  
   ) where
 
 import Css.Internal.Property exposing (toLiteral, literalValue, commaListValue)
@@ -55,112 +57,6 @@ import Css.Internal.Size exposing
   (Size, SizeDescriptor, sizeFactory, sizeValue)
 
 import Css.Internal.Font exposing (..)  
-
--------------------------------------------------------------------------------
-
-font : FontDescriptor a sz -> PropertyRuleAppender
-font fontDescriptor = 
-  simpleProperty "font" (fontDescriptor fontFactory |> fontValue)
-
-{- Equivalent to
-baseFont : SizeDescriptor (Size sz) sz -> 
-           List String -> 
-           List GenericFontFamily -> 
-           FontFactory sz -> 
-           ComposedFont sz
--}  
-baseFont : SizeDescriptor (Size sz) sz -> 
-           List String -> 
-           List GenericFontFamily -> 
-           ComposedFontDescriptor sz
-baseFont sizeDescriptor customFonts genericFonts compositeFactory =
-  let size = sizeDescriptor sizeFactory
-  in compositeFactory.leaf size customFonts genericFonts
-
-{- Equivalent to
-withLineHeight :  SizeDescriptor (Size sz) sz -> 
-                  (FontFactory sz -> ComposedFont sz)
-                  FontFactory sz -> 
-                  ComposedFont sz
--}
-withLineHeight : SizeDescriptor (Size sz) sz -> 
-                 ComposedFontDescriptor sz -> 
-                 ComposedFontDescriptor sz
-withLineHeight lineHeightDescriptor compositeDescriptor compositeFactory =
-   let composedFont = compositeDescriptor compositeFactory
-       rewrapWithLineHeight fontWithComponents lineHeight = 
-         case fontWithComponents.fontComponents of
-           -- If withLineHeight is called twice, the later (outer) one wins, which 
-           -- means that if this leaf has already been created, so don't touch it.
-           WithLineHeight _ _ _ _ as leaf -> fontWithComponents
-           BaseComponent size customFonts genericFonts -> 
-             let components = 
-               WithLineHeight size lineHeight customFonts genericFonts
-             in { font = CompositeFont components, fontComponents = components }
-           WithWeight weight innerComposedFont -> 
-            let components = 
-              WithWeight weight (rewrapWithLineHeight innerComposedFont lineHeight)
-             in { font = CompositeFont components, fontComponents = components }
-           WithVariant variant innerComposedFont ->
-             let components =
-               WithVariant variant (rewrapWithLineHeight innerComposedFont lineHeight)
-             in { font = CompositeFont components, fontComponents = components }
-           WithStyle style innerComposedFont -> 
-             let components =
-               WithStyle style (rewrapWithLineHeight innerComposedFont lineHeight)
-             in { font = CompositeFont components, fontComponents = components }
-   in rewrapWithLineHeight composedFont (lineHeightDescriptor sizeFactory)
-
-{- Equivalent to 
-withWeight : FontWeight -> 
-             (FontFactory sz -> ComposedFont sz)
-             FontFactory sz -> 
-             ComposedFont sz
--}
-withWeight : FontWeight -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
-withWeight weight descriptor compositeFactory =
-   let innerFont = descriptor compositeFactory
-   in compositeFactory.composite (WithWeight weight) innerFont
-  
-{- Equivalent to 
-withVariant : FontVariant -> 
-              (FontFactory sz -> ComposedFont sz)
-              FontFactory sz -> 
-              ComposedFont sz
--}
-withVariant : FontVariant -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
-withVariant variant descriptor compositeFactory =
-   let innerFont = descriptor compositeFactory
-   in compositeFactory.composite (WithVariant variant) innerFont
-
-{- Equivalent to 
-withStyle : FontStyle -> 
-            (FontFactory sz -> ComposedFont sz)
-            FontFactory sz -> 
-            ComposedFont sz
--}
-withStyle : FontStyle -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
-withStyle style descriptor compositeFactory =
-   let innerFont = descriptor compositeFactory
-   in compositeFactory.composite (WithStyle style) innerFont
-   
-caption : FontDescriptor {} sz
-caption factory = factory.named "caption"
-
-icon : FontDescriptor {} sz
-icon factory = factory.named "icon"
-
-menu : FontDescriptor {} sz
-menu factory = factory.named "menu"
-
-messageBox : FontDescriptor {} sz
-messageBox factory = factory.named "message-box"
-
-smallCaption : FontDescriptor {} sz
-smallCaption factory = factory.named "small-caption"
-
-statusBar : FontDescriptor {} sz
-statusBar factory = factory.named "status-bar"
 
 -------------------------------------------------------------------------------
 color : ColorDescriptor {} -> PropertyRuleAppender
@@ -305,3 +201,109 @@ weight i factory = factory.weight (toString i)
 lineHeight : SizeDescriptor (Size c) c -> PropertyRuleAppender
 lineHeight descriptor = 
   simpleProperty "line-height" (descriptor sizeFactory |> sizeValue) 
+
+-------------------------------------------------------------------------------
+
+font : FontDescriptor a sz -> PropertyRuleAppender
+font fontDescriptor = 
+  simpleProperty "font" (fontDescriptor fontFactory |> fontValue)
+
+{- Equivalent to
+baseFont : SizeDescriptor (Size sz) sz -> 
+           List String -> 
+           List GenericFontFamily -> 
+           FontFactory sz -> 
+           ComposedFont sz
+-}  
+baseFont : SizeDescriptor (Size sz) sz -> 
+           List String -> 
+           List GenericFontFamily -> 
+           ComposedFontDescriptor sz
+baseFont sizeDescriptor customFonts genericFonts compositeFactory =
+  let size = sizeDescriptor sizeFactory
+  in compositeFactory.leaf size customFonts genericFonts
+
+{- Equivalent to
+withLineHeight :  SizeDescriptor (Size sz) sz -> 
+                  (FontFactory sz -> ComposedFont sz)
+                  FontFactory sz -> 
+                  ComposedFont sz
+-}
+withLineHeight : SizeDescriptor (Size sz) sz -> 
+                 ComposedFontDescriptor sz -> 
+                 ComposedFontDescriptor sz
+withLineHeight lineHeightDescriptor compositeDescriptor compositeFactory =
+   let composedFont = compositeDescriptor compositeFactory
+       rewrapWithLineHeight fontWithComponents lineHeight = 
+         case fontWithComponents.fontComponents of
+           -- If withLineHeight is called twice, the later (outer) one wins, which 
+           -- means that if this leaf has already been created, so don't touch it.
+           WithLineHeight _ _ _ _ as leaf -> fontWithComponents
+           BaseComponent size customFonts genericFonts -> 
+             let components = 
+               WithLineHeight size lineHeight customFonts genericFonts
+             in { font = CompositeFont components, fontComponents = components }
+           WithWeight weight innerComposedFont -> 
+            let components = 
+              WithWeight weight (rewrapWithLineHeight innerComposedFont lineHeight)
+             in { font = CompositeFont components, fontComponents = components }
+           WithVariant variant innerComposedFont ->
+             let components =
+               WithVariant variant (rewrapWithLineHeight innerComposedFont lineHeight)
+             in { font = CompositeFont components, fontComponents = components }
+           WithStyle style innerComposedFont -> 
+             let components =
+               WithStyle style (rewrapWithLineHeight innerComposedFont lineHeight)
+             in { font = CompositeFont components, fontComponents = components }
+   in rewrapWithLineHeight composedFont (lineHeightDescriptor sizeFactory)
+
+{- Equivalent to 
+withWeight : FontWeight -> 
+             (FontFactory sz -> ComposedFont sz)
+             FontFactory sz -> 
+             ComposedFont sz
+-}
+withWeight : FontWeight -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
+withWeight weight descriptor compositeFactory =
+   let innerFont = descriptor compositeFactory
+   in compositeFactory.composite (WithWeight weight) innerFont
+  
+{- Equivalent to 
+withVariant : FontVariant -> 
+              (FontFactory sz -> ComposedFont sz)
+              FontFactory sz -> 
+              ComposedFont sz
+-}
+withVariant : FontVariant -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
+withVariant variant descriptor compositeFactory =
+   let innerFont = descriptor compositeFactory
+   in compositeFactory.composite (WithVariant variant) innerFont
+
+{- Equivalent to 
+withStyle : FontStyle -> 
+            (FontFactory sz -> ComposedFont sz)
+            FontFactory sz -> 
+            ComposedFont sz
+-}
+withStyle : FontStyle -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
+withStyle style descriptor compositeFactory =
+   let innerFont = descriptor compositeFactory
+   in compositeFactory.composite (WithStyle style) innerFont
+   
+caption : FontDescriptor {} sz
+caption factory = factory.named "caption"
+
+icon : FontDescriptor {} sz
+icon factory = factory.named "icon"
+
+menu : FontDescriptor {} sz
+menu factory = factory.named "menu"
+
+messageBox : FontDescriptor {} sz
+messageBox factory = factory.named "message-box"
+
+smallCaption : FontDescriptor {} sz
+smallCaption factory = factory.named "small-caption"
+
+statusBar : FontDescriptor {} sz
+statusBar factory = factory.named "status-bar"
