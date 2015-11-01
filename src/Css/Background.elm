@@ -44,7 +44,7 @@ module Css.Background
   -- * The background-attachment.
 
   , backgroundAttachment
-  , attachFixed, attachScroll
+  , attachFixed, attachScroll, attachLocal
 
   -- * The background-image.
 
@@ -206,6 +206,9 @@ attachFixed factory = factory.bgAttachment "fixed"
 
 attachScroll : BackgroundAttachmentDescriptor
 attachScroll factory = factory.bgAttachment "scroll"
+
+attachLocal : BackgroundAttachmentDescriptor
+attachLocal factory = factory.bgAttachment "local"
 
 -------------------------------------------------------------------------------
 {-

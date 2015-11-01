@@ -295,6 +295,8 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background-attachment:fixed"
       , renderProperties [backgroundAttachment attachScroll]
           `shouldEqual` "background-attachment:scroll"
+      , renderProperties [backgroundAttachment attachLocal]
+          `shouldEqual` "background-attachment:local"
       ]  
     , it "should render generic attachment properties properly" 
       [ renderProperties [backgroundAttachment initial]
