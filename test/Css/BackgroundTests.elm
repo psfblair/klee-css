@@ -6,6 +6,7 @@ import Css.TestUtils exposing (it)
 import Css.Internal.Property exposing (stringValue)
 
 import Css.Background exposing (..)
+import Css.Box exposing (..)
 import Css.Color exposing (..)
 import Css.Common exposing (..)
 import Css.Size exposing (..)
@@ -171,4 +172,85 @@ suite = describe "Css.BackgroundTests"
       --     `shouldEqual` "background-image:should not compile"
       ]
     ]
+  , describe "backgroundRepeat"
+    [ it "should render properly"
+      [ renderProperties [backgroundRepeat repeat]
+          `shouldEqual` "background-repeat:repeat"
+      , renderProperties [backgroundRepeat space]
+          `shouldEqual` "background-repeat:space"
+      , renderProperties [backgroundRepeat roundRepeat]
+          `shouldEqual` "background-repeat:round"
+      , renderProperties [backgroundRepeat noRepeat]
+          `shouldEqual` "background-repeat:no-repeat"
+      , renderProperties [backgroundRepeat repeatX]
+          `shouldEqual` "background-repeat:repeat-x"
+      , renderProperties [backgroundRepeat repeatY]
+          `shouldEqual` "background-repeat:repeat-y"
+      ]  
+    , it "should render generic repeat properties properly" 
+      [ renderProperties [backgroundRepeat initial]
+          `shouldEqual` "background-repeat:initial"
+      , renderProperties [backgroundRepeat inherit]
+          `shouldEqual` "background-repeat:inherit"
+      , renderProperties [backgroundRepeat (stringValue "foo" |> other)]
+          `shouldEqual` "background-repeat:foo"
+      -- Should not compile:
+      -- , renderProperties [backgroundRepeat all]
+      --     `shouldEqual` "background-repeat:should not compile"
+      -- , renderProperties [backgroundRepeat auto]
+      --     `shouldEqual` "background-repeat:should not compile"
+      -- , renderProperties [backgroundRepeat baseline]
+      --     `shouldEqual` "background-repeat:should not compile"
+      -- , renderProperties [backgroundRepeat center]
+      --     `shouldEqual` "background-repeat:should not compile"
+      -- , renderProperties [backgroundRepeat normal]
+      --     `shouldEqual` "background-repeat:should not compile"
+      -- , renderProperties [backgroundRepeat none]
+      --     `shouldEqual` "background-repeat:should not compile"
+      -- , renderProperties [backgroundRepeat visible]
+      --     `shouldEqual` "background-repeat:should not compile"
+      -- , renderProperties [backgroundRepeat hidden]
+      --     `shouldEqual` "background-repeat:should not compile"
+      -- , renderProperties [backgroundRepeat unset]
+      --     `shouldEqual` "background-repeat:should not compile"
+      ]
+    ]
+  , describe "backgroundOrigin"
+    [ it "should render properly"
+      [ renderProperties [backgroundOrigin (origin paddingBox)]
+          `shouldEqual` "background-origin:padding-box"
+      , renderProperties [backgroundOrigin (origin borderBox)]
+          `shouldEqual` "background-origin:border-box"
+      , renderProperties [backgroundOrigin (origin contentBox)]
+          `shouldEqual` "background-origin:content-box"
+      ]  
+    , it "should render generic origin properties properly" 
+      [ renderProperties [backgroundOrigin initial]
+          `shouldEqual` "background-origin:initial"
+      , renderProperties [backgroundOrigin inherit]
+          `shouldEqual` "background-origin:inherit"
+      , renderProperties [backgroundOrigin (stringValue "foo" |> other)]
+          `shouldEqual` "background-origin:foo"
+      -- Should not compile:
+      -- , renderProperties [backgroundOrigin all]
+      --     `shouldEqual` "background-origin:should not compile"
+      -- , renderProperties [backgroundOrigin auto]
+      --     `shouldEqual` "background-origin:should not compile"
+      -- , renderProperties [backgroundOrigin baseline]
+      --     `shouldEqual` "background-origin:should not compile"
+      -- , renderProperties [backgroundOrigin center]
+      --     `shouldEqual` "background-origin:should not compile"
+      -- , renderProperties [backgroundOrigin normal]
+      --     `shouldEqual` "background-origin:should not compile"
+      -- , renderProperties [backgroundOrigin none]
+      --     `shouldEqual` "background-origin:should not compile"
+      -- , renderProperties [backgroundOrigin visible]
+      --     `shouldEqual` "background-origin:should not compile"
+      -- , renderProperties [backgroundOrigin hidden]
+      --     `shouldEqual` "background-origin:should not compile"
+      -- , renderProperties [backgroundOrigin unset]
+      --     `shouldEqual` "background-origin:should not compile"
+      ]
+    ]
+
   ]

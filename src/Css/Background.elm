@@ -28,7 +28,7 @@ module Css.Background
   -- * The background-repeat.
 
   , backgroundRepeat
-  , repeat, space, round, noRepeat
+  , repeat, space, roundRepeat, noRepeat
   , repeatX, repeatY
 
   -- * The background-origin.
@@ -58,7 +58,7 @@ module Css.Background
   ) where
 
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
-import Css.Internal.Box exposing (BoxType)
+import Css.Internal.Box exposing (BoxType, BoxTypeDescriptor, boxTypeFactory)
 import Css.Internal.Color exposing (colorValue)
 import Css.Internal.Size exposing (Size, SizeDescriptor)
 
@@ -158,8 +158,8 @@ repeat factory = backgroundRepeatFactory.repeat "repeat"
 space : BackgroundRepeatDescriptor
 space factory = backgroundRepeatFactory.repeat "space"
 
-round : BackgroundRepeatDescriptor
-round factory = backgroundRepeatFactory.repeat "round"
+roundRepeat : BackgroundRepeatDescriptor
+roundRepeat factory = backgroundRepeatFactory.repeat "round"
 
 noRepeat : BackgroundRepeatDescriptor
 noRepeat factory = backgroundRepeatFactory.repeat "no-repeat"
@@ -177,8 +177,10 @@ backgroundOrigin descriptor =
   let bgOrigin = descriptor backgroundOriginFactory
   in simpleProperty "background-origin" (backgroundOriginValue bgOrigin)
 
-origin : BoxType -> BackgroundOriginDescriptor
-origin boxType factory = factory.origin boxType
+origin : BoxTypeDescriptor -> BackgroundOriginDescriptor
+origin boxTypeDescriptor factory = 
+  let boxType = boxTypeDescriptor boxTypeFactory
+  in factory.origin boxType
 
 -------------------------------------------------------------------------------
 

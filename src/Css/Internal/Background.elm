@@ -226,17 +226,17 @@ type BackgroundRepeat
 
 type alias BackgroundRepeatFactory =
   { repeat : String -> BackgroundRepeat 
-  , initial : BackgroundRepeat 
-  , inherit : BackgroundRepeat 
-  , other : Value -> BackgroundRepeat 
+  , initial_ : BackgroundRepeat 
+  , inherit_ : BackgroundRepeat 
+  , other_ : Value -> BackgroundRepeat 
   }  
 
 backgroundRepeatFactory : BackgroundRepeatFactory
 backgroundRepeatFactory =
   { repeat str = BackgroundRepeat str 
-  , initial = InitialBackgroundRepeat 
-  , inherit = InheritBackgroundRepeat 
-  , other val = OtherBackgroundRepeat val 
+  , initial_ = InitialBackgroundRepeat 
+  , inherit_ = InheritBackgroundRepeat 
+  , other_ val = OtherBackgroundRepeat val 
   }  
 
 backgroundRepeatValue : BackgroundRepeat -> Value 
@@ -260,17 +260,17 @@ type BackgroundOrigin
 
 type alias BackgroundOriginFactory =
   { origin : BoxType -> BackgroundOrigin 
-  , initial : BackgroundOrigin 
-  , inherit : BackgroundOrigin 
-  , other : Value -> BackgroundOrigin 
+  , initial_ : BackgroundOrigin 
+  , inherit_ : BackgroundOrigin 
+  , other_ : Value -> BackgroundOrigin 
   }  
 
 backgroundOriginFactory : BackgroundOriginFactory
 backgroundOriginFactory =
   { origin boxType = BackgroundOrigin boxType 
-  , initial = InitialBackgroundOrigin 
-  , inherit = InheritBackgroundOrigin 
-  , other val = OtherBackgroundOrigin val 
+  , initial_ = InitialBackgroundOrigin 
+  , inherit_ = InheritBackgroundOrigin 
+  , other_ val = OtherBackgroundOrigin val 
   }  
 
 backgroundOriginValue : BackgroundOrigin -> Value 
