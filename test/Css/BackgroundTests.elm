@@ -48,6 +48,8 @@ suite = describe "Css.BackgroundTests"
       --     `shouldEqual` "background-position:should not compile"
       -- , renderProperties [backgroundPosition normal]
       --     `shouldEqual` "background-position:should not compile"
+      -- , renderProperties [backgroundPosition none]
+      --     `shouldEqual` "background-position:should not compile"      
       -- , renderProperties [backgroundPosition visible]
       --     `shouldEqual` "background-position:should not compile"
       -- , renderProperties [backgroundPosition hidden]
@@ -87,6 +89,8 @@ suite = describe "Css.BackgroundTests"
       --     `shouldEqual` "background-size:should not compile"
       -- , renderProperties [backgroundSize normal]
       --     `shouldEqual` "background-size:should not compile"
+      -- , renderProperties [backgroundSize none]
+      --     `shouldEqual` "background-size:should not compile"      
       -- , renderProperties [backgroundSize visible]
       --     `shouldEqual` "background-size:should not compile"
       -- , renderProperties [backgroundSize hidden]
@@ -124,12 +128,47 @@ suite = describe "Css.BackgroundTests"
       --     `shouldEqual` "background-color:should not compile"
       -- , renderProperties [backgroundColor normal]
       --     `shouldEqual` "background-color:should not compile"
+      -- , renderProperties [backgroundColor none]
+      --     `shouldEqual` "background-color:should not compile"      
       -- , renderProperties [backgroundColor visible]
       --     `shouldEqual` "background-color:should not compile"
       -- , renderProperties [backgroundColor hidden]
       --     `shouldEqual` "background-color:should not compile"
       -- , renderProperties [backgroundColor unset]
       --     `shouldEqual` "background-color:should not compile"
-      ]          
+      ]
+    ]         
+  , describe "backgroundImage"
+    [ it "should render properly"
+      [ renderProperties [backgroundImage (url "http://some.image.com/")]
+          `shouldEqual` "background-image:url(\"http://some.image.com/\")"
+      ]  
+    , it "should render generic image properties properly" 
+      [ renderProperties [backgroundImage initial]
+          `shouldEqual` "background-image:initial"
+      , renderProperties [backgroundImage inherit]
+          `shouldEqual` "background-image:inherit"
+      , renderProperties [backgroundImage none]
+          `shouldEqual` "background-image:none"
+      , renderProperties [backgroundImage (stringValue "foo" |> other)]
+          `shouldEqual` "background-image:foo"
+      -- Should not compile:
+      -- , renderProperties [backgroundImage all]
+      --     `shouldEqual` "background-image:should not compile"
+      -- , renderProperties [backgroundImage auto]
+      --     `shouldEqual` "background-image:should not compile"
+      -- , renderProperties [backgroundImage baseline]
+      --     `shouldEqual` "background-image:should not compile"
+      -- , renderProperties [backgroundImage center]
+      --     `shouldEqual` "background-image:should not compile"
+      -- , renderProperties [backgroundImage normal]
+      --     `shouldEqual` "background-image:should not compile"
+      -- , renderProperties [backgroundImage visible]
+      --     `shouldEqual` "background-image:should not compile"
+      -- , renderProperties [backgroundImage hidden]
+      --     `shouldEqual` "background-image:should not compile"
+      -- , renderProperties [backgroundImage unset]
+      --     `shouldEqual` "background-image:should not compile"
+      ]
     ]
   ]

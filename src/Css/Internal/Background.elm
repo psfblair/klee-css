@@ -188,19 +188,19 @@ type BackgroundImage
 
 type alias BackgroundImageFactory =
   { url : String -> BackgroundImage 
-  , none : BackgroundImage 
-  , initial : BackgroundImage 
-  , inherit : BackgroundImage 
-  , other : Value -> BackgroundImage 
+  , none_ : BackgroundImage 
+  , initial_ : BackgroundImage 
+  , inherit_ : BackgroundImage 
+  , other_ : Value -> BackgroundImage 
   }  
 
 backgroundImageFactory : BackgroundImageFactory
 backgroundImageFactory =
   { url str = BackgroundImage str 
-  , none = NoBackgroundImage
-  , initial = InitialBackgroundImage 
-  , inherit = InheritBackgroundImage 
-  , other val = OtherBackgroundImage val 
+  , none_ = NoBackgroundImage
+  , initial_ = InitialBackgroundImage 
+  , inherit_ = InheritBackgroundImage 
+  , other_ val = OtherBackgroundImage val 
   }  
 
 backgroundImageValue : BackgroundImage -> Value 
