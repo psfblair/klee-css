@@ -29,7 +29,7 @@ import Css.Internal.Common exposing
   (autoValue, initialValue, inheritValue, noneValue, otherValue)
 import Css.Internal.Property exposing 
   (Value, intersperse, stringValue, spacePairValue, maybeValue, spaceListValue)
-import Css.Internal.Size exposing (Size, sizeValue)
+import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValue)
 
 -------------------------------------------------------------------------------
 
@@ -63,34 +63,37 @@ verticalSideValue side =
 
 -------------------------------------------------------------------------------
 
-type alias BackgroundPositionDescriptor sz = 
-    BackgroundPositionFactory sz -> BackgroundPosition sz
+type alias BackgroundPositionDescriptor sz1 sz2 = 
+    BackgroundPositionFactory sz1 sz2 -> BackgroundPosition sz1 sz2
 
-type BackgroundPosition sz
-  = SizedBackgroundPosition (Size sz, Size sz)
+type BackgroundPosition sz1 sz2
+  = SizedBackgroundPosition (Size sz1, Size sz2)
   | SidedBackgroundPosition (HorizontalSide, VerticalSide)
   | InitialBackgroundPosition
   | InheritBackgroundPosition
   | OtherBackgroundPosition Value
 
-type alias BackgroundPositionFactory sz =
-  { sizedPosition : Size sz -> Size sz -> BackgroundPosition sz
-  , sidedPosition : HorizontalSide -> VerticalSide -> BackgroundPosition sz
-  , initial: BackgroundPosition sz
-  , inherit: BackgroundPosition sz
-  , other: Value -> BackgroundPosition sz
+type alias BackgroundPositionFactory sz1 sz2 =
+  { sizedPosition : SizeDescriptor (Size sz1) sz1 -> 
+                    SizeDescriptor (Size sz2) sz2 -> 
+                    BackgroundPosition sz1 sz2
+  , sidedPosition : HorizontalSide -> VerticalSide -> BackgroundPosition sz1 sz2
+  , initial_ : BackgroundPosition sz1 sz2
+  , inherit_ : BackgroundPosition sz1 sz2
+  , other_ : Value -> BackgroundPosition sz1 sz2
   }
 
-backgroundPositionFactory : BackgroundPositionFactory sz
+backgroundPositionFactory : BackgroundPositionFactory sz1 sz2
 backgroundPositionFactory = 
-  { sizedPosition horiz vert = SizedBackgroundPosition (horiz, vert)
+  { sizedPosition horiz vert = 
+      SizedBackgroundPosition (horiz sizeFactory, vert sizeFactory)
   , sidedPosition horiz vert = SidedBackgroundPosition (horiz, vert)
-  , initial = InitialBackgroundPosition
-  , inherit = InheritBackgroundPosition
-  , other val = OtherBackgroundPosition val
+  , initial_ = InitialBackgroundPosition
+  , inherit_ = InheritBackgroundPosition
+  , other_ val = OtherBackgroundPosition val
   }
 
-backgroundPositionValue : BackgroundPosition sz -> Value 
+backgroundPositionValue : BackgroundPosition sz1 sz2 -> Value 
 backgroundPositionValue position =
   case position of
     SizedBackgroundPosition sizes -> 
@@ -118,24 +121,31 @@ type BackgroundSize sz
   | OtherBackgroundSize Value
 
 type alias BackgroundSizeFactory sz =
-  { backgroundSize : (Size sz) -> (Size sz) -> BackgroundSize sz
-  , partial : (Size sz) -> BackgroundSize sz
+  { backgroundSize : SizeDescriptor (Size sz) sz -> 
+                     SizeDescriptor (Size sz) sz -> 
+                     BackgroundSize sz
+  , partial : SizeDescriptor (Size sz) sz -> BackgroundSize sz
   , named : String -> BackgroundSize sz
-  , auto : BackgroundSize sz
-  , initial: BackgroundSize sz
-  , inherit: BackgroundSize sz
-  , other: Value -> BackgroundSize sz
+  , auto_ : BackgroundSize sz
+  , initial_ : BackgroundSize sz
+  , inherit_ : BackgroundSize sz
+  , other_ : Value -> BackgroundSize sz
   }
 
 backgroundSizeFactory : BackgroundSizeFactory sz
 backgroundSizeFactory =
-  { backgroundSize width height = BackgroundSize width height
-  , partial width = PartiallySpecifiedBackgroundSize width
+  { backgroundSize widthDescriptor heightDescriptor = 
+      let width = widthDescriptor sizeFactory 
+          height = heightDescriptor sizeFactory 
+      in BackgroundSize width height
+  , partial widthDescriptor = 
+      let width = widthDescriptor sizeFactory 
+      in PartiallySpecifiedBackgroundSize width
   , named str = NamedBackgroundSize str
-  , auto = AutoBackgroundSize
-  , initial = InitialBackgroundSize
-  , inherit = InheritBackgroundSize
-  , other val = OtherBackgroundSize val
+  , auto_ = AutoBackgroundSize
+  , initial_ = InitialBackgroundSize
+  , inherit_ = InheritBackgroundSize
+  , other_ val = OtherBackgroundSize val
   }
   
 backgroundSizeValue : BackgroundSize sz -> Value 
@@ -341,12 +351,15 @@ backgroundAttachmentValue bgAttachment =
 
 -------------------------------------------------------------------------------
 
-type alias Background a sz1 sz2 = { a | background : BackgroundAlternative sz1 sz2 }
-type alias WithBgComponents sz1 sz2 = { backgroundComponents : BackgroundComponents sz1 sz2 }
-type alias ComposedBackground sz1 sz2 = Background (WithBgComponents sz1 sz2) sz1 sz2
+type alias Background a sz1 sz2 sz3 = 
+  { a | background : BackgroundAlternative sz1 sz2 sz3 }
+type alias WithBgComponents sz1 sz2 sz3 = 
+  { backgroundComponents : BackgroundComponents sz1 sz2 sz3 }
+type alias ComposedBackground sz1 sz2 sz3 = 
+  Background (WithBgComponents sz1 sz2 sz3) sz1 sz2 sz3
 
-type BackgroundAlternative sz1 sz2
-  = CompositeBackground (BackgroundComponents sz1 sz2)
+type BackgroundAlternative sz1 sz2 sz3
+  = CompositeBackground (BackgroundComponents sz1 sz2 sz3)
   | InitialBackground
   | InheritBackground
 
@@ -354,35 +367,36 @@ type BackgroundAlternative sz1 sz2
 -- of a CSS background shorthand property (and so of a ComposedBackground) are 
 -- optional. The `background` function will feed in an empty background to get
 -- the result out.
-type alias BackgroundDescriptor a sz1 sz2 = 
-  BackgroundFactory a sz1 sz2 -> (ComposedBackground sz1 sz2 -> Background a sz1 sz2)
+type alias BackgroundDescriptor a sz1 sz2 sz3 = 
+  BackgroundFactory a sz1 sz2 sz3 -> 
+  (ComposedBackground sz1 sz2 sz3 -> Background a sz1 sz2 sz3)
     
-type alias ComposedBackgroundDescriptor a sz1 sz2 = 
-  BackgroundFactory a sz1 sz2 -> 
-  (ComposedBackground sz1 sz2 -> ComposedBackground sz1 sz2)
+type alias ComposedBackgroundDescriptor a sz1 sz2 sz3 = 
+  BackgroundFactory a sz1 sz2 sz3 -> 
+  (ComposedBackground sz1 sz2 sz3 -> ComposedBackground sz1 sz2 sz3)
 
-type BackgroundComponents sz1 sz2
+type BackgroundComponents sz1 sz2 sz3
   = NoComponents
-  | WithPositionAndSize (BackgroundPosition sz1) (Maybe (BackgroundSize sz2)) (ComposedBackground sz1 sz2)
-  | WithColor CssColor (ComposedBackground sz1 sz2)
-  | WithImage BackgroundImage (ComposedBackground sz1 sz2)
-  | WithRepeat BackgroundRepeat (ComposedBackground sz1 sz2)
-  | WithOrigin BackgroundOrigin (ComposedBackground sz1 sz2)
-  | WithClip BackgroundClip (ComposedBackground sz1 sz2)
-  | WithAttachment BackgroundAttachment (ComposedBackground sz1 sz2)
+  | WithPositionAndSize (BackgroundPosition sz1 sz2) (Maybe (BackgroundSize sz3)) (ComposedBackground sz1 sz2 sz3)
+  | WithColor CssColor (ComposedBackground sz1 sz2 sz3)
+  | WithImage BackgroundImage (ComposedBackground sz1 sz2 sz3)
+  | WithRepeat BackgroundRepeat (ComposedBackground sz1 sz2 sz3)
+  | WithOrigin BackgroundOrigin (ComposedBackground sz1 sz2 sz3)
+  | WithClip BackgroundClip (ComposedBackground sz1 sz2 sz3)
+  | WithAttachment BackgroundAttachment (ComposedBackground sz1 sz2 sz3)
 
-emptyBackground : ComposedBackground sz1 sz2
+emptyBackground : ComposedBackground sz1 sz2 sz3
 emptyBackground = 
   { background = CompositeBackground NoComponents, backgroundComponents = NoComponents } 
 
 -- Need two type parameters because `initial_` and `inherit_` tranform a 
 -- `Background` parameterized with `a` to one parameterized with `{}`.
-type alias BackgroundFactory a sz1 sz2 =
-  { composite : (ComposedBackground sz1 sz2 -> BackgroundComponents sz1 sz2) -> 
-                (ComposedBackground sz1 sz2 -> ComposedBackground sz1 sz2) -> 
-                (ComposedBackground sz1 sz2 -> ComposedBackground sz1 sz2)
-  , initial_ : Background a sz1 sz2 -> Background {} sz1 sz2
-  , inherit_ : Background a sz1 sz2 -> Background {} sz1 sz2
+type alias BackgroundFactory a sz1 sz2 sz3 =
+  { composite : (ComposedBackground sz1 sz2 sz3 -> BackgroundComponents sz1 sz2 sz3) -> 
+                (ComposedBackground sz1 sz2 sz3 -> ComposedBackground sz1 sz2 sz3) -> 
+                (ComposedBackground sz1 sz2 sz3 -> ComposedBackground sz1 sz2 sz3)
+  , initial_ : Background a sz1 sz2 sz3 -> Background {} sz1 sz2 sz3
+  , inherit_ : Background a sz1 sz2 sz3 -> Background {} sz1 sz2 sz3
   }
 
 {- `composer` is a partially-bound `BackgroundComponents`; i.e., without the  
@@ -390,7 +404,7 @@ type alias BackgroundFactory a sz1 sz2 =
    `composite` has to return a function of `ComposedBackground` 
    to `ComposedBackground`.
 -}
-backgroundFactory : BackgroundFactory a sz1 sz2
+backgroundFactory : BackgroundFactory a sz1 sz2 sz3
 backgroundFactory =
   { composite composer innerBackgroundTransformer =
       \inputBackground -> 
@@ -402,21 +416,21 @@ backgroundFactory =
     , inherit_   = \x -> { background = InheritBackground }
   }
   
-backgroundValue : Background a sz1 sz2 -> Value
+backgroundValue : Background a sz1 sz2 sz3 -> Value
 backgroundValue background =
   case background.background of
     InitialBackground -> initialValue
     InheritBackground -> inheritValue
     CompositeBackground backgroundComponents -> componentsToValue backgroundComponents
 
-componentsToValue : BackgroundComponents sz1 sz2 -> Value
+componentsToValue : BackgroundComponents sz1 sz2 sz3 -> Value
 componentsToValue bgComponents = 
   let nll = Nothing
   in componentsToValueRecursive bgComponents nll nll nll nll nll nll nll nll
 
-componentsToValueRecursive : BackgroundComponents sz1 sz2 -> 
-                             Maybe (BackgroundPosition sz1) -> 
-                             Maybe (BackgroundSize sz2) -> 
+componentsToValueRecursive : BackgroundComponents sz1 sz2 sz3 -> 
+                             Maybe (BackgroundPosition sz1 sz2) -> 
+                             Maybe (BackgroundSize sz3) -> 
                              Maybe CssColor ->
                              Maybe BackgroundImage ->
                              Maybe BackgroundRepeat ->

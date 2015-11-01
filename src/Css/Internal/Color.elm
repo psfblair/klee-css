@@ -29,20 +29,20 @@ type CssColor
 type alias ColorFactory a =
   { a | rgbaColor: Color -> CssColor
       , hslaColor: Color -> CssColor
-      , initial: CssColor
-      , inherit: CssColor
-      , invalid: String -> CssColor
-      , other: Value -> CssColor
+      , invalid : String -> CssColor
+      , initial_ : CssColor
+      , inherit_ : CssColor
+      , other_ : Value -> CssColor
   }
 
 colorFactory : ColorFactory {}
 colorFactory =
   { rgbaColor color = CssRgba color
   , hslaColor color = CssHsla color
-  , initial = InitialColor
-  , inherit = InheritColor
   , invalid str = InvalidColor str
-  , other val = OtherColor val
+  , initial_ = InitialColor
+  , inherit_ = InheritColor
+  , other_ val = OtherColor val
   }
 
 colorValue : CssColor -> Value

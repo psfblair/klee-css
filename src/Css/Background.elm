@@ -19,10 +19,11 @@ module Css.Background
 
   , backgroundSize
   , contain, cover
+  , by, bgWidth
 
   -- * The background-color.
 
-  , backgroundColor
+  , backgroundColor, transparent
 
   -- * The background-repeat.
 
@@ -59,44 +60,46 @@ module Css.Background
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Box exposing (BoxType)
 import Css.Internal.Color exposing (colorValue)
-import Css.Internal.Size exposing (Size)
+import Css.Internal.Size exposing (Size, SizeDescriptor)
 
 import Css.Internal.Background exposing (..)
 
 -------------------------------------------------------------------------------
 
-backgroundPosition : BackgroundPositionDescriptor sz -> PropertyRuleAppender
+backgroundPosition : BackgroundPositionDescriptor sz1 sz2 -> PropertyRuleAppender
 backgroundPosition descriptor = 
   let value = descriptor backgroundPositionFactory
   in simpleProperty "background-position" (backgroundPositionValue value)
   
-placed : HorizontalSide -> VerticalSide -> BackgroundPositionDescriptor sz
+placed : HorizontalSide -> VerticalSide -> BackgroundPositionDescriptor sz1 sz2
 placed horiz vert factory = factory.sidedPosition horiz vert
 
-positioned : Size sz -> Size sz -> BackgroundPositionDescriptor sz
+positioned : SizeDescriptor (Size sz1) sz1 -> 
+             SizeDescriptor (Size sz2) sz2 -> 
+             BackgroundPositionDescriptor sz1 sz2
 positioned horiz vert factory = factory.sizedPosition horiz vert
 
 -------------------------------------------------------------------------------
 
 -- | These value names start with "side" to avoid conflict with existing property
 -- names.
-sideTop : HorizontalSide
-sideTop = HorizontalSide "top"
-
 sideLeft : HorizontalSide
 sideLeft = HorizontalSide "left"
+
+sideCenter : HorizontalSide
+sideCenter = HorizontalSide "center"
 
 sideRight : HorizontalSide
 sideRight = HorizontalSide "right"
 
-sideBottom : VerticalSide
-sideBottom = VerticalSide "bottom"
-
-sideCenter : VerticalSide
-sideCenter = VerticalSide "center"
+sideTop : VerticalSide
+sideTop = VerticalSide "top"
 
 sideMiddle : VerticalSide
-sideMiddle = VerticalSide "middle"
+sideMiddle = VerticalSide "center"
+
+sideBottom : VerticalSide
+sideBottom = VerticalSide "bottom"
 
 -------------------------------------------------------------------------------
 
@@ -111,10 +114,12 @@ contain factory = backgroundSizeFactory.named "contain"
 cover : BackgroundSizeDescriptor sz
 cover factory = backgroundSizeFactory.named "cover"
 
-by : Size sz -> Size sz -> BackgroundSizeDescriptor sz
+by : SizeDescriptor (Size sz) sz -> 
+     SizeDescriptor (Size sz) sz -> 
+     BackgroundSizeDescriptor sz
 by width height factory = backgroundSizeFactory.backgroundSize width height
 
-bgWidth : Size sz -> BackgroundSizeDescriptor sz
+bgWidth : SizeDescriptor (Size sz) sz -> BackgroundSizeDescriptor sz
 bgWidth width factory = backgroundSizeFactory.partial width
 
 -------------------------------------------------------------------------------
@@ -213,7 +218,7 @@ background:url(smiley.gif) 10px 20px/50px 50px; will result in a background imag
 positioned 10 pixels from the left, 20 pixels from the top, and the size of the 
 image will be 50 pixels wide and 50 pixels high.
 -}
-background : BackgroundDescriptor a sz1 sz2 -> PropertyRuleAppender
+background : BackgroundDescriptor a sz1 sz2 sz3 -> PropertyRuleAppender
 background backgroundDescriptor = 
   --   BackgroundFactory a b sz1 sz2 -> (Background a sz1 sz2 -> Background b sz1 sz2)
   let bgValue = 
@@ -233,17 +238,17 @@ out the fully-composed function of Background to Background, and then binds
 with an empty background to get the ultimate background.
 -}
 withBgColor : BackgroundColorDescriptor -> 
-              ComposedBackgroundDescriptor a sz1 sz2 -> 
-              ComposedBackgroundDescriptor a sz1 sz2
+              ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
+              ComposedBackgroundDescriptor a sz1 sz2 sz3
 withBgColor colorDescriptor innerDescriptor compositeFactory = 
    let color = colorDescriptor backgroundColorFactory
        innerBg = innerDescriptor compositeFactory
    in compositeFactory.composite (WithColor color) innerBg
 
-withPosition : BackgroundPositionDescriptor sz1 -> 
-               Maybe (BackgroundSizeDescriptor sz2) -> 
-               ComposedBackgroundDescriptor a sz1 sz2 -> 
-               ComposedBackgroundDescriptor a sz1 sz2
+withPosition : BackgroundPositionDescriptor sz1 sz2 -> 
+               Maybe (BackgroundSizeDescriptor sz3) -> 
+               ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
+               ComposedBackgroundDescriptor a sz1 sz2 sz3
 withPosition positionDescriptor 
              maybeSizeDescriptor 
              innerDescriptor 
@@ -255,40 +260,40 @@ withPosition positionDescriptor
    in compositeFactory.composite (WithPositionAndSize position maybeSize) innerBg
 
 withRepeat : BackgroundRepeatDescriptor -> 
-             ComposedBackgroundDescriptor a sz1 sz2 -> 
-             ComposedBackgroundDescriptor a sz1 sz2
+             ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
+             ComposedBackgroundDescriptor a sz1 sz2 sz3
 withRepeat repeatDescriptor innerDescriptor compositeFactory =
    let repeat = repeatDescriptor backgroundRepeatFactory
        innerBg = innerDescriptor compositeFactory
    in compositeFactory.composite (WithRepeat repeat) innerBg
 
 withImage : BackgroundImageDescriptor -> 
-            ComposedBackgroundDescriptor a sz1 sz2 -> 
-            ComposedBackgroundDescriptor a sz1 sz2
+            ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
+            ComposedBackgroundDescriptor a sz1 sz2 sz3
 withImage imageDescriptor innerDescriptor compositeFactory =
    let image = imageDescriptor backgroundImageFactory
        innerBg = innerDescriptor compositeFactory
    in compositeFactory.composite (WithImage image) innerBg
 
 withOrigin : BackgroundOriginDescriptor -> 
-             ComposedBackgroundDescriptor a sz1 sz2 -> 
-             ComposedBackgroundDescriptor a sz1 sz2
+             ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
+             ComposedBackgroundDescriptor a sz1 sz2 sz3
 withOrigin originDescriptor innerDescriptor compositeFactory =
    let origin = originDescriptor backgroundOriginFactory
        innerBg = innerDescriptor compositeFactory
    in compositeFactory.composite (WithOrigin origin) innerBg
   
 withClip : BackgroundClipDescriptor -> 
-           ComposedBackgroundDescriptor a sz1 sz2 -> 
-           ComposedBackgroundDescriptor a sz1 sz2
+           ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
+           ComposedBackgroundDescriptor a sz1 sz2 sz3
 withClip clipDescriptor innerDescriptor compositeFactory =
    let clip = clipDescriptor backgroundClipFactory
        innerBg = innerDescriptor compositeFactory
    in compositeFactory.composite (WithClip clip) innerBg
 
 withAttachment : BackgroundAttachmentDescriptor -> 
-                 ComposedBackgroundDescriptor a sz1 sz2 -> 
-                 ComposedBackgroundDescriptor a sz1 sz2
+                 ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
+                 ComposedBackgroundDescriptor a sz1 sz2 sz3
 withAttachment attachmentDescriptor innerDescriptor compositeFactory =
    let attachment = attachmentDescriptor backgroundAttachmentFactory
        innerBg = innerDescriptor compositeFactory
