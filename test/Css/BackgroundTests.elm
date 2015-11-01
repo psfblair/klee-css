@@ -252,5 +252,77 @@ suite = describe "Css.BackgroundTests"
       --     `shouldEqual` "background-origin:should not compile"
       ]
     ]
+  , describe "backgroundClip"
+    [ it "should render properly"
+      [ renderProperties [backgroundClip (boxClip paddingBox)]
+          `shouldEqual` "background-clip:padding-box"
+      , renderProperties [backgroundClip (boxClip borderBox)]
+          `shouldEqual` "background-clip:border-box"
+      , renderProperties [backgroundClip (boxClip contentBox)]
+          `shouldEqual` "background-clip:content-box"
+      ]  
+    , it "should render generic clip properties properly" 
+      [ renderProperties [backgroundClip initial]
+          `shouldEqual` "background-clip:initial"
+      , renderProperties [backgroundClip inherit]
+          `shouldEqual` "background-clip:inherit"
+      , renderProperties [backgroundClip (stringValue "foo" |> other)]
+          `shouldEqual` "background-clip:foo"
+      -- Should not compile:
+      -- , renderProperties [backgroundClip all]
+      --     `shouldEqual` "background-clip:should not compile"
+      -- , renderProperties [backgroundClip auto]
+      --     `shouldEqual` "background-clip:should not compile"
+      -- , renderProperties [backgroundClip baseline]
+      --     `shouldEqual` "background-clip:should not compile"
+      -- , renderProperties [backgroundClip center]
+      --     `shouldEqual` "background-clip:should not compile"
+      -- , renderProperties [backgroundClip normal]
+      --     `shouldEqual` "background-clip:should not compile"
+      -- , renderProperties [backgroundClip none]
+      --     `shouldEqual` "background-clip:should not compile"
+      -- , renderProperties [backgroundClip visible]
+      --     `shouldEqual` "background-clip:should not compile"
+      -- , renderProperties [backgroundClip hidden]
+      --     `shouldEqual` "background-clip:should not compile"
+      -- , renderProperties [backgroundClip unset]
+      --     `shouldEqual` "background-clip:should not compile"
+      ]
+    ]
+  , describe "backgroundAttachment"
+    [ it "should render properly"
+      [ renderProperties [backgroundAttachment attachFixed]
+          `shouldEqual` "background-attachment:fixed"
+      , renderProperties [backgroundAttachment attachScroll]
+          `shouldEqual` "background-attachment:scroll"
+      ]  
+    , it "should render generic attachment properties properly" 
+      [ renderProperties [backgroundAttachment initial]
+          `shouldEqual` "background-attachment:initial"
+      , renderProperties [backgroundAttachment inherit]
+          `shouldEqual` "background-attachment:inherit"
+      , renderProperties [backgroundAttachment (stringValue "foo" |> other)]
+          `shouldEqual` "background-attachment:foo"
+      -- Should not compile:
+      -- , renderProperties [backgroundAttachment all]
+      --     `shouldEqual` "background-attachment:should not compile"
+      -- , renderProperties [backgroundAttachment auto]
+      --     `shouldEqual` "background-attachment:should not compile"
+      -- , renderProperties [backgroundAttachment baseline]
+      --     `shouldEqual` "background-attachment:should not compile"
+      -- , renderProperties [backgroundAttachment center]
+      --     `shouldEqual` "background-attachment:should not compile"
+      -- , renderProperties [backgroundAttachment normal]
+      --     `shouldEqual` "background-attachment:should not compile"
+      -- , renderProperties [backgroundAttachment none]
+      --     `shouldEqual` "background-attachment:should not compile"
+      -- , renderProperties [backgroundAttachment visible]
+      --     `shouldEqual` "background-attachment:should not compile"
+      -- , renderProperties [backgroundAttachment hidden]
+      --     `shouldEqual` "background-attachment:should not compile"
+      -- , renderProperties [backgroundAttachment unset]
+      --     `shouldEqual` "background-attachment:should not compile"
+      ]
+    ]
 
   ]

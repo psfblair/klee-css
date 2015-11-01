@@ -189,8 +189,10 @@ backgroundClip descriptor =
   let bgClip = descriptor backgroundClipFactory
   in simpleProperty "background-clip" (backgroundClipValue bgClip)
 
-boxClip : BoxType -> BackgroundClipDescriptor
-boxClip boxType factory = factory.clip boxType
+boxClip : BoxTypeDescriptor -> BackgroundClipDescriptor
+boxClip boxTypeDescriptor factory = 
+  let boxType = boxTypeDescriptor boxTypeFactory
+  in factory.clip boxType
 
 -------------------------------------------------------------------------------
 

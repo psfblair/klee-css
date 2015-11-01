@@ -294,17 +294,17 @@ type BackgroundClip
 
 type alias BackgroundClipFactory =
   { clip : BoxType -> BackgroundClip 
-  , initial : BackgroundClip 
-  , inherit : BackgroundClip 
-  , other : Value -> BackgroundClip 
+  , initial_ : BackgroundClip 
+  , inherit_ : BackgroundClip 
+  , other_ : Value -> BackgroundClip 
   }  
 
 backgroundClipFactory : BackgroundClipFactory
 backgroundClipFactory =
   { clip boxType = BackgroundClip boxType 
-  , initial = InitialBackgroundClip 
-  , inherit = InheritBackgroundClip 
-  , other val = OtherBackgroundClip val 
+  , initial_ = InitialBackgroundClip 
+  , inherit_ = InheritBackgroundClip 
+  , other_ val = OtherBackgroundClip val 
   }  
 
 backgroundClipValue : BackgroundClip -> Value 
@@ -328,17 +328,17 @@ type BackgroundAttachment
 
 type alias BackgroundAttachmentFactory =
   { bgAttachment : String -> BackgroundAttachment 
-  , initial : BackgroundAttachment 
-  , inherit : BackgroundAttachment 
-  , other : Value -> BackgroundAttachment 
+  , initial_ : BackgroundAttachment 
+  , inherit_ : BackgroundAttachment 
+  , other_ : Value -> BackgroundAttachment 
   }  
 
 backgroundAttachmentFactory : BackgroundAttachmentFactory
 backgroundAttachmentFactory =
   { bgAttachment str = BackgroundAttachment str 
-  , initial = InitialBackgroundAttachment 
-  , inherit = InheritBackgroundAttachment 
-  , other val = OtherBackgroundAttachment val 
+  , initial_ = InitialBackgroundAttachment 
+  , inherit_ = InheritBackgroundAttachment 
+  , other_ val = OtherBackgroundAttachment val 
   }  
 
 backgroundAttachmentValue : BackgroundAttachment -> Value 
