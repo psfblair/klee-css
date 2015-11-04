@@ -17,8 +17,7 @@ module Css.Internal.Background
   , BackgroundAttachmentDescriptor
   , backgroundAttachmentFactory, backgroundAttachmentValue
   , Background, BackgroundDescriptor, ComposedBackgroundDescriptor
-  , BackgroundAlternative, BackgroundComponents (..)
-  , BackgroundFactory, ComposingBackgroundFactory
+  , BackgroundComponents (..)
   , initialBackgroundFactory, adjoinComponents, backgroundValue
   ) where
 
@@ -390,21 +389,18 @@ type alias ComposedBackgroundDescriptor a sz1 sz2 sz3 =
         backgroundComponents : BackgroundComponents sz1 sz2 sz3} ->
   ComposingBackgroundFactory {} sz1 sz2 sz3
 
-type alias BgFactory a b sz1 sz2 sz3 =   
+type alias BackgroundFactory a b sz1 sz2 sz3 =   
   { a | initial_ : Background b sz1 sz2 sz3 
       , inherit_ : Background b sz1 sz2 sz3 
       , other_ : Value -> Background b sz1 sz2 sz3
   }
 
-type alias BackgroundFactory a b sz1 sz2 sz3 = 
-   Background (BgFactory a b sz1 sz2 sz3) sz1 sz2 sz3
-
-type alias ComposingBgFactory sz1 sz2 sz3 = 
+type alias WithComponents sz1 sz2 sz3 = 
   { backgroundComponents : BackgroundComponents sz1 sz2 sz3
   }
 
 type alias ComposingBackgroundFactory b sz1 sz2 sz3 = 
-  Background (BgFactory (ComposingBgFactory sz1 sz2 sz3) b sz1 sz2 sz3) sz1 sz2 sz3
+  Background (BackgroundFactory (WithComponents sz1 sz2 sz3) b sz1 sz2 sz3) sz1 sz2 sz3
                  
 initialBackgroundFactory : ComposingBackgroundFactory {} sz1 sz2 sz3
 initialBackgroundFactory =
