@@ -371,25 +371,46 @@ type BackgroundComponents sz1 sz2 sz3
   | WithClip BackgroundClip (BackgroundComponents sz1 sz2 sz3)
   | WithAttachment BackgroundAttachment (BackgroundComponents sz1 sz2 sz3)
 
--- In order to compose descriptors and still include `inherit` and `initial`:
--- `inherit` and `initial` take a factory and produce some type `a`
--- So any of the descriptors have to have that type; i.e., take a factory and
--- produce some type `a`. To compose, the descriptors have to yield the same
--- type they take as a parameter. So a descriptor takes a factory and produces
--- a factory. The factory has to carry along with itself the accumulated
--- background that the `background` function will then extract.
--- In order for `inherit` and `initial` not to be composable with the other
--- combinators, they have to take a simple `BackgroundFactory` that doesn't
--- compose.
+{- In order to compose descriptors and still include `inherit` and `initial`, we
+do as follows:
+
+The `inherit` and `initial` functions take a factory and produce some type `a`.
+But all the descriptors have to be of the same type in order to be passed to the
+`background` function. This means they all must take a factory and they must all
+return the same type.
+
+Furthermore, to compose, the combinator descriptors (e.g., withClip, withRepeat)
+have to yield the same type that they take as a parameter. Therefore a descriptor 
+has to be a function that takes a factory and produces a factory. 
+
+This means that as it is passed through the composed combinators, the factory 
+has to carry along with itself the accumulated background that the `background` 
+function will ultimately extract.
+
+Since we don't want `inherit` and `initial` to be composable with the other
+combinators, they have to yield a simple `Background` that can't be passed 
+through a chain of combinators. So the `BackgroundDescriptor` type is a function
+that takes a factory that also contains an accumulated background, and that
+produces a record that contains at least a background.
+
+The type signatures of the combinators are more restrictive -- they accept a
+factory with an accumulated background, but they also produce a factory with an
+accumulated background. This means that `inherit` and `initial` can't be 
+composed with the other combinators. (There is one hole: `inherit` and `initial`
+can stand at the end of a chain of combinators. There doesn't really seem to be
+any obvious way around this.)
+-}
 type alias BackgroundDescriptor b sz1 sz2 sz3 = 
-  ComposingBackgroundFactory {} sz1 sz2 sz3 -> Background b sz1 sz2 sz3
+  BackgroundFactory {} sz1 sz2 sz3 -> Background b sz1 sz2 sz3
   
 type alias ComposedBackgroundDescriptor a sz1 sz2 sz3 = 
-  { a | background : BackgroundAlternative sz1 sz2 sz3,
-        backgroundComponents : BackgroundComponents sz1 sz2 sz3} ->
-  ComposingBackgroundFactory {} sz1 sz2 sz3
+  Background (WithComponents sz1 sz2 sz3) sz1 sz2 sz3 ->
+  BackgroundFactory {} sz1 sz2 sz3
 
-type alias BackgroundFactory a b sz1 sz2 sz3 =   
+type alias BackgroundFactory b sz1 sz2 sz3 = 
+  Background (GenericBackgroundFactory (WithComponents sz1 sz2 sz3) b sz1 sz2 sz3) sz1 sz2 sz3
+
+type alias GenericBackgroundFactory a b sz1 sz2 sz3 =   
   { a | initial_ : Background b sz1 sz2 sz3 
       , inherit_ : Background b sz1 sz2 sz3 
       , other_ : Value -> Background b sz1 sz2 sz3
@@ -398,11 +419,8 @@ type alias BackgroundFactory a b sz1 sz2 sz3 =
 type alias WithComponents sz1 sz2 sz3 = 
   { backgroundComponents : BackgroundComponents sz1 sz2 sz3
   }
-
-type alias ComposingBackgroundFactory b sz1 sz2 sz3 = 
-  Background (BackgroundFactory (WithComponents sz1 sz2 sz3) b sz1 sz2 sz3) sz1 sz2 sz3
                  
-initialBackgroundFactory : ComposingBackgroundFactory {} sz1 sz2 sz3
+initialBackgroundFactory : BackgroundFactory {} sz1 sz2 sz3
 initialBackgroundFactory =
   { background = CompositeBackground NoComponents
   , backgroundComponents = NoComponents
@@ -412,7 +430,7 @@ initialBackgroundFactory =
   }
 
 adjoinComponents : BackgroundComponents sz1 sz2 sz3 ->
-                   ComposingBackgroundFactory {} sz1 sz2 sz3
+                   BackgroundFactory {} sz1 sz2 sz3
 adjoinComponents newComponents = 
   { initialBackgroundFactory | background <- CompositeBackground newComponents 
                              , backgroundComponents <- newComponents }
@@ -431,7 +449,8 @@ componentsToValue bgComponents =
   in componentsToValueRecursive bgComponents nll nll nll nll nll nll nll nll
 
 {- Recommended order:
-  image, position / size, repeat, attachment, origin, clip, color
+    image, position / size, repeat, attachment, origin, clip, color
+At the least, origin must come before clip.
 -}
 componentsToValueRecursive : BackgroundComponents sz1 sz2 sz3 -> 
                              Maybe BackgroundImage ->

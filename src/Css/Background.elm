@@ -83,8 +83,6 @@ positioned horiz vert factory = factory.sizedPosition horiz vert
 
 -------------------------------------------------------------------------------
 
--- | These value names start with "side" to avoid conflict with existing property
--- names.
 sideLeft : HorizontalSide
 sideLeft = HorizontalSide "left"
 
@@ -214,38 +212,20 @@ attachLocal factory = factory.bgAttachment "local"
 
 -------------------------------------------------------------------------------
 {-
-The background shorthand property sets all the background properties in one declaration.
-The properties that can be set, are: background-color, background-image, background-position, 
-background-size, background-repeat, background-origin, background-clip, and 
-background-attachment. These can be in any order.
+The background shorthand property sets all the background properties in one 
+declaration:
 
-background: color image position/size repeat origin clip attachment initial|inherit;
+    background: color image position/size repeat origin clip attachment initial|inherit;
 
-If one of the properties in the shorthand declaration is the background-size property, 
-you must use a / (slash) to separate it from the background-position property, e.g. 
-background:url(smiley.gif) 10px 20px/50px 50px; will result in a background image, 
-positioned 10 pixels from the left, 20 pixels from the top, and the size of the 
-image will be 50 pixels wide and 50 pixels high.
+If one of the properties in the shorthand declaration is the background size 
+property, a / (slash) must separate it from the background position property.
 -}
--- The type signature here obscures the fact that the background descriptor
--- can be a function that accepts a more generic type of record as its parameter.
 background : BackgroundDescriptor a sz1 sz2 sz3 -> PropertyRuleAppender
 background backgroundDescriptor = 
   let backgroundRecord = backgroundDescriptor initialBackgroundFactory
       bgValue = backgroundRecord.background |> backgroundValue
   in simpleProperty "background" bgValue
-    
-{- Equivalent to 
-withBgColor : BackgroundColorFactory -> CssColor -> 
-             (BackgroundFactory sz1 sz2 -> (Background a sz1 sz2 -> Background a sz1 sz2))
-             BackgroundFactory sz1 sz2  -> 
-             (BackgroundFactory sz1 sz2 -> (Background a sz1 sz2 -> Background a sz1 sz2))
 
-The previous combinator in the chain doesn't bind either the innerDescriptor
-or the compositeFactory. So `background` binds the compositeFactory to get 
-out the fully-composed function of Background to Background, and then binds
-with an empty background to get the ultimate background.
--}
 withPosition : BackgroundPositionDescriptor sz1 sz2 -> 
                Maybe (BackgroundSizeDescriptor sz3) -> 
                ComposedBackgroundDescriptor a sz1 sz2 sz3
