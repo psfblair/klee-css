@@ -16,8 +16,10 @@ module Css.Internal.Background
   , backgroundClipFactory, backgroundClipValue
   , BackgroundAttachmentDescriptor
   , backgroundAttachmentFactory, backgroundAttachmentValue
-  , BackgroundDescriptor, ComposedBackgroundDescriptor, BackgroundComponents (..) 
-  , emptyBackground, backgroundFactory, backgroundValue
+  , Background, BackgroundDescriptor, ComposedBackgroundDescriptor
+  , BackgroundAlternative, BackgroundComponents (..)
+  , BackgroundFactory, ComposingBackgroundFactory
+  , initialBackgroundFactory, adjoinComponents, backgroundValue
   ) where
 
 import String
@@ -353,74 +355,78 @@ backgroundAttachmentValue bgAttachment =
 
 type alias Background a sz1 sz2 sz3 = 
   { a | background : BackgroundAlternative sz1 sz2 sz3 }
-type alias WithBgComponents sz1 sz2 sz3 = 
-  { backgroundComponents : BackgroundComponents sz1 sz2 sz3 }
-type alias ComposedBackground sz1 sz2 sz3 = 
-  Background (WithBgComponents sz1 sz2 sz3) sz1 sz2 sz3
 
 type BackgroundAlternative sz1 sz2 sz3
   = CompositeBackground (BackgroundComponents sz1 sz2 sz3)
   | InitialBackground
   | InheritBackground
-
--- This produces functions of Background -> Background because all the parameters
--- of a CSS background shorthand property (and so of a ComposedBackground) are 
--- optional. The `background` function will feed in an empty background to get
--- the result out.
-type alias BackgroundDescriptor a sz1 sz2 sz3 = 
-  BackgroundFactory a sz1 sz2 sz3 -> 
-  (ComposedBackground sz1 sz2 sz3 -> Background a sz1 sz2 sz3)
-    
-type alias ComposedBackgroundDescriptor a sz1 sz2 sz3 = 
-  BackgroundFactory a sz1 sz2 sz3 -> 
-  (ComposedBackground sz1 sz2 sz3 -> ComposedBackground sz1 sz2 sz3)
+  | OtherBackground Value
 
 type BackgroundComponents sz1 sz2 sz3
   = NoComponents
-  | WithPositionAndSize (BackgroundPosition sz1 sz2) (Maybe (BackgroundSize sz3)) (ComposedBackground sz1 sz2 sz3)
-  | WithColor CssColor (ComposedBackground sz1 sz2 sz3)
-  | WithImage BackgroundImage (ComposedBackground sz1 sz2 sz3)
-  | WithRepeat BackgroundRepeat (ComposedBackground sz1 sz2 sz3)
-  | WithOrigin BackgroundOrigin (ComposedBackground sz1 sz2 sz3)
-  | WithClip BackgroundClip (ComposedBackground sz1 sz2 sz3)
-  | WithAttachment BackgroundAttachment (ComposedBackground sz1 sz2 sz3)
+  | WithPositionAndSize (BackgroundPosition sz1 sz2) (Maybe (BackgroundSize sz3)) (BackgroundComponents sz1 sz2 sz3)
+  | WithColor CssColor (BackgroundComponents sz1 sz2 sz3)
+  | WithImage BackgroundImage (BackgroundComponents sz1 sz2 sz3)
+  | WithRepeat BackgroundRepeat (BackgroundComponents sz1 sz2 sz3)
+  | WithOrigin BackgroundOrigin (BackgroundComponents sz1 sz2 sz3)
+  | WithClip BackgroundClip (BackgroundComponents sz1 sz2 sz3)
+  | WithAttachment BackgroundAttachment (BackgroundComponents sz1 sz2 sz3)
 
-emptyBackground : ComposedBackground sz1 sz2 sz3
-emptyBackground = 
-  { background = CompositeBackground NoComponents, backgroundComponents = NoComponents } 
-
--- Need two type parameters because `initial_` and `inherit_` tranform a 
--- `Background` parameterized with `a` to one parameterized with `{}`.
-type alias BackgroundFactory a sz1 sz2 sz3 =
-  { composite : (ComposedBackground sz1 sz2 sz3 -> BackgroundComponents sz1 sz2 sz3) -> 
-                (ComposedBackground sz1 sz2 sz3 -> ComposedBackground sz1 sz2 sz3) -> 
-                (ComposedBackground sz1 sz2 sz3 -> ComposedBackground sz1 sz2 sz3)
-  , initial_ : Background a sz1 sz2 sz3 -> Background {} sz1 sz2 sz3
-  , inherit_ : Background a sz1 sz2 sz3 -> Background {} sz1 sz2 sz3
-  }
-
-{- `composer` is a partially-bound `BackgroundComponents`; i.e., without the  
-   `ComposedBackground` parameter.
-   `composite` has to return a function of `ComposedBackground` 
-   to `ComposedBackground`.
--}
-backgroundFactory : BackgroundFactory a sz1 sz2 sz3
-backgroundFactory =
-  { composite composer innerBackgroundTransformer =
-      \inputBackground -> 
-        let innerBg = innerBackgroundTransformer inputBackground
-            newComponents = composer innerBg
-        in { background = CompositeBackground newComponents, 
-             backgroundComponents = newComponents } 
-    , initial_   = \x -> { background = InitialBackground }
-    , inherit_   = \x -> { background = InheritBackground }
-  }
+-- In order to compose descriptors and still include `inherit` and `initial`:
+-- `inherit` and `initial` take a factory and produce some type `a`
+-- So any of the descriptors have to have that type; i.e., take a factory and
+-- produce some type `a`. To compose, the descriptors have to yield the same
+-- type they take as a parameter. So a descriptor takes a factory and produces
+-- a factory. The factory has to carry along with itself the accumulated
+-- background that the `background` function will then extract.
+-- In order for `inherit` and `initial` not to be composable with the other
+-- combinators, they have to take a simple `BackgroundFactory` that doesn't
+-- compose.
+type alias BackgroundDescriptor b sz1 sz2 sz3 = 
+  ComposingBackgroundFactory {} sz1 sz2 sz3 -> Background b sz1 sz2 sz3
   
-backgroundValue : Background a sz1 sz2 sz3 -> Value
-backgroundValue background =
-  case background.background of
+type alias ComposedBackgroundDescriptor a sz1 sz2 sz3 = 
+  { a | background : BackgroundAlternative sz1 sz2 sz3,
+        backgroundComponents : BackgroundComponents sz1 sz2 sz3} ->
+  ComposingBackgroundFactory {} sz1 sz2 sz3
+
+type alias BgFactory a b sz1 sz2 sz3 =   
+  { a | initial_ : Background b sz1 sz2 sz3 
+      , inherit_ : Background b sz1 sz2 sz3 
+      , other_ : Value -> Background b sz1 sz2 sz3
+  }
+
+type alias BackgroundFactory a b sz1 sz2 sz3 = 
+   Background (BgFactory a b sz1 sz2 sz3) sz1 sz2 sz3
+
+type alias ComposingBgFactory sz1 sz2 sz3 = 
+  { backgroundComponents : BackgroundComponents sz1 sz2 sz3
+  }
+
+type alias ComposingBackgroundFactory b sz1 sz2 sz3 = 
+  Background (BgFactory (ComposingBgFactory sz1 sz2 sz3) b sz1 sz2 sz3) sz1 sz2 sz3
+                 
+initialBackgroundFactory : ComposingBackgroundFactory {} sz1 sz2 sz3
+initialBackgroundFactory =
+  { background = CompositeBackground NoComponents
+  , backgroundComponents = NoComponents
+  , initial_ = { background = InitialBackground }
+  , inherit_ = { background = InheritBackground }
+  , other_ val  = { background = OtherBackground val }
+  }
+
+adjoinComponents : BackgroundComponents sz1 sz2 sz3 ->
+                   ComposingBackgroundFactory {} sz1 sz2 sz3
+adjoinComponents newComponents = 
+  { initialBackgroundFactory | background <- CompositeBackground newComponents 
+                             , backgroundComponents <- newComponents }
+
+backgroundValue : BackgroundAlternative sz1 sz2 sz3 -> Value
+backgroundValue backgroundAlternative =
+  case backgroundAlternative of
     InitialBackground -> initialValue
     InheritBackground -> inheritValue
+    OtherBackground val -> otherValue val
     CompositeBackground backgroundComponents -> componentsToValue backgroundComponents
 
 componentsToValue : BackgroundComponents sz1 sz2 sz3 -> Value
@@ -428,87 +434,90 @@ componentsToValue bgComponents =
   let nll = Nothing
   in componentsToValueRecursive bgComponents nll nll nll nll nll nll nll nll
 
+{- Recommended order:
+  image, position / size, repeat, attachment, origin, clip, color
+-}
 componentsToValueRecursive : BackgroundComponents sz1 sz2 sz3 -> 
+                             Maybe BackgroundImage ->
                              Maybe (BackgroundPosition sz1 sz2) -> 
                              Maybe (BackgroundSize sz3) -> 
-                             Maybe CssColor ->
-                             Maybe BackgroundImage ->
                              Maybe BackgroundRepeat ->
+                             Maybe BackgroundAttachment ->
                              Maybe BackgroundOrigin ->
                              Maybe BackgroundClip ->
-                             Maybe BackgroundAttachment ->
+                             Maybe CssColor ->
                              Value
 componentsToValueRecursive 
-    components mPos mSiz mColor mImg mRepeat mOrig mClip mAttach =
+    components mImg mPos mSiz mRepeat mAttach mOrig mClip mColor =
   case components of
       -- If the FontComponents combinators are called more than once,
       -- the last (outer) one wins. So if it's already set we don't reset it.
-      WithPositionAndSize position maybeSize innerComposedBg -> 
-        let inner = innerComposedBg.backgroundComponents
-        in case mPos of
+      WithImage image inner ->
+        case mImg of
           Just _ -> 
-            componentsToValueRecursive inner mPos mSiz mColor mImg mRepeat mOrig mClip mAttach
+            componentsToValueRecursive inner mImg mPos mSiz mRepeat mAttach mOrig mClip mColor
           Nothing -> 
-            componentsToValueRecursive inner (Just position) maybeSize mColor mImg mRepeat mOrig mClip mAttach
-      WithColor color innerComposedBg ->
-        let inner = innerComposedBg.backgroundComponents
-        in case mColor of
+            componentsToValueRecursive inner (Just image) mPos mSiz mRepeat mAttach mOrig mClip mColor
+      WithPositionAndSize position maybeSize inner -> 
+        case mPos of
           Just _ -> 
-            componentsToValueRecursive inner mPos mSiz mColor mImg mRepeat mOrig mClip mAttach
+            componentsToValueRecursive inner mImg mPos mSiz mRepeat mAttach mOrig mClip mColor
           Nothing -> 
-            componentsToValueRecursive inner mPos mSiz (Just color) mImg mRepeat mOrig mClip mAttach
-      WithImage image innerComposedBg ->
-        let inner = innerComposedBg.backgroundComponents
-        in case mImg of
+            componentsToValueRecursive inner mImg (Just position) maybeSize mRepeat mAttach mOrig mClip mColor
+      WithRepeat repeat inner ->
+        case mRepeat of
           Just _ -> 
-            componentsToValueRecursive inner mPos mSiz mColor mImg mRepeat mOrig mClip mAttach
+            componentsToValueRecursive inner mImg mPos mSiz mRepeat mAttach mOrig mClip mColor
           Nothing -> 
-            componentsToValueRecursive inner mPos mSiz mColor (Just image) mRepeat mOrig mClip mAttach
-      WithRepeat repeat innerComposedBg ->
-        let inner = innerComposedBg.backgroundComponents
-        in case mRepeat of
+            componentsToValueRecursive inner mImg mPos mSiz (Just repeat) mAttach mOrig mClip mColor
+      WithAttachment attachment inner -> 
+        case mAttach of
           Just _ -> 
-            componentsToValueRecursive inner mPos mSiz mColor mImg mRepeat mOrig mClip mAttach
+            componentsToValueRecursive inner mImg mPos mSiz mRepeat mAttach mOrig mClip mColor
           Nothing -> 
-            componentsToValueRecursive inner mPos mSiz mColor mImg (Just repeat) mOrig mClip mAttach
-      WithOrigin origin innerComposedBg -> 
-        let inner = innerComposedBg.backgroundComponents
-        in case mOrig of
+            componentsToValueRecursive inner mImg mPos mSiz mRepeat (Just attachment) mOrig mClip mColor
+      WithOrigin origin inner -> 
+        case mOrig of
           Just _ -> 
-            componentsToValueRecursive inner mPos mSiz mColor mImg mRepeat mOrig mClip mAttach
+            componentsToValueRecursive inner mImg mPos mSiz mRepeat mAttach mOrig mClip mColor
           Nothing -> 
-            componentsToValueRecursive inner mPos mSiz mColor mImg mRepeat (Just origin) mClip mAttach
-      WithClip clip innerComposedBg -> 
-        let inner = innerComposedBg.backgroundComponents
-        in case mClip of
+            componentsToValueRecursive inner mImg mPos mSiz mRepeat mAttach (Just origin) mClip mColor
+      WithClip clip inner -> 
+        case mClip of
           Just _ -> 
-            componentsToValueRecursive inner mPos mSiz mColor mImg mRepeat mOrig mClip mAttach
+            componentsToValueRecursive inner mImg mPos mSiz mRepeat mAttach mOrig mClip mColor
           Nothing -> 
-            componentsToValueRecursive inner mPos mSiz mColor mImg mRepeat mOrig (Just clip) mAttach
-      WithAttachment attachment innerComposedBg -> 
-        let inner = innerComposedBg.backgroundComponents
-        in case mAttach of
+            componentsToValueRecursive inner mImg mPos mSiz mRepeat mAttach mOrig (Just clip) mColor
+      WithColor color inner ->
+        case mColor of
           Just _ -> 
-            componentsToValueRecursive inner mPos mSiz mColor mImg mRepeat mOrig mClip mAttach
+            componentsToValueRecursive inner mImg mPos mSiz mRepeat mAttach mOrig mClip mColor
           Nothing -> 
-            componentsToValueRecursive inner mPos mSiz mColor mImg mRepeat mOrig mClip (Just attachment)
+            componentsToValueRecursive inner mImg mPos mSiz mRepeat mAttach mOrig mClip (Just color)
       NoComponents -> 
-        let positionVal = maybeValue backgroundPositionValue mPos
-            sizeVal = maybeValue backgroundSizeValue mSiz
-            positionAndSizeVal = intersperse "/" [ positionVal, sizeVal ]
-            
-            colorVal = maybeValue colorValue mColor
-            imageVal = maybeValue backgroundImageValue mImg
-            repeatVal = maybeValue backgroundRepeatValue mRepeat
-            originVal = maybeValue backgroundOriginValue mOrig
-            clipVal = maybeValue backgroundClipValue mClip
-            attachmentVal = maybeValue backgroundAttachmentValue mAttach
-        in spaceListValue identity 
-            [ positionAndSizeVal
-            , colorVal
-            , imageVal
-            , repeatVal
-            , originVal
-            , clipVal
-            , attachmentVal
-            ] 
+        let maybePosition = Maybe.map backgroundPositionValue mPos
+            maybeSize = Maybe.map backgroundSizeValue mSiz
+            maybePositionAndSize = 
+              case (maybePosition, maybeSize) of
+                (Just (pos), Just(siz)) -> intersperse "/" [pos, siz] |> Just
+                (Just (pos), _) -> Just (pos)
+                _ -> Nothing -- Size without position can't happen and is invalid.
+
+            maybeImage = Maybe.map backgroundImageValue mImg
+            maybeRepeat = Maybe.map backgroundRepeatValue mRepeat
+            maybeAttachment = Maybe.map backgroundAttachmentValue mAttach
+            maybeOrigin = Maybe.map backgroundOriginValue mOrig
+            maybeClip = Maybe.map backgroundClipValue mClip
+            maybeColor = Maybe.map colorValue mColor
+
+            allValues = 
+              [ maybeImage
+              , maybePositionAndSize
+              , maybeRepeat
+              , maybeAttachment
+              , maybeOrigin
+              , maybeClip
+              , maybeColor
+              ] |> List.filterMap identity
+              
+        in spaceListValue identity allValues

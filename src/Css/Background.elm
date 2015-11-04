@@ -54,7 +54,9 @@ module Css.Background
   -- * Generic background property.
 
   , background
-
+  , withPosition, withBgColor, withRepeat
+  , withImage, withOrigin, withClip, withAttachment
+  
   ) where
 
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
@@ -225,14 +227,14 @@ background:url(smiley.gif) 10px 20px/50px 50px; will result in a background imag
 positioned 10 pixels from the left, 20 pixels from the top, and the size of the 
 image will be 50 pixels wide and 50 pixels high.
 -}
+-- The type signature here obscures the fact that the background descriptor
+-- can be a function that accepts a more generic type of record as its parameter.
 background : BackgroundDescriptor a sz1 sz2 sz3 -> PropertyRuleAppender
 background backgroundDescriptor = 
-  --   BackgroundFactory a b sz1 sz2 -> (Background a sz1 sz2 -> Background b sz1 sz2)
-  let bgValue = 
-    (backgroundDescriptor backgroundFactory) emptyBackground
-    |> backgroundValue
+  let backgroundRecord = backgroundDescriptor initialBackgroundFactory
+      bgValue = backgroundRecord.background |> backgroundValue
   in simpleProperty "background" bgValue
-
+    
 {- Equivalent to 
 withBgColor : BackgroundColorFactory -> CssColor -> 
              (BackgroundFactory sz1 sz2 -> (Background a sz1 sz2 -> Background a sz1 sz2))
@@ -244,64 +246,63 @@ or the compositeFactory. So `background` binds the compositeFactory to get
 out the fully-composed function of Background to Background, and then binds
 with an empty background to get the ultimate background.
 -}
-withBgColor : BackgroundColorDescriptor -> 
-              ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
-              ComposedBackgroundDescriptor a sz1 sz2 sz3
-withBgColor colorDescriptor innerDescriptor compositeFactory = 
-   let color = colorDescriptor backgroundColorFactory
-       innerBg = innerDescriptor compositeFactory
-   in compositeFactory.composite (WithColor color) innerBg
-
 withPosition : BackgroundPositionDescriptor sz1 sz2 -> 
                Maybe (BackgroundSizeDescriptor sz3) -> 
-               ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
                ComposedBackgroundDescriptor a sz1 sz2 sz3
 withPosition positionDescriptor 
              maybeSizeDescriptor 
-             innerDescriptor 
-             compositeFactory =
+             composedDescriptor =
    let position = positionDescriptor backgroundPositionFactory
        maybeSize = 
          maybeSizeDescriptor |> Maybe.map (\desc -> desc backgroundSizeFactory)
-       innerBg = innerDescriptor compositeFactory
-   in compositeFactory.composite (WithPositionAndSize position maybeSize) innerBg
+       innerComponents = composedDescriptor.backgroundComponents
+       newComponents = WithPositionAndSize position maybeSize innerComponents
+   in adjoinComponents newComponents
+
+withBgColor : BackgroundColorDescriptor -> 
+              ComposedBackgroundDescriptor a sz1 sz2 sz3 
+withBgColor colorDescriptor composedDescriptor = 
+   let color = colorDescriptor backgroundColorFactory
+       innerComponents = composedDescriptor.backgroundComponents
+       newComponents = WithColor color innerComponents
+   in adjoinComponents newComponents
 
 withRepeat : BackgroundRepeatDescriptor -> 
-             ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
              ComposedBackgroundDescriptor a sz1 sz2 sz3
-withRepeat repeatDescriptor innerDescriptor compositeFactory =
+withRepeat repeatDescriptor composedDescriptor =
    let repeat = repeatDescriptor backgroundRepeatFactory
-       innerBg = innerDescriptor compositeFactory
-   in compositeFactory.composite (WithRepeat repeat) innerBg
+       innerComponents = composedDescriptor.backgroundComponents
+       newComponents = WithRepeat repeat innerComponents
+   in adjoinComponents newComponents
 
 withImage : BackgroundImageDescriptor -> 
-            ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
             ComposedBackgroundDescriptor a sz1 sz2 sz3
-withImage imageDescriptor innerDescriptor compositeFactory =
+withImage imageDescriptor composedDescriptor =
    let image = imageDescriptor backgroundImageFactory
-       innerBg = innerDescriptor compositeFactory
-   in compositeFactory.composite (WithImage image) innerBg
+       innerComponents = composedDescriptor.backgroundComponents
+       newComponents = WithImage image innerComponents
+   in adjoinComponents newComponents
 
 withOrigin : BackgroundOriginDescriptor -> 
-             ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
              ComposedBackgroundDescriptor a sz1 sz2 sz3
-withOrigin originDescriptor innerDescriptor compositeFactory =
+withOrigin originDescriptor composedDescriptor =
    let origin = originDescriptor backgroundOriginFactory
-       innerBg = innerDescriptor compositeFactory
-   in compositeFactory.composite (WithOrigin origin) innerBg
+       innerComponents = composedDescriptor.backgroundComponents
+       newComponents = WithOrigin origin innerComponents
+   in adjoinComponents newComponents
   
 withClip : BackgroundClipDescriptor -> 
-           ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
            ComposedBackgroundDescriptor a sz1 sz2 sz3
-withClip clipDescriptor innerDescriptor compositeFactory =
+withClip clipDescriptor composedDescriptor =
    let clip = clipDescriptor backgroundClipFactory
-       innerBg = innerDescriptor compositeFactory
-   in compositeFactory.composite (WithClip clip) innerBg
+       innerComponents = composedDescriptor.backgroundComponents
+       newComponents = WithClip clip innerComponents
+   in adjoinComponents newComponents
 
 withAttachment : BackgroundAttachmentDescriptor -> 
-                 ComposedBackgroundDescriptor a sz1 sz2 sz3 -> 
                  ComposedBackgroundDescriptor a sz1 sz2 sz3
-withAttachment attachmentDescriptor innerDescriptor compositeFactory =
+withAttachment attachmentDescriptor composedDescriptor  =
    let attachment = attachmentDescriptor backgroundAttachmentFactory
-       innerBg = innerDescriptor compositeFactory
-   in compositeFactory.composite (WithAttachment attachment) innerBg
+       innerComponents = composedDescriptor.backgroundComponents
+       newComponents = WithAttachment attachment innerComponents
+   in adjoinComponents newComponents

@@ -326,5 +326,54 @@ suite = describe "Css.BackgroundTests"
       --     `shouldEqual` "background-attachment:should not compile"
       ]
     ]
-
+  , describe "background"
+    [ it "should render combinations of the combinators properly"
+      [ renderProperties 
+          [ background (withPosition (placed sideLeft sideTop) Nothing) ]
+          `shouldEqual` "background:left top"
+      , renderProperties 
+          [ background (withPosition 
+                        (positioned (px 20) (pct 30)) 
+                        (Just ((px 20) `by` (px 30)))) ]
+          `shouldEqual` "background:20px 30%/20px 30px"
+      , renderProperties 
+          [ background (withBgColor green >> (withRepeat roundRepeat)) ]
+          `shouldEqual` "background:round #73D216"
+      , renderProperties 
+          [ background (withImage (url "URL") >> 
+                        withClip (boxClip paddingBox) >> 
+                        withOrigin (origin contentBox)) ]
+          `shouldEqual` "background:url(\"URL\") content-box padding-box"
+      , renderProperties 
+          [ background (withAttachment attachFixed) ]
+          `shouldEqual` "background:fixed"
+      ]  
+    , it "should render generic properties properly" 
+      [ renderProperties [background initial]
+          `shouldEqual` "background:initial"
+      , renderProperties [background inherit]
+          `shouldEqual` "background:inherit"
+      , renderProperties [background (stringValue "foo" |> other)]
+          `shouldEqual` "background:foo"
+      -- Should not compile:
+      -- , renderProperties [background all]
+      --     `shouldEqual` "background:should not compile"
+      -- , renderProperties [background auto]
+      --     `shouldEqual` "background:should not compile"
+      -- , renderProperties [background baseline]
+      --     `shouldEqual` "background:should not compile"
+      -- , renderProperties [background center]
+      --     `shouldEqual` "background:should not compile"
+      -- , renderProperties [background normal]
+      --     `shouldEqual` "background:should not compile"
+      -- , renderProperties [background none]
+      --     `shouldEqual` "background:should not compile"
+      -- , renderProperties [background visible]
+      --     `shouldEqual` "background:should not compile"
+      -- , renderProperties [background hidden]
+      --     `shouldEqual` "background:should not compile"
+      -- , renderProperties [background unset]
+      --     `shouldEqual` "background:should not compile"
+      ]
+    ]
   ]
