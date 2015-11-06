@@ -257,6 +257,7 @@ type FontAlternative sz
   | CompositeFont (FontComponents sz)
   | InitialFont
   | InheritFont
+  | OtherFont Value
 
 -- Font sizes can be absolute or relative
 type FontComponents sz
@@ -273,6 +274,7 @@ type alias FontFactory sz =
   , named : String -> Font {} sz
   , initial_ : Font {} sz
   , inherit_ : Font {} sz
+  , other_ : Value -> Font {} sz
   }
 
 fontFactory : FontFactory sz
@@ -286,6 +288,7 @@ fontFactory =
   , named str  = { font = NamedFont str}
   , initial_   = { font = InitialFont }
   , inherit_   = { font = InheritFont }
+  , other_  val = { font = OtherFont val }
   }
 
 fontValue : Font a sz -> Value
@@ -294,6 +297,7 @@ fontValue font =
     NamedFont str -> stringValue str
     InitialFont -> initialValue
     InheritFont -> inheritValue
+    OtherFont val -> otherValue val
     CompositeFont fontComponents -> componentsToValue fontComponents
 
 componentsToValue : FontComponents sz -> Value
@@ -370,18 +374,22 @@ componentsLeafToValue sizeValue
                       maybeWeight 
                       maybeVariant 
                       maybeStyle =
-        let customFamilyValues = 
-              customFamilies |> List.map toLiteral |> List.map literalValue
-            genericFamilyValues = 
-              genericFamilies |> List.map genericFontFamilyValue
-            familyValues = customFamilyValues ++ genericFamilyValues
-            familiesValue = commaListValue identity familyValues
-            fontStyleVal = maybeValue fontStyleValue maybeStyle
-            fontVariantVal = maybeValue fontVariantValue maybeVariant
-            fontWeightVal = maybeValue fontWeightValue maybeWeight
-        in spaceListValue identity 
-            [ fontStyleVal
-            , fontVariantVal
-            , fontWeightVal
-            , sizeValue
-            , familiesValue] 
+  let customFamilyValues = 
+        customFamilies |> List.map toLiteral |> List.map literalValue
+      genericFamilyValues = 
+        genericFamilies |> List.map genericFontFamilyValue
+      familyValues = customFamilyValues ++ genericFamilyValues
+      familiesValue = commaListValue identity familyValues
+      maybeStyleVal = Maybe.map fontStyleValue maybeStyle
+      maybeVariantVal = Maybe.map fontVariantValue maybeVariant
+      maybeWeightVal = Maybe.map fontWeightValue maybeWeight
+      
+      allValues = 
+        [ maybeStyleVal
+        , maybeVariantVal
+        , maybeWeightVal
+        , Just(sizeValue)
+        , Just(familiesValue)
+        ] |> List.filterMap identity
+        
+  in spaceListValue identity allValues

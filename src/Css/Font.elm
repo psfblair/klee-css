@@ -8,11 +8,7 @@ module Css.Font
   -- * Font-family.
 
   , fontFamily
-  , sansSerif
-  , serif
-  , monospace
-  , cursive
-  , fantasy
+  , sansSerif, serif, monospace, cursive, fantasy
 
   -- * Font-size.
 
@@ -35,10 +31,6 @@ module Css.Font
   , bold, bolder, lighter
   , weight
 
-  -- * Named fonts.
-
-  , caption, icon, menu, messageBox, smallCaption, statusBar
-
   -- * Line-height.
 
   , lineHeight
@@ -46,6 +38,11 @@ module Css.Font
   -- * Generic font property.
     
   , font
+  , aFont, withLineHeight, withWeight, withVariant, withStyle
+
+  -- * Named fonts.
+
+  , caption, icon, menu, messageBox, smallCaption, statusBar
   
   ) where
 
@@ -209,18 +206,20 @@ font fontDescriptor =
   simpleProperty "font" (fontDescriptor fontFactory |> fontValue)
 
 {- Equivalent to
-baseFont : SizeDescriptor (Size sz) sz -> 
+aFont : SizeDescriptor (Size sz) sz -> 
            List String -> 
            List GenericFontFamily -> 
            FontFactory sz -> 
            ComposedFont sz
 -}  
-baseFont : SizeDescriptor (Size sz) sz -> 
+aFont : SizeDescriptor (Size sz) sz -> 
            List String -> 
-           List GenericFontFamily -> 
+           List GenericFontFamilyDescriptor -> 
            ComposedFontDescriptor sz
-baseFont sizeDescriptor customFonts genericFonts compositeFactory =
+aFont sizeDescriptor customFonts genericFontDescriptors compositeFactory =
   let size = sizeDescriptor sizeFactory
+      genericFontFrom familyDescriptor = familyDescriptor genericFontFamilyFactory
+      genericFonts = List.map genericFontFrom genericFontDescriptors
   in compositeFactory.leaf size customFonts genericFonts
 
 {- Equivalent to
@@ -289,7 +288,7 @@ withStyle : FontStyle -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
 withStyle style descriptor compositeFactory =
    let innerFont = descriptor compositeFactory
    in compositeFactory.composite (WithStyle style) innerFont
-   
+
 caption : FontDescriptor {} sz
 caption factory = factory.named "caption"
 
