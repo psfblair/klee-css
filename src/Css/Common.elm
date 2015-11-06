@@ -1,5 +1,6 @@
 module Css.Common (
-   browsers, webkit_, moz_, ms_, o_, emptyPrefix
+     browsers, webkit_, moz_, ms_, o_
+   , emptyPrefix, toPrefix, toPrefixes
    
   , call
 
@@ -19,12 +20,14 @@ module Css.Common (
   , initial
   , unset
   , other
+  , otherPrefixed
+  
   ) where
 
 import Css.Internal.Browser as Browser
 import Css.Internal.Property exposing 
   ( Value, Prefixed
-  , toPrefixed, appendToPrefixedRoot, prefixedValue
+  , toPrefixed, appendToPrefixedRoot, prefixedValue, stringValue
   )
 import Css.Internal.Stylesheet exposing (CssAppender)
 import Css.Internal.Common exposing (..)
@@ -36,35 +39,30 @@ different browsers. -}
 type alias BrowserPrefix = Browser.BrowserPrefix
 
 browsers : Prefixed
-browsers = toBrowserPrefixed [ webkit_, moz_, ms_, o_, emptyPrefix ]
+browsers = toPrefixes [ webkit_, moz_, ms_, o_, emptyPrefix ]
 
-toBrowserPrefix : String -> BrowserPrefix
-toBrowserPrefix = Browser.toBrowserPrefix
+toPrefix : String -> BrowserPrefix
+toPrefix = Browser.toPrefix
 
-toBrowserPrefixed : List BrowserPrefix -> Prefixed
-toBrowserPrefixed browserPrefixes =
+toPrefixes : List BrowserPrefix -> Prefixed
+toPrefixes browserPrefixes =
   let toPair prefix = (prefix, "")
   in browserPrefixes |> List.map toPair |> toPrefixed
-  
-toPrefixedValue : List BrowserPrefix -> String -> Value  
-toPrefixedValue browserPrefixes val =
-    let prefixed = toBrowserPrefixed browserPrefixes 
-    in appendToPrefixedRoot prefixed val |> prefixedValue
     
 webkit_ : BrowserPrefix
-webkit_ = Browser.toBrowserPrefix "-webkit-"
+webkit_ = Browser.toPrefix "-webkit-"
 
 moz_ : BrowserPrefix
-moz_ = Browser.toBrowserPrefix "-moz-"
+moz_ = Browser.toPrefix "-moz-"
 
 ms_ : BrowserPrefix
-ms_ = Browser.toBrowserPrefix "-ms-"
+ms_ = Browser.toPrefix "-ms-"
 
 o_ : BrowserPrefix
-o_ = Browser.toBrowserPrefix "-o-"
+o_ = Browser.toPrefix "-o-"
 
 emptyPrefix : BrowserPrefix
-emptyPrefix = Browser.toBrowserPrefix ""
+emptyPrefix = Browser.toPrefix ""
 
 -------------------------------------------------------------------------------
 
@@ -128,13 +126,18 @@ initial factory = factory.initial_
 unset : Unset a rec -> a
 unset factory = factory.unset_
 
-{- The generic `other` value descriptor is used to escape from the type safety
-introduced by embedding CSS properties in the typed world. The `other` function
-allows you to extract a specific value type out of any `Value` and use it as
-the value for any property that accepts `Other.`
+{- The generic `other` and `otherPrefixed` value descriptors are used to escape 
+from the type safety introduced by embedding CSS properties in the typed world. 
+These functions allow you to extract a specific value type out of any string 
+(or list of prefixes with a string) and use it as the value for any property 
+that accepts `Other.`
 -}
-other : Value -> Other a rec -> a
-other str factory = factory.other_ str
+other : String -> Other a rec -> a
+other str factory = str |> stringValue |> factory.other_ 
 
+otherPrefixed : List BrowserPrefix -> String -> Other a rec -> a
+otherPrefixed browserPrefixes val factory =
+    let prefixed = toPrefixes browserPrefixes 
+    in appendToPrefixedRoot prefixed val |> prefixedValue |> factory.other_ 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

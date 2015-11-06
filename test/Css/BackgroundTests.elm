@@ -3,8 +3,6 @@ module Css.BackgroundTests where
 import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
-import Css.Internal.Property exposing (stringValue)
-
 import Css.Background exposing (..)
 import Css.Box exposing (..)
 import Css.Color exposing (..)
@@ -36,7 +34,7 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background-position:initial"
       , renderProperties [backgroundPosition inherit]
           `shouldEqual` "background-position:inherit"
-      , renderProperties [backgroundPosition (stringValue "foo" |> other)]
+      , renderProperties [backgroundPosition (other "foo")]
           `shouldEqual` "background-position:foo"
       -- Should not compile:
       -- , renderProperties [backgroundPosition all]
@@ -79,7 +77,7 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background-size:inherit"
       , renderProperties [backgroundSize auto]
           `shouldEqual` "background-size:auto"
-      , renderProperties [backgroundSize (stringValue "foo" |> other)]
+      , renderProperties [backgroundSize (other "foo")]
           `shouldEqual` "background-size:foo"
       -- Should not compile:
       -- , renderProperties [backgroundSize all]
@@ -116,7 +114,7 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background-color:initial"
       , renderProperties [backgroundColor inherit]
           `shouldEqual` "background-color:inherit"
-      , renderProperties [backgroundColor (stringValue "foo" |> other)]
+      , renderProperties [backgroundColor (other "foo")]
           `shouldEqual` "background-color:foo"
       -- Should not compile:
       -- , renderProperties [backgroundColor all]
@@ -151,7 +149,7 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background-image:inherit"
       , renderProperties [backgroundImage none]
           `shouldEqual` "background-image:none"
-      , renderProperties [backgroundImage (stringValue "foo" |> other)]
+      , renderProperties [backgroundImage (other "foo")]
           `shouldEqual` "background-image:foo"
       -- Should not compile:
       -- , renderProperties [backgroundImage all]
@@ -192,7 +190,7 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background-repeat:initial"
       , renderProperties [backgroundRepeat inherit]
           `shouldEqual` "background-repeat:inherit"
-      , renderProperties [backgroundRepeat (stringValue "foo" |> other)]
+      , renderProperties [backgroundRepeat (other "foo")]
           `shouldEqual` "background-repeat:foo"
       -- Should not compile:
       -- , renderProperties [backgroundRepeat all]
@@ -229,7 +227,7 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background-origin:initial"
       , renderProperties [backgroundOrigin inherit]
           `shouldEqual` "background-origin:inherit"
-      , renderProperties [backgroundOrigin (stringValue "foo" |> other)]
+      , renderProperties [backgroundOrigin (other "foo")]
           `shouldEqual` "background-origin:foo"
       -- Should not compile:
       -- , renderProperties [backgroundOrigin all]
@@ -266,7 +264,7 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background-clip:initial"
       , renderProperties [backgroundClip inherit]
           `shouldEqual` "background-clip:inherit"
-      , renderProperties [backgroundClip (stringValue "foo" |> other)]
+      , renderProperties [backgroundClip (other "foo")]
           `shouldEqual` "background-clip:foo"
       -- Should not compile:
       -- , renderProperties [backgroundClip all]
@@ -303,7 +301,7 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background-attachment:initial"
       , renderProperties [backgroundAttachment inherit]
           `shouldEqual` "background-attachment:inherit"
-      , renderProperties [backgroundAttachment (stringValue "foo" |> other)]
+      , renderProperties [backgroundAttachment (other "foo")]
           `shouldEqual` "background-attachment:foo"
       -- Should not compile:
       -- , renderProperties [backgroundAttachment all]
@@ -353,7 +351,7 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background:initial"
       , renderProperties [background inherit]
           `shouldEqual` "background:inherit"
-      , renderProperties [background (stringValue "foo" |> other)]
+      , renderProperties [background (other "foo")]
           `shouldEqual` "background:foo"
       -- Should not compile:
       -- , renderProperties [background all]

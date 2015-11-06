@@ -1,11 +1,11 @@
 module Css.Internal.Browser 
-  ( BrowserPrefix, toBrowserPrefix, stringPrefix
+  ( BrowserPrefix, toPrefix, stringPrefix
   ) where
   
 type BrowserPrefix = BrowserPrefix String
 
-toBrowserPrefix : String -> BrowserPrefix
-toBrowserPrefix str = BrowserPrefix str
+toPrefix : String -> BrowserPrefix
+toPrefix str = BrowserPrefix str
 
 stringPrefix : BrowserPrefix -> String
 stringPrefix (BrowserPrefix str) = str

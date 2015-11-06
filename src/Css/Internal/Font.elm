@@ -228,24 +228,25 @@ where in the first part, font-style font-variant font-weight are optional.
 
 See <http://www.w3.org/TR/css3-fonts/#font-prop>
 
-So we accommodate:
-  font <| baseFont (px 15) ["Arial"] [sansSerif] 
+So our DSL looks like this:
+
+    font <| aFont (px 15) ["Arial"] [sansSerif] 
         => font: 15px arial, sans-serif;
-        
-  baseFont (px 12) ["Georgia"] [Serif] 
+
+or:        
+    aFont (px 12) ["Georgia"] [Serif] 
     |> withLineHeight (px 30) 
     |> withWeight bold 
     |> withStyle italic 
     |> font
         => font: italic bold 12px/30px "Georgia", serif;
-        
-  font caption 
-        => font: caption;
-        
-  font initial 
+
+or:        
+    font initial 
         => font: initial;
 -}
 type alias FontDescriptor a sz = FontFactory sz -> Font a sz
+type alias ComposedFontDescriptor sz = FontFactory sz -> ComposedFont sz
 
 type alias Font a sz = { a | font : FontAlternative sz }
 type alias WithComponents sz = { fontComponents : FontComponents sz }
@@ -286,8 +287,6 @@ fontFactory =
   , initial_   = { font = InitialFont }
   , inherit_   = { font = InheritFont }
   }
-    
-type alias ComposedFontDescriptor sz = FontFactory sz -> ComposedFont sz
 
 fontValue : Font a sz -> Value
 fontValue font =
