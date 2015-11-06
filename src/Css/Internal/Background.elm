@@ -404,7 +404,8 @@ type alias BackgroundDescriptor b sz1 sz2 sz3 =
   BackgroundFactory {} sz1 sz2 sz3 -> Background b sz1 sz2 sz3
   
 type alias ComposedBackgroundDescriptor a sz1 sz2 sz3 = 
-  Background (WithComponents sz1 sz2 sz3) sz1 sz2 sz3 ->
+  { a | background : BackgroundAlternative sz1 sz2 sz3,
+        backgroundComponents : BackgroundComponents sz1 sz2 sz3} ->
   BackgroundFactory {} sz1 sz2 sz3
 
 type alias BackgroundFactory b sz1 sz2 sz3 = 
