@@ -1,5 +1,7 @@
 module Css.Internal.Text
   ( TextRenderingDescriptor, textRenderingFactory, textRenderingValue
+  , TextShadowDescriptor, CompositeTextShadowDescriptor
+  , textShadowFactory, textShadowValue
   , TextIndentDescriptor, textIndentFactory, textIndentValue
   , TextDirectionDescriptor, textDirectionFactory, textDirectionValue
   , TextAlignDescriptor, textAlignFactory, textAlignValue
@@ -9,12 +11,16 @@ module Css.Internal.Text
   , ContentDescriptor, ComposableContentDescriptor, contentFactory, contentValue
   ) where
 
+import Css.Internal.Color exposing (ColorDescriptor, CssColor, colorValue)
 import Css.Internal.Common exposing 
   ( initialValue, inheritValue, autoValue
   , noneValue, normalValue, unsetValue, otherValue)
 import Css.Internal.Position exposing (HorizontalSide, horizontalSideValue)
 import Css.Internal.Property exposing 
-  (Value, Literal, toLiteral, concatenateValues, stringValue, literalValue)
+  ( Value, Literal, toLiteral
+  , concatenateValues, stringValue, literalValue
+  , spaceListValue
+  )
 import Css.Internal.Size exposing (Size, sizeValue)
 -------------------------------------------------------------------------------
 
@@ -66,6 +72,106 @@ textRenderingValue textRendering =
     UnsetTextRendering -> unsetValue
     OtherTextRendering val -> otherValue val
 
+-------------------------------------------------------------------------------
+
+type alias TextShadowDescriptor a hSz vSz blrSz = TextShadowFactory hSz vSz blrSz -> TextShadow a hSz vSz blrSz
+
+type alias CompositeTextShadowDescriptor hSz vSz blrSz = 
+  TextShadowFactory hSz vSz blrSz -> CompositeTextShadow hSz vSz blrSz  
+
+type alias TextShadow a hSz vSz blrSz = { a | textShadow : TextShadowComponent hSz vSz blrSz }
+
+type alias WithComponents = { withComponents : () }
+
+type alias CompositeTextShadow hSz vSz blrSz = TextShadow (WithComponents) hSz vSz blrSz
+
+type TextShadowComponent hSz vSz blrSz
+  = BaseShadow (Size hSz) (Size vSz) 
+  | WithBlurRadius (Size blrSz) (TextShadowComponent hSz vSz blrSz)
+  | WithColor CssColor (TextShadowComponent hSz vSz blrSz)
+  | InitialTextShadow
+  | InheritTextShadow
+  | NoTextShadow
+  | OtherTextShadow Value
+
+type alias TextShadowFactory hSz vSz blrSz =
+  { baseShadow : Size hSz -> Size vSz -> CompositeTextShadow hSz vSz blrSz 
+  , withBlurRadius : Size blrSz -> 
+                     TextShadowComponent hSz vSz blrSz -> 
+                     CompositeTextShadow hSz vSz blrSz 
+  , withColor : CssColor -> 
+                TextShadowComponent hSz vSz blrSz -> 
+                CompositeTextShadow hSz vSz blrSz
+  , initial_ : TextShadow {} hSz vSz blrSz 
+  , inherit_ : TextShadow {} hSz vSz blrSz 
+  , none_ : TextShadow {} hSz vSz blrSz 
+  , other_ : Value -> CompositeTextShadow hSz vSz blrSz 
+  }
+
+toSimpleShadow : TextShadowComponent hSz vSz blrSz -> TextShadow {} hSz vSz blrSz
+toSimpleShadow component = { textShadow = component }
+
+toCompositeShadow : TextShadowComponent hSz vSz blrSz -> 
+                    CompositeTextShadow hSz vSz blrSz
+toCompositeShadow component =
+  { textShadow = component
+  , withComponents = ()
+  }
+  
+textShadowFactory : TextShadowFactory hSz vSz blrSz
+textShadowFactory =
+  { baseShadow horizontal vertical = BaseShadow horizontal vertical |> toCompositeShadow
+  , withBlurRadius radius inner = WithBlurRadius radius inner |> toCompositeShadow
+  , withColor colour inner = WithColor colour inner |> toCompositeShadow
+  , initial_ = InitialTextShadow |> toSimpleShadow
+  , inherit_ = InheritTextShadow |> toSimpleShadow
+  , none_ = NoTextShadow |> toSimpleShadow
+  , other_ val = OtherTextShadow val |> toCompositeShadow
+  }
+
+textShadowValue : TextShadow a hSz vSz blrSz -> Value 
+textShadowValue textShadow =
+  case textShadow.textShadow of
+    InitialTextShadow -> initialValue
+    InheritTextShadow -> inheritValue
+    NoTextShadow -> noneValue
+    OtherTextShadow val -> otherValue val
+    somethingElse -> textShadowValueRecursive somethingElse Nothing Nothing
+
+textShadowValueRecursive : TextShadowComponent hSz vSz blrSz -> 
+                           Maybe (Size blrSz) -> 
+                           Maybe CssColor -> 
+                           Value
+textShadowValueRecursive component maybeSize maybeColor =
+  -- If the TextShadowComponent combinators are called more than once,
+  -- the last (outer) one wins. So if it's already set we don't reset it.
+  case component of
+    WithBlurRadius radius inner -> 
+      case maybeSize of
+        Just _ -> 
+          textShadowValueRecursive inner maybeSize maybeColor
+        Nothing -> 
+          textShadowValueRecursive inner (Just radius) maybeColor
+    WithColor colour inner -> 
+      case maybeColor of
+        Just _ -> 
+          textShadowValueRecursive inner maybeSize maybeColor
+        Nothing -> 
+          textShadowValueRecursive inner maybeSize (Just colour)
+    BaseShadow horizontal vertical -> 
+      let horizontalValue = sizeValue horizontal
+          verticalValue = sizeValue vertical
+          maybeRadiusValue = Maybe.map sizeValue maybeSize
+          maybeColorValue = Maybe.map colorValue maybeColor
+          
+          allValues = 
+            [ (Just horizontalValue)
+            , (Just verticalValue)
+            , maybeRadiusValue
+            , maybeColorValue
+            ] |> List.filterMap identity
+            
+      in spaceListValue identity allValues
 -------------------------------------------------------------------------------
 
 type alias TextIndentDescriptor a =

@@ -1,7 +1,7 @@
 module Css.Box
   ( paddingBox, borderBox, contentBox
   , boxSizing
-  , shadow, inset, withColor, withBlur
+  , shadow, inset, boxColor, boxBlur
   , boxShadow
   ) where
 
@@ -63,21 +63,21 @@ inset shadowDescriptor shadowFactory =
     somethingElse -> somethingElse -- Sized constraint keeps us from getting here
 
 
-withColor : ColorDescriptor {} ->
-            BoxShadowDescriptor Sized x y b s ->
-            BoxShadowDescriptor Sized x y b s
-withColor colorDescriptor shadowDescriptor shadowFactory =
+boxColor : ColorDescriptor {} ->
+           BoxShadowDescriptor Sized x y b s ->
+           BoxShadowDescriptor Sized x y b s
+boxColor colorDescriptor shadowDescriptor shadowFactory =
   let color = colorDescriptor colorFactory
   in case shadowDescriptor shadowFactory of
     BoxShadow size _ blur inset -> BoxShadow size (ShadowColor color) blur inset
     somethingElse -> somethingElse -- Sized constraint keeps us from getting here
 
 
-withBlur : SizeDescriptor (Size b) b ->
-           SizeDescriptor (Size s) s ->
-           BoxShadowDescriptor Sized x y b s ->
-           BoxShadowDescriptor Sized x y b s
-withBlur blurDescriptor spreadDescriptor shadowDescriptor shadowFactory =
+boxBlur : SizeDescriptor (Size b) b ->
+          SizeDescriptor (Size s) s ->
+          BoxShadowDescriptor Sized x y b s ->
+          BoxShadowDescriptor Sized x y b s
+boxBlur blurDescriptor spreadDescriptor shadowDescriptor shadowFactory =
   let blur = Blur (blurDescriptor sizeFactory) (spreadDescriptor sizeFactory)
   in case shadowDescriptor shadowFactory of
       BoxShadow size color _ inset -> BoxShadow size color blur inset

@@ -40,7 +40,7 @@ suite = describe "Css.BoxTests"
               "-ms-box-shadow:20px 30%;" ++
               "-o-box-shadow:20px 30%;" ++
               "box-shadow:20px 30%")
-        , renderProperties [boxShadow <| withColor black <| shadow (px 20) (pct 30)]
+        , renderProperties [boxShadow <| boxColor black <| shadow (px 20) (pct 30)]
             `shouldEqual`
               ("-webkit-box-shadow:20px 30% #000000;" ++
                 "-moz-box-shadow:20px 30% #000000;" ++
@@ -48,7 +48,7 @@ suite = describe "Css.BoxTests"
                 "-o-box-shadow:20px 30% #000000;" ++
                 "box-shadow:20px 30% #000000")
         , renderProperties
-            [boxShadow <| inset <| withColor black <| shadow (px 20) (pct 30)]
+            [boxShadow <| inset <| boxColor black <| shadow (px 20) (pct 30)]
             `shouldEqual`
               ("-webkit-box-shadow:20px 30% #000000 inset;" ++
                 "-moz-box-shadow:20px 30% #000000 inset;" ++
@@ -56,7 +56,7 @@ suite = describe "Css.BoxTests"
                 "-o-box-shadow:20px 30% #000000 inset;" ++
                 "box-shadow:20px 30% #000000 inset")
         , renderProperties
-            [boxShadow <| withBlur (pct 40) (px 50) <| shadow (px 20) (pct 30)]
+            [boxShadow <| boxBlur (pct 40) (px 50) <| shadow (px 20) (pct 30)]
             `shouldEqual`
               ("-webkit-box-shadow:20px 30% 40% 50px;" ++
                 "-moz-box-shadow:20px 30% 40% 50px;" ++
@@ -66,7 +66,7 @@ suite = describe "Css.BoxTests"
         , renderProperties
             [shadow (px 20) (pct 30)
               |> inset
-              |> withBlur (pct 40) (px 50)
+              |> boxBlur (pct 40) (px 50)
               |> boxShadow]
             `shouldEqual`
               ("-webkit-box-shadow:20px 30% 40% 50px inset;" ++
@@ -76,9 +76,9 @@ suite = describe "Css.BoxTests"
                 "box-shadow:20px 30% 40% 50px inset")
         , renderProperties
             [shadow (px 20) (pct 30)
-              |> withColor black
+              |> boxColor black
               |> inset
-              |> withBlur (pct 40) (px 50)
+              |> boxBlur (pct 40) (px 50)
               |> boxShadow]
             `shouldEqual`
               ("-webkit-box-shadow:20px 30% 40% 50px #000000 inset;" ++

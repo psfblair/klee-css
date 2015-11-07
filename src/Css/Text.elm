@@ -65,7 +65,8 @@ module Css.Text
 import Css.Internal.Border exposing (StrokeDescriptor, strokeFactory, strokeValue)
 import Css.Internal.Color exposing (ColorDescriptor, colorFactory, colorValue)
 import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValue)
-import Css.Internal.Property exposing (spaceQuadrupleValue, spaceListValue)
+import Css.Internal.Property exposing 
+  (spaceQuadrupleValue, spaceListValue, commaListValue)
 import Css.Internal.Position exposing (HorizontalSide)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Text exposing (..)
@@ -99,24 +100,48 @@ geometricPrecision : TextRenderingDescriptor
 geometricPrecision factory = factory.preciseGeometry
 
 -------------------------------------------------------------------------------
--- TODO: also takes none, initial, inherit
--- TODO: blur-radius and color are optional
--- TODO: More than one shadow can be added; e.g.:
+-- also takes none, initial, inherit
+-- blur-radius and color are optional
+-- More than one shadow can be added; e.g.:
 --   text-shadow: 0 0 3px #FF0000, 0 0 5px #0000FF;
-textShadow : SizeDescriptor (Size a) a -> 
-             SizeDescriptor (Size a) a -> 
-             SizeDescriptor (Size a) a -> 
-             ColorDescriptor {} -> 
+textShadow : TextShadowDescriptor a hSz vSz blrSz -> 
              PropertyRuleAppender
-textShadow horizontalDescriptor verticalDescriptor blurDescriptor colorDescriptor = 
+textShadow descriptor  =
+  let shadowValue = descriptor textShadowFactory |> textShadowValue
+  in simpleProperty "text-shadow" shadowValue
+
+textShadows : List (TextShadowDescriptor a hSz vSz blrSz) -> PropertyRuleAppender
+textShadows descriptors =
+  let applyDescriptor desc = desc textShadowFactory 
+      values = List.map applyDescriptor descriptors
+      valueFactory = commaListValue textShadowValue
+  in simpleProperty "text-shadow" (valueFactory values)
+  
+aShadow : SizeDescriptor (Size hSz) hSz -> 
+          SizeDescriptor (Size vSz) vSz -> 
+          CompositeTextShadowDescriptor hSz vSz blrSz
+aShadow horizontalDescriptor verticalDescriptor factory =
   let horizontal = horizontalDescriptor sizeFactory
       vertical = verticalDescriptor sizeFactory
-      blurRadius = blurDescriptor sizeFactory
-      color = colorDescriptor colorFactory
-      values = (horizontal,vertical,blurRadius,color)
-      valueFactory = spaceQuadrupleValue sizeValue sizeValue sizeValue colorValue
-  in simpleProperty "text-shadow" (valueFactory values)
+  in factory.baseShadow horizontal vertical
 
+shadowBlur : SizeDescriptor (Size blrSz) blrSz ->
+             CompositeTextShadowDescriptor hSz vSz blrSz -> 
+             CompositeTextShadowDescriptor hSz vSz blrSz
+shadowBlur blurDescriptor innerDescriptor factory =
+  let radius = blurDescriptor sizeFactory
+      innerCompositeShadow = innerDescriptor factory
+  in factory.withBlurRadius radius innerCompositeShadow.textShadow
+
+shadowColor : SizeDescriptor (Size blrSz) blrSz ->
+              CompositeTextShadowDescriptor hSz vSz blrSz -> 
+              CompositeTextShadowDescriptor hSz vSz blrSz
+shadowColor blurDescriptor innerDescriptor factory =
+  let radius = blurDescriptor sizeFactory
+      innerCompositeShadow = innerDescriptor factory
+  in factory.withBlurRadius radius innerCompositeShadow.textShadow
+
+  
 -------------------------------------------------------------------------------
 
 textIndent : TextIndentDescriptor a -> PropertyRuleAppender
