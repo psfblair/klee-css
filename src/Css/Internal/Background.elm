@@ -1,7 +1,5 @@
 module Css.Internal.Background
   ( BackgroundColorDescriptor, backgroundColorFactory
-  , HorizontalSide (..), VerticalSide (..)
-  , horizontalSideValue, verticalSideValue
   , BackgroundPositionDescriptor
   , backgroundPositionFactory, backgroundPositionValue
   , BackgroundSizeDescriptor
@@ -28,39 +26,15 @@ import Css.Internal.Color exposing
   (CssColor (..), ColorFactory, colorFactory, colorValue)
 import Css.Internal.Common exposing 
   (autoValue, initialValue, inheritValue, noneValue, otherValue)
+import Css.Internal.Position exposing 
+  ( HorizontalSide, VerticalSide
+  , sideLeft, sideCenter, sideRight
+  , sideTop, sideMiddle, sideBottom
+  , horizontalSideValue, verticalSideValue
+  )
 import Css.Internal.Property exposing 
   (Value, intersperse, stringValue, spacePairValue, maybeValue, spaceListValue)
 import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValue)
-
--------------------------------------------------------------------------------
-
-type HorizontalSide 
-  = HorizontalSide String
-  | InitialHorizontalSide
-  | InheritHorizontalSide
-  | OtherHorizontalSide Value
-
-horizontalSideValue : HorizontalSide -> Value 
-horizontalSideValue side = 
-  case side of
-    HorizontalSide str -> stringValue str
-    InitialHorizontalSide -> initialValue
-    InheritHorizontalSide -> inheritValue
-    OtherHorizontalSide val -> otherValue val
-
-type VerticalSide
-  = VerticalSide String
-  | InitialVerticalSide
-  | InheritVerticalSide
-  | OtherVerticalSide Value
-
-verticalSideValue : VerticalSide -> Value 
-verticalSideValue side = 
-  case side of
-    VerticalSide str -> stringValue str
-    InitialVerticalSide -> initialValue
-    InheritVerticalSide -> inheritValue
-    OtherVerticalSide val -> otherValue val
 
 -------------------------------------------------------------------------------
 

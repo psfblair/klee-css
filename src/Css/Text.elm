@@ -7,7 +7,6 @@ module Css.Text
 
   -- * Text-rendering.
 
-  , TextRendering
   , textRendering
   , optimizeSpeed, optimizeLegibility, geometricPrecision
 
@@ -17,35 +16,29 @@ module Css.Text
 
   -- * Text-indent.
 
-  , TextIndent
   , textIndent
   , eachLine, hanging
   , indent
 
   -- * Text-direction.
 
-  , TextDirection
   , direction
   , ltr
   , rtl
 
   -- * Text-align.
 
-  , TextAlign
   , textAlign
   , justify, matchParent, start, end
   , alignSide
-  , alignString
 
   -- * White-space.
 
-  , WhiteSpace
   , whiteSpace
   , pre, nowrap, preWrap, preLine
 
   -- * Text-decoration.
 
-  , TextDecoration
   , textDecoration
   , textDecorationStyle
   , textDecorationLine
@@ -54,13 +47,11 @@ module Css.Text
 
   -- * Text-transform.
 
-  , TextTransform
   , textTransform
   , capitalize, uppercase, lowercase, fullWidth
 
   -- * Content.
 
-  , Content
   , content
   , contents
   , attrContent
@@ -71,175 +62,228 @@ module Css.Text
 
   ) where
 
-import Css.Internal.Property
-import Css.Internal.Stylesheet
-
-import Css.Background
-import Css.Border
-import Css.Color
-import Css.Common
-import Css.Size
-
--------------------------------------------------------------------------------
-
-letterSpacing : Size a -> PropertyRuleAppender
-letterSpacing = key "letter-spacing"
-
-wordSpacing : Size a -> PropertyRuleAppender
-wordSpacing = key "word-spacing"
+import Css.Internal.Border exposing (StrokeDescriptor, strokeFactory, strokeValue)
+import Css.Internal.Color exposing (ColorDescriptor, colorFactory, colorValue)
+import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValue)
+import Css.Internal.Property exposing (spaceQuadrupleValue, spaceListValue)
+import Css.Internal.Position exposing (HorizontalSide)
+import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
+import Css.Internal.Text exposing (..)
 
 -------------------------------------------------------------------------------
 
-newtype TextRendering = TextRendering Value
-  deriving (Val, Auto, Inherit, Other)
+letterSpacing : SizeDescriptor (Size a) a -> PropertyRuleAppender
+letterSpacing sizeDescriptor =
+  let sizeVal = sizeDescriptor sizeFactory |> sizeValue
+  in simpleProperty "letter-spacing" sizeVal
 
-optimizeSpeed, optimizeLegibility, geometricPrecision : TextRendering
-
-optimizeSpeed      = TextRendering "optimizeSpeed"
-optimizeLegibility = TextRendering "optimizeLegibility"
-geometricPrecision = TextRendering "geometricPrecision"
-
-textRendering : TextRendering -> PropertyRuleAppender
-textRendering = key "text-rendering"
+wordSpacing : SizeDescriptor (Size a) a -> PropertyRuleAppender
+wordSpacing sizeDescriptor =
+  let sizeVal = sizeDescriptor sizeFactory |> sizeValue
+  in simpleProperty "word-spacing" sizeVal
 
 -------------------------------------------------------------------------------
 
-textShadow : Size a -> Size a -> Size a -> Color -> PropertyRuleAppender
-textShadow x y w c = key "text-shadow" (x ! y ! w ! c)
+textRendering : TextRenderingDescriptor -> PropertyRuleAppender
+textRendering descriptor =
+  let renderValue = descriptor textRenderingFactory |> textRenderingValue
+  in simpleProperty "text-rendering" renderValue
+
+optimizeSpeed : TextRenderingDescriptor
+optimizeSpeed factory = factory.speedOptimize
+
+optimizeLegibility : TextRenderingDescriptor
+optimizeLegibility factory = factory.legibilityOptimize
+
+geometricPrecision : TextRenderingDescriptor
+geometricPrecision factory = factory.preciseGeometry
+
+-------------------------------------------------------------------------------
+-- TODO: also takes none, initial, inherit
+-- TODO: blur-radius and color are optional
+-- TODO: More than one shadow can be added; e.g.:
+--   text-shadow: 0 0 3px #FF0000, 0 0 5px #0000FF;
+textShadow : SizeDescriptor (Size a) a -> 
+             SizeDescriptor (Size a) a -> 
+             SizeDescriptor (Size a) a -> 
+             ColorDescriptor {} -> 
+             PropertyRuleAppender
+textShadow horizontalDescriptor verticalDescriptor blurDescriptor colorDescriptor = 
+  let horizontal = horizontalDescriptor sizeFactory
+      vertical = verticalDescriptor sizeFactory
+      blurRadius = blurDescriptor sizeFactory
+      color = colorDescriptor colorFactory
+      values = (horizontal,vertical,blurRadius,color)
+      valueFactory = spaceQuadrupleValue sizeValue sizeValue sizeValue colorValue
+  in simpleProperty "text-shadow" (valueFactory values)
 
 -------------------------------------------------------------------------------
 
-newtype TextIndent = TextIndent Value
-  deriving (Val, Inherit, Other)
+textIndent : TextIndentDescriptor a -> PropertyRuleAppender
+textIndent descriptor = 
+  let indentValue = descriptor textIndentFactory |> textIndentValue
+  in simpleProperty "text-indent" indentValue
 
-eachLine, hanging : TextIndent
+eachLine: TextIndentDescriptor a
+eachLine factory = factory.indentEachLine
 
-eachLine = TextIndent "each-line"
-hanging  = TextIndent "hanging"
+hanging : TextIndentDescriptor a
+hanging factory = factory.hangingIndent
 
-indent : Size a -> TextIndent
-indent = TextIndent . value
-
-textIndent : TextIndent -> PropertyRuleAppender
-textIndent = key "text-indent"
-
--------------------------------------------------------------------------------
-
-newtype TextDirection = TextDirection Value
-  deriving (Val, Normal, Inherit, Other)
-
-ltr : TextDirection
-ltr = TextDirection "ltr"
-
-rtl : TextDirection
-rtl = TextDirection "rtl"
-
-direction : TextDirection -> PropertyRuleAppender
-direction = key "direction"
+indent : SizeDescriptor (Size a) a -> TextIndentDescriptor a
+indent sizeDescriptor factory =
+  let size = sizeDescriptor sizeFactory
+  in factory.textIndent size
 
 -------------------------------------------------------------------------------
 
-newtype TextAlign = TextAlign Value
-  deriving (Val, Normal, Inherit, Other, Center)
+direction : TextDirectionDescriptor -> PropertyRuleAppender
+direction descriptor = 
+  let directionValue = descriptor textDirectionFactory |> textDirectionValue
+  in simpleProperty "direction" directionValue
 
-justify, matchParent, start, end : TextAlign
+rtl : TextDirectionDescriptor
+rtl factory = factory.rightToLeft
 
-justify     = TextAlign "justify"
-matchParent = TextAlign "match-parent"
-start       = TextAlign "start"
-end         = TextAlign "end"
-
-alignSide : Side -> TextAlign
-alignSide = TextAlign . value
-
-alignString : Char -> TextAlign
-alignString = TextAlign . value . Literal . fromString . return
-
-textAlign : TextAlign -> PropertyRuleAppender
-textAlign = key "text-align"
+ltr : TextDirectionDescriptor
+ltr factory = factory.leftToRight
 
 -------------------------------------------------------------------------------
 
-newtype WhiteSpace = WhiteSpace Value
-  deriving (Val, Normal, Inherit, Other)
+textAlign : TextAlignDescriptor -> PropertyRuleAppender
+textAlign descriptor  = 
+  let alignmentValue = descriptor textAlignFactory |> textAlignValue
+  in simpleProperty "text-align" alignmentValue
 
-whiteSpace : WhiteSpace -> PropertyRuleAppender
-whiteSpace = key "white-space"
+start : TextAlignDescriptor
+start factory = factory.start
 
-pre, nowrap, preWrap, preLine : WhiteSpace
+end : TextAlignDescriptor
+end factory = factory.end
 
-pre     = WhiteSpace "pre"
-nowrap  = WhiteSpace "nowrap"
-preWrap = WhiteSpace "pre-wrap"
-preLine = WhiteSpace "pre-line"
+justify : TextAlignDescriptor
+justify factory = factory.justify
 
--------------------------------------------------------------------------------
+matchParent : TextAlignDescriptor
+matchParent factory = factory.matchParent
 
-newtype TextDecoration = TextDecoration Value
-  deriving (Val, None, Inherit, Other)
-
-underline, overline, lineThrough, blink : TextDecoration
-
-underline   = TextDecoration "underline"
-overline    = TextDecoration "overline"
-lineThrough = TextDecoration "line-through"
-blink       = TextDecoration "blink"
-
-textDecorationLine : TextDecoration -> PropertyRuleAppender
-textDecorationLine = key "text-decoration-line"
-
-textDecorationColor : Color -> PropertyRuleAppender
-textDecorationColor = key "text-decoration-color"
-
-textDecoration : TextDecoration -> PropertyRuleAppender
-textDecoration = key "text-decoration"
-
-textDecorationStyle : Stroke -> PropertyRuleAppender
-textDecorationStyle = key "text-decoration-style"
+alignSide : HorizontalSide -> TextAlignDescriptor
+alignSide side factory = factory.alignWithSide side
 
 -------------------------------------------------------------------------------
 
-newtype TextTransform = TextTransform Value
-  deriving (Val, None, Inherit)
+whiteSpace : WhiteSpaceDescriptor -> PropertyRuleAppender
+whiteSpace descriptor = 
+  let whiteSpaceVal = descriptor whiteSpaceFactory |> whiteSpaceValue
+  in simpleProperty "white-space" whiteSpaceVal
 
-capitalize, uppercase, lowercase, fullWidth : TextTransform
+nowrap : WhiteSpaceDescriptor
+nowrap factory = factory.noWrap
 
-capitalize = TextTransform "capitalize"
-uppercase  = TextTransform "uppercase"
-lowercase  = TextTransform "lowercase"
-fullWidth  = TextTransform "full-width"
+pre : WhiteSpaceDescriptor
+pre factory = factory.pre
 
-textTransform : TextTransform -> PropertyRuleAppender
-textTransform = key "text-transform"
+preWrap : WhiteSpaceDescriptor
+preWrap factory = factory.preWrap
+
+preLine : WhiteSpaceDescriptor
+preLine factory = factory.preLine
 
 -------------------------------------------------------------------------------
 
-newtype Content = Content Value
-  deriving (Val, None, Normal, Inherit, Initial)
+textDecoration : TextDecorationDescriptor -> PropertyRuleAppender
+textDecoration descriptor = 
+  let decorationValue = descriptor textDecorationFactory |> textDecorationValue
+  in simpleProperty "text-decoration" decorationValue
 
-attrContent : Text -> Content
-attrContent a = Content ("attr(" <> value a <> ")")
+textDecorationLine : TextDecorationDescriptor -> PropertyRuleAppender
+textDecorationLine descriptor = 
+  let decorationValue = descriptor textDecorationFactory |> textDecorationValue
+  in simpleProperty "text-decoration-line" decorationValue
 
-stringContent : Text -> Content
-stringContent = Content . value . Literal
+underline : TextDecorationDescriptor
+underline factory = factory.underline
 
-uriContent : Text -> Content
-uriContent u = Content ("uri(" <> value (Literal u) <> ")")
+overline : TextDecorationDescriptor
+overline factory = factory.overline
 
-urlContent : Text -> Content
-urlContent u = Content ("url(" <> value (Literal u) <> ")")
+lineThrough : TextDecorationDescriptor
+lineThrough factory = factory.lineThrough
 
-openQuote, closeQuote, noOpenQuote, noCloseQuote : Content
+blink : TextDecorationDescriptor
+blink factory = factory.blink
 
-openQuote    = Content "open-quote"
-closeQuote   = Content "close-quote"
-noOpenQuote  = Content "no-open-quote"
-noCloseQuote = Content "no-close-quote"
+-------------------------------------------------------------------------------
 
-content : Content -> PropertyRuleAppender
-content = key "content"
+textDecorationColor : ColorDescriptor {} -> PropertyRuleAppender
+textDecorationColor descriptor = 
+  let colorVal = descriptor colorFactory |> colorValue
+  in simpleProperty "text-decoration-color" colorVal
 
-contents : [Content] -> PropertyRuleAppender
-contents cs = key "content" (noCommas cs)
+textDecorationStyle : StrokeDescriptor -> PropertyRuleAppender
+textDecorationStyle descriptor = 
+  let strokeVal = descriptor strokeFactory |> strokeValue
+  in simpleProperty "text-decoration-style" strokeVal
 
--- TODO: counters
+-------------------------------------------------------------------------------
+
+textTransform : TextTransformDescriptor -> PropertyRuleAppender
+textTransform descriptor = 
+  let transformValue = descriptor textTransformFactory |> textTransformValue
+  in simpleProperty "text-transform" transformValue
+
+capitalize : TextTransformDescriptor
+capitalize factory = factory.capitalize
+
+uppercase : TextTransformDescriptor
+uppercase factory = factory.uppercase
+
+lowercase : TextTransformDescriptor
+lowercase factory = factory.lowercase
+
+fullWidth : TextTransformDescriptor
+fullWidth factory = factory.fullWidth
+
+-------------------------------------------------------------------------------
+-- TODO - This property can only be used with pseudo-elements :before and :after
+-- `content` can take
+-- normal|none|initial|inherit
+-- Or a list of the following:
+-- counter|attr|string|open-quote|close-quote|no-open-quote|no-close-quote|url;
+
+content : ContentDescriptor a -> PropertyRuleAppender
+content descriptor = 
+  let contentVal = descriptor contentFactory |> contentValue
+  in simpleProperty "content" contentVal
+  
+contents : List ComposableContentDescriptor -> PropertyRuleAppender  
+contents descriptors = 
+  let toContent aDescriptor = aDescriptor contentFactory
+      contentValues = List.map toContent descriptors 
+  in simpleProperty "content" (spaceListValue contentValue contentValues)
+
+attrContent : String -> ComposableContentDescriptor
+attrContent attrName factory = factory.attributeContent attrName
+
+stringContent : String -> ComposableContentDescriptor
+stringContent str factory = factory.stringContent str
+
+uriContent : String -> ComposableContentDescriptor
+uriContent uri factory = factory.uriContent uri
+
+urlContent : String -> ComposableContentDescriptor
+urlContent url factory = factory.urlContent url
+
+openQuote : ComposableContentDescriptor
+openQuote factory = factory.openQuote
+
+closeQuote : ComposableContentDescriptor
+closeQuote factory = factory.closeQuote
+
+noOpenQuote : ComposableContentDescriptor
+noOpenQuote factory = factory.noOpenQuote
+
+noCloseQuote : ComposableContentDescriptor
+noCloseQuote factory = factory.noCloseQuote
+
+-- TODO: counter, counters

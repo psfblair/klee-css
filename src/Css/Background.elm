@@ -6,15 +6,6 @@ module Css.Background
   , placed
   , positioned
 
-  -- * Specifying sides.
-
-  , sideTop
-  , sideLeft
-  , sideRight
-  , sideBottom
-  , sideCenter
-  , sideMiddle
-
   -- * The background-size.
 
   , backgroundSize
@@ -62,6 +53,7 @@ module Css.Background
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Box exposing (BoxType, BoxTypeDescriptor, boxTypeFactory)
 import Css.Internal.Color exposing (colorValue)
+import Css.Internal.Position exposing (HorizontalSide, VerticalSide)
 import Css.Internal.Size exposing (Size, SizeDescriptor)
 
 import Css.Internal.Background exposing (..)
@@ -80,26 +72,6 @@ positioned : SizeDescriptor (Size sz1) sz1 ->
              SizeDescriptor (Size sz2) sz2 -> 
              BackgroundPositionDescriptor sz1 sz2
 positioned horiz vert factory = factory.sizedPosition horiz vert
-
--------------------------------------------------------------------------------
-
-sideLeft : HorizontalSide
-sideLeft = HorizontalSide "left"
-
-sideCenter : HorizontalSide
-sideCenter = HorizontalSide "center"
-
-sideRight : HorizontalSide
-sideRight = HorizontalSide "right"
-
-sideTop : VerticalSide
-sideTop = VerticalSide "top"
-
-sideMiddle : VerticalSide
-sideMiddle = VerticalSide "center"
-
-sideBottom : VerticalSide
-sideBottom = VerticalSide "bottom"
 
 -------------------------------------------------------------------------------
 
