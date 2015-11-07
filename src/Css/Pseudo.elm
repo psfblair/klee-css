@@ -39,8 +39,6 @@ root          = ":root"           |> filterFromString
 target        = ":target"         |> filterFromString
 valid         = ":valid"          |> filterFromString
 
--- TODO Fix this -- needs to be Refinement [ PseudoFunc pseudoFunc args ]
--- without an outer selector
 lang          n = func "lang"             [n]
 nthChild      n = func "nth-child"        [n]
 nthLastChild  n = func "nth-last-child"   [n]
