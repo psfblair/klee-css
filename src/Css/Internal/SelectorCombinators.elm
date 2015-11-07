@@ -95,9 +95,9 @@ pseudo outerSelector pseudoSelector =
 {-| Filter elements of the given selector by pseudo selector functions. The
 preferred syntax is to use one of the predefined functions from "Css.Pseudo".
 -}
-func : Selector -> String -> (List String) -> Selector
-func outerSelector pseudoFunc args =
-  Refinement [ PseudoFunc pseudoFunc args ] |> with outerSelector
+func : String -> (List String) -> Refinement
+func pseudoFunc args =
+  Refinement [ PseudoFunc pseudoFunc args ]
 
 -- ** Attribute-based refining.
 

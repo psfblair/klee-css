@@ -1,6 +1,7 @@
 module Css.Pseudo where
 
-import Css.Internal.Selector exposing (filterFromString, func)
+import Css.Internal.Selector exposing (filterFromString)
+import Css.Internal.SelectorCombinators exposing (func)
 
 -------------------------------------------------------------------------------
 
@@ -38,9 +39,12 @@ root          = ":root"           |> filterFromString
 target        = ":target"         |> filterFromString
 valid         = ":valid"          |> filterFromString
 
-
+-- TODO Fix this -- needs to be Refinement [ PseudoFunc pseudoFunc args ]
+-- without an outer selector
 lang          n = func "lang"             [n]
 nthChild      n = func "nth-child"        [n]
 nthLastChild  n = func "nth-last-child"   [n]
 nthLastOfType n = func "nth-last-of-type" [n]
 nthOfType     n = func "nth-of-type"      [n]
+
+-- TODO not(X)

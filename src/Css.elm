@@ -265,7 +265,8 @@ pseudo = Css.Internal.SelectorCombinators.pseudo
 preferred syntax is to use one of the predefined functions from "Css.Pseudo".
 -}
 func : Selector -> String -> (List String) -> Selector
-func = Css.Internal.SelectorCombinators.func
+func outerSelector pseudoFunc args = 
+  Css.Internal.SelectorCombinators.func pseudoFunc args |> with outerSelector
 
 -- ** Attribute-based refining.
 
