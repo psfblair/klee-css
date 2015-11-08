@@ -64,6 +64,7 @@ module Css.Text
 
 import Css.Internal.Border exposing (StrokeDescriptor, strokeFactory, strokeValue)
 import Css.Internal.Color exposing (ColorDescriptor, colorFactory, colorValue)
+import Css.Internal.List exposing (ListStyleTypeDescriptor, listStyleTypeFactory)
 import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValue)
 import Css.Internal.Property exposing 
   (spaceQuadrupleValue, spaceListValue, commaListValue)
@@ -314,22 +315,40 @@ noCloseQuote factory = factory.noCloseQuote
 -- TODO: counter, counters: 
 
 -- counter() has two forms: 'counter(name)' or 'counter(name, style)'. 
--- formatted in the indicated list-type style (disc, circle, square, etc.; 
--- 'decimal' by default).  
+-- where style is a list style (disc, circle, square, etc.; 'decimal' by default).  
 -- If the name is 'none', 'inherit' or 'initial', the declaration is ignored;
--- we won't type check that.
+-- so we won't type check that.
+counter : String -> ComposableContentDescriptor
+counter name factory = factory.counter name Nothing
+    
+styledCounter : String -> ListStyleTypeDescriptor -> ComposableContentDescriptor
+styledCounter name styleDescriptor factory =
+  let listStyleType = styleDescriptor listStyleTypeFactory
+  in factory.counter name (Just listStyleType)
 
--- counter :
+-- counters() has two forms: 'counters(name, string)' or 'counters(name, string, style)'.
+-- where `string` is the string to nest between different levels of nested counters. 
+counters : String -> String -> ComposableContentDescriptor
+counters name separator factory = factory.counters name separator Nothing
+    
+styledCounters : String -> 
+                 String -> 
+                 ListStyleTypeDescriptor -> 
+                 ComposableContentDescriptor
+styledCounters name separator styleDescriptor factory =
+  let listStyleType = styleDescriptor listStyleTypeFactory
+  in factory.counters name separator (Just listStyleType)
 
--- counters() has two forms: 'counters(name, string)' or 'counters(name, string, style)'. 
--- value of all counters with the given name in scope at this pseudo-element, 
--- from outermost to innermost separated by the specified string. The counters 
--- are rendered in the indicated style ('decimal' by default). 
- 
--- counters :
-
+-- TODO Integer is optional, and there can be more than one of these clauses.
 -- counter-increment : [<user-ident> <integer>?]+ | none
--- counterIncrement : CounterControlDescriptor -> PropertyRuleAppender
+counterIncrement : CounterControlDescriptor -> PropertyRuleAppender
+counterIncrement descriptor = 
+  let counterControlVal = descriptor counterControlFactory |> counterControlValue
+  in simpleProperty "counter-increment" counterControlVal
 
+-- TODO Integer is optional, and there can be more than one of these clauses.
 -- counter-reset : [<user-ident> <integer>?]+ | none
--- counterReset : CounterControlDescriptor -> PropertyRuleAppender
+counterReset : CounterControlDescriptor -> PropertyRuleAppender
+counterReset descriptor = 
+  let counterControlVal = descriptor counterControlFactory |> counterControlValue
+  in simpleProperty "counter-reset" counterControlVal

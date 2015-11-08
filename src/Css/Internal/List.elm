@@ -1,5 +1,5 @@
 module Css.Internal.List 
-  ( ListStyleTypeDescriptor, listStyleTypeFactory, listStyleTypeValue
+  ( ListStyleType, ListStyleTypeDescriptor, listStyleTypeFactory, listStyleTypeValue
   , ListStylePositionDescriptor, listStylePositionFactory, listStylePositionValue
   , ListStyleImageDescriptor, listStyleImageFactory, listStyleImageValue
   , ListStyleDescriptor, ComposedListStyleDescriptor, listStyleValue

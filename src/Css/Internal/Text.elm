@@ -9,16 +9,18 @@ module Css.Internal.Text
   , TextDecorationDescriptor, textDecorationFactory, textDecorationValue
   , TextTransformDescriptor, textTransformFactory, textTransformValue
   , ContentDescriptor, ComposableContentDescriptor, contentFactory, contentValue
+  , CounterControlDescriptor, counterControlFactory, counterControlValue
   ) where
 
 import Css.Internal.Color exposing (ColorDescriptor, CssColor, colorValue)
 import Css.Internal.Common exposing 
   ( initialValue, inheritValue, autoValue
   , noneValue, normalValue, unsetValue, otherValue)
+import Css.Internal.List exposing (ListStyleType, listStyleTypeValue)
 import Css.Internal.Position exposing (HorizontalSide, horizontalSideValue)
 import Css.Internal.Property exposing 
   ( Value, Literal, toLiteral
-  , concatenateValues, stringValue, literalValue
+  , concatenateValues, emptyValue, stringValue, literalValue
   , spaceListValue
   )
 import Css.Internal.Size exposing (Size, sizeValue)
@@ -455,12 +457,10 @@ type alias ContentDescriptor a =
 
 type alias ComposableContentDescriptor =
   ContentFactory -> ComposableContent
+  
+type alias BareContent a = { a | content: Content }
 
-type alias BareContent a = 
-  { a | content: Content }
-
-type alias ThatIsComposable = 
-  { composable: () }
+type alias ThatIsComposable = { composable: () }
   
 type alias ComposableContent = BareContent ThatIsComposable
   
@@ -469,6 +469,8 @@ type Content
   | StringContent Literal
   | UriContent Literal
   | UrlContent Literal
+  | CounterContent String (Maybe ListStyleType)
+  | CountersContent String String (Maybe ListStyleType)
   | OpenQuoteContent
   | CloseQuoteContent
   | NoOpenQuoteContent
@@ -484,6 +486,8 @@ type alias ContentFactory =
   , stringContent : String -> ComposableContent
   , uriContent : String -> ComposableContent
   , urlContent : String -> ComposableContent
+  , counter : String -> Maybe ListStyleType -> ComposableContent
+  , counters : String -> String -> Maybe ListStyleType -> ComposableContent
   , openQuote : ComposableContent
   , closeQuote : ComposableContent
   , noOpenQuote : ComposableContent
@@ -501,6 +505,9 @@ contentFactory =
   , stringContent str = toLiteral str |> StringContent |> toComposableContent
   , uriContent str = toLiteral str |> UriContent |> toComposableContent
   , urlContent str = toLiteral str |> UrlContent |> toComposableContent
+  , counter name maybeStyle = CounterContent name maybeStyle |> toComposableContent
+  , counters name separator maybeStyle = 
+      CountersContent name separator maybeStyle |> toComposableContent
   , openQuote = OpenQuoteContent |> toComposableContent
   , closeQuote = CloseQuoteContent |> toComposableContent
   , noOpenQuote = NoOpenQuoteContent |> toComposableContent
@@ -523,23 +530,80 @@ toComposableContent theContent =
 
 contentValue : BareContent a -> Value 
 contentValue theContent =
-  case theContent.content of
-    AttributeContent str -> 
-      [ stringValue "attr(", stringValue str, stringValue ")" ] 
-      |> concatenateValues
-    StringContent literal -> literalValue literal
-    UriContent literal -> 
-      [ stringValue "uri(", literalValue literal, stringValue ")" ]
-      |> concatenateValues
-    UrlContent literal -> 
-      [ stringValue "url(", literalValue literal, stringValue ")" ]
-      |> concatenateValues
-    OpenQuoteContent -> stringValue "open-quote"
-    CloseQuoteContent -> stringValue "close-quote"
-    NoOpenQuoteContent -> stringValue "no-open-quote"
-    NoCloseQuoteContent -> stringValue "no-close-quote"
-    NoContent -> noneValue
-    NormalContent -> normalValue
-    InitialContent -> initialValue
-    InheritContent -> inheritValue
-    OtherContent val -> otherValue val
+  let styleTypeValue styleMaybe =
+    case styleMaybe of
+      Nothing -> emptyValue
+      Just styleType -> 
+        [stringValue ",", listStyleTypeValue styleType] |> concatenateValues
+  in 
+    case theContent.content of
+      AttributeContent str -> 
+        [ stringValue "attr(", stringValue str, stringValue ")" ] 
+        |> concatenateValues
+      StringContent literal -> literalValue literal
+      UriContent literal -> 
+        [ stringValue "uri(", literalValue literal, stringValue ")" ]
+        |> concatenateValues
+      UrlContent literal -> 
+        [ stringValue "url(", literalValue literal, stringValue ")" ]
+        |> concatenateValues
+      CounterContent name maybeStyle ->
+        [ stringValue "counter("
+        , stringValue name
+        , styleTypeValue maybeStyle
+        , stringValue ")" 
+        ] |> concatenateValues
+      CountersContent name separator maybeStyle ->
+        [ stringValue "counter("
+        , stringValue name
+        , stringValue ","
+        , stringValue separator
+        , styleTypeValue maybeStyle
+        , stringValue ")" 
+        ] |> concatenateValues
+      OpenQuoteContent -> stringValue "open-quote"
+      CloseQuoteContent -> stringValue "close-quote"
+      NoOpenQuoteContent -> stringValue "no-open-quote"
+      NoCloseQuoteContent -> stringValue "no-close-quote"
+      NoContent -> noneValue
+      NormalContent -> normalValue
+      InitialContent -> initialValue
+      InheritContent -> inheritValue
+      OtherContent val -> otherValue val
+
+-------------------------------------------------------------------------------
+type alias CounterControlDescriptor =
+  CounterControlFactory -> CounterControl
+
+type CounterControl
+  = CounterControl String
+  | InitialCounterControl
+  | InheritCounterControl
+  | NoCounterControl
+  | OtherCounterControl Value
+  
+type alias CounterControlFactory =
+  { counterId : String -> CounterControl
+  , initial_ : CounterControl
+  , inherit_ : CounterControl
+  , none_ : CounterControl
+  , other_ : Value -> CounterControl
+  }  
+
+counterControlFactory : CounterControlFactory
+counterControlFactory =
+  { counterId str = CounterControl str
+  , initial_ = InitialCounterControl
+  , inherit_ = InheritCounterControl
+  , none_ = NoCounterControl
+  , other_ val = OtherCounterControl val
+  }  
+
+counterControlValue : CounterControl -> Value
+counterControlValue counterControl =
+  case counterControl of
+    CounterControl str -> stringValue str
+    InitialCounterControl -> initialValue
+    InheritCounterControl -> inheritValue
+    NoCounterControl -> noneValue
+    OtherCounterControl val -> otherValue val
