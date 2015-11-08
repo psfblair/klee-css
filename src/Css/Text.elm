@@ -12,7 +12,8 @@ module Css.Text
 
   -- * Text-shadow.
 
-  , textShadow
+  , textShadow, textShadows
+  , aShadow, shadowBlur, shadowColor
 
   -- * Text-indent.
 
@@ -40,10 +41,10 @@ module Css.Text
   -- * Text-decoration.
 
   , textDecoration
-  , textDecorationStyle
   , textDecorationLine
-  , textDecorationColor
   , underline, overline, lineThrough, blink
+  , textDecorationColor
+  , textDecorationStyle
 
   -- * Text-transform.
 
@@ -112,6 +113,8 @@ textShadow descriptor  =
   let shadowValue = descriptor textShadowFactory |> textShadowValue
   in simpleProperty "text-shadow" shadowValue
 
+-- This is still over-constrained in that each element of the list has to have the
+-- same combination of absolute and relative positions.
 textShadows : List (TextShadowDescriptor a hSz vSz blrSz) -> PropertyRuleAppender
 textShadows descriptors =
   let applyDescriptor desc = desc textShadowFactory 
@@ -135,13 +138,13 @@ shadowBlur blurDescriptor innerDescriptor factory =
       innerCompositeShadow = innerDescriptor factory
   in factory.withBlurRadius radius innerCompositeShadow.textShadow
 
-shadowColor : SizeDescriptor (Size blrSz) blrSz ->
+shadowColor : ColorDescriptor {} ->
               CompositeTextShadowDescriptor hSz vSz blrSz -> 
               CompositeTextShadowDescriptor hSz vSz blrSz
-shadowColor blurDescriptor innerDescriptor factory =
-  let radius = blurDescriptor sizeFactory
+shadowColor colorDescriptor innerDescriptor factory =
+  let colour = colorDescriptor colorFactory
       innerCompositeShadow = innerDescriptor factory
-  in factory.withBlurRadius radius innerCompositeShadow.textShadow
+  in factory.withColor colour innerCompositeShadow.textShadow
 
   
 -------------------------------------------------------------------------------
@@ -190,6 +193,9 @@ end factory = factory.end
 
 justify : TextAlignDescriptor
 justify factory = factory.justify
+
+justifyAll : TextAlignDescriptor
+justifyAll factory = factory.justifyAll
 
 matchParent : TextAlignDescriptor
 matchParent factory = factory.matchParent
@@ -241,7 +247,7 @@ blink : TextDecorationDescriptor
 blink factory = factory.blink
 
 -------------------------------------------------------------------------------
-
+-- TODO This can take transparent
 textDecorationColor : ColorDescriptor {} -> PropertyRuleAppender
 textDecorationColor descriptor = 
   let colorVal = descriptor colorFactory |> colorValue

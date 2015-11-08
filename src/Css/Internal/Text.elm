@@ -99,6 +99,7 @@ type TextShadowComponent hSz vSz blrSz
   | InitialTextShadow
   | InheritTextShadow
   | NoTextShadow
+  | UnsetTextShadow
   | OtherTextShadow Value
 
 type alias TextShadowFactory hSz vSz blrSz =
@@ -112,6 +113,7 @@ type alias TextShadowFactory hSz vSz blrSz =
   , initial_ : TextShadow {} hSz vSz blrSz 
   , inherit_ : TextShadow {} hSz vSz blrSz 
   , none_ : TextShadow {} hSz vSz blrSz 
+  , unset_ : TextShadow {} hSz vSz blrSz 
   , other_ : Value -> CompositeTextShadow hSz vSz blrSz 
   }
 
@@ -133,6 +135,7 @@ textShadowFactory =
   , initial_ = InitialTextShadow |> toSimpleShadow
   , inherit_ = InheritTextShadow |> toSimpleShadow
   , none_ = NoTextShadow |> toSimpleShadow
+  , unset_ = UnsetTextShadow |> toSimpleShadow
   , other_ val = OtherTextShadow val |> toCompositeShadow
   }
 
@@ -142,6 +145,7 @@ textShadowValue textShadow =
     InitialTextShadow -> initialValue
     InheritTextShadow -> inheritValue
     NoTextShadow -> noneValue
+    UnsetTextShadow -> unsetValue
     OtherTextShadow val -> otherValue val
     somethingElse -> textShadowValueRecursive somethingElse Nothing Nothing
 
@@ -190,6 +194,7 @@ type TextIndent a
   | HangingIndent
   | InitialTextIndent
   | InheritTextIndent
+  | UnsetTextIndent
   | OtherTextIndent Value
   
 type alias TextIndentFactory a =
@@ -198,6 +203,7 @@ type alias TextIndentFactory a =
   , hangingIndent : TextIndent a
   , initial_ : TextIndent a
   , inherit_ : TextIndent a
+  , unset_ : TextIndent a
   , other_ : Value -> TextIndent a
   } 
   
@@ -208,6 +214,7 @@ textIndentFactory =
   , hangingIndent = HangingIndent
   , initial_ = InitialTextIndent
   , inherit_ = InheritTextIndent
+  , unset_ = UnsetTextIndent
   , other_ val = OtherTextIndent val
   }
 
@@ -219,6 +226,7 @@ textIndentValue textIndent =
     HangingIndent -> stringValue "hanging"
     InitialTextIndent -> initialValue
     InheritTextIndent -> inheritValue
+    UnsetTextIndent -> unsetValue
     OtherTextIndent val -> otherValue val
 
 -------------------------------------------------------------------------------
@@ -231,6 +239,7 @@ type TextDirection
     | LeftToRight
     | InitialTextDirection
     | InheritTextDirection
+    | UnsetTextDirection
     | OtherTextDirection Value
 
 type alias TextDirectionFactory =
@@ -238,6 +247,7 @@ type alias TextDirectionFactory =
   , leftToRight : TextDirection
   , initial_ : TextDirection
   , inherit_ : TextDirection
+  , unset_ : TextDirection
   , other_ : Value -> TextDirection
   } 
 
@@ -247,6 +257,7 @@ textDirectionFactory =
   , leftToRight = LeftToRight
   , initial_ = InitialTextDirection
   , inherit_ = InheritTextDirection
+  , unset_ = UnsetTextDirection
   , other_ val = OtherTextDirection val
   }
 
@@ -257,6 +268,7 @@ textDirectionValue textDirection =
     LeftToRight -> stringValue "ltr"
     InitialTextDirection -> initialValue
     InheritTextDirection -> inheritValue
+    UnsetTextDirection -> unsetValue
     OtherTextDirection val -> otherValue val
 
 -------------------------------------------------------------------------------
@@ -267,21 +279,25 @@ type alias TextAlignDescriptor =
 type TextAlign
   = SideTextAlign HorizontalSide
   | JustifyTextAlign
+  | JustifyAllTextAlign
   | MatchParentTextAlign
   | StartTextAlign
   | EndTextAlign
   | InitialTextAlign
   | InheritTextAlign
+  | UnsetTextAlign
   | OtherTextAlign Value
 
 type alias TextAlignFactory =
   { alignWithSide : HorizontalSide -> TextAlign
   , justify : TextAlign
+  , justifyAll : TextAlign
   , matchParent : TextAlign
   , start : TextAlign
   , end : TextAlign
   , initial_ : TextAlign
   , inherit_ : TextAlign
+  , unset_ : TextAlign
   , other_ : Value -> TextAlign
   }
 
@@ -289,11 +305,13 @@ textAlignFactory : TextAlignFactory
 textAlignFactory =
   { alignWithSide side = SideTextAlign side
   , justify = JustifyTextAlign
+  , justifyAll = JustifyAllTextAlign
   , matchParent = MatchParentTextAlign
   , start = StartTextAlign
   , end = EndTextAlign
   , initial_ = InitialTextAlign
   , inherit_ = InheritTextAlign
+  , unset_ = UnsetTextAlign
   , other_ val = OtherTextAlign val
   }
 
@@ -302,11 +320,13 @@ textAlignValue alignment =
   case alignment of
     SideTextAlign side -> horizontalSideValue side
     JustifyTextAlign -> stringValue "justify"
+    JustifyAllTextAlign -> stringValue "justify-all"
     MatchParentTextAlign -> stringValue "match-parent"
     StartTextAlign -> stringValue "start"
     EndTextAlign -> stringValue "end"
     InitialTextAlign -> initialValue
     InheritTextAlign -> inheritValue
+    UnsetTextAlign -> unsetValue
     OtherTextAlign val -> otherValue val
     
 -------------------------------------------------------------------------------
@@ -321,6 +341,8 @@ type WhiteSpace
   | PreLineWhiteSpace
   | InitialWhiteSpace
   | InheritWhiteSpace
+  | NormalWhiteSpace
+  | UnsetWhiteSpace
   | OtherWhiteSpace Value
 
 type alias WhiteSpaceFactory =
@@ -330,6 +352,8 @@ type alias WhiteSpaceFactory =
   , preLine : WhiteSpace
   , initial_ : WhiteSpace
   , inherit_ : WhiteSpace
+  , normal_ : WhiteSpace
+  , unset_ : WhiteSpace
   , other_ : Value -> WhiteSpace
   }
 
@@ -341,6 +365,8 @@ whiteSpaceFactory =
   , preLine = PreLineWhiteSpace
   , initial_ = InitialWhiteSpace
   , inherit_ = InheritWhiteSpace
+  , normal_ = NormalWhiteSpace
+  , unset_ = UnsetWhiteSpace
   , other_ val = OtherWhiteSpace val
   }
 
@@ -353,6 +379,8 @@ whiteSpaceValue theWhiteSpace =
     PreLineWhiteSpace -> stringValue "pre-line"
     InitialWhiteSpace -> initialValue
     InheritWhiteSpace -> inheritValue
+    NormalWhiteSpace -> normalValue
+    UnsetWhiteSpace -> unsetValue
     OtherWhiteSpace val -> otherValue val
 
 -------------------------------------------------------------------------------
@@ -368,6 +396,7 @@ type TextDecoration
   | NoTextDecoration
   | InitialTextDecoration
   | InheritTextDecoration
+  | UnsetTextDecoration
   | OtherTextDecoration Value
 
 type alias TextDecorationFactory =
@@ -378,6 +407,7 @@ type alias TextDecorationFactory =
   , none_ : TextDecoration
   , initial_ : TextDecoration
   , inherit_ : TextDecoration
+  , unset_ : TextDecoration
   , other_ : Value -> TextDecoration
   }
 
@@ -390,6 +420,7 @@ textDecorationFactory =
   , none_ = NoTextDecoration
   , initial_ = InitialTextDecoration
   , inherit_ = InheritTextDecoration
+  , unset_ = UnsetTextDecoration
   , other_ val = OtherTextDecoration val
   }
 
@@ -403,6 +434,7 @@ textDecorationValue theTextDecoration =
     NoTextDecoration -> noneValue
     InitialTextDecoration -> initialValue
     InheritTextDecoration -> inheritValue
+    UnsetTextDecoration -> unsetValue
     OtherTextDecoration val -> otherValue val
 
 -------------------------------------------------------------------------------
@@ -418,6 +450,7 @@ type TextTransform
   | NoTextTransform
   | InitialTextTransform
   | InheritTextTransform
+  | UnsetTextTransform
   | OtherTextTransform Value
 
 type alias TextTransformFactory =
@@ -428,6 +461,7 @@ type alias TextTransformFactory =
   , none_ : TextTransform
   , initial_ : TextTransform
   , inherit_ : TextTransform
+  , unset_ : TextTransform
   , other_ : Value -> TextTransform
   }
 
@@ -440,6 +474,7 @@ textTransformFactory =
   , none_ = NoTextTransform
   , initial_ = InitialTextTransform
   , inherit_ = InheritTextTransform
+  , unset_ = UnsetTextTransform
   , other_ val = OtherTextTransform val
   }
 
@@ -453,6 +488,7 @@ textTransformValue theTextTransform =
     NoTextTransform -> noneValue
     InitialTextTransform -> initialValue
     InheritTextTransform -> inheritValue
+    UnsetTextTransform -> unsetValue
     OtherTextTransform val -> otherValue val
 
 -------------------------------------------------------------------------------
