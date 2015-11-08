@@ -525,14 +525,14 @@ contentValue : BareContent a -> Value
 contentValue theContent =
   case theContent.content of
     AttributeContent str -> 
-      [stringValue "attr(", stringValue str, stringValue ")" ] 
+      [ stringValue "attr(", stringValue str, stringValue ")" ] 
       |> concatenateValues
     StringContent literal -> literalValue literal
     UriContent literal -> 
-      [stringValue "uri(", literalValue literal, stringValue ")"]
+      [ stringValue "uri(", literalValue literal, stringValue ")" ]
       |> concatenateValues
     UrlContent literal -> 
-      [stringValue "url(", literalValue literal, stringValue ")"]
+      [ stringValue "url(", literalValue literal, stringValue ")" ]
       |> concatenateValues
     OpenQuoteContent -> stringValue "open-quote"
     CloseQuoteContent -> stringValue "close-quote"

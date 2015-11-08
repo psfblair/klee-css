@@ -311,4 +311,25 @@ noOpenQuote factory = factory.noOpenQuote
 noCloseQuote : ComposableContentDescriptor
 noCloseQuote factory = factory.noCloseQuote
 
--- TODO: counter, counters
+-- TODO: counter, counters: 
+
+-- counter() has two forms: 'counter(name)' or 'counter(name, style)'. 
+-- formatted in the indicated list-type style (disc, circle, square, etc.; 
+-- 'decimal' by default).  
+-- If the name is 'none', 'inherit' or 'initial', the declaration is ignored;
+-- we won't type check that.
+
+-- counter :
+
+-- counters() has two forms: 'counters(name, string)' or 'counters(name, string, style)'. 
+-- value of all counters with the given name in scope at this pseudo-element, 
+-- from outermost to innermost separated by the specified string. The counters 
+-- are rendered in the indicated style ('decimal' by default). 
+ 
+-- counters :
+
+-- counter-increment : [<user-ident> <integer>?]+ | none
+-- counterIncrement : CounterControlDescriptor -> PropertyRuleAppender
+
+-- counter-reset : [<user-ident> <integer>?]+ | none
+-- counterReset : CounterControlDescriptor -> PropertyRuleAppender
