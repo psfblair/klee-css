@@ -222,27 +222,25 @@ type ListStyleComponents
   | WithStylePosition ListStylePosition ListStyleComponents
   | WithStyleImage ListStyleImage ListStyleComponents
 
-type alias ListStyleDescriptor a = ListStyleFactory -> ListStyle a
+type alias ListStyleDescriptor a = ListStyleFactory {} -> ListStyle a
   
 type alias ComposedListStyleDescriptor a = 
-  { a | listStyle : ListStyle a
+  { a | listStyle : ListStyleAlternative
       , styleComponents : ListStyleComponents } ->
-  ListStyleFactory
+  ListStyleFactory {}
 
-type alias ListStyleFactory =
-  ListStyle (GenericListStyleFactory WithListStyleComponents)
+type alias ListStyleFactory a =
+  ListStyle (GenericListStyleFactory WithListStyleComponents a)
 
-type alias GenericListStyleFactory a =   
-  { a | initial_ : ListStyle {}
-      , inherit_ : ListStyle {}
-      , other_ : Value -> ListStyle {}
+type alias GenericListStyleFactory a b =   
+  { a | initial_ : ListStyle b
+      , inherit_ : ListStyle b
+      , other_ : Value -> ListStyle b
   }
 
-type alias WithListStyleComponents = 
-  { styleComponents : ListStyleComponents
-  }
-                 
-initialListStyleFactory : ListStyleFactory
+type alias WithListStyleComponents = { styleComponents : ListStyleComponents }
+
+initialListStyleFactory : ListStyleFactory {}
 initialListStyleFactory =
   { listStyle = CompositeListStyle NoListStyleComponents
   , styleComponents = NoListStyleComponents
@@ -251,14 +249,14 @@ initialListStyleFactory =
   , other_ val  = { listStyle = OtherListStyle val }
   }
 
-adjoinListStyle : ListStyleComponents -> ListStyleFactory
+adjoinListStyle : ListStyleComponents -> ListStyleFactory {}
 adjoinListStyle newComponents = 
   { initialListStyleFactory | listStyle <- CompositeListStyle newComponents
                             , styleComponents <- newComponents }
 
-listStyleValue : ListStyle a -> Value
+listStyleValue : ListStyleAlternative -> Value
 listStyleValue style =
-  case style.listStyle of
+  case style of
     InitialListStyle -> initialValue
     InheritListStyle -> inheritValue
     OtherListStyle val -> otherValue val

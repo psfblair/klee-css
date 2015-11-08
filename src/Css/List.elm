@@ -29,12 +29,10 @@ module Css.List
   , imageUrl
 
   , listStyle
+  , withListType, withListPosition, withListImage
   ) where
 
--- import Css.Internal.Property exposing 
---   (spaceQuadrupleValue, spaceListValue, commaListValue)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
-
 import Css.Internal.List exposing (..)
 
 -------------------------------------------------------------------------------
@@ -130,9 +128,10 @@ imageUrl urlString factory = factory.url urlString
 -------------------------------------------------------------------------------
 -- list-style-type list-style-position list-style-image . All Three are optional.
 -- Also takes initial and inherit
-listStyle : ListStyleDescriptor {} -> PropertyRuleAppender
+listStyle : ListStyleDescriptor a -> PropertyRuleAppender
 listStyle descriptor = 
-  let styleValue = descriptor initialListStyleFactory |> listStyleValue
+  let styleRecord = descriptor initialListStyleFactory 
+      styleValue = listStyleValue styleRecord.listStyle
   in simpleProperty "list-style" styleValue
 
 withListType : ListStyleTypeDescriptor -> ComposedListStyleDescriptor a
@@ -142,8 +141,8 @@ withListType typeDescriptor inner =
       newComponents = WithStyleType styleType innerComponents
   in adjoinListStyle newComponents
   
-withListPos : ListStylePositionDescriptor -> ComposedListStyleDescriptor a
-withListPos positionDescriptor inner =
+withListPosition : ListStylePositionDescriptor -> ComposedListStyleDescriptor a
+withListPosition positionDescriptor inner =
   let stylePos = positionDescriptor listStylePositionFactory
       innerComponents = inner.styleComponents
       newComponents = WithStylePosition stylePos innerComponents
