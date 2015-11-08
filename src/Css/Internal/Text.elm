@@ -9,7 +9,9 @@ module Css.Internal.Text
   , TextDecorationDescriptor, textDecorationFactory, textDecorationValue
   , TextTransformDescriptor, textTransformFactory, textTransformValue
   , ContentDescriptor, ComposableContentDescriptor, contentFactory, contentValue
-  , CounterControlDescriptor, counterControlFactory, counterControlValue
+  , CounterControlFactory
+  , CounterIncrementDescriptor, counterIncrementFactory, counterIncrementValue
+  , CounterResetDescriptor, counterResetFactory, counterResetValue
   ) where
 
 import Css.Internal.Color exposing (ColorDescriptor, CssColor, colorValue)
@@ -20,8 +22,8 @@ import Css.Internal.List exposing (ListStyleType, listStyleTypeValue)
 import Css.Internal.Position exposing (HorizontalSide, horizontalSideValue)
 import Css.Internal.Property exposing 
   ( Value, Literal, toLiteral
-  , concatenateValues, emptyValue, stringValue, literalValue
-  , spaceListValue
+  , concatenateValues, emptyValue, stringValue, literalValue, intValue
+  , spacePairValue, spaceListValue
   )
 import Css.Internal.Size exposing (Size, sizeValue)
 -------------------------------------------------------------------------------
@@ -76,16 +78,19 @@ textRenderingValue textRendering =
 
 -------------------------------------------------------------------------------
 
-type alias TextShadowDescriptor a hSz vSz blrSz = TextShadowFactory hSz vSz blrSz -> TextShadow a hSz vSz blrSz
+type alias TextShadowDescriptor a hSz vSz blrSz = 
+  TextShadowFactory hSz vSz blrSz -> TextShadow a hSz vSz blrSz
 
 type alias CompositeTextShadowDescriptor hSz vSz blrSz = 
   TextShadowFactory hSz vSz blrSz -> CompositeTextShadow hSz vSz blrSz  
 
-type alias TextShadow a hSz vSz blrSz = { a | textShadow : TextShadowComponent hSz vSz blrSz }
+type alias TextShadow a hSz vSz blrSz = 
+  { a | textShadow : TextShadowComponent hSz vSz blrSz }
 
 type alias WithComponents = { withComponents : () }
 
-type alias CompositeTextShadow hSz vSz blrSz = TextShadow (WithComponents) hSz vSz blrSz
+type alias CompositeTextShadow hSz vSz blrSz = 
+  TextShadow (WithComponents) hSz vSz blrSz
 
 type TextShadowComponent hSz vSz blrSz
   = BaseShadow (Size hSz) (Size vSz) 
@@ -572,38 +577,87 @@ contentValue theContent =
       OtherContent val -> otherValue val
 
 -------------------------------------------------------------------------------
-type alias CounterControlDescriptor =
-  CounterControlFactory -> CounterControl
 
-type CounterControl
-  = CounterControl String
-  | InitialCounterControl
-  | InheritCounterControl
-  | NoCounterControl
-  | OtherCounterControl Value
+type alias CounterControlFactory a =  { id_ : String -> a }
+
+-------------------------------------------------------------------------------
+type alias CounterIncrementDescriptor =
+  CounterIncrementFactory -> CounterIncrement
+
+type CounterIncrement
+  = CounterIncrement String
+  | WithStep String Int
+  | InitialCounterIncrement
+  | InheritCounterIncrement
+  | NoCounterIncrement
+  | OtherCounterIncrement Value
   
-type alias CounterControlFactory =
-  { counterId : String -> CounterControl
-  , initial_ : CounterControl
-  , inherit_ : CounterControl
-  , none_ : CounterControl
-  , other_ : Value -> CounterControl
+type alias CounterIncrementFactory =
+  { withStep : String -> Int -> CounterIncrement
+  , id_ : String -> CounterIncrement
+  , initial_ : CounterIncrement
+  , inherit_ : CounterIncrement
+  , none_ : CounterIncrement
+  , other_ : Value -> CounterIncrement
   }  
 
-counterControlFactory : CounterControlFactory
-counterControlFactory =
-  { counterId str = CounterControl str
-  , initial_ = InitialCounterControl
-  , inherit_ = InheritCounterControl
-  , none_ = NoCounterControl
-  , other_ val = OtherCounterControl val
+counterIncrementFactory : CounterIncrementFactory
+counterIncrementFactory =
+  { withStep str step = WithStep str step
+  , id_ str = CounterIncrement str
+  , initial_ = InitialCounterIncrement
+  , inherit_ = InheritCounterIncrement
+  , none_ = NoCounterIncrement
+  , other_ val = OtherCounterIncrement val
   }  
 
-counterControlValue : CounterControl -> Value
-counterControlValue counterControl =
-  case counterControl of
-    CounterControl str -> stringValue str
-    InitialCounterControl -> initialValue
-    InheritCounterControl -> inheritValue
-    NoCounterControl -> noneValue
-    OtherCounterControl val -> otherValue val
+counterIncrementValue : CounterIncrement -> Value
+counterIncrementValue counterIncrement =
+  case counterIncrement of
+    CounterIncrement str -> stringValue str
+    WithStep str step -> spacePairValue stringValue intValue (str, step)
+    InitialCounterIncrement -> initialValue
+    InheritCounterIncrement -> inheritValue
+    NoCounterIncrement -> noneValue
+    OtherCounterIncrement val -> otherValue val
+
+-------------------------------------------------------------------------------
+type alias CounterResetDescriptor =
+  CounterResetFactory -> CounterReset
+
+type CounterReset
+  = CounterReset String
+  | WithInitialValue String Int
+  | InitialCounterReset
+  | InheritCounterReset
+  | NoCounterReset
+  | OtherCounterReset Value
+  
+type alias CounterResetFactory =
+  { withInitialValue : String -> Int -> CounterReset
+  , id_ : String -> CounterReset
+  , initial_ : CounterReset
+  , inherit_ : CounterReset
+  , none_ : CounterReset
+  , other_ : Value -> CounterReset
+  }  
+
+counterResetFactory : CounterResetFactory
+counterResetFactory =
+  { withInitialValue str initVal = WithInitialValue str initVal
+  , id_ str = CounterReset str
+  , initial_ = InitialCounterReset
+  , inherit_ = InheritCounterReset
+  , none_ = NoCounterReset
+  , other_ val = OtherCounterReset val
+  }  
+
+counterResetValue : CounterReset -> Value
+counterResetValue counterReset =
+  case counterReset of
+    CounterReset str -> stringValue str
+    WithInitialValue str init -> spacePairValue stringValue intValue (str, init)
+    InitialCounterReset -> initialValue
+    InheritCounterReset -> inheritValue
+    NoCounterReset -> noneValue
+    OtherCounterReset val -> otherValue val

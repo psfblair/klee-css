@@ -128,7 +128,7 @@ imageUrl : String -> ListStyleImageDescriptor
 imageUrl urlString factory = factory.url urlString
 
 -------------------------------------------------------------------------------
--- list-style-type list-style-position list-style-image :All Three are optional.
+-- list-style-type list-style-position list-style-image . All Three are optional.
 -- Also takes initial and inherit
 listStyle : ListStyleDescriptor {} -> PropertyRuleAppender
 listStyle descriptor = 

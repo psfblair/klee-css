@@ -339,16 +339,37 @@ styledCounters name separator styleDescriptor factory =
   let listStyleType = styleDescriptor listStyleTypeFactory
   in factory.counters name separator (Just listStyleType)
 
--- TODO Integer is optional, and there can be more than one of these clauses.
--- counter-increment : [<user-ident> <integer>?]+ | none
-counterIncrement : CounterControlDescriptor -> PropertyRuleAppender
+counterId : String -> CounterControlFactory a -> a
+counterId theId factory = factory.id_ theId
+  
+-- counter-increment : [<user-ident> <integer>?]+ | none | initial | inherit
+counterIncrement : CounterIncrementDescriptor -> PropertyRuleAppender
 counterIncrement descriptor = 
-  let counterControlVal = descriptor counterControlFactory |> counterControlValue
-  in simpleProperty "counter-increment" counterControlVal
+  let increment = descriptor counterIncrementFactory |> counterIncrementValue
+  in simpleProperty "counter-increment" increment
 
--- TODO Integer is optional, and there can be more than one of these clauses.
--- counter-reset : [<user-ident> <integer>?]+ | none
-counterReset : CounterControlDescriptor -> PropertyRuleAppender
+counterIncrements : List CounterIncrementDescriptor -> PropertyRuleAppender
+counterIncrements descriptors = 
+  let applyDescriptor desc = desc counterIncrementFactory
+      values = List.map applyDescriptor descriptors 
+      valueFactory = spaceListValue counterIncrementValue
+  in simpleProperty "counter-increment" (valueFactory values)
+
+withStep : String -> Int -> CounterIncrementDescriptor
+withStep name step factory = factory.withStep name step
+  
+-- counter-reset : [<user-ident> <integer>?]+ | none | initial | inherit
+counterReset : CounterResetDescriptor -> PropertyRuleAppender
 counterReset descriptor = 
-  let counterControlVal = descriptor counterControlFactory |> counterControlValue
-  in simpleProperty "counter-reset" counterControlVal
+  let resetValue = descriptor counterResetFactory |> counterResetValue
+  in simpleProperty "counter-reset" resetValue
+
+counterResets : List CounterResetDescriptor -> PropertyRuleAppender
+counterResets descriptors = 
+  let applyDescriptor desc = desc counterResetFactory
+      values = List.map applyDescriptor descriptors 
+      valueFactory = spaceListValue counterResetValue
+  in simpleProperty "counter-reset" (valueFactory values)
+
+resetTo : String -> Int -> CounterResetDescriptor
+resetTo name initVal factory = factory.withInitialValue name initVal
