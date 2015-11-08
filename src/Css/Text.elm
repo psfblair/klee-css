@@ -73,12 +73,13 @@ import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Text exposing (..)
 
 -------------------------------------------------------------------------------
-
+-- TODO Should also allow normal, initial, inherit, other
 letterSpacing : SizeDescriptor (Size a) a -> PropertyRuleAppender
 letterSpacing sizeDescriptor =
   let sizeVal = sizeDescriptor sizeFactory |> sizeValue
   in simpleProperty "letter-spacing" sizeVal
 
+-- TODO Should also allow normal, initial, inherit, other
 wordSpacing : SizeDescriptor (Size a) a -> PropertyRuleAppender
 wordSpacing sizeDescriptor =
   let sizeVal = sizeDescriptor sizeFactory |> sizeValue

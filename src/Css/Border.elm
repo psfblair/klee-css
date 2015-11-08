@@ -291,7 +291,7 @@ invert factory = factory.invert
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-
+-- TODO Should take initial, inherit, other
 borderRadius : SizeDescriptor (Size a) a ->
                SizeDescriptor (Size b) b ->
                SizeDescriptor (Size c) c ->
@@ -305,6 +305,7 @@ borderRadius sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
       valueFactory = spaceQuadrupleValue sizeValue sizeValue sizeValue sizeValue
   in simpleProperty "border-radius" (valueFactory (sizeA, sizeB, sizeC, sizeD))
 
+-- TODO Should take initial, inherit, other
 borderTopLeftRadius : SizeDescriptor (Size a) a ->
                       SizeDescriptor (Size b) b ->
                       PropertyRuleAppender
@@ -314,6 +315,7 @@ borderTopLeftRadius sizeDescriptorA sizeDescriptorB =
       valueFactory = spacePairValue sizeValue sizeValue
   in simpleProperty "border-top-left-radius" (valueFactory (sizeA, sizeB))
 
+-- TODO Should take initial, inherit, other
 borderTopRightRadius : SizeDescriptor (Size a) a ->
                        SizeDescriptor (Size b) b ->
                        PropertyRuleAppender
@@ -323,6 +325,7 @@ borderTopRightRadius sizeDescriptorA sizeDescriptorB =
       valueFactory = spacePairValue sizeValue sizeValue
   in simpleProperty "border-top-right-radius" (valueFactory (sizeA, sizeB))
 
+-- TODO Should take initial, inherit, other
 borderBottomLeftRadius : SizeDescriptor (Size a) a ->
                          SizeDescriptor (Size b) b ->
                          PropertyRuleAppender
@@ -332,6 +335,7 @@ borderBottomLeftRadius sizeDescriptorA sizeDescriptorB =
       valueFactory = spacePairValue sizeValue sizeValue
   in simpleProperty "border-bottom-left-radius" (valueFactory (sizeA, sizeB))
 
+-- TODO Should take initial, inherit, other
 borderBottomRightRadius : SizeDescriptor (Size a) a ->
                           SizeDescriptor (Size b) b ->
                           PropertyRuleAppender
@@ -349,11 +353,13 @@ borderCollapse visibilityDescriptor =
   let visibility = visibilityDescriptor visibilityFactory
   in simpleProperty "border-collapse" (visibilityValue visibility)
 
+-- TODO Should take initial, inherit, other
 borderSpacing : SizeDescriptor (Size a) a -> PropertyRuleAppender
 borderSpacing sizeDescriptor =
   let size = sizeDescriptor sizeFactory
   in simpleProperty "border-spacing" (sizeValue size)
 
+-- TODO Should take initial, inherit, other
 borderSpacing2 : SizeDescriptor (Size a) a ->
                  SizeDescriptor (Size b) b ->
                  PropertyRuleAppender

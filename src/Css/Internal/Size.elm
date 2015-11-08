@@ -18,10 +18,6 @@ type alias SizeDescriptor a c = SizeFactory a c -> a -- c is the constraint type
 
 type Size a -- Phantom type, for type safety. The type parameter is for Abs or Rel.
   = Size Value
-  | AutoSize
-  | NormalSize
-  | InheritSize
-  | NoSize
   | OtherSize Value
 
 -- | Sizes can be relative like percentages or rems.
@@ -40,10 +36,6 @@ In css-elm, units will always need to be specified.
 
 type alias SizeFactory a c = -- c is the constraint type (Abs or Rel)
   { size: Value -> a -- This has to be more open than Size so we can use sizes in other ways. See e.g., Css.Display.verticalAlign.
-  , auto: Size c
-  , normal: Size c
-  , inherit: Size c
-  , none: Size c
   , other: Value -> Size c
   }
 
@@ -51,10 +43,6 @@ sizeFactory : SizeFactory (Size a) a
 sizeFactory =
   {
     size value = Size value
-  , auto = AutoSize
-  , normal = NormalSize
-  , inherit = InheritSize
-  , none = NoSize
   , other val = OtherSize val
   }
 
@@ -62,10 +50,6 @@ sizeValue : Size a -> Value
 sizeValue size =
   case size of
     Size val -> val
-    AutoSize -> autoValue
-    NormalSize -> normalValue
-    InheritSize -> inheritValue
-    NoSize -> noneValue
     OtherSize val -> otherValue val
     
 -------------------------------------------------------------------------------
@@ -74,8 +58,6 @@ type alias AngleDescriptor a = AngleFactory a -> Angle a
 
 type Angle a -- Phantom type, for type safety. The type parameter is for Deg, Rad, etc..
   = Angle Value
-  | AutoAngle
-  | InheritAngle
   | OtherAngle Value
 
 type Deg = Deg
@@ -93,16 +75,12 @@ type Turn = Turn
 
 type alias AngleFactory a =
   { angle: Value -> Angle a
-  , auto: Angle a
-  , inherit: Angle a
   , other: Value -> Angle a
   }
 
 angleFactory : AngleFactory a
 angleFactory =
   { angle value = Angle value
-  , auto = AutoAngle
-  , inherit = InheritAngle
   , other val = OtherAngle val
   }
 
@@ -110,8 +88,6 @@ angleValue : Angle a -> Value
 angleValue angle =
   case angle of
     Angle val -> val
-    AutoAngle -> autoValue
-    InheritAngle -> inheritValue
     OtherAngle val -> otherValue val
 
 appendUnits : Float -> String -> Value
