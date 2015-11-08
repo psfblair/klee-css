@@ -12,13 +12,7 @@ import Css exposing (renderProperties)
 suite : Spec
 suite = describe "Css.GeometryTests"
   [ describe "The positioning functions"
-    [ it "should render the size property correctly"
-      [ renderProperties [size (px 20)]
-          `shouldEqual` "size:20px"
-      , renderProperties [size (pct 20)]
-          `shouldEqual` "size:20%"
-      ]
-    , it "should render the top property correctly"
+    [ it "should render the top property correctly"
       [ renderProperties [top (px 20)]
           `shouldEqual` "top:20px"
       , renderProperties [top (pct 20)]
