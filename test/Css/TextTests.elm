@@ -529,4 +529,84 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "content:should not compile"
       ]
     ]
+  , describe "the counter increment function"
+    [ it "should render a single counter increment"
+      [ renderProperties [ counterIncrement (counterId "fred") ]
+          `shouldEqual` "counter-increment:fred"
+      , renderProperties [ counterIncrement (withStep "fred" -2) ]
+          `shouldEqual` "counter-increment:fred -2"
+      ]
+    , it "should render multiple counter increments"
+      [ renderProperties 
+          [ counterIncrements [ (counterId "fred"), (withStep "wilma" -2) ] ]
+            `shouldEqual` "counter-increment:fred wilma -2"
+      ]
+    , it "should render generic properties properly"
+      [ renderProperties [ counterIncrement initial ]
+          `shouldEqual` "counter-increment:initial"
+      , renderProperties [ counterIncrement inherit ]
+          `shouldEqual` "counter-increment:inherit"
+      , renderProperties [ counterIncrement none ]
+          `shouldEqual` "counter-increment:none"      
+      , renderProperties [ counterIncrement unset ]
+          `shouldEqual` "counter-increment:unset"
+      , renderProperties [ counterIncrement (other "foo") ]
+          `shouldEqual` "counter-increment:foo"
+      -- Should not compile:
+      -- , renderProperties [counterIncrement all]
+      --     `shouldEqual` "counter-increment:should not compile"
+      -- , renderProperties [counterIncrement auto]
+      --     `shouldEqual` "counter-increment:should not compile"
+      -- , renderProperties [counterIncrement baseline]
+      --     `shouldEqual` "counter-increment:should not compile"
+      -- , renderProperties [counterIncrement center]
+      --     `shouldEqual` "counter-increment:should not compile"
+      -- , renderProperties [ counterIncrement normal ]
+      --     `shouldEqual` "counter-increment:should not compile"
+      -- , renderProperties [counterIncrement visible]
+      --     `shouldEqual` "counter-increment:should not compile"
+      -- , renderProperties [counterIncrement hidden]
+      --     `shouldEqual` "counter-increment:should not compile"
+      ]
+    ]
+  , describe "the counter reset functions"
+    [ it "should render a single counter reset"
+      [ renderProperties [ counterReset (counterId "fred") ]
+          `shouldEqual` "counter-reset:fred"
+      , renderProperties [ counterReset (resetTo "fred" -2) ]
+          `shouldEqual` "counter-reset:fred -2"
+      ]
+    , it "should render multiple counter resets"
+      [ renderProperties 
+          [ counterResets [ (counterId "fred"), (resetTo "wilma" -2) ] ]
+            `shouldEqual` "counter-reset:fred wilma -2"
+      ]
+    , it "should render generic properties properly"
+      [ renderProperties [ counterReset initial ]
+          `shouldEqual` "counter-reset:initial"
+      , renderProperties [ counterReset inherit ]
+          `shouldEqual` "counter-reset:inherit"
+      , renderProperties [ counterReset none ]
+          `shouldEqual` "counter-reset:none"      
+      , renderProperties [ counterReset unset ]
+          `shouldEqual` "counter-reset:unset"
+      , renderProperties [ counterReset (other "foo") ]
+          `shouldEqual` "counter-reset:foo"
+      -- Should not compile:
+      -- , renderProperties [counterReset all]
+      --     `shouldEqual` "counter-reset:should not compile"
+      -- , renderProperties [counterReset auto]
+      --     `shouldEqual` "counter-reset:should not compile"
+      -- , renderProperties [counterReset baseline]
+      --     `shouldEqual` "counter-reset:should not compile"
+      -- , renderProperties [counterReset center]
+      --     `shouldEqual` "counter-reset:should not compile"
+      -- , renderProperties [ counterReset normal ]
+      --     `shouldEqual` "counter-reset:should not compile"
+      -- , renderProperties [counterReset visible]
+      --     `shouldEqual` "counter-reset:should not compile"
+      -- , renderProperties [counterReset hidden]
+      --     `shouldEqual` "counter-reset:should not compile"
+      ]
+    ]
   ]

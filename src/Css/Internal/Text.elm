@@ -611,7 +611,7 @@ contentValue theContent =
 
 -------------------------------------------------------------------------------
 
-type alias CounterControlFactory a =  { id_ : String -> a }
+type alias CounterControlFactory a rec =  { rec | id_ : String -> a }
 
 -------------------------------------------------------------------------------
 type alias CounterIncrementDescriptor =
@@ -623,6 +623,7 @@ type CounterIncrement
   | InitialCounterIncrement
   | InheritCounterIncrement
   | NoCounterIncrement
+  | UnsetCounterIncrement
   | OtherCounterIncrement Value
   
 type alias CounterIncrementFactory =
@@ -631,6 +632,7 @@ type alias CounterIncrementFactory =
   , initial_ : CounterIncrement
   , inherit_ : CounterIncrement
   , none_ : CounterIncrement
+  , unset_ : CounterIncrement
   , other_ : Value -> CounterIncrement
   }  
 
@@ -641,6 +643,7 @@ counterIncrementFactory =
   , initial_ = InitialCounterIncrement
   , inherit_ = InheritCounterIncrement
   , none_ = NoCounterIncrement
+  , unset_ = UnsetCounterIncrement
   , other_ val = OtherCounterIncrement val
   }  
 
@@ -652,6 +655,7 @@ counterIncrementValue counterIncrement =
     InitialCounterIncrement -> initialValue
     InheritCounterIncrement -> inheritValue
     NoCounterIncrement -> noneValue
+    UnsetCounterIncrement -> unsetValue
     OtherCounterIncrement val -> otherValue val
 
 -------------------------------------------------------------------------------
@@ -664,6 +668,7 @@ type CounterReset
   | InitialCounterReset
   | InheritCounterReset
   | NoCounterReset
+  | UnsetCounterReset
   | OtherCounterReset Value
   
 type alias CounterResetFactory =
@@ -672,6 +677,7 @@ type alias CounterResetFactory =
   , initial_ : CounterReset
   , inherit_ : CounterReset
   , none_ : CounterReset
+  , unset_ : CounterReset
   , other_ : Value -> CounterReset
   }  
 
@@ -682,6 +688,7 @@ counterResetFactory =
   , initial_ = InitialCounterReset
   , inherit_ = InheritCounterReset
   , none_ = NoCounterReset
+  , unset_ = UnsetCounterReset
   , other_ val = OtherCounterReset val
   }  
 
@@ -693,4 +700,5 @@ counterResetValue counterReset =
     InitialCounterReset -> initialValue
     InheritCounterReset -> inheritValue
     NoCounterReset -> noneValue
+    UnsetCounterReset -> unsetValue
     OtherCounterReset val -> otherValue val

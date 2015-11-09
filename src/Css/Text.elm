@@ -59,6 +59,9 @@ module Css.Text
   
   , counter, styledCounter
   , counters, styledCounters
+  , counterId
+  , counterIncrement, counterIncrements, withStep
+  , counterReset, counterResets, resetTo
 
   ) where
 
@@ -342,7 +345,7 @@ styledCounters name separator styleDescriptor factory =
   let listStyleType = styleDescriptor listStyleTypeFactory
   in factory.counters name separator (Just listStyleType)
 
-counterId : String -> CounterControlFactory a -> a
+counterId : String -> CounterControlFactory a b -> a
 counterId theId factory = factory.id_ theId
   
 -- counter-increment : [<user-ident> <integer>?]+ | none | initial | inherit
