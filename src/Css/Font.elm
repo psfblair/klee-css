@@ -68,6 +68,7 @@ fontColor colorDescriptor =
   in simpleProperty "color" (colorValue colour)
 
 -------------------------------------------------------------------------------
+-- TODO Can take initial, inherit, unset
 -- | The `fontFamily` style rule takes two lists of font families: zero or more
 -- custom font-families and preferably one or more generic font families.
 fontFamily : List String -> List GenericFontFamilyDescriptor -> PropertyRuleAppender
@@ -101,6 +102,12 @@ fantasy factory = factory.family "fantasy"
 
 
 -------------------------------------------------------------------------------
+
+
+-- TODO Test that we can pass size descriptors here too.
+fontSize : FontSizeDescriptor -> PropertyRuleAppender
+fontSize sizeDescriptor = 
+  simpleProperty "font-size" (sizeDescriptor fontSizeFactory |> fontSizeValue) 
 
 
 xxSmall : FontSizeDescriptor
@@ -139,12 +146,6 @@ larger : FontSizeDescriptor
 larger factory = factory.size "larger"
 
 
--- TODO Test that we can pass size descriptors here too.
-fontSize : FontSizeDescriptor -> PropertyRuleAppender
-fontSize sizeDescriptor = 
-  simpleProperty "font-size" (sizeDescriptor fontSizeFactory |> fontSizeValue) 
-
-
 -------------------------------------------------------------------------------
 
 
@@ -163,7 +164,7 @@ oblique factory = factory.style "oblique"
 
 -------------------------------------------------------------------------------
 
-
+-- TODO - Need a second version to take a list of variants
 fontVariant : FontVariantDescriptor -> PropertyRuleAppender
 fontVariant variantDescriptor = 
   simpleProperty "font-variant" (variantDescriptor fontVariantFactory |> fontVariantValue) 
@@ -171,6 +172,7 @@ fontVariant variantDescriptor =
 smallCaps : FontVariantDescriptor
 smallCaps factory = factory.variant "small-caps"
 
+-- TODO - There are many more of these now. See https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant
 -------------------------------------------------------------------------------
 
 fontWeight : FontWeightDescriptor -> PropertyRuleAppender
@@ -194,7 +196,7 @@ weight : Int -> FontWeightDescriptor
 weight i factory = factory.weight (toString i)
 
 -------------------------------------------------------------------------------
-
+-- TODO also takes normal, initial, inherit, unset, other
 lineHeight : SizeDescriptor (Size c) c -> PropertyRuleAppender
 lineHeight descriptor = 
   simpleProperty "line-height" (descriptor sizeFactory |> sizeValue) 
@@ -262,9 +264,10 @@ withWeight : FontWeight ->
              FontFactory sz -> 
              ComposedFont sz
 -}
-withWeight : FontWeight -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
-withWeight weight descriptor compositeFactory =
-   let innerFont = descriptor compositeFactory
+withWeight : FontWeightDescriptor -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
+withWeight weightDescriptor innerDescriptor compositeFactory =
+   let weight = weightDescriptor fontWeightFactory 
+       innerFont = innerDescriptor compositeFactory
    in compositeFactory.composite (WithWeight weight) innerFont
   
 {- Equivalent to 
@@ -273,9 +276,10 @@ withVariant : FontVariant ->
               FontFactory sz -> 
               ComposedFont sz
 -}
-withVariant : FontVariant -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
-withVariant variant descriptor compositeFactory =
-   let innerFont = descriptor compositeFactory
+withVariant : FontVariantDescriptor -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
+withVariant variantDescriptor innerDescriptor compositeFactory =
+   let variant = variantDescriptor fontVariantFactory
+       innerFont = innerDescriptor compositeFactory
    in compositeFactory.composite (WithVariant variant) innerFont
 
 {- Equivalent to 
@@ -284,9 +288,10 @@ withStyle : FontStyle ->
             FontFactory sz -> 
             ComposedFont sz
 -}
-withStyle : FontStyle -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
-withStyle style descriptor compositeFactory =
-   let innerFont = descriptor compositeFactory
+withStyle : FontStyleDescriptor -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
+withStyle styleDescriptor innerDescriptor compositeFactory =
+   let style = styleDescriptor fontStyleFactory
+       innerFont = innerDescriptor compositeFactory
    in compositeFactory.composite (WithStyle style) innerFont
 
 caption : FontDescriptor {} sz

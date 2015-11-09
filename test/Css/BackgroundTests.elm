@@ -337,7 +337,7 @@ suite = describe "Css.BackgroundTests"
                         (Just ((px 20) `by` (px 30)))) ]
           `shouldEqual` "background:20px 30%/20px 30px"
       , renderProperties 
-          [ background (withBgColor green >> (withRepeat roundRepeat)) ]
+          [ background (withBgColor green >> withRepeat roundRepeat) ]
           `shouldEqual` "background:round #73D216"
       , renderProperties 
           [ background (withImage (url "URL") >> 

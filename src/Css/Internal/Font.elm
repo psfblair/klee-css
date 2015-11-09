@@ -10,7 +10,7 @@ module Css.Internal.Font
   ) where
 
 import Css.Internal.Common exposing 
-  (inheritValue, initialValue, normalValue, otherValue)
+  (inheritValue, initialValue, normalValue, otherValue, unsetValue)
 import Css.Internal.Property exposing 
   ( Value, toLiteral
   , stringValue, literalValue, maybeValue
@@ -29,16 +29,12 @@ type alias GenericFontFamilyDescriptor =
 
 type GenericFontFamily 
   = GenericFontFamily String
-  | InitialGenericFontFamily
-  | InheritGenericFontFamily
   | OtherGenericFontFamily Value
 
 type alias GenericFontFamilyFactory =
   {
     family: String -> GenericFontFamily
-  , initial: GenericFontFamily
-  , inherit: GenericFontFamily
-  , other: Value -> GenericFontFamily
+  , other_: Value -> GenericFontFamily
   }
 
 
@@ -46,9 +42,7 @@ genericFontFamilyFactory : GenericFontFamilyFactory
 genericFontFamilyFactory =
   {
     family str = GenericFontFamily str
-  , initial = InitialGenericFontFamily
-  , inherit = InheritGenericFontFamily
-  , other val = OtherGenericFontFamily val
+  , other_ val = OtherGenericFontFamily val
   }
 
 
@@ -56,8 +50,6 @@ genericFontFamilyValue : GenericFontFamily -> Value
 genericFontFamilyValue fontFamily =
   case fontFamily of
     GenericFontFamily str -> stringValue str
-    InitialGenericFontFamily -> initialValue
-    InheritGenericFontFamily -> inheritValue
     OtherGenericFontFamily val -> otherValue val
     
 -------------------------------------------------------------------------------
@@ -68,14 +60,16 @@ type FontSize
   = FontSize String
   | InitialFontSize
   | InheritFontSize
+  | UnsetFontSize
   | OtherFontSize Value
 
 type alias FontSizeFactory =
   {
     size: String -> FontSize
-  , initial: FontSize
-  , inherit: FontSize
-  , other: Value -> FontSize
+  , initial_ : FontSize
+  , inherit_ : FontSize
+  , unset_ : FontSize
+  , other_ : Value -> FontSize
   }
 
 
@@ -83,9 +77,10 @@ fontSizeFactory : FontSizeFactory
 fontSizeFactory =
   {
     size str = FontSize str
-  , initial = InitialFontSize
-  , inherit = InheritFontSize
-  , other val = OtherFontSize val
+  , initial_ = InitialFontSize
+  , inherit_ = InheritFontSize
+  , unset_ = UnsetFontSize
+  , other_ val = OtherFontSize val
   }
 
 
@@ -95,6 +90,7 @@ fontSizeValue fontSize =
     FontSize str -> stringValue str
     InitialFontSize -> initialValue
     InheritFontSize -> inheritValue
+    UnsetFontSize -> unsetValue
     OtherFontSize val -> otherValue val
 
 -------------------------------------------------------------------------------
@@ -103,17 +99,20 @@ type alias FontStyleDescriptor = FontStyleFactory -> FontStyle
 
 type FontStyle 
   = FontStyle String
-  | NormalFontStyle
   | InheritFontStyle
   | InitialFontStyle
+  | NormalFontStyle
+  | UnsetFontStyle
   | OtherFontStyle Value
 
 type alias FontStyleFactory =
   {
     style: String -> FontStyle
-  , initial: FontStyle
-  , inherit: FontStyle
-  , other: Value -> FontStyle
+  , initial_ : FontStyle
+  , inherit_ : FontStyle
+  , normal_ : FontStyle
+  , unset_ : FontStyle
+  , other_ : Value -> FontStyle
   }
 
 
@@ -121,9 +120,11 @@ fontStyleFactory : FontStyleFactory
 fontStyleFactory =
   {
     style str = FontStyle str
-  , initial = InitialFontStyle
-  , inherit = InheritFontStyle
-  , other val = OtherFontStyle val
+  , initial_ = InitialFontStyle
+  , inherit_ = InheritFontStyle
+  , normal_ = NormalFontStyle
+  , unset_ = UnsetFontStyle
+  , other_ val = OtherFontStyle val
   }
 
 
@@ -133,6 +134,8 @@ fontStyleValue fontStyle =
     FontStyle str -> stringValue str
     InitialFontStyle -> initialValue
     InheritFontStyle -> inheritValue
+    NormalFontStyle -> normalValue
+    UnsetFontStyle -> unsetValue
     OtherFontStyle val -> otherValue val
 
 -------------------------------------------------------------------------------
@@ -144,25 +147,28 @@ type FontVariant
   | NormalFontVariant
   | InheritFontVariant
   | InitialFontVariant
+  | UnsetFontVariant
   | OtherFontVariant Value
 
 type alias FontVariantFactory =
   {
     variant: String -> FontVariant
-  , normal: FontVariant
-  , initial: FontVariant
-  , inherit: FontVariant
-  , other: Value -> FontVariant
+  , normal_ : FontVariant
+  , initial_ : FontVariant
+  , inherit_ : FontVariant
+  , unset_ : FontVariant
+  , other_ : Value -> FontVariant
   }
 
 fontVariantFactory : FontVariantFactory
 fontVariantFactory =
   {
     variant str = FontVariant str
-  , normal = NormalFontVariant
-  , initial = InitialFontVariant
-  , inherit = InheritFontVariant
-  , other val = OtherFontVariant val
+  , normal_ = NormalFontVariant
+  , initial_ = InitialFontVariant
+  , inherit_ = InheritFontVariant
+  , unset_ = UnsetFontVariant
+  , other_ val = OtherFontVariant val
   }
 
 fontVariantValue : FontVariant -> Value 
@@ -172,6 +178,7 @@ fontVariantValue fontVariant =
     NormalFontVariant -> normalValue
     InitialFontVariant -> initialValue
     InheritFontVariant -> inheritValue
+    UnsetFontVariant -> unsetValue
     OtherFontVariant val -> otherValue val
 
 -------------------------------------------------------------------------------
@@ -183,16 +190,18 @@ type FontWeight
   | NormalFontWeight
   | InheritFontWeight
   | InitialFontWeight
+  | UnsetFontWeight
   | OtherFontWeight Value
 
 
 type alias FontWeightFactory =
   {
     weight: String -> FontWeight
-  , normal: FontWeight
-  , initial: FontWeight
-  , inherit: FontWeight
-  , other: Value -> FontWeight
+  , normal_ : FontWeight
+  , initial_ : FontWeight
+  , inherit_ : FontWeight
+  , unset_ : FontWeight
+  , other_ : Value -> FontWeight
   }
 
 
@@ -200,10 +209,11 @@ fontWeightFactory : FontWeightFactory
 fontWeightFactory =
   {
     weight str = FontWeight str
-  , normal = NormalFontWeight
-  , initial = InitialFontWeight
-  , inherit = InheritFontWeight
-  , other val = OtherFontWeight val
+  , normal_ = NormalFontWeight
+  , initial_ = InitialFontWeight
+  , inherit_ = InheritFontWeight
+  , unset_ = UnsetFontWeight
+  , other_ val = OtherFontWeight val
   }
 
 
@@ -214,6 +224,7 @@ fontWeightValue fontWeight =
     NormalFontWeight -> normalValue
     InitialFontWeight -> initialValue
     InheritFontWeight -> inheritValue
+    UnsetFontWeight -> unsetValue
     OtherFontWeight val -> otherValue val
 
 -------------------------------------------------------------------------------
@@ -257,6 +268,7 @@ type FontAlternative sz
   | CompositeFont (FontComponents sz)
   | InitialFont
   | InheritFont
+  | UnsetFont
   | OtherFont Value
 
 -- Font sizes can be absolute or relative
@@ -274,6 +286,7 @@ type alias FontFactory sz =
   , named : String -> Font {} sz
   , initial_ : Font {} sz
   , inherit_ : Font {} sz
+  , unset_  : Font {} sz
   , other_ : Value -> Font {} sz
   }
 
@@ -288,6 +301,7 @@ fontFactory =
   , named str  = { font = NamedFont str}
   , initial_   = { font = InitialFont }
   , inherit_   = { font = InheritFont }
+  , unset_   = { font = UnsetFont }
   , other_  val = { font = OtherFont val }
   }
 
@@ -297,6 +311,7 @@ fontValue font =
     NamedFont str -> stringValue str
     InitialFont -> initialValue
     InheritFont -> inheritValue
+    UnsetFont -> unsetValue
     OtherFont val -> otherValue val
     CompositeFont fontComponents -> componentsToValue fontComponents
 
