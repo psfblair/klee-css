@@ -6,6 +6,7 @@ import Css.TestUtils exposing (it)
 import Css.Border exposing (solid)
 import Css.Color exposing (green)
 import Css.Common exposing (..)
+import Css.List exposing (disc)
 import Css.Internal.Position exposing (sideLeft)
 import Css.Size exposing (..)
 import Css.Text exposing (..)
@@ -447,7 +448,7 @@ suite = describe "Css.TextTests"
 -}
     ]
   , describe "the text transform function"
-    [ it "should render properly"
+    [ it "should render preset properties properly"
       [ renderProperties [ textTransform lowercase ]
           `shouldEqual` "text-transform:lowercase"
       ]
@@ -477,6 +478,55 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "text-transform:should not compile"
       -- , renderProperties [textTransform hidden]
       --     `shouldEqual` "text-transform:should not compile"
+      ]
+    ]
+  , describe "the content function"
+    [ it "should render the various types of content properly"
+      [ renderProperties [ content openQuote ]
+          `shouldEqual` "content:open-quote"
+      , renderProperties [ content (stringContent "prefix") ]
+          `shouldEqual` "content:\"prefix\""
+      , renderProperties [ content (attrContent "href") ]
+          `shouldEqual` "content:attr(href)"
+      , renderProperties [ content (urlContent "http://www.foo.com") ]
+          `shouldEqual` "content:url(http://www.foo.com)"
+      ]
+    , it "should render counters properly"
+      [ renderProperties [ content (counter "countername") ]
+          `shouldEqual` "content:counter(countername)"
+      , renderProperties [ content (styledCounter "countername" disc) ]
+          `shouldEqual` "content:counter(countername,disc)"
+      , renderProperties [ content (counters "countername" ".") ]
+          `shouldEqual` "content:counters(countername,\".\")"
+      , renderProperties [ content (styledCounters "countername" "." disc) ]
+          `shouldEqual` "content:counters(countername,\".\",disc)"
+      ]
+    , it "should render generic properties properly"
+      [ renderProperties [ content initial ]
+          `shouldEqual` "content:initial"
+      , renderProperties [ content inherit ]
+          `shouldEqual` "content:inherit"
+      , renderProperties [ content none ]
+          `shouldEqual` "content:none"      
+      , renderProperties [ content normal ]
+          `shouldEqual` "content:normal"
+      , renderProperties [ content unset ]
+          `shouldEqual` "content:unset"
+      , renderProperties [ content (other "foo") ]
+          `shouldEqual` "content:foo"
+      -- Should not compile:
+      -- , renderProperties [content all]
+      --     `shouldEqual` "content:should not compile"
+      -- , renderProperties [content auto]
+      --     `shouldEqual` "content:should not compile"
+      -- , renderProperties [content baseline]
+      --     `shouldEqual` "content:should not compile"
+      -- , renderProperties [content center]
+      --     `shouldEqual` "content:should not compile"
+      -- , renderProperties [content visible]
+      --     `shouldEqual` "content:should not compile"
+      -- , renderProperties [content hidden]
+      --     `shouldEqual` "content:should not compile"
       ]
     ]
   ]

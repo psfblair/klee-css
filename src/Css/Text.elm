@@ -53,13 +53,12 @@ module Css.Text
 
   -- * Content.
 
-  , content
-  , contents
-  , attrContent
-  , stringContent
-  , uriContent
-  , urlContent
+  , content, contents
+  , attrContent, stringContent, urlContent
   , openQuote, closeQuote, noOpenQuote, noCloseQuote
+  
+  , counter, styledCounter
+  , counters, styledCounters
 
   ) where
 
@@ -300,9 +299,6 @@ attrContent attrName factory = factory.attributeContent attrName
 
 stringContent : String -> ComposableContentDescriptor
 stringContent str factory = factory.stringContent str
-
-uriContent : String -> ComposableContentDescriptor
-uriContent uri factory = factory.uriContent uri
 
 urlContent : String -> ComposableContentDescriptor
 urlContent url factory = factory.urlContent url

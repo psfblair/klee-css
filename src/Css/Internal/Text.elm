@@ -508,10 +508,9 @@ type alias ComposableContent = BareContent ThatIsComposable
 type Content
   = AttributeContent String
   | StringContent Literal
-  | UriContent Literal
-  | UrlContent Literal
+  | UrlContent String
   | CounterContent String (Maybe ListStyleType)
-  | CountersContent String String (Maybe ListStyleType)
+  | CountersContent String Literal (Maybe ListStyleType)
   | OpenQuoteContent
   | CloseQuoteContent
   | NoOpenQuoteContent
@@ -520,12 +519,12 @@ type Content
   | NormalContent
   | InitialContent
   | InheritContent
+  | UnsetContent
   | OtherContent Value
 
 type alias ContentFactory =
   { attributeContent : String -> ComposableContent
   , stringContent : String -> ComposableContent
-  , uriContent : String -> ComposableContent
   , urlContent : String -> ComposableContent
   , counter : String -> Maybe ListStyleType -> ComposableContent
   , counters : String -> String -> Maybe ListStyleType -> ComposableContent
@@ -537,6 +536,7 @@ type alias ContentFactory =
   , normal_ : BareContent {}
   , initial_ : BareContent {}
   , inherit_ : BareContent {}
+  , unset_ : BareContent {}
   , other_ : Value -> ComposableContent
   }
 
@@ -544,11 +544,10 @@ contentFactory : ContentFactory
 contentFactory =
   { attributeContent str = AttributeContent str |> toComposableContent
   , stringContent str = toLiteral str |> StringContent |> toComposableContent
-  , uriContent str = toLiteral str |> UriContent |> toComposableContent
-  , urlContent str = toLiteral str |> UrlContent |> toComposableContent
+  , urlContent str = UrlContent str |> toComposableContent
   , counter name maybeStyle = CounterContent name maybeStyle |> toComposableContent
   , counters name separator maybeStyle = 
-      CountersContent name separator maybeStyle |> toComposableContent
+      CountersContent name (toLiteral separator) maybeStyle |> toComposableContent
   , openQuote = OpenQuoteContent |> toComposableContent
   , closeQuote = CloseQuoteContent |> toComposableContent
   , noOpenQuote = NoOpenQuoteContent |> toComposableContent
@@ -557,6 +556,7 @@ contentFactory =
   , normal_ = NormalContent |> toSimpleContent
   , initial_ = InitialContent |> toSimpleContent
   , inherit_ = InheritContent |> toSimpleContent
+  , unset_ = UnsetContent |> toSimpleContent
   , other_ val = OtherContent val |> toComposableContent
   }
 
@@ -582,12 +582,8 @@ contentValue theContent =
         [ stringValue "attr(", stringValue str, stringValue ")" ] 
         |> concatenateValues
       StringContent literal -> literalValue literal
-      UriContent literal -> 
-        [ stringValue "uri(", literalValue literal, stringValue ")" ]
-        |> concatenateValues
-      UrlContent literal -> 
-        [ stringValue "url(", literalValue literal, stringValue ")" ]
-        |> concatenateValues
+      UrlContent urlString ->  -- The URL string doesn't get quoted.
+        [ "url(", urlString, ")" ] |> List.map stringValue |> concatenateValues
       CounterContent name maybeStyle ->
         [ stringValue "counter("
         , stringValue name
@@ -595,10 +591,10 @@ contentValue theContent =
         , stringValue ")" 
         ] |> concatenateValues
       CountersContent name separator maybeStyle ->
-        [ stringValue "counter("
+        [ stringValue "counters("
         , stringValue name
         , stringValue ","
-        , stringValue separator
+        , literalValue separator
         , styleTypeValue maybeStyle
         , stringValue ")" 
         ] |> concatenateValues
@@ -610,6 +606,7 @@ contentValue theContent =
       NormalContent -> normalValue
       InitialContent -> initialValue
       InheritContent -> inheritValue
+      UnsetContent -> unsetValue
       OtherContent val -> otherValue val
 
 -------------------------------------------------------------------------------
