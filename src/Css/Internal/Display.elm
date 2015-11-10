@@ -1,16 +1,16 @@
 module Css.Internal.Display
-  ( FloatStyleDescriptor, floatStyleFactory, floatStyleValue
-  , ClearDescriptor, clearFactory, clearValue
-  , PositionDescriptor, positionFactory, positionValue
-  , DisplayDescriptor, displayFactory, displayValue
-  , OverflowDescriptor, overflowFactory, overflowValue
-  , VisibilityDescriptor, visibilityFactory, visibilityValue
-  , ClipDescriptor, clipFactory, clipValue
-  , OpacityDescriptor, opacityFactory, opacityValue
-  , ZIndexDescriptor, zIndexFactory, zIndexValue
-  , PointerEventsDescriptor, pointerEventsFactory, pointerEventsValue
-  , VerticalAlignDescriptor, verticalAlignFactory, verticalAlignValue
-  , CursorDescriptor, cursorFactory, cursorValue 
+  ( FloatStyleDescriptor, floatStyleFactory
+  , ClearDescriptor, clearFactory
+  , PositionDescriptor, positionFactory
+  , DisplayDescriptor, displayFactory
+  , OverflowDescriptor, overflowFactory
+  , VisibilityDescriptor, visibilityFactory
+  , ClipDescriptor, clipFactory
+  , OpacityDescriptor, opacityFactory
+  , ZIndexDescriptor, zIndexFactory
+  , PointerEventsDescriptor, pointerEventsFactory
+  , VerticalAlignDescriptor, verticalAlignFactory
+  , CursorDescriptor, cursorFactory
   ) where
 
 import Css.Internal.Property exposing 
@@ -27,415 +27,244 @@ import Css.Internal.Size exposing (Size, sizeValue)
 
 -------------------------------------------------------------------------------
 
-type alias FloatStyleDescriptor = FloatStyleFactory -> FloatStyle
-
-type FloatStyle
-  = FloatStyle String
-  | NoFloat
-  | InheritFloat
-  | InitialFloat
-  | OtherFloat Value
+type alias FloatStyleDescriptor = FloatStyleFactory -> Value
 
 type alias FloatStyleFactory =
   {
-    floatStyle: String -> FloatStyle
-  , none: FloatStyle
-  , inherit: FloatStyle
-  , initial: FloatStyle
-  , other: Value -> FloatStyle
+    floatStyle : String -> Value
+  , none_ : Value
+  , inherit_ : Value
+  , initial_ : Value
+  , other_ : Value -> Value
   }
 
 floatStyleFactory : FloatStyleFactory
 floatStyleFactory =
   {
-    floatStyle str = FloatStyle str
-  , none = NoFloat
-  , inherit = InheritFloat
-  , initial = InitialFloat
-  , other val = OtherFloat val
+    floatStyle str = stringValue str
+  , none_ = noneValue
+  , inherit_ = inheritValue
+  , initial_ = initialValue
+  , other_ val = otherValue val
   }
-
-floatStyleValue : FloatStyle -> Value 
-floatStyleValue floatStyle =
-  case floatStyle of
-    FloatStyle str -> stringValue str
-    NoFloat -> noneValue
-    InheritFloat -> inheritValue
-    InitialFloat -> initialValue
-    OtherFloat val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias ClearDescriptor = ClearFactory -> Clear
-
-type Clear
-  = Clear String
-  | NoClear
-  | InheritClear
-  | InitialClear
-  | OtherClear Value
+type alias ClearDescriptor = ClearFactory -> Value
 
 type alias ClearFactory =
   {
-    clear: String -> Clear
-  , none: Clear
-  , inherit: Clear
-  , initial: Clear
-  , other: Value -> Clear
+    clear: String -> Value
+  , none_ : Value
+  , inherit_ : Value
+  , initial_ : Value
+  , other_ : Value -> Value
   }
 
 clearFactory : ClearFactory
 clearFactory =
   {
-    clear str = Clear str
-  , none = NoClear
-  , inherit = InheritClear
-  , initial = InitialClear
-  , other val = OtherClear val
+    clear str = stringValue str
+  , none_ = noneValue
+  , inherit_ = inheritValue
+  , initial_ = initialValue
+  , other_ val = otherValue val
   }
-
-clearValue : Clear -> Value 
-clearValue clearValue =
-  case clearValue of
-    Clear str -> stringValue str
-    NoClear -> noneValue
-    InheritClear -> inheritValue
-    InitialClear -> initialValue
-    OtherClear str -> otherValue str
 
 -------------------------------------------------------------------------------
 
-type alias PositionDescriptor = PositionFactory -> Position
-
-type Position
-  = Position String
-  | InheritPosition
-  | InitialPosition
-  | OtherPosition Value
+type alias PositionDescriptor = PositionFactory -> Value
 
 type alias PositionFactory =
   {
-    position: String -> Position
-  , inherit: Position
-  , initial: Position
-  , other: Value -> Position
+    position : String -> Value
+  , inherit_ : Value
+  , initial_ : Value
+  , other_ : Value -> Value
   }
 
 positionFactory : PositionFactory
 positionFactory =
   {
-    position str = Position str
-  , inherit = InheritPosition
-  , initial = InitialPosition
-  , other val = OtherPosition val
+    position str = stringValue str
+  , inherit_ = inheritValue
+  , initial_ = initialValue
+  , other_ val = otherValue val
   }
-
-positionValue : Position -> Value 
-positionValue positionValue =
-  case positionValue of
-    Position str -> stringValue str
-    InheritPosition -> inheritValue
-    InitialPosition -> initialValue
-    OtherPosition val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias DisplayDescriptor = DisplayFactory -> Display
-
-type Display
-  = Display String
-  | NoDisplay
-  | InheritDisplay
-  | InitialDisplay
-  | OtherDisplay Value
+type alias DisplayDescriptor = DisplayFactory -> Value
 
 type alias DisplayFactory =
   {
-    display: String -> Display
-  , none: Display
-  , inherit: Display
-  , initial: Display
-  , other: Value -> Display
+    display : String -> Value
+  , none_ : Value
+  , inherit_ : Value
+  , initial_ : Value
+  , other_ : Value -> Value
   }
 
 displayFactory : DisplayFactory
 displayFactory =
   {
-    display str = Display str
-  , none = NoDisplay
-  , inherit = InheritDisplay
-  , initial = InitialDisplay
-  , other val = OtherDisplay val
+    display str = stringValue str
+  , none_ = noneValue
+  , inherit_ = inheritValue
+  , initial_ = inheritValue
+  , other_ val = otherValue val
   }
-
-displayValue : Display -> Value 
-displayValue displayValue =
-  case displayValue of
-    Display str -> stringValue str
-    NoDisplay -> noneValue
-    InheritDisplay -> inheritValue
-    InitialDisplay -> inheritValue
-    OtherDisplay val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias OverflowDescriptor = OverflowFactory -> Overflow
-
-type Overflow
-  = Overflow String
-  | VisibleOverflow
-  | HiddenOverflow
-  | InheritOverflow
-  | InitialOverflow
-  | AutoOverflow
-  | OtherOverflow Value
+type alias OverflowDescriptor = OverflowFactory -> Value
 
 type alias OverflowFactory =
   {
-    overflow: String -> Overflow
-  , visible: Overflow
-  , hidden: Overflow
-  , inherit: Overflow
-  , initial: Overflow
-  , auto: Overflow
-  , other: Value -> Overflow
+    overflow : String -> Value
+  , visible_ : Value
+  , hidden_ : Value
+  , inherit_ : Value
+  , initial_ : Value
+  , auto_ : Value
+  , other_ : Value -> Value
   }
 
 overflowFactory : OverflowFactory
 overflowFactory =
   {
-    overflow str = Overflow str
-  , visible = VisibleOverflow
-  , hidden = HiddenOverflow
-  , inherit = InheritOverflow
-  , initial = InitialOverflow
-  , auto = AutoOverflow
-  , other val = OtherOverflow val
+    overflow str = stringValue str
+  , visible_ = visibleValue
+  , hidden_ = hiddenValue
+  , inherit_ = inheritValue
+  , initial_ = initialValue
+  , auto_ = autoValue
+  , other_ val = otherValue val
   }
-
-overflowValue : Overflow -> Value 
-overflowValue overflowValue =
-  case overflowValue of
-    Overflow str -> stringValue str
-    VisibleOverflow -> visibleValue
-    HiddenOverflow -> hiddenValue
-    InheritOverflow -> inheritValue
-    InitialOverflow -> initialValue
-    AutoOverflow -> autoValue
-    OtherOverflow val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias VisibilityDescriptor = VisibilityFactory -> Visibility
-
-type Visibility
-  = Visibility String
-  | VisibleVisibility
-  | HiddenVisibility
-  | InheritVisibility
-  | InitialVisibility
-  | OtherVisibility Value
+type alias VisibilityDescriptor = VisibilityFactory -> Value
 
 type alias VisibilityFactory =
   {
-    visibility: String -> Visibility
-  , visible: Visibility
-  , hidden: Visibility
-  , inherit: Visibility
-  , initial: Visibility
-  , other: Value -> Visibility
+    visibility : String -> Value
+  , visible_ : Value
+  , hidden_ : Value
+  , inherit_ : Value
+  , initial_ : Value
+  , other_ : Value -> Value
   }
 
 visibilityFactory : VisibilityFactory
 visibilityFactory =
   {
-    visibility str = Visibility str
-  , visible = VisibleVisibility
-  , hidden = HiddenVisibility
-  , inherit = InheritVisibility
-  , initial = InitialVisibility
-  , other val = OtherVisibility val
+    visibility str = stringValue str
+  , visible_ = visibleValue
+  , hidden_ = hiddenValue
+  , inherit_ = inheritValue
+  , initial_ = initialValue
+  , other_ val = otherValue val
   }
-
-visibilityValue : Visibility -> Value 
-visibilityValue visibilityValue =
-  case visibilityValue of
-    Visibility str -> stringValue str
-    VisibleVisibility -> visibleValue
-    HiddenVisibility -> hiddenValue
-    InheritVisibility -> inheritValue
-    InitialVisibility -> initialValue
-    OtherVisibility val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias ClipDescriptor a b c d = ClipFactory a b c d -> Clip a b c d
-
-type Clip a b c d
-  = Rect (Size a) (Size b) (Size c) (Size d)
-  | AutoClip
-  | InheritClip
-  | InitialClip
-  | OtherClip Value
+type alias ClipDescriptor a b c d = ClipFactory a b c d -> Value
 
 type alias ClipFactory a b c d =
   {
-    rect: (Size a) -> (Size b) -> (Size c) -> (Size d) -> Clip a b c d
-  , auto: Clip a b c d
-  , inherit: Clip a b c d
-  , initial: Clip a b c d
-  , other: Value -> Clip a b c d
+    rect : (Size a) -> (Size b) -> (Size c) -> (Size d) -> Value
+  , auto_ : Value
+  , inherit_ : Value
+  , initial_ : Value
+  , other_ : Value -> Value
   }
 
 clipFactory : ClipFactory a b c d
 clipFactory =
   {
-    rect top right bottom left = Rect top right bottom left
-  , auto = AutoClip
-  , inherit = InheritClip
-  , initial = InitialClip
-  , other val = OtherClip val
-  }
-
-clipValue : Clip a b c d -> Value
-clipValue clipValue =
-  case clipValue of
-    Rect top right bottom left ->
+    rect top right bottom left = 
       let szv = sizeValue
           quadrupleValue = commaQuadrupleValue szv szv szv szv (top, right, bottom, left)
           prefixValue = stringValue "rect("
           suffixValue = stringValue ")"
-      in concatenateValues [ prefixValue, quadrupleValue, suffixValue ]
-    AutoClip -> autoValue
-    InheritClip -> inheritValue
-    InitialClip -> initialValue
-    OtherClip val -> otherValue val
+      in concatenateValues [ prefixValue, quadrupleValue, suffixValue ]    
+  , auto_ = autoValue
+  , inherit_ = inheritValue
+  , initial_ = initialValue
+  , other_ val = otherValue val
+  }
 
 -------------------------------------------------------------------------------
 
-type alias OpacityDescriptor = OpacityFactory -> Opacity
-
-type Opacity
-  = Opacity Float
-  | InheritOpacity
-  | InitialOpacity
-  | OtherOpacity Value
+type alias OpacityDescriptor = OpacityFactory -> Value
 
 type alias OpacityFactory =
   {
-    opacity : Float -> Opacity
-  , inherit : Opacity
-  , initial : Opacity
-  , other : Value -> Opacity
+    opacity : Float -> Value
+  , inherit_ : Value
+  , initial_ : Value
+  , other_ : Value -> Value
   }
 
 opacityFactory : OpacityFactory
 opacityFactory =
   {
-    opacity num = Opacity num
-  , inherit = InheritOpacity
-  , initial = InitialOpacity
-  , other val = OtherOpacity val
+    opacity num = floatValue num
+  , inherit_ = inheritValue
+  , initial_ = initialValue
+  , other_ val = otherValue val
   }
-
-opacityValue : Opacity -> Value 
-opacityValue opacityLevel =
-  case opacityLevel of
-    Opacity num -> floatValue num
-    InheritOpacity -> inheritValue
-    InitialOpacity -> inheritValue
-    OtherOpacity val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias ZIndexDescriptor = ZIndexFactory -> ZIndex
-
-type ZIndex
-  = ZIndex Int
-  | AutoZIndex
-  | InheritZIndex
-  | InitialZIndex
-  | OtherZIndex Value
+type alias ZIndexDescriptor = ZIndexFactory -> Value
 
 type alias ZIndexFactory =
   {
-    zIndex: Int -> ZIndex
-  , auto: ZIndex
-  , inherit: ZIndex
-  , initial: ZIndex
-  , other: Value -> ZIndex
+    zIndex : Int -> Value
+  , auto_ : Value
+  , inherit_ : Value
+  , initial_ : Value
+  , other_ : Value -> Value
   }
 
 zIndexFactory : ZIndexFactory
 zIndexFactory =
   {
-    zIndex num = ZIndex num
-  , auto = AutoZIndex
-  , inherit = InheritZIndex
-  , initial = InitialZIndex
-  , other val = OtherZIndex val
+    zIndex num = intValue num
+  , auto_ = autoValue
+  , inherit_ = inheritValue
+  , initial_ = initialValue
+  , other_ val = otherValue val
   }
-
-zIndexValue : ZIndex -> Value 
-zIndexValue zIdx =
-  case zIdx of
-    ZIndex num -> intValue num
-    AutoZIndex -> autoValue
-    InheritZIndex -> inheritValue
-    InitialZIndex -> initialValue
-    OtherZIndex val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias PointerEventsDescriptor = PointerEventsFactory -> PointerEvents
-
-type PointerEvents
-  = PointerEvents String
-  | VisiblePointerEvents
-  | InheritPointerEvents
-  | InitialPointerEvents
-  | AutoPointerEvents
-  | NoPointerEvents
-  | OtherPointerEvents Value
+type alias PointerEventsDescriptor = PointerEventsFactory -> Value
 
 type alias PointerEventsFactory =
   {
-    pointerEvents: String -> PointerEvents
-  , auto: PointerEvents
-  , inherit: PointerEvents
-  , initial: PointerEvents
-  , other: Value -> PointerEvents
+    pointerEvents : String -> Value
+  , auto_ : Value
+  , inherit_ : Value
+  , initial_ : Value
+  , other_ : Value -> Value
   }
 
 pointerEventsFactory : PointerEventsFactory
 pointerEventsFactory =
   {
-    pointerEvents str = PointerEvents str
-  , auto = AutoPointerEvents
-  , inherit = InheritPointerEvents
-  , initial = InitialPointerEvents
-  , other val = OtherPointerEvents val
+    pointerEvents str = stringValue str
+  , auto_ = autoValue
+  , inherit_ = inheritValue
+  , initial_ = initialValue
+  , other_ val = otherValue val
   }
-
-pointerEventsValue : PointerEvents -> Value 
-pointerEventsValue pointerEvts =
-  case pointerEvts of
-    PointerEvents str -> stringValue str
-    AutoPointerEvents -> autoValue
-    InheritPointerEvents -> inheritValue
-    InitialPointerEvents -> initialValue
-    OtherPointerEvents val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias VerticalAlignDescriptor = VerticalAlignFactory -> VerticalAlign
-
-type VerticalAlign
-  = VerticalAlign Value
-  | BaselineVerticalAlign
-  | InitialVerticalAlign
-  | InheritVerticalAlign
-  | OtherVerticalAlign Value
+type alias VerticalAlignDescriptor = VerticalAlignFactory -> Value
 
 -- Since SizeDescriptor is parameterized by a generic type `a` rather than
 -- simply by `Size a`, that means that for dimensioned sizes it just calls
@@ -443,71 +272,44 @@ type VerticalAlign
 -- doesn't need to return a `Size`. So we can pass this factory to a SizeDescriptor
 -- and get a `VerticalAlignValue` out instead of a `Size`.
 type alias VerticalAlignFactory =
-  { size: Value -> VerticalAlign
-  , vAlign: String -> VerticalAlign
-  , baseline: VerticalAlign
-  , initial: VerticalAlign
-  , inherit: VerticalAlign
-  , other: Value -> VerticalAlign
+  { size : Value -> Value
+  , vAlign : String -> Value
+  , baseline_ : Value
+  , initial_ : Value
+  , inherit_ : Value
+  , other_ : Value -> Value
   }
 
 verticalAlignFactory : VerticalAlignFactory
 verticalAlignFactory =
-  { size value = VerticalAlign value
-  , vAlign str = stringValue str |> VerticalAlign
-  , baseline = BaselineVerticalAlign
-  , initial = InitialVerticalAlign
-  , inherit = InheritVerticalAlign
-  , other val = OtherVerticalAlign val
+  { size value = value
+  , vAlign str = stringValue str
+  , baseline_ = baselineValue
+  , initial_ = initialValue
+  , inherit_ = inheritValue
+  , other_ val = otherValue val
   }
-
-verticalAlignValue : VerticalAlign -> Value 
-verticalAlignValue valign =
-  case valign of
-    VerticalAlign value -> value
-    BaselineVerticalAlign -> baselineValue
-    InitialVerticalAlign -> initialValue
-    InheritVerticalAlign -> inheritValue
-    OtherVerticalAlign val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias CursorDescriptor = CursorFactory -> Cursor
-
-type Cursor
-  = Cursor String
-  | AutoCursor
-  | NoCursor
-  | InheritCursor
-  | InitialCursor
-  | OtherCursor Value
+type alias CursorDescriptor = CursorFactory -> Value
 
 type alias CursorFactory =
   {
-    cursor: String -> Cursor
-  , auto: Cursor
-  , none : Cursor
-  , inherit: Cursor
-  , initial: Cursor
-  , other: Value -> Cursor
+    cursor : String -> Value
+  , auto_ : Value
+  , none_ : Value
+  , inherit_ : Value
+  , initial_ : Value
+  , other_ : Value -> Value
   }
 
 cursorFactory : CursorFactory
 cursorFactory =
-  { cursor str = Cursor str
-  , auto = AutoCursor
-  , none = NoCursor
-  , inherit = InheritCursor
-  , initial = InitialCursor
-  , other val = OtherCursor val
+  { cursor str = stringValue str
+  , auto_ = autoValue
+  , none_ = noneValue
+  , inherit_ = inheritValue
+  , initial_ = initialValue
+  , other_ val = otherValue val
   }
-
-cursorValue : Cursor -> Value 
-cursorValue cursorValue =
-  case cursorValue of
-    Cursor str -> stringValue str
-    AutoCursor -> autoValue
-    NoCursor -> noneValue
-    InheritCursor -> inheritValue
-    InitialCursor -> initialValue
-    OtherCursor val -> otherValue val

@@ -8,6 +8,8 @@ import Css.Size exposing (px, pct)
 import Css.Color exposing (black)
 import Css exposing (renderProperties)
 
+-- TODO Check generic properties
+
 suite : Spec
 suite = describe "Css.BoxTests"
   [ describe "The box sizing function"

@@ -10,6 +10,7 @@ import Css.Display exposing (collapse)
 import Css exposing (renderProperties)
 
 -------------------------------------------------------------------------------
+-- TODO Test generic properties
 
 suite : Spec
 suite = describe "Css.BorderTests"

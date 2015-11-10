@@ -65,7 +65,7 @@ module Css.Text
 
   ) where
 
-import Css.Internal.Border exposing (StrokeDescriptor, strokeFactory, strokeValue)
+import Css.Internal.Border exposing (StrokeDescriptor, strokeFactory)
 import Css.Internal.Color exposing (ColorDescriptor, colorFactory, colorValue)
 import Css.Internal.List exposing (ListStyleTypeDescriptor, listStyleTypeFactory)
 import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValue)
@@ -257,7 +257,7 @@ textDecorationColor descriptor =
 
 textDecorationStyle : StrokeDescriptor -> PropertyRuleAppender
 textDecorationStyle descriptor = 
-  let strokeVal = descriptor strokeFactory |> strokeValue
+  let strokeVal = descriptor strokeFactory
   in simpleProperty "text-decoration-style" strokeVal
 
 -------------------------------------------------------------------------------
@@ -329,8 +329,7 @@ counter name factory = factory.counter name Nothing
     
 styledCounter : String -> ListStyleTypeDescriptor -> ComposableContentDescriptor
 styledCounter name styleDescriptor factory =
-  let listStyleType = styleDescriptor listStyleTypeFactory
-  in factory.counter name (Just listStyleType)
+  factory.counter name (Just styleDescriptor)
 
 -- counters() has two forms: 'counters(name, string)' or 'counters(name, string, style)'.
 -- where `string` is the string to nest between different levels of nested counters. 
@@ -342,8 +341,7 @@ styledCounters : String ->
                  ListStyleTypeDescriptor -> 
                  ComposableContentDescriptor
 styledCounters name separator styleDescriptor factory =
-  let listStyleType = styleDescriptor listStyleTypeFactory
-  in factory.counters name separator (Just listStyleType)
+  factory.counters name separator (Just styleDescriptor)
 
 counterId : String -> CounterControlFactory a b -> a
 counterId theId factory = factory.id_ theId
@@ -351,15 +349,14 @@ counterId theId factory = factory.id_ theId
 -- counter-increment : [<user-ident> <integer>?]+ | none | initial | inherit
 counterIncrement : CounterIncrementDescriptor -> PropertyRuleAppender
 counterIncrement descriptor = 
-  let increment = descriptor counterIncrementFactory |> counterIncrementValue
+  let increment = descriptor counterIncrementFactory
   in simpleProperty "counter-increment" increment
 
 counterIncrements : List CounterIncrementDescriptor -> PropertyRuleAppender
 counterIncrements descriptors = 
   let applyDescriptor desc = desc counterIncrementFactory
       values = List.map applyDescriptor descriptors 
-      valueFactory = spaceListValue counterIncrementValue
-  in simpleProperty "counter-increment" (valueFactory values)
+  in simpleProperty "counter-increment" (spaceListValue identity values)
 
 withStep : String -> Int -> CounterIncrementDescriptor
 withStep name step factory = factory.withStep name step
@@ -367,15 +364,14 @@ withStep name step factory = factory.withStep name step
 -- counter-reset : [<user-ident> <integer>?]+ | none | initial | inherit
 counterReset : CounterResetDescriptor -> PropertyRuleAppender
 counterReset descriptor = 
-  let resetValue = descriptor counterResetFactory |> counterResetValue
+  let resetValue = descriptor counterResetFactory
   in simpleProperty "counter-reset" resetValue
 
 counterResets : List CounterResetDescriptor -> PropertyRuleAppender
 counterResets descriptors = 
   let applyDescriptor desc = desc counterResetFactory
       values = List.map applyDescriptor descriptors 
-      valueFactory = spaceListValue counterResetValue
-  in simpleProperty "counter-reset" (valueFactory values)
+  in simpleProperty "counter-reset" (spaceListValue identity values)
 
 resetTo : String -> Int -> CounterResetDescriptor
 resetTo name initVal factory = factory.withInitialValue name initVal

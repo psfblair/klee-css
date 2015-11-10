@@ -51,7 +51,7 @@ module Css.Background
   ) where
 
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
-import Css.Internal.Box exposing (BoxType, BoxTypeDescriptor, boxTypeFactory)
+import Css.Internal.Box exposing (BoxTypeDescriptor)
 import Css.Internal.Color exposing (colorValue)
 import Css.Internal.Position exposing (HorizontalSide, VerticalSide)
 import Css.Internal.Size exposing (Size, SizeDescriptor)
@@ -63,7 +63,7 @@ import Css.Internal.Background exposing (..)
 backgroundPosition : BackgroundPositionDescriptor sz1 sz2 -> PropertyRuleAppender
 backgroundPosition descriptor = 
   let value = descriptor backgroundPositionFactory
-  in simpleProperty "background-position" (backgroundPositionValue value)
+  in simpleProperty "background-position" value
   
 placed : HorizontalSide -> VerticalSide -> BackgroundPositionDescriptor sz1 sz2
 placed horiz vert factory = factory.sidedPosition horiz vert
@@ -78,7 +78,7 @@ positioned horiz vert factory = factory.sizedPosition horiz vert
 backgroundSize : BackgroundSizeDescriptor sz -> PropertyRuleAppender
 backgroundSize descriptor = 
   let bgSize = descriptor backgroundSizeFactory
-  in simpleProperty "background-size" (backgroundSizeValue bgSize)
+  in simpleProperty "background-size" bgSize
 
 contain : BackgroundSizeDescriptor sz
 contain factory = backgroundSizeFactory.named "contain"
@@ -111,7 +111,7 @@ transparent factory = factory.transparent
 backgroundImage : BackgroundImageDescriptor -> PropertyRuleAppender
 backgroundImage descriptor = 
   let bgImage = descriptor backgroundImageFactory
-  in simpleProperty "background-image" (backgroundImageValue bgImage)
+  in simpleProperty "background-image" bgImage
 
 -- TODO Validate that it's a proper url?
 url : String -> BackgroundImageDescriptor
@@ -121,8 +121,8 @@ url bgImageUrl factory = factory.url bgImageUrl
 
 backgroundRepeat : BackgroundRepeatDescriptor -> PropertyRuleAppender
 backgroundRepeat descriptor = 
-  let repeat = descriptor backgroundRepeatFactory
-  in simpleProperty "background-repeat" (backgroundRepeatValue repeat)
+  let repeatValue = descriptor backgroundRepeatFactory
+  in simpleProperty "background-repeat" repeatValue
 
 repeat : BackgroundRepeatDescriptor
 repeat factory = backgroundRepeatFactory.repeat "repeat"
@@ -147,31 +147,27 @@ repeatY factory = backgroundRepeatFactory.repeat "repeat-y"
 backgroundOrigin : BackgroundOriginDescriptor -> PropertyRuleAppender
 backgroundOrigin descriptor = 
   let bgOrigin = descriptor backgroundOriginFactory
-  in simpleProperty "background-origin" (backgroundOriginValue bgOrigin)
+  in simpleProperty "background-origin" bgOrigin
 
 origin : BoxTypeDescriptor -> BackgroundOriginDescriptor
-origin boxTypeDescriptor factory = 
-  let boxType = boxTypeDescriptor boxTypeFactory
-  in factory.origin boxType
+origin boxTypeDescriptor factory = factory.origin boxTypeDescriptor
 
 -------------------------------------------------------------------------------
 
 backgroundClip : BackgroundClipDescriptor -> PropertyRuleAppender
 backgroundClip descriptor = 
   let bgClip = descriptor backgroundClipFactory
-  in simpleProperty "background-clip" (backgroundClipValue bgClip)
+  in simpleProperty "background-clip" bgClip
 
 boxClip : BoxTypeDescriptor -> BackgroundClipDescriptor
-boxClip boxTypeDescriptor factory = 
-  let boxType = boxTypeDescriptor boxTypeFactory
-  in factory.clip boxType
+boxClip boxTypeDescriptor factory = factory.clip boxTypeDescriptor
 
 -------------------------------------------------------------------------------
 
 backgroundAttachment : BackgroundAttachmentDescriptor -> PropertyRuleAppender
 backgroundAttachment descriptor = 
   let bgAttachment = descriptor backgroundAttachmentFactory
-  in simpleProperty "background-attachment" (backgroundAttachmentValue bgAttachment)
+  in simpleProperty "background-attachment" bgAttachment
 
 attachFixed : BackgroundAttachmentDescriptor
 attachFixed factory = factory.bgAttachment "fixed"

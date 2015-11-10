@@ -32,9 +32,7 @@ import Css.Internal.Color exposing
   (CssColor (..), ColorDescriptor, ColorFactory
   , rgbaString, hslaString, colorFactory, colorValue
   )
-import Css.Internal.Display exposing
-  ( VisibilityDescriptor, visibilityFactory, visibilityValue
-  )
+import Css.Internal.Display exposing (VisibilityDescriptor, visibilityFactory)
 import Css.Internal.Size exposing 
   (Size, Abs, SizeDescriptor, sizeFactory, sizeValue)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
@@ -80,7 +78,7 @@ border strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
       color = colorDescriptor colorFactory
-      valueFactory = spaceTripleValue strokeValue sizeValue colorValue
+      valueFactory = spaceTripleValue identity sizeValue colorValue
   in simpleProperty "border" (valueFactory (stroke, size, color))
 
 borderTop : StrokeDescriptor -> 
@@ -91,7 +89,7 @@ borderTop strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
       color = colorDescriptor colorFactory
-      valueFactory = spaceTripleValue strokeValue sizeValue colorValue
+      valueFactory = spaceTripleValue identity sizeValue colorValue
   in simpleProperty "border-top" (valueFactory (stroke, width, color))
 
 borderLeft : StrokeDescriptor -> 
@@ -102,7 +100,7 @@ borderLeft strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
       color = colorDescriptor colorFactory
-      valueFactory = spaceTripleValue strokeValue sizeValue colorValue
+      valueFactory = spaceTripleValue identity sizeValue colorValue
   in simpleProperty "border-left" (valueFactory (stroke, width, color))
 
 borderBottom : StrokeDescriptor -> 
@@ -113,7 +111,7 @@ borderBottom strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
       color = colorDescriptor colorFactory
-      valueFactory = spaceTripleValue strokeValue sizeValue colorValue
+      valueFactory = spaceTripleValue identity sizeValue colorValue
   in simpleProperty "border-bottom" (valueFactory (stroke, width, color))
 
 borderRight : StrokeDescriptor -> 
@@ -124,7 +122,7 @@ borderRight strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       width = sizeDescriptor sizeFactory
       color = colorDescriptor colorFactory
-      valueFactory = spaceTripleValue strokeValue sizeValue colorValue
+      valueFactory = spaceTripleValue identity sizeValue colorValue
   in simpleProperty "border-right" (valueFactory (stroke, width, color))
 
 -------------------------------------------------------------------------------
@@ -172,27 +170,27 @@ borderColor4 colorDescriptorA colorDescriptorB colorDescriptorC colorDescriptorD
 borderStyle : StrokeDescriptor -> PropertyRuleAppender
 borderStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
-  in simpleProperty "border-style" (strokeValue style)
+  in simpleProperty "border-style" style
 
 borderLeftStyle : StrokeDescriptor -> PropertyRuleAppender
 borderLeftStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
-  in simpleProperty "border-left-style" (strokeValue style)
+  in simpleProperty "border-left-style" style
 
 borderRightStyle : StrokeDescriptor -> PropertyRuleAppender
 borderRightStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
-  in simpleProperty "border-right-style" (strokeValue style)
+  in simpleProperty "border-right-style" style
 
 borderTopStyle : StrokeDescriptor -> PropertyRuleAppender
 borderTopStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
-  in simpleProperty "border-top-style" (strokeValue style)
+  in simpleProperty "border-top-style" style
 
 borderBottomStyle : StrokeDescriptor -> PropertyRuleAppender
 borderBottomStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
-  in simpleProperty "border-bottom-style" (strokeValue style)
+  in simpleProperty "border-bottom-style" style
 
 borderStyle4 : StrokeDescriptor ->
                StrokeDescriptor ->
@@ -204,7 +202,7 @@ borderStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescrip
       strokeB = strokeDescriptorB strokeFactory
       strokeC = strokeDescriptorC strokeFactory
       strokeD = strokeDescriptorD strokeFactory
-      valueFactory = spaceQuadrupleValue strokeValue strokeValue strokeValue strokeValue
+      valueFactory = spaceQuadrupleValue identity identity identity identity
   in simpleProperty "border-style" (valueFactory (strokeA, strokeB, strokeC, strokeD))
 
 -------------------------------------------------------------------------------
@@ -258,16 +256,15 @@ outline strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
       size = sizeDescriptor sizeFactory
       color = colorDescriptor outlineColorFactory
-      svf = strokeValue
       szf = sizeValue
       cvf = colorValue
-      valueFactory = spaceTripleValue svf szf cvf
+      valueFactory = spaceTripleValue identity szf cvf
   in simpleProperty "outline" (valueFactory (stroke, size, color))
 
 outlineStyle : StrokeDescriptor -> PropertyRuleAppender
 outlineStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
-  in simpleProperty "outline-style" (strokeValue style)
+  in simpleProperty "outline-style" style
 
 outlineWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
 outlineWidth sizeDescriptor =
@@ -351,7 +348,7 @@ borderBottomRightRadius sizeDescriptorA sizeDescriptorB =
 borderCollapse : VisibilityDescriptor -> PropertyRuleAppender
 borderCollapse visibilityDescriptor =
   let visibility = visibilityDescriptor visibilityFactory
-  in simpleProperty "border-collapse" (visibilityValue visibility)
+  in simpleProperty "border-collapse" visibility
 
 -- TODO Should take initial, inherit, other
 borderSpacing : SizeDescriptor (Size a) a -> PropertyRuleAppender

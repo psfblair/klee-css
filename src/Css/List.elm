@@ -39,7 +39,7 @@ import Css.Internal.List exposing (..)
 
 listStyleType : ListStyleTypeDescriptor -> PropertyRuleAppender
 listStyleType descriptor = 
-  let styleValue = descriptor listStyleTypeFactory |> listStyleTypeValue
+  let styleValue = descriptor listStyleTypeFactory
   in simpleProperty "list-style-type" styleValue
 
 disc : ListStyleTypeDescriptor
@@ -106,7 +106,7 @@ upperRoman factory = factory.upperRoman
 
 listStylePosition : ListStylePositionDescriptor -> PropertyRuleAppender
 listStylePosition descriptor = 
-  let positionValue = descriptor listStylePositionFactory |> listStylePositionValue
+  let positionValue = descriptor listStylePositionFactory
   in simpleProperty "list-style-position" positionValue
 
 inside : ListStylePositionDescriptor
@@ -119,7 +119,7 @@ outside factory = factory.outside
 
 listStyleImage : ListStyleImageDescriptor -> PropertyRuleAppender
 listStyleImage descriptor = 
-  let imageValue = descriptor listStyleImageFactory |> listStyleImageValue
+  let imageValue = descriptor listStyleImageFactory
   in simpleProperty "list-style-image" imageValue
 
 imageUrl : String -> ListStyleImageDescriptor

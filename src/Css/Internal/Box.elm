@@ -1,5 +1,5 @@
 module Css.Internal.Box
-  ( BoxType, BoxTypeDescriptor, boxTypeFactory, boxTypeValue
+  ( BoxTypeDescriptor, boxTypeFactory
   , BoxShadow (..), BoxShadowDescriptor
   , Inset (..), ShadowColor (..), Blur (..), Sized
   , boxShadowFactory, boxShadowValue
@@ -14,38 +14,24 @@ import Css.Internal.Size exposing (Size, sizeValue)
 
 -------------------------------------------------------------------------------
 
-type alias BoxTypeDescriptor = BoxTypeFactory -> BoxType
-
-type BoxType
-  = BoxType String
-  | InheritBoxType
-  | InitialBoxType
-  | OtherBoxType Value
+type alias BoxTypeDescriptor = BoxTypeFactory -> Value
 
 type alias BoxTypeFactory =
   {
-    boxType: String -> BoxType
-  , inherit: BoxType
-  , initial: BoxType
-  , other: Value -> BoxType
+    boxType: String -> Value
+  , inherit_ : Value
+  , initial_ : Value
+  , other_ : Value -> Value
   }
 
 boxTypeFactory : BoxTypeFactory
 boxTypeFactory =
   {
-    boxType str = BoxType str
-  , inherit = InheritBoxType
-  , initial = InitialBoxType
-  , other val = OtherBoxType val
+    boxType str = stringValue str
+  , inherit_ = inheritValue
+  , initial_ = initialValue
+  , other_ val = otherValue val
   }
-
-boxTypeValue : BoxType -> Value 
-boxTypeValue boxTypeValue =
-  case boxTypeValue of
-    BoxType str -> stringValue str
-    InheritBoxType -> inheritValue
-    InitialBoxType -> initialValue
-    OtherBoxType val -> otherValue val
 
 -------------------------------------------------------------------------------
 

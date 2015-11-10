@@ -10,15 +10,15 @@ module Css.Internal.Text
   , TextTransformDescriptor, textTransformFactory, textTransformValue
   , ContentDescriptor, ComposableContentDescriptor, contentFactory, contentValue
   , CounterControlFactory
-  , CounterIncrementDescriptor, counterIncrementFactory, counterIncrementValue
-  , CounterResetDescriptor, counterResetFactory, counterResetValue
+  , CounterIncrementDescriptor, counterIncrementFactory
+  , CounterResetDescriptor, counterResetFactory
   ) where
 
 import Css.Internal.Color exposing (ColorDescriptor, CssColor, colorValue)
 import Css.Internal.Common exposing 
   ( initialValue, inheritValue, autoValue
   , noneValue, normalValue, unsetValue, otherValue)
-import Css.Internal.List exposing (ListStyleType, listStyleTypeValue)
+import Css.Internal.List exposing (ListStyleTypeDescriptor, listStyleTypeFactory)
 import Css.Internal.Position exposing (HorizontalSide, horizontalSideValue)
 import Css.Internal.Property exposing 
   ( Value, Literal, toLiteral
@@ -509,8 +509,8 @@ type Content
   = AttributeContent String
   | StringContent Literal
   | UrlContent String
-  | CounterContent String (Maybe ListStyleType)
-  | CountersContent String Literal (Maybe ListStyleType)
+  | CounterContent String (Maybe ListStyleTypeDescriptor)
+  | CountersContent String Literal (Maybe ListStyleTypeDescriptor)
   | OpenQuoteContent
   | CloseQuoteContent
   | NoOpenQuoteContent
@@ -526,8 +526,8 @@ type alias ContentFactory =
   { attributeContent : String -> ComposableContent
   , stringContent : String -> ComposableContent
   , urlContent : String -> ComposableContent
-  , counter : String -> Maybe ListStyleType -> ComposableContent
-  , counters : String -> String -> Maybe ListStyleType -> ComposableContent
+  , counter : String -> Maybe ListStyleTypeDescriptor -> ComposableContent
+  , counters : String -> String -> Maybe ListStyleTypeDescriptor -> ComposableContent
   , openQuote : ComposableContent
   , closeQuote : ComposableContent
   , noOpenQuote : ComposableContent
@@ -571,11 +571,11 @@ toComposableContent theContent =
 
 contentValue : BareContent a -> Value 
 contentValue theContent =
-  let styleTypeValue styleMaybe =
-    case styleMaybe of
+  let styleTypeValue maybeDescriptor =
+    case maybeDescriptor of
       Nothing -> emptyValue
-      Just styleType -> 
-        [stringValue ",", listStyleTypeValue styleType] |> concatenateValues
+      Just descriptor -> 
+        [ stringValue ",", descriptor listStyleTypeFactory ] |> concatenateValues
   in 
     case theContent.content of
       AttributeContent str -> 
@@ -584,18 +584,18 @@ contentValue theContent =
       StringContent literal -> literalValue literal
       UrlContent urlString ->  -- The URL string doesn't get quoted.
         [ "url(", urlString, ")" ] |> List.map stringValue |> concatenateValues
-      CounterContent name maybeStyle ->
+      CounterContent name maybeStyleDescriptor ->
         [ stringValue "counter("
         , stringValue name
-        , styleTypeValue maybeStyle
+        , styleTypeValue maybeStyleDescriptor
         , stringValue ")" 
         ] |> concatenateValues
-      CountersContent name separator maybeStyle ->
+      CountersContent name separator maybeStyleDescriptor ->
         [ stringValue "counters("
         , stringValue name
         , stringValue ","
         , literalValue separator
-        , styleTypeValue maybeStyle
+        , styleTypeValue maybeStyleDescriptor
         , stringValue ")" 
         ] |> concatenateValues
       OpenQuoteContent -> stringValue "open-quote"
@@ -614,91 +614,49 @@ contentValue theContent =
 type alias CounterControlFactory a rec =  { rec | id_ : String -> a }
 
 -------------------------------------------------------------------------------
-type alias CounterIncrementDescriptor =
-  CounterIncrementFactory -> CounterIncrement
-
-type CounterIncrement
-  = CounterIncrement String
-  | WithStep String Int
-  | InitialCounterIncrement
-  | InheritCounterIncrement
-  | NoCounterIncrement
-  | UnsetCounterIncrement
-  | OtherCounterIncrement Value
+type alias CounterIncrementDescriptor = CounterIncrementFactory -> Value
   
 type alias CounterIncrementFactory =
-  { withStep : String -> Int -> CounterIncrement
-  , id_ : String -> CounterIncrement
-  , initial_ : CounterIncrement
-  , inherit_ : CounterIncrement
-  , none_ : CounterIncrement
-  , unset_ : CounterIncrement
-  , other_ : Value -> CounterIncrement
+  { withStep : String -> Int -> Value
+  , id_ : String -> Value
+  , initial_ : Value
+  , inherit_ : Value
+  , none_ : Value
+  , unset_ : Value
+  , other_ : Value -> Value
   }  
 
 counterIncrementFactory : CounterIncrementFactory
 counterIncrementFactory =
-  { withStep str step = WithStep str step
-  , id_ str = CounterIncrement str
-  , initial_ = InitialCounterIncrement
-  , inherit_ = InheritCounterIncrement
-  , none_ = NoCounterIncrement
-  , unset_ = UnsetCounterIncrement
-  , other_ val = OtherCounterIncrement val
+  { withStep str step = spacePairValue stringValue intValue (str, step)
+  , id_ str = stringValue str
+  , initial_ = initialValue
+  , inherit_ = inheritValue
+  , none_ = noneValue
+  , unset_ = unsetValue
+  , other_ val = otherValue val
   }  
 
-counterIncrementValue : CounterIncrement -> Value
-counterIncrementValue counterIncrement =
-  case counterIncrement of
-    CounterIncrement str -> stringValue str
-    WithStep str step -> spacePairValue stringValue intValue (str, step)
-    InitialCounterIncrement -> initialValue
-    InheritCounterIncrement -> inheritValue
-    NoCounterIncrement -> noneValue
-    UnsetCounterIncrement -> unsetValue
-    OtherCounterIncrement val -> otherValue val
-
 -------------------------------------------------------------------------------
-type alias CounterResetDescriptor =
-  CounterResetFactory -> CounterReset
-
-type CounterReset
-  = CounterReset String
-  | WithInitialValue String Int
-  | InitialCounterReset
-  | InheritCounterReset
-  | NoCounterReset
-  | UnsetCounterReset
-  | OtherCounterReset Value
+type alias CounterResetDescriptor = CounterResetFactory -> Value
   
 type alias CounterResetFactory =
-  { withInitialValue : String -> Int -> CounterReset
-  , id_ : String -> CounterReset
-  , initial_ : CounterReset
-  , inherit_ : CounterReset
-  , none_ : CounterReset
-  , unset_ : CounterReset
-  , other_ : Value -> CounterReset
+  { withInitialValue : String -> Int -> Value
+  , id_ : String -> Value
+  , initial_ : Value
+  , inherit_ : Value
+  , none_ : Value
+  , unset_ : Value
+  , other_ : Value -> Value
   }  
 
 counterResetFactory : CounterResetFactory
 counterResetFactory =
-  { withInitialValue str initVal = WithInitialValue str initVal
-  , id_ str = CounterReset str
-  , initial_ = InitialCounterReset
-  , inherit_ = InheritCounterReset
-  , none_ = NoCounterReset
-  , unset_ = UnsetCounterReset
-  , other_ val = OtherCounterReset val
+  { withInitialValue str initVal = spacePairValue stringValue intValue (str, initVal)
+  , id_ str = stringValue str
+  , initial_ = initialValue
+  , inherit_ = inheritValue
+  , none_ = noneValue
+  , unset_ = unsetValue
+  , other_ val = otherValue val
   }  
-
-counterResetValue : CounterReset -> Value
-counterResetValue counterReset =
-  case counterReset of
-    CounterReset str -> stringValue str
-    WithInitialValue str init -> spacePairValue stringValue intValue (str, init)
-    InitialCounterReset -> initialValue
-    InheritCounterReset -> inheritValue
-    NoCounterReset -> noneValue
-    UnsetCounterReset -> unsetValue
-    OtherCounterReset val -> otherValue val

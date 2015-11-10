@@ -1,10 +1,10 @@
 module Css.Internal.Font
   ( GenericFontFamily, GenericFontFamilyDescriptor
   , genericFontFamilyFactory, genericFontFamilyValue
-  , FontSize, FontSizeDescriptor, fontSizeFactory, fontSizeValue
-  , FontStyle, FontStyleDescriptor, fontStyleFactory, fontStyleValue
-  , FontVariant, FontVariantDescriptor, fontVariantFactory, fontVariantValue
-  , FontWeight, FontWeightDescriptor, fontWeightFactory, fontWeightValue
+  , FontSizeDescriptor, fontSizeFactory
+  , FontStyleDescriptor, fontStyleFactory
+  , FontVariantDescriptor, fontVariantFactory
+  , FontWeightDescriptor, fontWeightFactory
   , FontDescriptor, ComposedFontDescriptor
   , FontAlternative (..), FontComponents (..), fontFactory, fontValue
   ) where
@@ -54,178 +54,103 @@ genericFontFamilyValue fontFamily =
     
 -------------------------------------------------------------------------------
 
-type alias FontSizeDescriptor = FontSizeFactory -> FontSize
-
-type FontSize 
-  = FontSize String
-  | InitialFontSize
-  | InheritFontSize
-  | UnsetFontSize
-  | OtherFontSize Value
+type alias FontSizeDescriptor = FontSizeFactory -> Value
 
 type alias FontSizeFactory =
   {
-    size: String -> FontSize
-  , initial_ : FontSize
-  , inherit_ : FontSize
-  , unset_ : FontSize
-  , other_ : Value -> FontSize
+    size: String -> Value
+  , initial_ : Value
+  , inherit_ : Value
+  , unset_ : Value
+  , other_ : Value -> Value
   }
 
 
 fontSizeFactory : FontSizeFactory
 fontSizeFactory =
   {
-    size str = FontSize str
-  , initial_ = InitialFontSize
-  , inherit_ = InheritFontSize
-  , unset_ = UnsetFontSize
-  , other_ val = OtherFontSize val
+    size str = stringValue str
+  , initial_ = initialValue
+  , inherit_ = inheritValue
+  , unset_ = unsetValue
+  , other_ val = otherValue val
   }
-
-
-fontSizeValue : FontSize -> Value 
-fontSizeValue fontSize =
-  case fontSize of
-    FontSize str -> stringValue str
-    InitialFontSize -> initialValue
-    InheritFontSize -> inheritValue
-    UnsetFontSize -> unsetValue
-    OtherFontSize val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias FontStyleDescriptor = FontStyleFactory -> FontStyle
-
-type FontStyle 
-  = FontStyle String
-  | InheritFontStyle
-  | InitialFontStyle
-  | NormalFontStyle
-  | UnsetFontStyle
-  | OtherFontStyle Value
+type alias FontStyleDescriptor = FontStyleFactory -> Value
 
 type alias FontStyleFactory =
   {
-    style: String -> FontStyle
-  , initial_ : FontStyle
-  , inherit_ : FontStyle
-  , normal_ : FontStyle
-  , unset_ : FontStyle
-  , other_ : Value -> FontStyle
+    style: String -> Value
+  , initial_ : Value
+  , inherit_ : Value
+  , normal_ : Value
+  , unset_ : Value
+  , other_ : Value -> Value
   }
-
 
 fontStyleFactory : FontStyleFactory
 fontStyleFactory =
   {
-    style str = FontStyle str
-  , initial_ = InitialFontStyle
-  , inherit_ = InheritFontStyle
-  , normal_ = NormalFontStyle
-  , unset_ = UnsetFontStyle
-  , other_ val = OtherFontStyle val
+    style str = stringValue str
+  , initial_ = initialValue
+  , inherit_ = inheritValue
+  , normal_ = normalValue
+  , unset_ = unsetValue
+  , other_ val = otherValue val
   }
-
-
-fontStyleValue : FontStyle -> Value 
-fontStyleValue fontStyle =
-  case fontStyle of
-    FontStyle str -> stringValue str
-    InitialFontStyle -> initialValue
-    InheritFontStyle -> inheritValue
-    NormalFontStyle -> normalValue
-    UnsetFontStyle -> unsetValue
-    OtherFontStyle val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias FontVariantDescriptor = FontVariantFactory -> FontVariant
-
-type FontVariant 
-  = FontVariant String
-  | NormalFontVariant
-  | InheritFontVariant
-  | InitialFontVariant
-  | UnsetFontVariant
-  | OtherFontVariant Value
+type alias FontVariantDescriptor = FontVariantFactory -> Value
 
 type alias FontVariantFactory =
   {
-    variant: String -> FontVariant
-  , normal_ : FontVariant
-  , initial_ : FontVariant
-  , inherit_ : FontVariant
-  , unset_ : FontVariant
-  , other_ : Value -> FontVariant
+    variant: String -> Value
+  , normal_ : Value
+  , initial_ : Value
+  , inherit_ : Value
+  , unset_ : Value
+  , other_ : Value -> Value
   }
 
 fontVariantFactory : FontVariantFactory
 fontVariantFactory =
   {
-    variant str = FontVariant str
-  , normal_ = NormalFontVariant
-  , initial_ = InitialFontVariant
-  , inherit_ = InheritFontVariant
-  , unset_ = UnsetFontVariant
-  , other_ val = OtherFontVariant val
+    variant str = stringValue str
+  , normal_ = normalValue
+  , initial_ = initialValue
+  , inherit_ = inheritValue
+  , unset_ = unsetValue
+  , other_ val = otherValue val
   }
-
-fontVariantValue : FontVariant -> Value 
-fontVariantValue fontVariant =
-  case fontVariant of
-    FontVariant str -> stringValue str
-    NormalFontVariant -> normalValue
-    InitialFontVariant -> initialValue
-    InheritFontVariant -> inheritValue
-    UnsetFontVariant -> unsetValue
-    OtherFontVariant val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias FontWeightDescriptor = FontWeightFactory -> FontWeight
-
-type FontWeight 
-  = FontWeight String
-  | NormalFontWeight
-  | InheritFontWeight
-  | InitialFontWeight
-  | UnsetFontWeight
-  | OtherFontWeight Value
-
+type alias FontWeightDescriptor = FontWeightFactory -> Value
 
 type alias FontWeightFactory =
   {
-    weight: String -> FontWeight
-  , normal_ : FontWeight
-  , initial_ : FontWeight
-  , inherit_ : FontWeight
-  , unset_ : FontWeight
-  , other_ : Value -> FontWeight
+    weight: String -> Value
+  , normal_ : Value
+  , initial_ : Value
+  , inherit_ : Value
+  , unset_ : Value
+  , other_ : Value -> Value
   }
 
 
 fontWeightFactory : FontWeightFactory
 fontWeightFactory =
   {
-    weight str = FontWeight str
-  , normal_ = NormalFontWeight
-  , initial_ = InitialFontWeight
-  , inherit_ = InheritFontWeight
-  , unset_ = UnsetFontWeight
-  , other_ val = OtherFontWeight val
+    weight str = stringValue str
+  , normal_ = normalValue
+  , initial_ = initialValue
+  , inherit_ = inheritValue
+  , unset_ = unsetValue
+  , other_ val = otherValue val
   }
-
-
-fontWeightValue : FontWeight -> Value 
-fontWeightValue fontWeight =
-  case fontWeight of
-    FontWeight str -> stringValue str
-    NormalFontWeight -> normalValue
-    InitialFontWeight -> initialValue
-    InheritFontWeight -> inheritValue
-    UnsetFontWeight -> unsetValue
-    OtherFontWeight val -> otherValue val
 
 -------------------------------------------------------------------------------
 
@@ -276,9 +201,9 @@ type FontComponents sz
   = BaseComponent (Size sz) (List String) (List GenericFontFamily)
   -- Line height case needs to be a second kind of leaf, to ease rendering
   | WithLineHeight (Size sz) (Size sz) (List String) (List GenericFontFamily)
-  | WithWeight FontWeight (ComposedFont sz)
-  | WithVariant FontVariant (ComposedFont sz)
-  | WithStyle FontStyle (ComposedFont sz)
+  | WithWeight Value (ComposedFont sz)
+  | WithVariant Value (ComposedFont sz)
+  | WithStyle Value (ComposedFont sz)
 
 type alias FontFactory sz =
   { leaf : Size sz -> List String -> List GenericFontFamily -> ComposedFont sz
@@ -321,9 +246,9 @@ componentsToValue fontComponents =
 
 
 componentsToValueRecursive : FontComponents sz -> 
-                             Maybe FontWeight ->
-                             Maybe FontVariant -> 
-                             Maybe FontStyle -> 
+                             Maybe Value -> -- weight
+                             Maybe Value -> -- variant
+                             Maybe Value -> -- style
                              Value
 componentsToValueRecursive components maybeWeight maybeVariant maybeStyle =
   case components of
@@ -379,9 +304,9 @@ where font-family is comma-separated
 componentsLeafToValue : Value -> 
                         List String ->
                         List GenericFontFamily ->
-                        Maybe FontWeight ->
-                        Maybe FontVariant -> 
-                        Maybe FontStyle -> 
+                        Maybe Value -> -- weight
+                        Maybe Value -> -- variant
+                        Maybe Value -> -- style
                         Value 
 componentsLeafToValue sizeValue
                       customFamilies 
@@ -395,14 +320,11 @@ componentsLeafToValue sizeValue
         genericFamilies |> List.map genericFontFamilyValue
       familyValues = customFamilyValues ++ genericFamilyValues
       familiesValue = commaListValue identity familyValues
-      maybeStyleVal = Maybe.map fontStyleValue maybeStyle
-      maybeVariantVal = Maybe.map fontVariantValue maybeVariant
-      maybeWeightVal = Maybe.map fontWeightValue maybeWeight
       
       allValues = 
-        [ maybeStyleVal
-        , maybeVariantVal
-        , maybeWeightVal
+        [ maybeStyle
+        , maybeVariant
+        , maybeWeight
         , Just(sizeValue)
         , Just(familiesValue)
         ] |> List.filterMap identity

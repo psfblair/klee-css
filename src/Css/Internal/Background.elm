@@ -1,19 +1,12 @@
 module Css.Internal.Background
   ( BackgroundColorDescriptor, backgroundColorFactory
-  , BackgroundPositionDescriptor
-  , backgroundPositionFactory, backgroundPositionValue
-  , BackgroundSizeDescriptor
-  , backgroundSizeFactory, backgroundSizeValue
-  , BackgroundRepeatDescriptor
-  , backgroundRepeatFactory, backgroundRepeatValue
-  , BackgroundImageDescriptor
-  , backgroundImageFactory, backgroundImageValue
-  , BackgroundOriginDescriptor
-  , backgroundOriginFactory, backgroundOriginValue
-  , BackgroundClipDescriptor
-  , backgroundClipFactory, backgroundClipValue
-  , BackgroundAttachmentDescriptor
-  , backgroundAttachmentFactory, backgroundAttachmentValue
+  , BackgroundPositionDescriptor, backgroundPositionFactory
+  , BackgroundSizeDescriptor, backgroundSizeFactory
+  , BackgroundRepeatDescriptor, backgroundRepeatFactory
+  , BackgroundImageDescriptor, backgroundImageFactory
+  , BackgroundOriginDescriptor, backgroundOriginFactory
+  , BackgroundClipDescriptor, backgroundClipFactory
+  , BackgroundAttachmentDescriptor, backgroundAttachmentFactory
   , Background, BackgroundDescriptor, ComposedBackgroundDescriptor
   , BackgroundComponents (..)
   , initialBackgroundFactory, adjoinComponents, backgroundValue
@@ -21,7 +14,7 @@ module Css.Internal.Background
 
 import String
 
-import Css.Internal.Box exposing (BoxType, boxTypeValue)  
+import Css.Internal.Box exposing (BoxTypeDescriptor, boxTypeFactory)  
 import Css.Internal.Color exposing 
   (CssColor (..), ColorFactory, colorFactory, colorValue)
 import Css.Internal.Common exposing 
@@ -39,72 +32,47 @@ import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValue)
 -------------------------------------------------------------------------------
 
 type alias BackgroundPositionDescriptor sz1 sz2 = 
-    BackgroundPositionFactory sz1 sz2 -> BackgroundPosition sz1 sz2
-
-type BackgroundPosition sz1 sz2
-  = SizedBackgroundPosition (Size sz1, Size sz2)
-  | SidedBackgroundPosition (HorizontalSide, VerticalSide)
-  | InitialBackgroundPosition
-  | InheritBackgroundPosition
-  | OtherBackgroundPosition Value
+    BackgroundPositionFactory sz1 sz2 -> Value
 
 type alias BackgroundPositionFactory sz1 sz2 =
   { sizedPosition : SizeDescriptor (Size sz1) sz1 -> 
                     SizeDescriptor (Size sz2) sz2 -> 
-                    BackgroundPosition sz1 sz2
-  , sidedPosition : HorizontalSide -> VerticalSide -> BackgroundPosition sz1 sz2
-  , initial_ : BackgroundPosition sz1 sz2
-  , inherit_ : BackgroundPosition sz1 sz2
-  , other_ : Value -> BackgroundPosition sz1 sz2
+                    Value
+  , sidedPosition : HorizontalSide -> VerticalSide -> Value
+  , initial_ : Value
+  , inherit_ : Value
+  , other_ : Value -> Value
   }
 
 backgroundPositionFactory : BackgroundPositionFactory sz1 sz2
 backgroundPositionFactory = 
   { sizedPosition horiz vert = 
-      SizedBackgroundPosition (horiz sizeFactory, vert sizeFactory)
-  , sidedPosition horiz vert = SidedBackgroundPosition (horiz, vert)
-  , initial_ = InitialBackgroundPosition
-  , inherit_ = InheritBackgroundPosition
-  , other_ val = OtherBackgroundPosition val
-  }
-
-backgroundPositionValue : BackgroundPosition sz1 sz2 -> Value 
-backgroundPositionValue position =
-  case position of
-    SizedBackgroundPosition sizes -> 
-      let valueFactory = spacePairValue sizeValue sizeValue
+      let sizes = (horiz sizeFactory, vert sizeFactory)
+          valueFactory = spacePairValue sizeValue sizeValue
       in valueFactory sizes
-    SidedBackgroundPosition sides -> 
-      let valueFactory = spacePairValue horizontalSideValue verticalSideValue
+  , sidedPosition horiz vert = 
+      let sides = (horiz, vert)
+          valueFactory = spacePairValue horizontalSideValue verticalSideValue
       in valueFactory sides
-    InitialBackgroundPosition -> initialValue
-    InheritBackgroundPosition -> inheritValue
-    OtherBackgroundPosition val -> val
+  , initial_ = initialValue
+  , inherit_ = inheritValue
+  , other_ val = otherValue val
+  }
 
 -------------------------------------------------------------------------------
 
-type alias BackgroundSizeDescriptor sz = 
-  BackgroundSizeFactory sz -> BackgroundSize sz
-
-type BackgroundSize sz
-  = BackgroundSize (Size sz) (Size sz)
-  | PartiallySpecifiedBackgroundSize (Size sz)
-  | NamedBackgroundSize String
-  | AutoBackgroundSize
-  | InitialBackgroundSize
-  | InheritBackgroundSize
-  | OtherBackgroundSize Value
+type alias BackgroundSizeDescriptor sz = BackgroundSizeFactory sz -> Value
 
 type alias BackgroundSizeFactory sz =
   { backgroundSize : SizeDescriptor (Size sz) sz -> 
                      SizeDescriptor (Size sz) sz -> 
-                     BackgroundSize sz
-  , partial : SizeDescriptor (Size sz) sz -> BackgroundSize sz
-  , named : String -> BackgroundSize sz
-  , auto_ : BackgroundSize sz
-  , initial_ : BackgroundSize sz
-  , inherit_ : BackgroundSize sz
-  , other_ : Value -> BackgroundSize sz
+                     Value
+  , partial : SizeDescriptor (Size sz) sz -> Value
+  , named : String -> Value
+  , auto_ : Value
+  , initial_ : Value
+  , inherit_ : Value
+  , other_ : Value -> Value
   }
 
 backgroundSizeFactory : BackgroundSizeFactory sz
@@ -112,33 +80,21 @@ backgroundSizeFactory =
   { backgroundSize widthDescriptor heightDescriptor = 
       let width = widthDescriptor sizeFactory 
           height = heightDescriptor sizeFactory 
-      in BackgroundSize width height
+          valueFactory = spacePairValue sizeValue sizeValue
+      in valueFactory (width, height)
   , partial widthDescriptor = 
       let width = widthDescriptor sizeFactory 
-      in PartiallySpecifiedBackgroundSize width
-  , named str = NamedBackgroundSize str
-  , auto_ = AutoBackgroundSize
-  , initial_ = InitialBackgroundSize
-  , inherit_ = InheritBackgroundSize
-  , other_ val = OtherBackgroundSize val
-  }
-  
-backgroundSizeValue : BackgroundSize sz -> Value 
-backgroundSizeValue bgSize =
-  case bgSize of
-    BackgroundSize width height -> 
-      let valueFactory = spacePairValue sizeValue sizeValue
-      in valueFactory (width, height)
-    PartiallySpecifiedBackgroundSize width ->
-      let valueFactory = spacePairValue sizeValue identity
+          valueFactory = spacePairValue sizeValue identity
       in valueFactory (width, autoValue)
-    NamedBackgroundSize str -> stringValue str
-    AutoBackgroundSize -> autoValue
-    InitialBackgroundSize -> initialValue
-    InheritBackgroundSize -> inheritValue
-    OtherBackgroundSize val -> otherValue val
+  , named str = stringValue str
+  , auto_ = autoValue
+  , initial_ = initialValue
+  , inherit_ = inheritValue
+  , other_ val = otherValue val
+  }
 
 -------------------------------------------------------------------------------
+--TODO Fix when colors are fixed
 type alias BackgroundColorDescriptor = BackgroundColorFactory -> CssColor
 
 type alias TransparentColorFactory = { transparent: CssColor }
@@ -151,178 +107,100 @@ backgroundColorFactory =
 
 -------------------------------------------------------------------------------
 
-type alias BackgroundImageDescriptor = 
-  BackgroundImageFactory -> BackgroundImage
-
-type BackgroundImage 
-  = BackgroundImage String
-  | NoBackgroundImage
-  | InitialBackgroundImage
-  | InheritBackgroundImage
-  | OtherBackgroundImage Value
+type alias BackgroundImageDescriptor = BackgroundImageFactory -> Value
 
 type alias BackgroundImageFactory =
-  { url : String -> BackgroundImage 
-  , none_ : BackgroundImage 
-  , initial_ : BackgroundImage 
-  , inherit_ : BackgroundImage 
-  , other_ : Value -> BackgroundImage 
+  { url : String -> Value 
+  , none_ : Value 
+  , initial_ : Value 
+  , inherit_ : Value 
+  , other_ : Value -> Value 
   }  
 
 backgroundImageFactory : BackgroundImageFactory
 backgroundImageFactory =
-  { url str = BackgroundImage str 
-  , none_ = NoBackgroundImage
-  , initial_ = InitialBackgroundImage 
-  , inherit_ = InheritBackgroundImage 
-  , other_ val = OtherBackgroundImage val 
+  { url imgUrl = stringValue (String.concat ["url(\"", imgUrl ,"\")"])
+  , none_ = noneValue
+  , initial_ = initialValue 
+  , inherit_ = inheritValue 
+  , other_ val = otherValue val
   }  
-
-backgroundImageValue : BackgroundImage -> Value 
-backgroundImageValue bgImage = 
-  case bgImage of
-    BackgroundImage imgUrl -> 
-      stringValue (String.concat ["url(\"", imgUrl ,"\")"])
-    NoBackgroundImage -> noneValue
-    InitialBackgroundImage -> initialValue
-    InheritBackgroundImage -> inheritValue
-    OtherBackgroundImage val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias BackgroundRepeatDescriptor = 
-  BackgroundRepeatFactory -> BackgroundRepeat
-
-type BackgroundRepeat 
-  = BackgroundRepeat String
-  | InitialBackgroundRepeat
-  | InheritBackgroundRepeat
-  | OtherBackgroundRepeat Value
+type alias BackgroundRepeatDescriptor = BackgroundRepeatFactory -> Value
 
 type alias BackgroundRepeatFactory =
-  { repeat : String -> BackgroundRepeat 
-  , initial_ : BackgroundRepeat 
-  , inherit_ : BackgroundRepeat 
-  , other_ : Value -> BackgroundRepeat 
+  { repeat : String -> Value 
+  , initial_ : Value 
+  , inherit_ : Value 
+  , other_ : Value -> Value 
   }  
 
 backgroundRepeatFactory : BackgroundRepeatFactory
 backgroundRepeatFactory =
-  { repeat str = BackgroundRepeat str 
-  , initial_ = InitialBackgroundRepeat 
-  , inherit_ = InheritBackgroundRepeat 
-  , other_ val = OtherBackgroundRepeat val 
+  { repeat str = stringValue str
+  , initial_ = initialValue 
+  , inherit_ = inheritValue 
+  , other_ val = otherValue val
   }  
-
-backgroundRepeatValue : BackgroundRepeat -> Value 
-backgroundRepeatValue repeat = 
-  case repeat of
-    BackgroundRepeat str -> stringValue str
-    InitialBackgroundRepeat -> initialValue
-    InheritBackgroundRepeat -> inheritValue
-    OtherBackgroundRepeat val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias BackgroundOriginDescriptor = 
-  BackgroundOriginFactory -> BackgroundOrigin
-
-type BackgroundOrigin 
-  = BackgroundOrigin BoxType
-  | InitialBackgroundOrigin
-  | InheritBackgroundOrigin
-  | OtherBackgroundOrigin Value
+type alias BackgroundOriginDescriptor = BackgroundOriginFactory -> Value
 
 type alias BackgroundOriginFactory =
-  { origin : BoxType -> BackgroundOrigin 
-  , initial_ : BackgroundOrigin 
-  , inherit_ : BackgroundOrigin 
-  , other_ : Value -> BackgroundOrigin 
+  { origin : BoxTypeDescriptor -> Value 
+  , initial_ : Value 
+  , inherit_ : Value 
+  , other_ : Value -> Value 
   }  
 
 backgroundOriginFactory : BackgroundOriginFactory
 backgroundOriginFactory =
-  { origin boxType = BackgroundOrigin boxType 
-  , initial_ = InitialBackgroundOrigin 
-  , inherit_ = InheritBackgroundOrigin 
-  , other_ val = OtherBackgroundOrigin val 
+  { origin boxTypeDescriptor = boxTypeDescriptor boxTypeFactory
+  , initial_ = initialValue 
+  , inherit_ = inheritValue 
+  , other_ val = otherValue val 
   }  
-
-backgroundOriginValue : BackgroundOrigin -> Value 
-backgroundOriginValue bgOrigin = 
-  case bgOrigin of
-    BackgroundOrigin boxType -> boxTypeValue boxType
-    InitialBackgroundOrigin -> initialValue
-    InheritBackgroundOrigin -> inheritValue
-    OtherBackgroundOrigin val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias BackgroundClipDescriptor = 
-  BackgroundClipFactory -> BackgroundClip
-
-type BackgroundClip 
-  = BackgroundClip BoxType
-  | InitialBackgroundClip
-  | InheritBackgroundClip
-  | OtherBackgroundClip Value
+type alias BackgroundClipDescriptor = BackgroundClipFactory -> Value
 
 type alias BackgroundClipFactory =
-  { clip : BoxType -> BackgroundClip 
-  , initial_ : BackgroundClip 
-  , inherit_ : BackgroundClip 
-  , other_ : Value -> BackgroundClip 
+  { clip : BoxTypeDescriptor -> Value 
+  , initial_ : Value 
+  , inherit_ : Value 
+  , other_ : Value -> Value 
   }  
 
 backgroundClipFactory : BackgroundClipFactory
 backgroundClipFactory =
-  { clip boxType = BackgroundClip boxType 
-  , initial_ = InitialBackgroundClip 
-  , inherit_ = InheritBackgroundClip 
-  , other_ val = OtherBackgroundClip val 
+  { clip boxTypeDescriptor = boxTypeDescriptor boxTypeFactory
+  , initial_ = initialValue 
+  , inherit_ = inheritValue 
+  , other_ val = otherValue val 
   }  
-
-backgroundClipValue : BackgroundClip -> Value 
-backgroundClipValue bgClip = 
-  case bgClip of
-    BackgroundClip boxType -> boxTypeValue boxType
-    InitialBackgroundClip -> initialValue
-    InheritBackgroundClip -> inheritValue
-    OtherBackgroundClip val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias BackgroundAttachmentDescriptor = 
-  BackgroundAttachmentFactory -> BackgroundAttachment
-
-type BackgroundAttachment 
-  = BackgroundAttachment String
-  | InitialBackgroundAttachment
-  | InheritBackgroundAttachment
-  | OtherBackgroundAttachment Value
+type alias BackgroundAttachmentDescriptor = BackgroundAttachmentFactory -> Value
 
 type alias BackgroundAttachmentFactory =
-  { bgAttachment : String -> BackgroundAttachment 
-  , initial_ : BackgroundAttachment 
-  , inherit_ : BackgroundAttachment 
-  , other_ : Value -> BackgroundAttachment 
+  { bgAttachment : String -> Value 
+  , initial_ : Value 
+  , inherit_ : Value 
+  , other_ : Value -> Value 
   }  
 
 backgroundAttachmentFactory : BackgroundAttachmentFactory
 backgroundAttachmentFactory =
-  { bgAttachment str = BackgroundAttachment str 
-  , initial_ = InitialBackgroundAttachment 
-  , inherit_ = InheritBackgroundAttachment 
-  , other_ val = OtherBackgroundAttachment val 
+  { bgAttachment str = stringValue str
+  , initial_ = initialValue 
+  , inherit_ = inheritValue 
+  , other_ val = otherValue val 
   }  
-
-backgroundAttachmentValue : BackgroundAttachment -> Value 
-backgroundAttachmentValue bgAttachment = 
-  case bgAttachment of
-    BackgroundAttachment str -> stringValue str
-    InitialBackgroundAttachment -> initialValue
-    InheritBackgroundAttachment -> inheritValue
-    OtherBackgroundAttachment val -> otherValue val
 
 -------------------------------------------------------------------------------
 
@@ -337,13 +215,13 @@ type BackgroundAlternative sz1 sz2 sz3
 
 type BackgroundComponents sz1 sz2 sz3
   = NoComponents
-  | WithPositionAndSize (BackgroundPosition sz1 sz2) (Maybe (BackgroundSize sz3)) (BackgroundComponents sz1 sz2 sz3)
+  | WithPositionAndSize Value (Maybe Value) (BackgroundComponents sz1 sz2 sz3)
   | WithColor CssColor (BackgroundComponents sz1 sz2 sz3)
-  | WithImage BackgroundImage (BackgroundComponents sz1 sz2 sz3)
-  | WithRepeat BackgroundRepeat (BackgroundComponents sz1 sz2 sz3)
-  | WithOrigin BackgroundOrigin (BackgroundComponents sz1 sz2 sz3)
-  | WithClip BackgroundClip (BackgroundComponents sz1 sz2 sz3)
-  | WithAttachment BackgroundAttachment (BackgroundComponents sz1 sz2 sz3)
+  | WithImage Value (BackgroundComponents sz1 sz2 sz3)
+  | WithRepeat Value (BackgroundComponents sz1 sz2 sz3)
+  | WithOrigin Value (BackgroundComponents sz1 sz2 sz3)
+  | WithClip Value (BackgroundComponents sz1 sz2 sz3)
+  | WithAttachment Value (BackgroundComponents sz1 sz2 sz3)
 
 {- In order to compose descriptors and still include `inherit` and `initial`, we
 do as follows:
@@ -428,13 +306,13 @@ componentsToValue bgComponents =
 At the least, origin must come before clip.
 -}
 componentsToValueRecursive : BackgroundComponents sz1 sz2 sz3 -> 
-                             Maybe BackgroundImage ->
-                             Maybe (BackgroundPosition sz1 sz2) -> 
-                             Maybe (BackgroundSize sz3) -> 
-                             Maybe BackgroundRepeat ->
-                             Maybe BackgroundAttachment ->
-                             Maybe BackgroundOrigin ->
-                             Maybe BackgroundClip ->
+                             Maybe Value ->   -- image
+                             Maybe Value ->   -- position
+                             Maybe Value ->   -- size
+                             Maybe Value ->   -- repeat
+                             Maybe Value ->   -- attachment
+                             Maybe Value ->   -- origin
+                             Maybe Value ->   -- clip
                              Maybe CssColor ->
                              Value
 componentsToValueRecursive 
@@ -485,28 +363,21 @@ componentsToValueRecursive
           Nothing -> 
             componentsToValueRecursive inner mImg mPos mSiz mRepeat mAttach mOrig mClip (Just color)
       NoComponents -> 
-        let maybePosition = Maybe.map backgroundPositionValue mPos
-            maybeSize = Maybe.map backgroundSizeValue mSiz
-            maybePositionAndSize = 
-              case (maybePosition, maybeSize) of
+        let maybePositionAndSize = 
+              case (mPos, mSiz) of
                 (Just (pos), Just(siz)) -> intersperse "/" [pos, siz] |> Just
                 (Just (pos), _) -> Just (pos)
                 _ -> Nothing -- Size without position can't happen and is invalid.
 
-            maybeImage = Maybe.map backgroundImageValue mImg
-            maybeRepeat = Maybe.map backgroundRepeatValue mRepeat
-            maybeAttachment = Maybe.map backgroundAttachmentValue mAttach
-            maybeOrigin = Maybe.map backgroundOriginValue mOrig
-            maybeClip = Maybe.map backgroundClipValue mClip
             maybeColor = Maybe.map colorValue mColor
 
             allValues = 
-              [ maybeImage
+              [ mImg
               , maybePositionAndSize
-              , maybeRepeat
-              , maybeAttachment
-              , maybeOrigin
-              , maybeClip
+              , mRepeat
+              , mAttach
+              , mOrig
+              , mClip
               , maybeColor
               ] |> List.filterMap identity
               

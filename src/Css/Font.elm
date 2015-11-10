@@ -107,7 +107,8 @@ fantasy factory = factory.family "fantasy"
 -- TODO Test that we can pass size descriptors here too.
 fontSize : FontSizeDescriptor -> PropertyRuleAppender
 fontSize sizeDescriptor = 
-  simpleProperty "font-size" (sizeDescriptor fontSizeFactory |> fontSizeValue) 
+  let fontSizeValue = sizeDescriptor fontSizeFactory
+  in simpleProperty "font-size" fontSizeValue
 
 
 xxSmall : FontSizeDescriptor
@@ -151,7 +152,8 @@ larger factory = factory.size "larger"
 
 fontStyle : FontStyleDescriptor -> PropertyRuleAppender
 fontStyle styleDescriptor = 
-  simpleProperty "font-style" (styleDescriptor fontStyleFactory |> fontStyleValue) 
+  let fontStyleValue = styleDescriptor fontStyleFactory
+  in simpleProperty "font-style" fontStyleValue
 
 
 italic : FontStyleDescriptor
@@ -167,7 +169,8 @@ oblique factory = factory.style "oblique"
 -- TODO - Need a second version to take a list of variants
 fontVariant : FontVariantDescriptor -> PropertyRuleAppender
 fontVariant variantDescriptor = 
-  simpleProperty "font-variant" (variantDescriptor fontVariantFactory |> fontVariantValue) 
+  let fontVariantValue = variantDescriptor fontVariantFactory
+  in simpleProperty "font-variant" fontVariantValue
 
 smallCaps : FontVariantDescriptor
 smallCaps factory = factory.variant "small-caps"
@@ -177,7 +180,8 @@ smallCaps factory = factory.variant "small-caps"
 
 fontWeight : FontWeightDescriptor -> PropertyRuleAppender
 fontWeight descriptor = 
-  simpleProperty "font-weight" (descriptor fontWeightFactory |> fontWeightValue) 
+  let fontWeightValue = descriptor fontWeightFactory
+  in simpleProperty "font-weight" fontWeightValue
 
 
 bold : FontWeightDescriptor
@@ -196,6 +200,7 @@ weight : Int -> FontWeightDescriptor
 weight i factory = factory.weight (toString i)
 
 -------------------------------------------------------------------------------
+-- TODO Fix when we fix sizes
 -- TODO also takes normal, initial, inherit, unset, other
 lineHeight : SizeDescriptor (Size c) c -> PropertyRuleAppender
 lineHeight descriptor = 

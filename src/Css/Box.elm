@@ -20,7 +20,7 @@ boxSizing : BoxTypeDescriptor -> PropertyRuleAppender
 boxSizing descriptor =
   let boxType = descriptor boxTypeFactory
       prefixedKeys = appendToPrefixedRoot browsers "box-sizing"
-  in prefixed prefixedKeys (boxTypeValue boxType) 
+  in prefixed prefixedKeys boxType
 
 paddingBox : BoxTypeDescriptor
 paddingBox factory = factory.boxType "padding-box"

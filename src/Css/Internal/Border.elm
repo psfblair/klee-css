@@ -1,5 +1,5 @@
 module Css.Internal.Border 
-  ( StrokeDescriptor, strokeFactory, strokeValue
+  ( StrokeDescriptor, strokeFactory
   , OutlineColorDescriptor, outlineColorFactory
   ) where
 
@@ -12,44 +12,29 @@ import Css.Internal.Color exposing
   (CssColor (..), ColorFactory, colorFactory)
 -------------------------------------------------------------------------------
 
-type alias StrokeDescriptor = StrokeFactory -> Stroke
-
-type Stroke
-  = Stroke String
-  | NoStroke
-  | InheritStroke
-  | AutoStroke
-  | OtherStroke Value
+type alias StrokeDescriptor = StrokeFactory -> Value
 
 type alias StrokeFactory =
   {
-    stroke: String -> Stroke
-  , none: Stroke
-  , inherit: Stroke
-  , auto: Stroke
-  , other: Value -> Stroke
+    stroke: String -> Value
+  , none_ : Value
+  , inherit_ : Value
+  , auto_ : Value
+  , other_ : Value -> Value
   }
 
 strokeFactory : StrokeFactory
 strokeFactory =
   {
-    stroke str = Stroke str
-  , none = NoStroke
-  , inherit = InheritStroke
-  , auto = AutoStroke
-  , other val = OtherStroke val
+    stroke str = stringValue str
+  , none_ = noneValue
+  , inherit_ = inheritValue
+  , auto_ = autoValue
+  , other_ val = otherValue val
   }
 
-strokeValue : Stroke -> Value 
-strokeValue stroke =
-  case stroke of
-    Stroke str -> stringValue str
-    NoStroke -> noneValue
-    InheritStroke -> inheritValue
-    AutoStroke -> autoValue
-    OtherStroke val -> otherValue val
-
 -------------------------------------------------------------------------------
+-- TODO Fix along with color fixes
 -- NOTE outline-color takes "invert" as well as the standard color descriptors,
 -- which is one reason we need ColorDescriptor to be parameterized.
 

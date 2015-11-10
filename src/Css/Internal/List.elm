@@ -1,7 +1,7 @@
 module Css.Internal.List 
-  ( ListStyleType, ListStyleTypeDescriptor, listStyleTypeFactory, listStyleTypeValue
-  , ListStylePositionDescriptor, listStylePositionFactory, listStylePositionValue
-  , ListStyleImageDescriptor, listStyleImageFactory, listStyleImageValue
+  ( ListStyleTypeDescriptor, listStyleTypeFactory
+  , ListStylePositionDescriptor, listStylePositionFactory
+  , ListStyleImageDescriptor, listStyleImageFactory
   , ListStyleDescriptor, ComposedListStyleDescriptor, listStyleValue
   , initialListStyleFactory
   , ListStyleComponents (..), adjoinListStyle 
@@ -15,195 +15,106 @@ import Css.Internal.Property exposing
   )
 -------------------------------------------------------------------------------
 
-type alias ListStyleTypeDescriptor =
-  ListStyleTypeFactory -> ListStyleType
-  
-type ListStyleType 
-  = Disc               
-  | Armenian           
-  | CircleListStyleType    
-  | CjkIdeographic     
-  | Decimal            
-  | DecimalLeadingZero 
-  | Georgian           
-  | Hebrew             
-  | Hiragana           
-  | HiraganaIroha      
-  | Katakana           
-  | KatakanaIroha      
-  | LowerAlpha         
-  | LowerGreek         
-  | LowerLatin         
-  | LowerRoman         
-  | Square             
-  | UpperAlpha         
-  | UpperLatin         
-  | UpperRoman
-  | InitialListStyleType
-  | InheritListStyleType
-  | NoListStyleType
-  | OtherListStyleType Value
+type alias ListStyleTypeDescriptor = ListStyleTypeFactory -> Value
   
 type alias ListStyleTypeFactory =
-  { disc : ListStyleType
-  , armenian : ListStyleType
-  , circleListStyleType : ListStyleType
-  , cjkIdeographic : ListStyleType
-  , decimal : ListStyleType
-  , decimalLeadingZero : ListStyleType
-  , georgian : ListStyleType
-  , hebrew : ListStyleType
-  , hiragana : ListStyleType
-  , hiraganaIroha : ListStyleType
-  , katakana : ListStyleType
-  , katakanaIroha : ListStyleType
-  , lowerAlpha : ListStyleType
-  , lowerGreek : ListStyleType
-  , lowerLatin : ListStyleType
-  , lowerRoman : ListStyleType
-  , square : ListStyleType
-  , upperAlpha : ListStyleType
-  , upperLatin : ListStyleType
-  , upperRoman : ListStyleType
-  , initial_ : ListStyleType
-  , inherit_ : ListStyleType
-  , none_ : ListStyleType
-  , other_ : Value -> ListStyleType
+  { disc : Value
+  , armenian : Value
+  , circleListStyleType : Value
+  , cjkIdeographic : Value
+  , decimal : Value
+  , decimalLeadingZero : Value
+  , georgian : Value
+  , hebrew : Value
+  , hiragana : Value
+  , hiraganaIroha : Value
+  , katakana : Value
+  , katakanaIroha : Value
+  , lowerAlpha : Value
+  , lowerGreek : Value
+  , lowerLatin : Value
+  , lowerRoman : Value
+  , square : Value
+  , upperAlpha : Value
+  , upperLatin : Value
+  , upperRoman : Value
+  , initial_ : Value
+  , inherit_ : Value
+  , none_ : Value
+  , other_ : Value -> Value
   }
 
 listStyleTypeFactory : ListStyleTypeFactory
 listStyleTypeFactory =
-  { disc = Disc
-  , armenian = Armenian
-  , circleListStyleType = CircleListStyleType
-  , cjkIdeographic = CjkIdeographic
-  , decimal = Decimal
-  , decimalLeadingZero = DecimalLeadingZero
-  , georgian = Georgian
-  , hebrew = Hebrew
-  , hiragana = Hiragana
-  , hiraganaIroha = HiraganaIroha
-  , katakana = Katakana
-  , katakanaIroha = KatakanaIroha
-  , lowerAlpha = LowerAlpha
-  , lowerGreek = LowerGreek
-  , lowerLatin = LowerLatin
-  , lowerRoman = LowerRoman
-  , square = Square
-  , upperAlpha = UpperAlpha
-  , upperLatin = UpperLatin
-  , upperRoman = UpperRoman
-  , initial_ = InitialListStyleType
-  , inherit_ = InheritListStyleType
-  , none_ = NoListStyleType
-  , other_ val = OtherListStyleType val
+  { disc = stringValue "disc"
+  , armenian = stringValue "armenian"
+  , circleListStyleType = stringValue "circle"
+  , cjkIdeographic = stringValue "cjk-ideographic"
+  , decimal = stringValue "decimal"
+  , decimalLeadingZero = stringValue "decimal-leading-zero"
+  , georgian = stringValue "georgian"
+  , hebrew = stringValue "hebrew"
+  , hiragana = stringValue "hiragana"
+  , hiraganaIroha = stringValue "hiragana-iroha"
+  , katakana = stringValue "katakana"
+  , katakanaIroha = stringValue "katakana-iroha"
+  , lowerAlpha = stringValue "lower-alpha"
+  , lowerGreek = stringValue "lower-greek"
+  , lowerLatin = stringValue "lower-latin"
+  , lowerRoman = stringValue "lower-roman"
+  , square = stringValue "square"
+  , upperAlpha = stringValue "upper-alpha"
+  , upperLatin = stringValue "upper-latin"
+  , upperRoman = stringValue "upper-roman"
+  , initial_ = initialValue
+  , inherit_ = inheritValue
+  , none_ = noneValue
+  , other_ val = otherValue val
   }
-
-listStyleTypeValue : ListStyleType -> Value
-listStyleTypeValue listStyle =
-  case listStyle of
-    Disc -> stringValue "disc"
-    Armenian -> stringValue "armenian"
-    CircleListStyleType -> stringValue "circleListStyleType"
-    CjkIdeographic -> stringValue "cjk-ideographic"
-    Decimal -> stringValue "decimal"
-    DecimalLeadingZero -> stringValue "decimal-leading-zero"
-    Georgian -> stringValue "georgian"
-    Hebrew -> stringValue "hebrew"
-    Hiragana -> stringValue "hiragana"
-    HiraganaIroha -> stringValue "hiragana-iroha"
-    Katakana -> stringValue "katakana"
-    KatakanaIroha -> stringValue "katakana-iroha"
-    LowerAlpha -> stringValue "lower-alpha"
-    LowerGreek -> stringValue "lower-greek"
-    LowerLatin -> stringValue "lower-latin"
-    LowerRoman -> stringValue "lower-roman"
-    Square -> stringValue "square"
-    UpperAlpha -> stringValue "upper-alpha"
-    UpperLatin -> stringValue "upper-latin"
-    UpperRoman -> stringValue "upper-roman"
-    InitialListStyleType -> initialValue
-    InheritListStyleType -> inheritValue
-    NoListStyleType -> noneValue
-    OtherListStyleType val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias ListStylePositionDescriptor =
-  ListStylePositionFactory -> ListStylePosition
-  
-type ListStylePosition 
-  = InsideListStylePosition
-  | OutsideListStylePosition           
-  | InitialListStylePosition
-  | InheritListStylePosition
-  | OtherListStylePosition Value
+type alias ListStylePositionDescriptor = ListStylePositionFactory -> Value
   
 type alias ListStylePositionFactory =
-  { inside : ListStylePosition
-  , outside : ListStylePosition
-  , initial_ : ListStylePosition
-  , inherit_ : ListStylePosition
-  , other_ : Value -> ListStylePosition
+  { inside : Value
+  , outside : Value
+  , initial_ : Value
+  , inherit_ : Value
+  , other_ : Value -> Value
   }
 
 listStylePositionFactory : ListStylePositionFactory
 listStylePositionFactory =
-  { inside = InsideListStylePosition
-  , outside = OutsideListStylePosition
-  , initial_ = InitialListStylePosition
-  , inherit_ = InheritListStylePosition
-  , other_ val = OtherListStylePosition val
+  { inside = stringValue "inside"
+  , outside = stringValue "outside"
+  , initial_ = initialValue
+  , inherit_ = inheritValue
+  , other_ val = otherValue val
   }
-
-listStylePositionValue : ListStylePosition -> Value
-listStylePositionValue listStyle =
-  case listStyle of
-    InsideListStylePosition -> stringValue "inside"
-    OutsideListStylePosition -> stringValue "outside"
-    InitialListStylePosition -> initialValue
-    InheritListStylePosition -> inheritValue
-    OtherListStylePosition val -> otherValue val
 
 -------------------------------------------------------------------------------
 
-type alias ListStyleImageDescriptor =
-  ListStyleImageFactory -> ListStyleImage
-  
-type ListStyleImage 
-  = ListStyleImageUrl Literal
-  | InitialListStyleImage
-  | InheritListStyleImage
-  | NoListStyleImage
-  | OtherListStyleImage Value
+type alias ListStyleImageDescriptor = ListStyleImageFactory -> Value
   
 type alias ListStyleImageFactory =
-  { url : String -> ListStyleImage
-  , initial_ : ListStyleImage
-  , inherit_ : ListStyleImage
-  , none_ : ListStyleImage
-  , other_ : Value -> ListStyleImage
+  { url : String -> Value
+  , initial_ : Value
+  , inherit_ : Value
+  , none_ : Value
+  , other_ : Value -> Value
   }
 
 listStyleImageFactory : ListStyleImageFactory
 listStyleImageFactory =
-  { url str = toLiteral str |> ListStyleImageUrl
-  , initial_ = InitialListStyleImage
-  , inherit_ = InheritListStyleImage
-  , none_ = NoListStyleImage
-  , other_ val = OtherListStyleImage val
+  { url urlString =
+      let urlValue = toLiteral urlString |> literalValue
+      in [ stringValue "url(", urlValue, stringValue ")" ] |> concatenateValues
+  , initial_ = initialValue
+  , inherit_ = inheritValue
+  , none_ = noneValue
+  , other_ val = otherValue val
   }
-
-listStyleImageValue : ListStyleImage -> Value
-listStyleImageValue imageStyle =
-  case imageStyle of
-    ListStyleImageUrl url -> 
-      [ stringValue "url(", literalValue url, stringValue ")" ]
-      |> concatenateValues
-    InitialListStyleImage -> initialValue
-    InheritListStyleImage -> inheritValue
-    NoListStyleImage -> noneValue
-    OtherListStyleImage val -> otherValue val
 
 -------------------------------------------------------------------------------
 
@@ -218,9 +129,9 @@ type ListStyleAlternative
 
 type ListStyleComponents
   = NoListStyleComponents
-  | WithStyleType ListStyleType ListStyleComponents
-  | WithStylePosition ListStylePosition ListStyleComponents
-  | WithStyleImage ListStyleImage ListStyleComponents
+  | WithStyleType Value ListStyleComponents
+  | WithStylePosition Value ListStyleComponents
+  | WithStyleImage Value ListStyleComponents
 
 type alias ListStyleDescriptor a = ListStyleFactory {} -> ListStyle a
   
@@ -267,9 +178,9 @@ componentsToValue components =
   componentsToValueRecursive components Nothing Nothing Nothing
   
 componentsToValueRecursive : ListStyleComponents -> 
-                             Maybe ListStyleType ->
-                             Maybe ListStylePosition ->
-                             Maybe ListStyleImage ->
+                             Maybe Value -> -- style type
+                             Maybe Value -> -- position
+                             Maybe Value -> -- image
                              Value
 componentsToValueRecursive components maybeType maybePosition maybeImage =
   case components of
@@ -294,14 +205,10 @@ componentsToValueRecursive components maybeType maybePosition maybeImage =
         Nothing -> 
           componentsToValueRecursive inner maybeType maybePosition (Just styleImage)
     NoListStyleComponents ->
-      let maybeTypeValue = Maybe.map listStyleTypeValue maybeType
-          maybePositionValue = Maybe.map listStylePositionValue maybePosition
-          maybeImageValue = Maybe.map listStyleImageValue maybeImage
-
-          allValues = 
-            [ maybeTypeValue
-            , maybePositionValue
-            , maybeImageValue
+      let allValues = 
+            [ maybeType
+            , maybePosition
+            , maybeImage
             ] |> List.filterMap identity
           
       in spaceListValue identity allValues
