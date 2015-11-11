@@ -10,7 +10,8 @@ import Css.Internal.Common exposing
   ( noneValue, inheritValue, initialValue, otherValue)
   
 import Css.Internal.Color exposing (CssColor, colorValue)
-import Css.Internal.Size exposing (Size, sizeValue)
+
+import Css.Internal.Geometry.Linear as Linear
 
 -------------------------------------------------------------------------------
 
@@ -40,7 +41,7 @@ type alias BoxShadowDescriptor sizedConstraint xSzTyp ySzTyp blurTyp spreadTyp
     BoxShadow sizedConstraint xSzTyp ySzTyp blurTyp spreadTyp
 
 type BoxShadow sizedConstraint xSzTyp ySzTyp blurTyp spreadTyp
-  = BoxShadow (Size xSzTyp, Size ySzTyp)
+  = BoxShadow (Linear.Size xSzTyp, Linear.Size ySzTyp)
               ShadowColor
               (Blur blurTyp spreadTyp)
               Inset
@@ -52,7 +53,7 @@ type BoxShadow sizedConstraint xSzTyp ySzTyp blurTyp spreadTyp
 type Sized = Sized -- used in sizedConstraint constraint type in BoxShadow.
 
 type Blur blurSizeType spreadSizeType
-  = Blur (Size blurSizeType) (Size spreadSizeType)
+  = Blur (Linear.Size blurSizeType) (Linear.Size spreadSizeType)
   | NoBlur
 
 type ShadowColor
@@ -64,7 +65,7 @@ type Inset
   | NoInset
 
 type alias BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp =
-  { sizedShadow: (Size xSzTyp) -> (Size ySzTyp) ->
+  { sizedShadow: (Linear.Size xSzTyp) -> (Linear.Size ySzTyp) ->
                     BoxShadow Sized xSzTyp ySzTyp blurSzTyp spreadSzTyp
   , none: BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
   , initial: BoxShadow () xSzTyp ySzTyp blurSzTyp spreadSzTyp
@@ -85,7 +86,7 @@ boxShadowValue : BoxShadow sizedTyp xSzTyp ySzTyp blurSzTyp spreadSzTyp -> Value
 boxShadowValue boxShadow=
   case boxShadow of
     BoxShadow (xSize, ySize) shadowColor blur inset ->
-      let xyValues = [ sizeValue xSize, sizeValue ySize ]
+      let xyValues = [ Linear.sizeValue xSize, Linear.sizeValue ySize ]
           blurValues = extractBlurValues blur
           colorValue = extractColorValue shadowColor
           insetValue = extractInsetValue inset
@@ -107,8 +108,8 @@ extractBlurValues maybeBlur =
   case maybeBlur of
     NoBlur -> []
     Blur blurSize spreadSize ->
-      [ sizeValue blurSize
-      , sizeValue spreadSize
+      [ Linear.sizeValue blurSize
+      , Linear.sizeValue spreadSize
       ]
 
 extractInsetValue : Inset -> List Value

@@ -6,7 +6,7 @@ import Css.TestUtils exposing (it)
 import Css.Color exposing (..)
 import Css.Common exposing (..)
 import Css.Font exposing (..)
-import Css.Size exposing (..)
+import Css.Geometry exposing (..)
 import Css exposing (renderProperties)
 
 -------------------------------------------------------------------------------

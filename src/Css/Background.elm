@@ -53,8 +53,9 @@ module Css.Background
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Box exposing (BoxTypeDescriptor)
 import Css.Internal.Color exposing (colorValue)
-import Css.Internal.Position exposing (HorizontalSide, VerticalSide)
-import Css.Internal.Size exposing (Size, SizeDescriptor)
+
+import Css.Internal.Geometry.Linear as Linear
+import Css.Internal.Geometry.Sides as Sides
 
 import Css.Internal.Background exposing (..)
 
@@ -65,11 +66,11 @@ backgroundPosition descriptor =
   let value = descriptor backgroundPositionFactory
   in simpleProperty "background-position" value
   
-placed : HorizontalSide -> VerticalSide -> BackgroundPositionDescriptor sz1 sz2
+placed : Sides.HorizontalSide -> Sides.VerticalSide -> BackgroundPositionDescriptor sz1 sz2
 placed horiz vert factory = factory.sidedPosition horiz vert
 
-positioned : SizeDescriptor (Size sz1) sz1 -> 
-             SizeDescriptor (Size sz2) sz2 -> 
+positioned : Linear.SizeDescriptor (Linear.Size sz1) sz1 -> 
+             Linear.SizeDescriptor (Linear.Size sz2) sz2 -> 
              BackgroundPositionDescriptor sz1 sz2
 positioned horiz vert factory = factory.sizedPosition horiz vert
 
@@ -86,12 +87,12 @@ contain factory = backgroundSizeFactory.named "contain"
 cover : BackgroundSizeDescriptor sz
 cover factory = backgroundSizeFactory.named "cover"
 
-by : SizeDescriptor (Size sz) sz -> 
-     SizeDescriptor (Size sz) sz -> 
+by : Linear.SizeDescriptor (Linear.Size sz) sz -> 
+     Linear.SizeDescriptor (Linear.Size sz) sz -> 
      BackgroundSizeDescriptor sz
 by width height factory = backgroundSizeFactory.backgroundSize width height
 
-bgWidth : SizeDescriptor (Size sz) sz -> BackgroundSizeDescriptor sz
+bgWidth : Linear.SizeDescriptor (Linear.Size sz) sz -> BackgroundSizeDescriptor sz
 bgWidth width factory = backgroundSizeFactory.partial width
 
 -------------------------------------------------------------------------------

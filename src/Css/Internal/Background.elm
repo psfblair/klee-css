@@ -19,15 +19,11 @@ import Css.Internal.Color exposing
   (CssColor (..), ColorFactory, colorFactory, colorValue)
 import Css.Internal.Common exposing 
   (autoValue, initialValue, inheritValue, noneValue, otherValue)
-import Css.Internal.Position exposing 
-  ( HorizontalSide, VerticalSide
-  , sideLeft, sideCenter, sideRight
-  , sideTop, sideMiddle, sideBottom
-  , horizontalSideValue, verticalSideValue
-  )
 import Css.Internal.Property exposing 
   (Value, intersperse, stringValue, spacePairValue, maybeValue, spaceListValue)
-import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValue)
+
+import Css.Internal.Geometry.Linear as Linear
+import Css.Internal.Geometry.Sides as Sides
 
 -------------------------------------------------------------------------------
 
@@ -35,10 +31,10 @@ type alias BackgroundPositionDescriptor sz1 sz2 =
     BackgroundPositionFactory sz1 sz2 -> Value
 
 type alias BackgroundPositionFactory sz1 sz2 =
-  { sizedPosition : SizeDescriptor (Size sz1) sz1 -> 
-                    SizeDescriptor (Size sz2) sz2 -> 
+  { sizedPosition : Linear.SizeDescriptor (Linear.Size sz1) sz1 -> 
+                    Linear.SizeDescriptor (Linear.Size sz2) sz2 -> 
                     Value
-  , sidedPosition : HorizontalSide -> VerticalSide -> Value
+  , sidedPosition : Sides.HorizontalSide -> Sides.VerticalSide -> Value
   , initial_ : Value
   , inherit_ : Value
   , other_ : Value -> Value
@@ -47,12 +43,12 @@ type alias BackgroundPositionFactory sz1 sz2 =
 backgroundPositionFactory : BackgroundPositionFactory sz1 sz2
 backgroundPositionFactory = 
   { sizedPosition horiz vert = 
-      let sizes = (horiz sizeFactory, vert sizeFactory)
-          valueFactory = spacePairValue sizeValue sizeValue
+      let sizes = (horiz Linear.sizeFactory, vert Linear.sizeFactory)
+          valueFactory = spacePairValue Linear.sizeValue Linear.sizeValue
       in valueFactory sizes
   , sidedPosition horiz vert = 
       let sides = (horiz, vert)
-          valueFactory = spacePairValue horizontalSideValue verticalSideValue
+          valueFactory = spacePairValue Sides.horizontalSideValue Sides.verticalSideValue
       in valueFactory sides
   , initial_ = initialValue
   , inherit_ = inheritValue
@@ -64,10 +60,10 @@ backgroundPositionFactory =
 type alias BackgroundSizeDescriptor sz = BackgroundSizeFactory sz -> Value
 
 type alias BackgroundSizeFactory sz =
-  { backgroundSize : SizeDescriptor (Size sz) sz -> 
-                     SizeDescriptor (Size sz) sz -> 
+  { backgroundSize : Linear.SizeDescriptor (Linear.Size sz) sz -> 
+                     Linear.SizeDescriptor (Linear.Size sz) sz -> 
                      Value
-  , partial : SizeDescriptor (Size sz) sz -> Value
+  , partial : Linear.SizeDescriptor (Linear.Size sz) sz -> Value
   , named : String -> Value
   , auto_ : Value
   , initial_ : Value
@@ -78,13 +74,13 @@ type alias BackgroundSizeFactory sz =
 backgroundSizeFactory : BackgroundSizeFactory sz
 backgroundSizeFactory =
   { backgroundSize widthDescriptor heightDescriptor = 
-      let width = widthDescriptor sizeFactory 
-          height = heightDescriptor sizeFactory 
-          valueFactory = spacePairValue sizeValue sizeValue
+      let width = widthDescriptor Linear.sizeFactory 
+          height = heightDescriptor Linear.sizeFactory 
+          valueFactory = spacePairValue Linear.sizeValue Linear.sizeValue
       in valueFactory (width, height)
   , partial widthDescriptor = 
-      let width = widthDescriptor sizeFactory 
-          valueFactory = spacePairValue sizeValue identity
+      let width = widthDescriptor Linear.sizeFactory 
+          valueFactory = spacePairValue Linear.sizeValue identity
       in valueFactory (width, autoValue)
   , named str = stringValue str
   , auto_ = autoValue

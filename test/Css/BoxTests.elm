@@ -4,7 +4,7 @@ import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
 import Css.Box exposing (..)
-import Css.Size exposing (px, pct)
+import Css.Geometry exposing (..)
 import Css.Color exposing (black)
 import Css exposing (renderProperties)
 

@@ -4,7 +4,6 @@ import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
 import Css.Geometry exposing (..)
-import Css.Size exposing (..)
 import Css exposing (renderProperties)
 
 -------------------------------------------------------------------------------

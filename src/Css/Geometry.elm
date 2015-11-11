@@ -1,9 +1,27 @@
 module Css.Geometry 
   (
-  -- * Positioning.
-    top, left, bottom, right
+  -- * Size constructors
 
-  -- * Sizing.
+    nil, unitless
+  , cm, mm, inches
+  , px, pt, pc
+  , pct
+  , em, srem, ex
+  , vw, vh, vmin, vmax
+
+  -- * Constructing angles
+
+  , deg, rad, grad, turn
+  
+  -- * Constructing positions
+    
+  , sideLeft, sideCenter, sideRight
+  , sideTop, sideMiddle, sideBottom
+
+  -- * Positioning properties.
+  , top, left, bottom, right
+
+  -- * Sizing properties.
   , width, height, minWidth, minHeight, maxWidth, maxHeight
 
   -- * Padding.
@@ -15,145 +33,196 @@ module Css.Geometry
   , marginTop, marginLeft, marginRight, marginBottom
   ) where
 
-import Css.Internal.Property exposing (spaceQuadrupleValue)
-import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
-import Css.Internal.Size exposing 
-  (Size, SizeDescriptor, sizeFactory, sizeValue)
+import Css.Internal.Geometry.Angle as Angle
+import Css.Internal.Geometry.Linear as Linear
+import Css.Internal.Geometry.Linear.Absolute as Absolute
+import Css.Internal.Geometry.Linear.Relative as Relative
+import Css.Internal.Geometry.Sides as Sides
+import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
--- TODO needs auto, initial, inherit
-top : SizeDescriptor (Size a) a -> PropertyRuleAppender
-top sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "top" (sizeValue sz)
 
--- TODO needs auto, initial, inherit
-left : SizeDescriptor (Size a) a -> PropertyRuleAppender
-left sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "left" (sizeValue sz)
+-- | Zero size.
+nil : Linear.SizeDescriptor a c
+nil = Linear.nil
 
--- TODO needs auto, initial, inherit
-bottom : SizeDescriptor (Size a) a -> PropertyRuleAppender
-bottom sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "bottom" (sizeValue sz)
-
--- TODO needs auto, initial, inherit
-right : SizeDescriptor (Size a) a -> PropertyRuleAppender
-right sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "right" (sizeValue sz)
-
--- TODO needs auto, initial, inherit
-width : SizeDescriptor (Size a) a -> PropertyRuleAppender
-width sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "width" (sizeValue sz)
-
--- TODO needs auto, initial, inherit
-height : SizeDescriptor (Size a) a -> PropertyRuleAppender
-height sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "height" (sizeValue sz)
-
--- TODO needs initial, inherit
-minWidth : SizeDescriptor (Size a) a -> PropertyRuleAppender
-minWidth sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "min-width" (sizeValue sz)
-
--- TODO needs initial, inherit
-minHeight : SizeDescriptor (Size a) a -> PropertyRuleAppender
-minHeight sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "min-height" (sizeValue sz)
-
--- TODO needs none, initial, inherit
-maxWidth : SizeDescriptor (Size a) a -> PropertyRuleAppender
-maxWidth sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "max-width" (sizeValue sz)
-
--- TODO needs none, initial, inherit
-maxHeight : SizeDescriptor (Size a) a -> PropertyRuleAppender
-maxHeight sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "max-height" (sizeValue sz)
+-- | Unitless size (as recommended for line-height).
+unitless : Float -> Linear.SizeDescriptor a c
+unitless = Linear.unitless
 
 -------------------------------------------------------------------------------
--- TODO needs initial, inherit
-padding : SizeDescriptor (Size a) a -> 
-          SizeDescriptor (Size a) a -> 
-          SizeDescriptor (Size a) a -> 
-          SizeDescriptor (Size a) a -> 
-          PropertyRuleAppender
-padding sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD = 
-    let szA = sizeDescriptorA sizeFactory 
-        szB = sizeDescriptorB sizeFactory 
-        szC = sizeDescriptorC sizeFactory 
-        szD = sizeDescriptorD sizeFactory 
-        valueFactory = spaceQuadrupleValue sizeValue sizeValue sizeValue sizeValue
-    in simpleProperty "padding" (valueFactory (szA, szB, szC, szD))
+-- Absolute sizes
 
-paddingTop : SizeDescriptor (Size a) a -> PropertyRuleAppender
-paddingTop sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "padding-top" (sizeValue sz)
+-- | Size in centimeters.
+cm : Float -> Linear.SizeDescriptor a Absolute.Abs
+cm = Absolute.cm
 
-paddingLeft : SizeDescriptor (Size a) a -> PropertyRuleAppender
-paddingLeft sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "padding-left" (sizeValue sz)
+-- | Size in millimeters.
+mm : Float -> Linear.SizeDescriptor a Absolute.Abs
+mm = Absolute.mm
 
-paddingRight : SizeDescriptor (Size a) a -> PropertyRuleAppender
-paddingRight sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "padding-right" (sizeValue sz)
+-- | Size in inches (1in = 2.54 cm).
+inches : Float -> Linear.SizeDescriptor a Absolute.Abs
+inches = Absolute.inches
 
-paddingBottom : SizeDescriptor (Size a) a -> PropertyRuleAppender
-paddingBottom sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "padding-bottom" (sizeValue sz)
+-- | Size in pixels.
+px : Float -> Linear.SizeDescriptor a Absolute.Abs
+px = Absolute.px
+
+-- | Size in points (1pt = 1/72 of 1in).
+pt : Float -> Linear.SizeDescriptor a Absolute.Abs
+pt = Absolute.pt
+
+-- | Size in picas (1pc = 12pt).
+pc : Float -> Linear.SizeDescriptor a Absolute.Abs
+pc = Absolute.pc
 
 -------------------------------------------------------------------------------
--- TODO needs auto, initial, inherit
-margin : SizeDescriptor (Size a) a -> 
-         SizeDescriptor (Size a) a -> 
-         SizeDescriptor (Size a) a -> 
-         SizeDescriptor (Size a) a -> 
-         PropertyRuleAppender
-margin sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD = 
-    let szA = sizeDescriptorA sizeFactory 
-        szB = sizeDescriptorB sizeFactory 
-        szC = sizeDescriptorC sizeFactory 
-        szD = sizeDescriptorD sizeFactory 
-        valueFactory = spaceQuadrupleValue sizeValue sizeValue sizeValue sizeValue
-    in simpleProperty "margin" (valueFactory (szA, szB, szC, szD))
+-- Relative sizes
 
--- TODO needs auto, initial, inherit
-marginTop : SizeDescriptor (Size a) a -> PropertyRuleAppender
-marginTop sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "margin-top" (sizeValue sz)
+-- | Size in percents.
+pct : Float -> Linear.SizeDescriptor a Relative.Rel
+pct = Relative.pct
 
--- TODO needs auto, initial, inherit
-marginLeft : SizeDescriptor (Size a) a -> PropertyRuleAppender
-marginLeft sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "margin-left" (sizeValue sz)
+-- | Size in em's (computed value of the font-size).
+em : Float -> Linear.SizeDescriptor a Relative.Rel
+em = Relative.em
 
--- TODO needs auto, initial, inherit
-marginRight : SizeDescriptor (Size a) a -> PropertyRuleAppender
-marginRight sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "margin-right" (sizeValue sz)
+-- | Size in rem's (em's, but always relative to the root element).
+-- renamed to srem in order not to collide with Basics.rem
+srem : Float -> Linear.SizeDescriptor a Relative.Rel
+srem = Relative.srem
 
--- TODO needs auto, initial, inherit
-marginBottom : SizeDescriptor (Size a) a -> PropertyRuleAppender
-marginBottom sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in simpleProperty "margin-bottom" (sizeValue sz)
+-- Double -> Size Rel| Size in ex'es (x-height of the first avaliable font).
+ex : Float -> Linear.SizeDescriptor a Relative.Rel
+ex = Relative.ex
+
+-- | Size in vw's (1vw = 1% of viewport width).
+vw : Float -> Linear.SizeDescriptor a Relative.Rel
+vw = Relative.vw
+
+-- | Size in vh's (1vh = 1% of viewport height).
+vh : Float -> Linear.SizeDescriptor a Relative.Rel
+vh = Relative.vh
+
+-- | Size in vmin's (the smaller of vw or vh).
+vmin : Float -> Linear.SizeDescriptor a Relative.Rel
+vmin = Relative.vmin
+
+-- | Size in vmax's (the larger of vw or vh).
+vmax : Float -> Linear.SizeDescriptor a Relative.Rel
+vmax = Relative.vmax
+
+-------------------------------------------------------------------------------
+
+-- | Angle in degrees.
+deg : Float -> Angle.AngleDescriptor Angle.Deg
+deg = Angle.deg
+
+-- | Angle in radians.
+rad : Float -> Angle.AngleDescriptor Angle.Rad
+rad = Angle.rad
+
+-- | Angle in gradians (also knows as gons or grades).
+grad : Float -> Angle.AngleDescriptor Angle.Grad
+grad = Angle.grad
+
+-- | Angle in turns.
+turn : Float -> Angle.AngleDescriptor Angle.Turn
+turn = Angle.turn
+
+-------------------------------------------------------------------------------
+-- Positioning
+
+sideLeft : Sides.HorizontalSide
+sideLeft = Sides.sideLeft
+
+sideCenter : Sides.HorizontalSide
+sideCenter = Sides.sideCenter
+
+sideRight : Sides.HorizontalSide
+sideRight = Sides.sideRight
+
+sideTop : Sides.VerticalSide
+sideTop = Sides.sideTop
+
+sideMiddle : Sides.VerticalSide
+sideMiddle = Sides.sideMiddle
+
+sideBottom : Sides.VerticalSide
+sideBottom = Sides.sideBottom
+
+-------------------------------------------------------------------------------
+
+top : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+top = Linear.top 
+
+left : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+left = Linear.left
+
+bottom : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+bottom = Linear.bottom
+
+right : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+right = Linear.right
+
+width : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+width = Linear.width
+
+height : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+height = Linear.height
+
+minWidth : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+minWidth = Linear.minWidth
+
+minHeight : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+minHeight = Linear.minHeight
+
+maxWidth : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+maxWidth = Linear.maxWidth
+
+maxHeight : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+maxHeight = Linear.maxHeight
+
+-------------------------------------------------------------------------------
+padding : Linear.SizeDescriptor (Linear.Size a) a -> 
+          Linear.SizeDescriptor (Linear.Size a) a -> 
+          Linear.SizeDescriptor (Linear.Size a) a -> 
+          Linear.SizeDescriptor (Linear.Size a) a -> 
+          Stylesheet.PropertyRuleAppender
+padding = Linear.padding
+
+paddingTop : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+paddingTop = Linear.paddingTop
+
+paddingLeft : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+paddingLeft = Linear.paddingLeft
+
+paddingRight : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+paddingRight = Linear.paddingRight
+
+paddingBottom : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+paddingBottom = Linear.paddingBottom
+
+-------------------------------------------------------------------------------
+margin : Linear.SizeDescriptor (Linear.Size a) a -> 
+         Linear.SizeDescriptor (Linear.Size a) a -> 
+         Linear.SizeDescriptor (Linear.Size a) a -> 
+         Linear.SizeDescriptor (Linear.Size a) a -> 
+         Stylesheet.PropertyRuleAppender
+margin = Linear.margin
+
+marginTop : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+marginTop = Linear.marginTop
+
+marginLeft : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+marginLeft = Linear.marginLeft
+
+marginRight : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+marginRight = Linear.marginRight
+
+marginBottom : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+marginBottom = Linear.marginBottom
 
   
   

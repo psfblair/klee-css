@@ -19,13 +19,15 @@ import Css.Internal.Common exposing
   ( initialValue, inheritValue, autoValue
   , noneValue, normalValue, unsetValue, otherValue)
 import Css.Internal.List exposing (ListStyleTypeDescriptor, listStyleTypeFactory)
-import Css.Internal.Position exposing (HorizontalSide, horizontalSideValue)
 import Css.Internal.Property exposing 
   ( Value, Literal, toLiteral
   , concatenateValues, emptyValue, stringValue, literalValue, intValue
   , spacePairValue, spaceListValue
   )
-import Css.Internal.Size exposing (Size, sizeValue)
+
+import Css.Internal.Geometry.Linear as Linear
+import Css.Internal.Geometry.Sides as Sides
+
 -------------------------------------------------------------------------------
 
 type alias TextRenderingDescriptor =
@@ -93,8 +95,8 @@ type alias CompositeTextShadow hSz vSz blrSz =
   TextShadow (WithComponents) hSz vSz blrSz
 
 type TextShadowComponent hSz vSz blrSz
-  = BaseShadow (Size hSz) (Size vSz) 
-  | WithBlurRadius (Size blrSz) (TextShadowComponent hSz vSz blrSz)
+  = BaseShadow (Linear.Size hSz) (Linear.Size vSz) 
+  | WithBlurRadius (Linear.Size blrSz) (TextShadowComponent hSz vSz blrSz)
   | WithColor CssColor (TextShadowComponent hSz vSz blrSz)
   | InitialTextShadow
   | InheritTextShadow
@@ -103,8 +105,8 @@ type TextShadowComponent hSz vSz blrSz
   | OtherTextShadow Value
 
 type alias TextShadowFactory hSz vSz blrSz =
-  { baseShadow : Size hSz -> Size vSz -> CompositeTextShadow hSz vSz blrSz 
-  , withBlurRadius : Size blrSz -> 
+  { baseShadow : Linear.Size hSz -> Linear.Size vSz -> CompositeTextShadow hSz vSz blrSz 
+  , withBlurRadius : Linear.Size blrSz -> 
                      TextShadowComponent hSz vSz blrSz -> 
                      CompositeTextShadow hSz vSz blrSz 
   , withColor : CssColor -> 
@@ -150,7 +152,7 @@ textShadowValue textShadow =
     somethingElse -> textShadowValueRecursive somethingElse Nothing Nothing
 
 textShadowValueRecursive : TextShadowComponent hSz vSz blrSz -> 
-                           Maybe (Size blrSz) -> 
+                           Maybe (Linear.Size blrSz) -> 
                            Maybe CssColor -> 
                            Value
 textShadowValueRecursive component maybeSize maybeColor =
@@ -170,9 +172,9 @@ textShadowValueRecursive component maybeSize maybeColor =
         Nothing -> 
           textShadowValueRecursive inner maybeSize (Just colour)
     BaseShadow horizontal vertical -> 
-      let horizontalValue = sizeValue horizontal
-          verticalValue = sizeValue vertical
-          maybeRadiusValue = Maybe.map sizeValue maybeSize
+      let horizontalValue = Linear.sizeValue horizontal
+          verticalValue = Linear.sizeValue vertical
+          maybeRadiusValue = Maybe.map Linear.sizeValue maybeSize
           maybeColorValue = Maybe.map colorValue maybeColor
           
           allValues = 
@@ -189,7 +191,7 @@ type alias TextIndentDescriptor a =
   TextIndentFactory a -> TextIndent a
   
 type TextIndent a
-  = TextIndent (Size a)
+  = TextIndent (Linear.Size a)
   | IndentEachLine 
   | HangingIndent
   | InitialTextIndent
@@ -198,7 +200,7 @@ type TextIndent a
   | OtherTextIndent Value
   
 type alias TextIndentFactory a =
-  { textIndent : Size a -> TextIndent a
+  { textIndent : Linear.Size a -> TextIndent a
   , indentEachLine : TextIndent a
   , hangingIndent : TextIndent a
   , initial_ : TextIndent a
@@ -221,7 +223,7 @@ textIndentFactory =
 textIndentValue : TextIndent a -> Value 
 textIndentValue textIndent =
   case textIndent of
-    TextIndent size -> sizeValue size
+    TextIndent size -> Linear.sizeValue size
     IndentEachLine -> stringValue "each-line"
     HangingIndent -> stringValue "hanging"
     InitialTextIndent -> initialValue
@@ -277,7 +279,7 @@ type alias TextAlignDescriptor =
   TextAlignFactory -> TextAlign
   
 type TextAlign
-  = SideTextAlign HorizontalSide
+  = SideTextAlign Sides.HorizontalSide
   | JustifyTextAlign
   | JustifyAllTextAlign
   | MatchParentTextAlign
@@ -289,7 +291,7 @@ type TextAlign
   | OtherTextAlign Value
 
 type alias TextAlignFactory =
-  { alignWithSide : HorizontalSide -> TextAlign
+  { alignWithSide : Sides.HorizontalSide -> TextAlign
   , justify : TextAlign
   , justifyAll : TextAlign
   , matchParent : TextAlign
@@ -318,7 +320,7 @@ textAlignFactory =
 textAlignValue : TextAlign -> Value 
 textAlignValue alignment =
   case alignment of
-    SideTextAlign side -> horizontalSideValue side
+    SideTextAlign side -> Sides.horizontalSideValue side
     JustifyTextAlign -> stringValue "justify"
     JustifyAllTextAlign -> stringValue "justify-all"
     MatchParentTextAlign -> stringValue "match-parent"

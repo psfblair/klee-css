@@ -50,10 +50,10 @@ import Css.Internal.Property exposing (toLiteral, literalValue, commaListValue)
 import Css.Internal.Stylesheet exposing (simpleProperty, PropertyRuleAppender)
 import Css.Internal.Color exposing 
   (ColorDescriptor, colorFactory, colorValue)
-import Css.Internal.Size exposing 
-  (Size, SizeDescriptor, sizeFactory, sizeValue)
 
 import Css.Internal.Font exposing (..)  
+
+import Css.Internal.Geometry.Linear as Linear
 
 -------------------------------------------------------------------------------
 color : ColorDescriptor {} -> PropertyRuleAppender
@@ -202,9 +202,9 @@ weight i factory = factory.weight (toString i)
 -------------------------------------------------------------------------------
 -- TODO Fix when we fix sizes
 -- TODO also takes normal, initial, inherit, unset, other
-lineHeight : SizeDescriptor (Size c) c -> PropertyRuleAppender
+lineHeight : Linear.SizeDescriptor (Linear.Size c) c -> PropertyRuleAppender
 lineHeight descriptor = 
-  simpleProperty "line-height" (descriptor sizeFactory |> sizeValue) 
+  simpleProperty "line-height" (descriptor Linear.sizeFactory |> Linear.sizeValue) 
 
 -------------------------------------------------------------------------------
 
@@ -213,29 +213,29 @@ font fontDescriptor =
   simpleProperty "font" (fontDescriptor fontFactory |> fontValue)
 
 {- Equivalent to
-aFont : SizeDescriptor (Size sz) sz -> 
+aFont : Linear.SizeDescriptor (Linear.Size sz) sz -> 
            List String -> 
            List GenericFontFamily -> 
            FontFactory sz -> 
            ComposedFont sz
 -}  
-aFont : SizeDescriptor (Size sz) sz -> 
+aFont : Linear.SizeDescriptor (Linear.Size sz) sz -> 
            List String -> 
            List GenericFontFamilyDescriptor -> 
            ComposedFontDescriptor sz
 aFont sizeDescriptor customFonts genericFontDescriptors compositeFactory =
-  let size = sizeDescriptor sizeFactory
+  let size = sizeDescriptor Linear.sizeFactory
       genericFontFrom familyDescriptor = familyDescriptor genericFontFamilyFactory
       genericFonts = List.map genericFontFrom genericFontDescriptors
   in compositeFactory.leaf size customFonts genericFonts
 
 {- Equivalent to
-withLineHeight :  SizeDescriptor (Size sz) sz -> 
+withLineHeight :  Linear.SizeDescriptor (Linear.Size sz) sz -> 
                   (FontFactory sz -> ComposedFont sz)
                   FontFactory sz -> 
                   ComposedFont sz
 -}
-withLineHeight : SizeDescriptor (Size sz) sz -> 
+withLineHeight : Linear.SizeDescriptor (Linear.Size sz) sz -> 
                  ComposedFontDescriptor sz -> 
                  ComposedFontDescriptor sz
 withLineHeight lineHeightDescriptor compositeDescriptor compositeFactory =
@@ -261,7 +261,7 @@ withLineHeight lineHeightDescriptor compositeDescriptor compositeFactory =
              let components =
                WithStyle style (rewrapWithLineHeight innerComposedFont lineHeight)
              in { font = CompositeFont components, fontComponents = components }
-   in rewrapWithLineHeight composedFont (lineHeightDescriptor sizeFactory)
+   in rewrapWithLineHeight composedFont (lineHeightDescriptor Linear.sizeFactory)
 
 {- Equivalent to 
 withWeight : FontWeight -> 

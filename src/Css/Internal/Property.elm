@@ -2,7 +2,7 @@ module Css.Internal.Property
   ( Prefixed, Key, Value, Literal
   , toLiteral, toPrefixed, unPrefixed, quote
   , stringKey, prefixedKey, appendToPrefixedRoot, prependToPrefixedRoot
-  , emptyValue, appendValues, concatenateValues, intersperse
+  , emptyValue, appendValues, concatenateValues, appendUnits, intersperse
   , stringValue, prefixedValue, literalValue, intValue, floatValue
   , maybeValue, listValue, commaListValue
   , spaceListValue, spacePairValue, spaceTripleValue, spaceQuadrupleValue
@@ -117,6 +117,11 @@ appendValues (Value v1) (Value v2) = merge v1 v2 |> Value
 concatenateValues : List Value -> Value
 concatenateValues = List.foldr (\val accum -> appendValues val accum) emptyValue
 
+{- For quantitative values with units; create a value out of the quantity and
+the units. -}
+appendUnits : Float -> String -> Value
+appendUnits qty unit =
+  appendValues (floatValue qty) (stringValue unit)
 
 {- Add a separator value between each of the Elements of a list of values, 
 and concatenate the result. -}

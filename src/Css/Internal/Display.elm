@@ -13,258 +13,255 @@ module Css.Internal.Display
   , CursorDescriptor, cursorFactory
   ) where
 
-import Css.Internal.Property exposing 
-  ( Value, concatenateValues, stringValue
-  , intValue, floatValue, commaQuadrupleValue
-  )
-
-import Css.Internal.Common exposing 
-  ( autoValue, baselineValue, inheritValue, initialValue
-  , noneValue, visibleValue, hiddenValue, otherValue
-  )
- 
-import Css.Internal.Size exposing (Size, sizeValue)
+import Css.Internal.Common as Common 
+import Css.Internal.Geometry.Linear as Linear
+import Css.Internal.Property as Property 
 
 -------------------------------------------------------------------------------
 
-type alias FloatStyleDescriptor = FloatStyleFactory -> Value
+type alias FloatStyleDescriptor = FloatStyleFactory -> Property.Value
 
 type alias FloatStyleFactory =
   {
-    floatStyle : String -> Value
-  , none_ : Value
-  , inherit_ : Value
-  , initial_ : Value
-  , other_ : Value -> Value
+    floatStyle : String -> Property.Value
+  , none_ : Property.Value
+  , inherit_ : Property.Value
+  , initial_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 floatStyleFactory : FloatStyleFactory
 floatStyleFactory =
   {
-    floatStyle str = stringValue str
-  , none_ = noneValue
-  , inherit_ = inheritValue
-  , initial_ = initialValue
-  , other_ val = otherValue val
+    floatStyle str = Property.stringValue str
+  , none_ = Common.noneValue
+  , inherit_ = Common.inheritValue
+  , initial_ = Common.initialValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias ClearDescriptor = ClearFactory -> Value
+type alias ClearDescriptor = ClearFactory -> Property.Value
 
 type alias ClearFactory =
   {
-    clear: String -> Value
-  , none_ : Value
-  , inherit_ : Value
-  , initial_ : Value
-  , other_ : Value -> Value
+    clear: String -> Property.Value
+  , none_ : Property.Value
+  , inherit_ : Property.Value
+  , initial_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 clearFactory : ClearFactory
 clearFactory =
   {
-    clear str = stringValue str
-  , none_ = noneValue
-  , inherit_ = inheritValue
-  , initial_ = initialValue
-  , other_ val = otherValue val
+    clear str = Property.stringValue str
+  , none_ = Common.noneValue
+  , inherit_ = Common.inheritValue
+  , initial_ = Common.initialValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias PositionDescriptor = PositionFactory -> Value
+type alias PositionDescriptor = PositionFactory -> Property.Value
 
 type alias PositionFactory =
   {
-    position : String -> Value
-  , inherit_ : Value
-  , initial_ : Value
-  , other_ : Value -> Value
+    position : String -> Property.Value
+  , inherit_ : Property.Value
+  , initial_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 positionFactory : PositionFactory
 positionFactory =
   {
-    position str = stringValue str
-  , inherit_ = inheritValue
-  , initial_ = initialValue
-  , other_ val = otherValue val
+    position str = Property.stringValue str
+  , inherit_ = Common.inheritValue
+  , initial_ = Common.initialValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias DisplayDescriptor = DisplayFactory -> Value
+type alias DisplayDescriptor = DisplayFactory -> Property.Value
 
 type alias DisplayFactory =
   {
-    display : String -> Value
-  , none_ : Value
-  , inherit_ : Value
-  , initial_ : Value
-  , other_ : Value -> Value
+    display : String -> Property.Value
+  , none_ : Property.Value
+  , inherit_ : Property.Value
+  , initial_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 displayFactory : DisplayFactory
 displayFactory =
   {
-    display str = stringValue str
-  , none_ = noneValue
-  , inherit_ = inheritValue
-  , initial_ = inheritValue
-  , other_ val = otherValue val
+    display str = Property.stringValue str
+  , none_ = Common.noneValue
+  , inherit_ = Common.inheritValue
+  , initial_ = Common.inheritValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias OverflowDescriptor = OverflowFactory -> Value
+type alias OverflowDescriptor = OverflowFactory -> Property.Value
 
 type alias OverflowFactory =
   {
-    overflow : String -> Value
-  , visible_ : Value
-  , hidden_ : Value
-  , inherit_ : Value
-  , initial_ : Value
-  , auto_ : Value
-  , other_ : Value -> Value
+    overflow : String -> Property.Value
+  , visible_ : Property.Value
+  , hidden_ : Property.Value
+  , inherit_ : Property.Value
+  , initial_ : Property.Value
+  , auto_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 overflowFactory : OverflowFactory
 overflowFactory =
   {
-    overflow str = stringValue str
-  , visible_ = visibleValue
-  , hidden_ = hiddenValue
-  , inherit_ = inheritValue
-  , initial_ = initialValue
-  , auto_ = autoValue
-  , other_ val = otherValue val
+    overflow str = Property.stringValue str
+  , visible_ = Common.visibleValue
+  , hidden_ = Common.hiddenValue
+  , inherit_ = Common.inheritValue
+  , initial_ = Common.initialValue
+  , auto_ = Common.autoValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias VisibilityDescriptor = VisibilityFactory -> Value
+type alias VisibilityDescriptor = VisibilityFactory -> Property.Value
 
 type alias VisibilityFactory =
   {
-    visibility : String -> Value
-  , visible_ : Value
-  , hidden_ : Value
-  , inherit_ : Value
-  , initial_ : Value
-  , other_ : Value -> Value
+    visibility : String -> Property.Value
+  , visible_ : Property.Value
+  , hidden_ : Property.Value
+  , inherit_ : Property.Value
+  , initial_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 visibilityFactory : VisibilityFactory
 visibilityFactory =
   {
-    visibility str = stringValue str
-  , visible_ = visibleValue
-  , hidden_ = hiddenValue
-  , inherit_ = inheritValue
-  , initial_ = initialValue
-  , other_ val = otherValue val
+    visibility str = Property.stringValue str
+  , visible_ = Common.visibleValue
+  , hidden_ = Common.hiddenValue
+  , inherit_ = Common.inheritValue
+  , initial_ = Common.initialValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias ClipDescriptor a b c d = ClipFactory a b c d -> Value
+type alias ClipDescriptor a b c d = ClipFactory a b c d -> Property.Value
 
 type alias ClipFactory a b c d =
   {
-    rect : (Size a) -> (Size b) -> (Size c) -> (Size d) -> Value
-  , auto_ : Value
-  , inherit_ : Value
-  , initial_ : Value
-  , other_ : Value -> Value
+    rect : Linear.Size a -> 
+           Linear.Size b -> 
+           Linear.Size c -> 
+           Linear.Size d -> 
+           Property.Value
+  , auto_ : Property.Value
+  , inherit_ : Property.Value
+  , initial_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 clipFactory : ClipFactory a b c d
 clipFactory =
   {
     rect top right bottom left = 
-      let szv = sizeValue
-          quadrupleValue = commaQuadrupleValue szv szv szv szv (top, right, bottom, left)
-          prefixValue = stringValue "rect("
-          suffixValue = stringValue ")"
-      in concatenateValues [ prefixValue, quadrupleValue, suffixValue ]    
-  , auto_ = autoValue
-  , inherit_ = inheritValue
-  , initial_ = initialValue
-  , other_ val = otherValue val
+      let szv = Linear.sizeValue
+          quadrupleValue = 
+            Property.commaQuadrupleValue szv szv szv szv (top, right, bottom, left)
+          prefixValue = Property.stringValue "rect("
+          suffixValue = Property.stringValue ")"
+      in Property.concatenateValues [ prefixValue, quadrupleValue, suffixValue ]    
+  , auto_ = Common.autoValue
+  , inherit_ = Common.inheritValue
+  , initial_ = Common.initialValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias OpacityDescriptor = OpacityFactory -> Value
+type alias OpacityDescriptor = OpacityFactory -> Property.Value
 
 type alias OpacityFactory =
   {
-    opacity : Float -> Value
-  , inherit_ : Value
-  , initial_ : Value
-  , other_ : Value -> Value
+    opacity : Float -> Property.Value
+  , inherit_ : Property.Value
+  , initial_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 opacityFactory : OpacityFactory
 opacityFactory =
   {
-    opacity num = floatValue num
-  , inherit_ = inheritValue
-  , initial_ = initialValue
-  , other_ val = otherValue val
+    opacity num = Property.floatValue num
+  , inherit_ = Common.inheritValue
+  , initial_ = Common.initialValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias ZIndexDescriptor = ZIndexFactory -> Value
+type alias ZIndexDescriptor = ZIndexFactory -> Property.Value
 
 type alias ZIndexFactory =
   {
-    zIndex : Int -> Value
-  , auto_ : Value
-  , inherit_ : Value
-  , initial_ : Value
-  , other_ : Value -> Value
+    zIndex : Int -> Property.Value
+  , auto_ : Property.Value
+  , inherit_ : Property.Value
+  , initial_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 zIndexFactory : ZIndexFactory
 zIndexFactory =
   {
-    zIndex num = intValue num
-  , auto_ = autoValue
-  , inherit_ = inheritValue
-  , initial_ = initialValue
-  , other_ val = otherValue val
+    zIndex num = Property.intValue num
+  , auto_ = Common.autoValue
+  , inherit_ = Common.inheritValue
+  , initial_ = Common.initialValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias PointerEventsDescriptor = PointerEventsFactory -> Value
+type alias PointerEventsDescriptor = PointerEventsFactory -> Property.Value
 
 type alias PointerEventsFactory =
   {
-    pointerEvents : String -> Value
-  , auto_ : Value
-  , inherit_ : Value
-  , initial_ : Value
-  , other_ : Value -> Value
+    pointerEvents : String -> Property.Value
+  , auto_ : Property.Value
+  , inherit_ : Property.Value
+  , initial_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 pointerEventsFactory : PointerEventsFactory
 pointerEventsFactory =
   {
-    pointerEvents str = stringValue str
-  , auto_ = autoValue
-  , inherit_ = inheritValue
-  , initial_ = initialValue
-  , other_ val = otherValue val
+    pointerEvents str = Property.stringValue str
+  , auto_ = Common.autoValue
+  , inherit_ = Common.inheritValue
+  , initial_ = Common.initialValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias VerticalAlignDescriptor = VerticalAlignFactory -> Value
+type alias VerticalAlignDescriptor = VerticalAlignFactory -> Property.Value
 
 -- Since SizeDescriptor is parameterized by a generic type `a` rather than
 -- simply by `Size a`, that means that for dimensioned sizes it just calls
@@ -272,44 +269,44 @@ type alias VerticalAlignDescriptor = VerticalAlignFactory -> Value
 -- doesn't need to return a `Size`. So we can pass this factory to a SizeDescriptor
 -- and get a `VerticalAlignValue` out instead of a `Size`.
 type alias VerticalAlignFactory =
-  { size : Value -> Value
-  , vAlign : String -> Value
-  , baseline_ : Value
-  , initial_ : Value
-  , inherit_ : Value
-  , other_ : Value -> Value
+  { size : Property.Value -> Property.Value
+  , vAlign : String -> Property.Value
+  , baseline_ : Property.Value
+  , initial_ : Property.Value
+  , inherit_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 verticalAlignFactory : VerticalAlignFactory
 verticalAlignFactory =
   { size value = value
-  , vAlign str = stringValue str
-  , baseline_ = baselineValue
-  , initial_ = initialValue
-  , inherit_ = inheritValue
-  , other_ val = otherValue val
+  , vAlign str = Property.stringValue str
+  , baseline_ = Common.baselineValue
+  , initial_ = Common.initialValue
+  , inherit_ = Common.inheritValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias CursorDescriptor = CursorFactory -> Value
+type alias CursorDescriptor = CursorFactory -> Property.Value
 
 type alias CursorFactory =
   {
-    cursor : String -> Value
-  , auto_ : Value
-  , none_ : Value
-  , inherit_ : Value
-  , initial_ : Value
-  , other_ : Value -> Value
+    cursor : String -> Property.Value
+  , auto_ : Property.Value
+  , none_ : Property.Value
+  , inherit_ : Property.Value
+  , initial_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 cursorFactory : CursorFactory
 cursorFactory =
-  { cursor str = stringValue str
-  , auto_ = autoValue
-  , none_ = noneValue
-  , inherit_ = inheritValue
-  , initial_ = initialValue
-  , other_ val = otherValue val
+  { cursor str = Property.stringValue str
+  , auto_ = Common.autoValue
+  , none_ = Common.noneValue
+  , inherit_ = Common.inheritValue
+  , initial_ = Common.initialValue
+  , other_ val = Common.otherValue val
   }

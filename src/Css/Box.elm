@@ -8,11 +8,10 @@ module Css.Box
 import Css.Internal.Property exposing (Value, appendToPrefixedRoot)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, prefixed)
 import Css.Internal.Color exposing (ColorDescriptor, colorFactory)
-import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory)
-
 import Css.Internal.Box exposing (..)
-
 import Css.Common exposing (browsers)
+
+import Css.Internal.Geometry.Linear as Linear
 
 -------------------------------------------------------------------------------
 
@@ -47,12 +46,12 @@ boxShadow shadowDescriptor =
 
 -- * Composable shadow descriptors.
 
-shadow : SizeDescriptor (Size a) a ->
-         SizeDescriptor (Size b) b ->
+shadow : Linear.SizeDescriptor (Linear.Size a) a ->
+         Linear.SizeDescriptor (Linear.Size b) b ->
          BoxShadowDescriptor Sized a b blurSzTyp spreadSzTyp
-shadow xSizeDescriptor ySizeDescriptor shadowFactory =
-  let xSize = xSizeDescriptor sizeFactory
-      ySize = ySizeDescriptor sizeFactory
+shadow xLinearSizeDescriptor yLinearSizeDescriptor shadowFactory =
+  let xSize = xLinearSizeDescriptor Linear.sizeFactory
+      ySize = yLinearSizeDescriptor Linear.sizeFactory
   in shadowFactory.sizedShadow xSize ySize
 
 
@@ -73,12 +72,12 @@ boxColor colorDescriptor shadowDescriptor shadowFactory =
     somethingElse -> somethingElse -- Sized constraint keeps us from getting here
 
 
-boxBlur : SizeDescriptor (Size b) b ->
-          SizeDescriptor (Size s) s ->
+boxBlur : Linear.SizeDescriptor (Linear.Size b) b ->
+          Linear.SizeDescriptor (Linear.Size s) s ->
           BoxShadowDescriptor Sized x y b s ->
           BoxShadowDescriptor Sized x y b s
 boxBlur blurDescriptor spreadDescriptor shadowDescriptor shadowFactory =
-  let blur = Blur (blurDescriptor sizeFactory) (spreadDescriptor sizeFactory)
+  let blur = Blur (blurDescriptor Linear.sizeFactory) (spreadDescriptor Linear.sizeFactory)
   in case shadowDescriptor shadowFactory of
       BoxShadow size color _ inset -> BoxShadow size color blur inset
       somethingElse -> somethingElse -- Sized constraint keeps us from getting here

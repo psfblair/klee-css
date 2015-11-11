@@ -68,24 +68,25 @@ module Css.Text
 import Css.Internal.Border exposing (StrokeDescriptor, strokeFactory)
 import Css.Internal.Color exposing (ColorDescriptor, colorFactory, colorValue)
 import Css.Internal.List exposing (ListStyleTypeDescriptor, listStyleTypeFactory)
-import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory, sizeValue)
 import Css.Internal.Property exposing 
   (spaceQuadrupleValue, spaceListValue, commaListValue)
-import Css.Internal.Position exposing (HorizontalSide)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Text exposing (..)
 
+import Css.Internal.Geometry.Linear as Linear
+import Css.Internal.Geometry.Sides as Sides
+
 -------------------------------------------------------------------------------
 -- TODO Should also allow normal, initial, inherit, other
-letterSpacing : SizeDescriptor (Size a) a -> PropertyRuleAppender
+letterSpacing : Linear.SizeDescriptor (Linear.Size a) a -> PropertyRuleAppender
 letterSpacing sizeDescriptor =
-  let sizeVal = sizeDescriptor sizeFactory |> sizeValue
+  let sizeVal = sizeDescriptor Linear.sizeFactory |> Linear.sizeValue
   in simpleProperty "letter-spacing" sizeVal
 
 -- TODO Should also allow normal, initial, inherit, other
-wordSpacing : SizeDescriptor (Size a) a -> PropertyRuleAppender
+wordSpacing : Linear.SizeDescriptor (Linear.Size a) a -> PropertyRuleAppender
 wordSpacing sizeDescriptor =
-  let sizeVal = sizeDescriptor sizeFactory |> sizeValue
+  let sizeVal = sizeDescriptor Linear.sizeFactory |> Linear.sizeValue
   in simpleProperty "word-spacing" sizeVal
 
 -------------------------------------------------------------------------------
@@ -124,19 +125,19 @@ textShadows descriptors =
       valueFactory = commaListValue textShadowValue
   in simpleProperty "text-shadow" (valueFactory values)
   
-aShadow : SizeDescriptor (Size hSz) hSz -> 
-          SizeDescriptor (Size vSz) vSz -> 
+aShadow : Linear.SizeDescriptor (Linear.Size hSz) hSz -> 
+          Linear.SizeDescriptor (Linear.Size vSz) vSz -> 
           CompositeTextShadowDescriptor hSz vSz blrSz
 aShadow horizontalDescriptor verticalDescriptor factory =
-  let horizontal = horizontalDescriptor sizeFactory
-      vertical = verticalDescriptor sizeFactory
+  let horizontal = horizontalDescriptor Linear.sizeFactory
+      vertical = verticalDescriptor Linear.sizeFactory
   in factory.baseShadow horizontal vertical
 
-shadowBlur : SizeDescriptor (Size blrSz) blrSz ->
+shadowBlur : Linear.SizeDescriptor (Linear.Size blrSz) blrSz ->
              CompositeTextShadowDescriptor hSz vSz blrSz -> 
              CompositeTextShadowDescriptor hSz vSz blrSz
 shadowBlur blurDescriptor innerDescriptor factory =
-  let radius = blurDescriptor sizeFactory
+  let radius = blurDescriptor Linear.sizeFactory
       innerCompositeShadow = innerDescriptor factory
   in factory.withBlurRadius radius innerCompositeShadow.textShadow
 
@@ -162,9 +163,9 @@ eachLine factory = factory.indentEachLine
 hanging : TextIndentDescriptor a
 hanging factory = factory.hangingIndent
 
-indent : SizeDescriptor (Size a) a -> TextIndentDescriptor a
+indent : Linear.SizeDescriptor (Linear.Size a) a -> TextIndentDescriptor a
 indent sizeDescriptor factory =
-  let size = sizeDescriptor sizeFactory
+  let size = sizeDescriptor Linear.sizeFactory
   in factory.textIndent size
 
 -------------------------------------------------------------------------------
@@ -202,7 +203,7 @@ justifyAll factory = factory.justifyAll
 matchParent : TextAlignDescriptor
 matchParent factory = factory.matchParent
 
-alignSide : HorizontalSide -> TextAlignDescriptor
+alignSide : Sides.HorizontalSide -> TextAlignDescriptor
 alignSide side factory = factory.alignWithSide side
 
 -------------------------------------------------------------------------------

@@ -33,11 +33,12 @@ import Css.Internal.Color exposing
   , rgbaString, hslaString, colorFactory, colorValue
   )
 import Css.Internal.Display exposing (VisibilityDescriptor, visibilityFactory)
-import Css.Internal.Size exposing 
-  (Size, Abs, SizeDescriptor, sizeFactory, sizeValue)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 
 import Css.Internal.Border exposing (..)
+
+import Css.Internal.Geometry.Linear as Linear
+import Css.Internal.Geometry.Linear.Absolute as Absolute
 
 -------------------------------------------------------------------------------
 
@@ -71,58 +72,58 @@ outset factory = factory.stroke "outset"
 -------------------------------------------------------------------------------
 
 border : StrokeDescriptor -> 
-         SizeDescriptor (Size Abs) Abs -> 
+         Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> 
          ColorDescriptor {} -> 
          PropertyRuleAppender
 border strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
-      size = sizeDescriptor sizeFactory
+      size = sizeDescriptor Linear.sizeFactory  
       color = colorDescriptor colorFactory
-      valueFactory = spaceTripleValue identity sizeValue colorValue
+      valueFactory = spaceTripleValue identity Linear.sizeValue colorValue
   in simpleProperty "border" (valueFactory (stroke, size, color))
 
 borderTop : StrokeDescriptor -> 
-            SizeDescriptor (Size Abs) Abs -> 
+            Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> 
             ColorDescriptor {} -> 
             PropertyRuleAppender
 borderTop strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
-      width = sizeDescriptor sizeFactory
+      width = sizeDescriptor Linear.sizeFactory  
       color = colorDescriptor colorFactory
-      valueFactory = spaceTripleValue identity sizeValue colorValue
+      valueFactory = spaceTripleValue identity Linear.sizeValue colorValue
   in simpleProperty "border-top" (valueFactory (stroke, width, color))
 
 borderLeft : StrokeDescriptor -> 
-             SizeDescriptor (Size Abs) Abs -> 
+             Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> 
              ColorDescriptor {} -> 
              PropertyRuleAppender
 borderLeft strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
-      width = sizeDescriptor sizeFactory
+      width = sizeDescriptor Linear.sizeFactory  
       color = colorDescriptor colorFactory
-      valueFactory = spaceTripleValue identity sizeValue colorValue
+      valueFactory = spaceTripleValue identity Linear.sizeValue colorValue
   in simpleProperty "border-left" (valueFactory (stroke, width, color))
 
 borderBottom : StrokeDescriptor -> 
-               SizeDescriptor (Size Abs) Abs -> 
+               Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> 
                ColorDescriptor {} -> 
                PropertyRuleAppender
 borderBottom strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
-      width = sizeDescriptor sizeFactory
+      width = sizeDescriptor Linear.sizeFactory  
       color = colorDescriptor colorFactory
-      valueFactory = spaceTripleValue identity sizeValue colorValue
+      valueFactory = spaceTripleValue identity Linear.sizeValue colorValue
   in simpleProperty "border-bottom" (valueFactory (stroke, width, color))
 
 borderRight : StrokeDescriptor -> 
-              SizeDescriptor (Size Abs) Abs -> 
+              Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> 
               ColorDescriptor {} -> 
               PropertyRuleAppender
 borderRight strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
-      width = sizeDescriptor sizeFactory
+      width = sizeDescriptor Linear.sizeFactory  
       color = colorDescriptor colorFactory
-      valueFactory = spaceTripleValue identity sizeValue colorValue
+      valueFactory = spaceTripleValue identity Linear.sizeValue colorValue
   in simpleProperty "border-right" (valueFactory (stroke, width, color))
 
 -------------------------------------------------------------------------------
@@ -207,56 +208,56 @@ borderStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescrip
 
 -------------------------------------------------------------------------------
 
-borderWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
+borderWidth : Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> PropertyRuleAppender
 borderWidth sizeDescriptor =
-  let size = sizeDescriptor sizeFactory
-  in simpleProperty "border-width" (sizeValue size)
+  let size = sizeDescriptor Linear.sizeFactory 
+  in simpleProperty "border-width" (Linear.sizeValue  size)
 
-borderLeftWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
+borderLeftWidth : Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> PropertyRuleAppender
 borderLeftWidth sizeDescriptor =
-  let size = sizeDescriptor sizeFactory
-  in simpleProperty "border-left-width" (sizeValue size)
+  let size = sizeDescriptor Linear.sizeFactory 
+  in simpleProperty "border-left-width" (Linear.sizeValue  size)
 
-borderRightWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
+borderRightWidth : Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> PropertyRuleAppender
 borderRightWidth sizeDescriptor =
-  let size = sizeDescriptor sizeFactory
-  in simpleProperty "border-right-width" (sizeValue size)
+  let size = sizeDescriptor Linear.sizeFactory 
+  in simpleProperty "border-right-width" (Linear.sizeValue  size)
 
-borderTopWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
+borderTopWidth : Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> PropertyRuleAppender
 borderTopWidth sizeDescriptor =
-  let size = sizeDescriptor sizeFactory
-  in simpleProperty "border-top-width" (sizeValue size)
+  let size = sizeDescriptor Linear.sizeFactory 
+  in simpleProperty "border-top-width" (Linear.sizeValue  size)
 
-borderBottomWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
+borderBottomWidth : Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> PropertyRuleAppender
 borderBottomWidth sizeDescriptor =
-  let size = sizeDescriptor sizeFactory
-  in simpleProperty "border-bottom-width" (sizeValue size)
+  let size = sizeDescriptor Linear.sizeFactory 
+  in simpleProperty "border-bottom-width" (Linear.sizeValue  size)
 
-borderWidth4 : SizeDescriptor (Size Abs) Abs ->
-               SizeDescriptor (Size Abs) Abs ->
-               SizeDescriptor (Size Abs) Abs ->
-               SizeDescriptor (Size Abs) Abs ->
+borderWidth4 : Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs ->
+               Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs ->
+               Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs ->
+               Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs ->
                PropertyRuleAppender
 borderWidth4 sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
-  let sizeA = sizeDescriptorA sizeFactory
-      sizeB = sizeDescriptorB sizeFactory
-      sizeC = sizeDescriptorC sizeFactory
-      sizeD = sizeDescriptorD sizeFactory
-      valueFactory = spaceQuadrupleValue sizeValue sizeValue sizeValue sizeValue
+  let sizeA = sizeDescriptorA Linear.sizeFactory 
+      sizeB = sizeDescriptorB Linear.sizeFactory 
+      sizeC = sizeDescriptorC Linear.sizeFactory 
+      sizeD = sizeDescriptorD Linear.sizeFactory 
+      valueFactory = spaceQuadrupleValue Linear.sizeValue  Linear.sizeValue  Linear.sizeValue  Linear.sizeValue 
   in simpleProperty "border-width" (valueFactory (sizeA, sizeB, sizeC, sizeD))
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
   
 outline : StrokeDescriptor -> 
-          SizeDescriptor (Size Abs) Abs -> 
+          Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> 
           OutlineColorDescriptor -> 
           PropertyRuleAppender
 outline strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
-      size = sizeDescriptor sizeFactory
+      size = sizeDescriptor Linear.sizeFactory 
       color = colorDescriptor outlineColorFactory
-      szf = sizeValue
+      szf = Linear.sizeValue 
       cvf = colorValue
       valueFactory = spaceTripleValue identity szf cvf
   in simpleProperty "outline" (valueFactory (stroke, size, color))
@@ -266,15 +267,15 @@ outlineStyle strokeDescriptor =
   let style = strokeDescriptor strokeFactory
   in simpleProperty "outline-style" style
 
-outlineWidth : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
+outlineWidth : Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> PropertyRuleAppender
 outlineWidth sizeDescriptor =
-  let size = sizeDescriptor sizeFactory
-  in simpleProperty "outline-width" (sizeValue size)
+  let size = sizeDescriptor Linear.sizeFactory 
+  in simpleProperty "outline-width" (Linear.sizeValue  size)
 
-outlineOffset : SizeDescriptor (Size Abs) Abs -> PropertyRuleAppender
+outlineOffset : Linear.SizeDescriptor (Linear.Size Absolute.Abs) Absolute.Abs -> PropertyRuleAppender
 outlineOffset sizeDescriptor =
-  let size = sizeDescriptor sizeFactory
-  in simpleProperty "outline-offset" (sizeValue size)
+  let size = sizeDescriptor Linear.sizeFactory 
+  in simpleProperty "outline-offset" (Linear.sizeValue  size)
 
 -------------------------------------------------------------------------------
 outlineColor : OutlineColorDescriptor -> PropertyRuleAppender
@@ -289,57 +290,57 @@ invert factory = factory.invert
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 -- TODO Should take initial, inherit, other
-borderRadius : SizeDescriptor (Size a) a ->
-               SizeDescriptor (Size b) b ->
-               SizeDescriptor (Size c) c ->
-               SizeDescriptor (Size d) d ->
+borderRadius : Linear.SizeDescriptor (Linear.Size a) a ->
+               Linear.SizeDescriptor (Linear.Size b) b ->
+               Linear.SizeDescriptor (Linear.Size c) c ->
+               Linear.SizeDescriptor (Linear.Size d) d ->
                PropertyRuleAppender
 borderRadius sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD =
-  let sizeA = sizeDescriptorA sizeFactory
-      sizeB = sizeDescriptorB sizeFactory
-      sizeC = sizeDescriptorC sizeFactory
-      sizeD = sizeDescriptorD sizeFactory
-      valueFactory = spaceQuadrupleValue sizeValue sizeValue sizeValue sizeValue
+  let sizeA = sizeDescriptorA Linear.sizeFactory 
+      sizeB = sizeDescriptorB Linear.sizeFactory 
+      sizeC = sizeDescriptorC Linear.sizeFactory 
+      sizeD = sizeDescriptorD Linear.sizeFactory 
+      valueFactory = spaceQuadrupleValue Linear.sizeValue  Linear.sizeValue  Linear.sizeValue  Linear.sizeValue 
   in simpleProperty "border-radius" (valueFactory (sizeA, sizeB, sizeC, sizeD))
 
 -- TODO Should take initial, inherit, other
-borderTopLeftRadius : SizeDescriptor (Size a) a ->
-                      SizeDescriptor (Size b) b ->
+borderTopLeftRadius : Linear.SizeDescriptor (Linear.Size a) a ->
+                      Linear.SizeDescriptor (Linear.Size b) b ->
                       PropertyRuleAppender
 borderTopLeftRadius sizeDescriptorA sizeDescriptorB =
-  let sizeA = sizeDescriptorA sizeFactory
-      sizeB = sizeDescriptorB sizeFactory
-      valueFactory = spacePairValue sizeValue sizeValue
+  let sizeA = sizeDescriptorA Linear.sizeFactory 
+      sizeB = sizeDescriptorB Linear.sizeFactory 
+      valueFactory = spacePairValue Linear.sizeValue  Linear.sizeValue 
   in simpleProperty "border-top-left-radius" (valueFactory (sizeA, sizeB))
 
 -- TODO Should take initial, inherit, other
-borderTopRightRadius : SizeDescriptor (Size a) a ->
-                       SizeDescriptor (Size b) b ->
+borderTopRightRadius : Linear.SizeDescriptor (Linear.Size a) a ->
+                       Linear.SizeDescriptor (Linear.Size b) b ->
                        PropertyRuleAppender
 borderTopRightRadius sizeDescriptorA sizeDescriptorB =
-  let sizeA = sizeDescriptorA sizeFactory
-      sizeB = sizeDescriptorB sizeFactory
-      valueFactory = spacePairValue sizeValue sizeValue
+  let sizeA = sizeDescriptorA Linear.sizeFactory 
+      sizeB = sizeDescriptorB Linear.sizeFactory 
+      valueFactory = spacePairValue Linear.sizeValue  Linear.sizeValue 
   in simpleProperty "border-top-right-radius" (valueFactory (sizeA, sizeB))
 
 -- TODO Should take initial, inherit, other
-borderBottomLeftRadius : SizeDescriptor (Size a) a ->
-                         SizeDescriptor (Size b) b ->
+borderBottomLeftRadius : Linear.SizeDescriptor (Linear.Size a) a ->
+                         Linear.SizeDescriptor (Linear.Size b) b ->
                          PropertyRuleAppender
 borderBottomLeftRadius sizeDescriptorA sizeDescriptorB =
-  let sizeA = sizeDescriptorA sizeFactory
-      sizeB = sizeDescriptorB sizeFactory
-      valueFactory = spacePairValue sizeValue sizeValue
+  let sizeA = sizeDescriptorA Linear.sizeFactory 
+      sizeB = sizeDescriptorB Linear.sizeFactory 
+      valueFactory = spacePairValue Linear.sizeValue  Linear.sizeValue 
   in simpleProperty "border-bottom-left-radius" (valueFactory (sizeA, sizeB))
 
 -- TODO Should take initial, inherit, other
-borderBottomRightRadius : SizeDescriptor (Size a) a ->
-                          SizeDescriptor (Size b) b ->
+borderBottomRightRadius : Linear.SizeDescriptor (Linear.Size a) a ->
+                          Linear.SizeDescriptor (Linear.Size b) b ->
                           PropertyRuleAppender
 borderBottomRightRadius sizeDescriptorA sizeDescriptorB =
-  let sizeA = sizeDescriptorA sizeFactory
-      sizeB = sizeDescriptorB sizeFactory
-      valueFactory = spacePairValue sizeValue sizeValue
+  let sizeA = sizeDescriptorA Linear.sizeFactory 
+      sizeB = sizeDescriptorB Linear.sizeFactory 
+      valueFactory = spacePairValue Linear.sizeValue  Linear.sizeValue 
   in simpleProperty "border-bottom-right-radius" (valueFactory (sizeA, sizeB))
 
 -------------------------------------------------------------------------------
@@ -351,17 +352,17 @@ borderCollapse visibilityDescriptor =
   in simpleProperty "border-collapse" visibility
 
 -- TODO Should take initial, inherit, other
-borderSpacing : SizeDescriptor (Size a) a -> PropertyRuleAppender
+borderSpacing : Linear.SizeDescriptor (Linear.Size a) a -> PropertyRuleAppender
 borderSpacing sizeDescriptor =
-  let size = sizeDescriptor sizeFactory
-  in simpleProperty "border-spacing" (sizeValue size)
+  let size = sizeDescriptor Linear.sizeFactory 
+  in simpleProperty "border-spacing" (Linear.sizeValue  size)
 
 -- TODO Should take initial, inherit, other
-borderSpacing2 : SizeDescriptor (Size a) a ->
-                 SizeDescriptor (Size b) b ->
+borderSpacing2 : Linear.SizeDescriptor (Linear.Size a) a ->
+                 Linear.SizeDescriptor (Linear.Size b) b ->
                  PropertyRuleAppender
 borderSpacing2 sizeDescriptorA sizeDescriptorB =
-  let sizeA = sizeDescriptorA sizeFactory
-      sizeB = sizeDescriptorB sizeFactory
-      valueFactory = spacePairValue sizeValue sizeValue
+  let sizeA = sizeDescriptorA Linear.sizeFactory 
+      sizeB = sizeDescriptorB Linear.sizeFactory 
+      valueFactory = spacePairValue Linear.sizeValue  Linear.sizeValue 
   in simpleProperty "border-spacing" (valueFactory (sizeA, sizeB))

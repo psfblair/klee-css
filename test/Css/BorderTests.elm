@@ -4,9 +4,9 @@ import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
 import Css.Border exposing (..)
-import Css.Size exposing (..)
 import Css.Color exposing (..)
 import Css.Display exposing (collapse)
+import Css.Geometry exposing (..)
 import Css exposing (renderProperties)
 
 -------------------------------------------------------------------------------

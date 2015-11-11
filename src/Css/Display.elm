@@ -62,9 +62,9 @@ module Css.Display (
   ) where
 
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
-import Css.Internal.Size exposing (Size, SizeDescriptor, sizeFactory)
 import Css.Internal.Display exposing (..) 
 
+import Css.Internal.Geometry.Linear as Linear
 -------------------------------------------------------------------------------
 
 float : FloatStyleDescriptor -> PropertyRuleAppender
@@ -223,16 +223,16 @@ clip descriptor =
   let clipValue = descriptor clipFactory
   in simpleProperty "clip" clipValue
 
-rect : SizeDescriptor (Size a) a ->
-       SizeDescriptor (Size b) b ->
-       SizeDescriptor (Size c) c ->
-       SizeDescriptor (Size d) d ->
+rect : Linear.SizeDescriptor (Linear.Size a) a ->
+       Linear.SizeDescriptor (Linear.Size b) b ->
+       Linear.SizeDescriptor (Linear.Size c) c ->
+       Linear.SizeDescriptor (Linear.Size d) d ->
        ClipDescriptor a b c d
 rect top right bottom left factory =
-  let t = top sizeFactory
-      r = right sizeFactory
-      b = bottom sizeFactory
-      l = left sizeFactory
+  let t = top Linear.sizeFactory
+      r = right Linear.sizeFactory
+      b = bottom Linear.sizeFactory
+      l = left Linear.sizeFactory
   in factory.rect t r b l
 
 -------------------------------------------------------------------------------
