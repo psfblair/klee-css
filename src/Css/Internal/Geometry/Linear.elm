@@ -1,16 +1,19 @@
 module Css.Internal.Geometry.Linear 
-  ( SizeDescriptor, Size, sizeFactory, sizeValue
+  ( SizeDescriptor, sizeValue
+  , BasicSizeDescriptor, AutoSizableDescriptor, SizeDescriptorWithNone
   
   -- * Generic linear size constructors
   
   , nil, unitless
 
   -- * Positioning properties.
+    
   , top, left, bottom, right
 
   -- * Sizing properties.
+    
   , width, height, minWidth, minHeight, maxWidth, maxHeight
-
+  
   -- * Padding.
   , padding
   , paddingTop, paddingLeft, paddingRight, paddingBottom
@@ -18,7 +21,7 @@ module Css.Internal.Geometry.Linear
   -- * Margin.
   , margin
   , marginTop, marginLeft, marginRight, marginBottom
-  
+
   ) where
 
 import Css.Internal.Common as Common
@@ -27,180 +30,197 @@ import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
--- See the bottom of this file for why there are two type parameters.
-type alias SizeDescriptor a c = SizeFactory a c -> a -- c is the constraint type (Abs or Rel)
+{-  `rec` makes the descriptor extensible; `c` is the constraint type (`Abs` or `
+Rel`). If you want to keep the descriptor from allowing any generic properties
+besides `other`, e.g., if the descriptor is used in constructing a more
+complex descriptor, use `SizeDescriptor {}` 
+-}
+type alias SizeDescriptor rec c = SizeFactory rec c -> Property.Value
 
-type Size a -- Phantom type, for type safety. The type parameter is for Abs or Rel.
-  = Size Property.Value
-  | OtherSize Property.Value
+-- has initial, inherit, unset
+type alias BasicSizeDescriptor c = BasicSizeFactory {} c -> Property.Value 
 
+-- adds auto to initial, inherit, unset
+type alias AutoSizableDescriptor c = AutoSizableFactory {} c -> Property.Value
+
+-- adds none to initial, inherit, unset
+type alias SizeDescriptorWithNone c = SizeFactoryWithNone {} c -> Property.Value
+
+-- For other modules that use bare size descriptors for more complex descriptors.
+sizeValue : SizeDescriptor {} c -> Property.Value
+sizeValue descriptor =
+  let coreSizeFactory = { size val = val, other_ val = Common.otherValue val }
+  in descriptor coreSizeFactory
 -------------------------------------------------------------------------------
 
 -- | Zero size.
-nil : SizeDescriptor a c
+nil : SizeDescriptor rec c
 nil = \factory -> factory.size (Property.stringValue "0")
 
 -- | Unitless size (as recommended for line-height).
-unitless : Float -> SizeDescriptor a c
+unitless : Float -> SizeDescriptor rec c
 unitless length = \factory -> factory.size (Property.floatValue length)
 
 -------------------------------------------------------------------------------
 
--- TODO needs auto, initial, inherit
-top : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
+top : AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 top sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "top" (sizeValue sz)
+  let sizeValue = sizeDescriptor autoSizableFactory 
+  in Stylesheet.simpleProperty "top" sizeValue
 
--- TODO needs auto, initial, inherit
-left : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
+left : AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 left sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "left" (sizeValue sz)
+  let sizeValue = sizeDescriptor autoSizableFactory 
+  in Stylesheet.simpleProperty "left" sizeValue
 
--- TODO needs auto, initial, inherit
-bottom : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
+bottom : AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 bottom sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "bottom" (sizeValue sz)
+  let sizeValue = sizeDescriptor autoSizableFactory 
+  in Stylesheet.simpleProperty "bottom" sizeValue
 
--- TODO needs auto, initial, inherit
-right : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
+right : AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 right sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "right" (sizeValue sz)
+  let sizeValue = sizeDescriptor autoSizableFactory 
+  in Stylesheet.simpleProperty "right" sizeValue
 
--- TODO needs auto, initial, inherit
-width : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
+width : AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 width sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "width" (sizeValue sz)
+  let sizeValue = sizeDescriptor autoSizableFactory 
+  in Stylesheet.simpleProperty "width" sizeValue
 
--- TODO needs auto, initial, inherit
-height : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
+height : AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 height sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "height" (sizeValue sz)
+  let sizeValue = sizeDescriptor autoSizableFactory 
+  in Stylesheet.simpleProperty "height" sizeValue
 
--- TODO needs initial, inherit
-minWidth : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
+-------------------------------------------------------------------------------
+
+minWidth : BasicSizeDescriptor c -> Stylesheet.PropertyRuleAppender
 minWidth sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "min-width" (sizeValue sz)
+  let sizeValue = sizeDescriptor basicSizeFactory 
+  in Stylesheet.simpleProperty "min-width" sizeValue
 
--- TODO needs initial, inherit
-minHeight : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
+minHeight : BasicSizeDescriptor c -> Stylesheet.PropertyRuleAppender
 minHeight sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "min-height" (sizeValue sz)
+  let sizeValue = sizeDescriptor basicSizeFactory 
+  in Stylesheet.simpleProperty "min-height" sizeValue
 
--- TODO needs none, initial, inherit
-maxWidth : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
+maxWidth : SizeDescriptorWithNone c -> Stylesheet.PropertyRuleAppender
 maxWidth sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "max-width" (sizeValue sz)
+  let sizeValue = sizeDescriptor sizeFactoryWithNone 
+  in Stylesheet.simpleProperty "max-width" sizeValue
 
--- TODO needs none, initial, inherit
-maxHeight : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
+maxHeight : SizeDescriptorWithNone c -> Stylesheet.PropertyRuleAppender
 maxHeight sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "max-height" (sizeValue sz)
+  let sizeValue = sizeDescriptor sizeFactoryWithNone 
+  in Stylesheet.simpleProperty "max-height" sizeValue
 
 -------------------------------------------------------------------------------
 
--- TODO needs initial, inherit
-padding : SizeDescriptor (Size a) a -> 
-          SizeDescriptor (Size a) a -> 
-          SizeDescriptor (Size a) a -> 
-          SizeDescriptor (Size a) a -> 
+padding : BasicSizeDescriptor c ->
+          BasicSizeDescriptor c ->
+          BasicSizeDescriptor c ->
+          BasicSizeDescriptor c ->
           Stylesheet.PropertyRuleAppender
-padding sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD = 
-    let szA = sizeDescriptorA sizeFactory 
-        szB = sizeDescriptorB sizeFactory 
-        szC = sizeDescriptorC sizeFactory 
-        szD = sizeDescriptorD sizeFactory 
-        valueFactory = Property.spaceQuadrupleValue sizeValue sizeValue sizeValue sizeValue
-    in Stylesheet.simpleProperty "padding" (valueFactory (szA, szB, szC, szD))
+padding topDescriptor rightDescriptor bottomDescriptor leftDescriptor =
+    let topValue     = topDescriptor    basicSizeFactory
+        rightValue   = rightDescriptor  basicSizeFactory
+        bottomValue  = bottomDescriptor basicSizeFactory
+        leftValue    = leftDescriptor   basicSizeFactory
+        valueFactory =
+          Property.spaceQuadrupleValue identity identity identity identity
+        sizeValues   = valueFactory (topValue, rightValue, bottomValue, leftValue)
+    in Stylesheet.simpleProperty "padding" sizeValues
 
-paddingTop : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
-paddingTop sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "padding-top" (sizeValue sz)
+paddingTop : BasicSizeDescriptor c -> Stylesheet.PropertyRuleAppender
+paddingTop sizeDescriptor =
+  let sizeValue = sizeDescriptor basicSizeFactory
+  in Stylesheet.simpleProperty "padding-top" sizeValue
 
-paddingLeft : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
-paddingLeft sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "padding-left" (sizeValue sz)
+paddingLeft : BasicSizeDescriptor c -> Stylesheet.PropertyRuleAppender
+paddingLeft sizeDescriptor =
+  let sizeValue = sizeDescriptor basicSizeFactory
+  in Stylesheet.simpleProperty "padding-left" sizeValue
 
-paddingRight : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
-paddingRight sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "padding-right" (sizeValue sz)
+paddingRight : BasicSizeDescriptor c -> Stylesheet.PropertyRuleAppender
+paddingRight sizeDescriptor =
+  let sizeValue = sizeDescriptor basicSizeFactory
+  in Stylesheet.simpleProperty "padding-right" sizeValue
 
-paddingBottom : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
-paddingBottom sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "padding-bottom" (sizeValue sz)
+paddingBottom : BasicSizeDescriptor c -> Stylesheet.PropertyRuleAppender
+paddingBottom sizeDescriptor =
+  let sizeValue = sizeDescriptor basicSizeFactory
+  in Stylesheet.simpleProperty "padding-bottom" sizeValue
 
 -------------------------------------------------------------------------------
 
--- TODO needs auto, initial, inherit
-margin : SizeDescriptor (Size a) a -> 
-         SizeDescriptor (Size a) a -> 
-         SizeDescriptor (Size a) a -> 
-         SizeDescriptor (Size a) a -> 
+margin : AutoSizableDescriptor c ->
+         AutoSizableDescriptor c ->
+         AutoSizableDescriptor c ->
+         AutoSizableDescriptor c ->
          Stylesheet.PropertyRuleAppender
-margin sizeDescriptorA sizeDescriptorB sizeDescriptorC sizeDescriptorD = 
-    let szA = sizeDescriptorA sizeFactory 
-        szB = sizeDescriptorB sizeFactory 
-        szC = sizeDescriptorC sizeFactory 
-        szD = sizeDescriptorD sizeFactory 
-        valueFactory = Property.spaceQuadrupleValue sizeValue sizeValue sizeValue sizeValue
-    in Stylesheet.simpleProperty "margin" (valueFactory (szA, szB, szC, szD))
+margin topDescriptor rightDescriptor bottomDescriptor leftDescriptor =
+    let topValue     = topDescriptor    autoSizableFactory
+        rightValue   = rightDescriptor  autoSizableFactory
+        bottomValue  = bottomDescriptor autoSizableFactory
+        leftValue    = leftDescriptor   autoSizableFactory
+        valueFactory =
+          Property.spaceQuadrupleValue identity identity identity identity
+        sizeValues   = valueFactory (topValue, rightValue, bottomValue, leftValue)
+    in Stylesheet.simpleProperty "margin" sizeValues
 
--- TODO needs auto, initial, inherit
-marginTop : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
-marginTop sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "margin-top" (sizeValue sz)
+marginTop : AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
+marginTop sizeDescriptor =
+  let sizeValue = sizeDescriptor autoSizableFactory
+  in Stylesheet.simpleProperty "margin-top" sizeValue
 
--- TODO needs auto, initial, inherit
-marginLeft : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
-marginLeft sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "margin-left" (sizeValue sz)
+marginLeft : AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
+marginLeft sizeDescriptor =
+  let sizeValue = sizeDescriptor autoSizableFactory
+  in Stylesheet.simpleProperty "margin-left" sizeValue
 
--- TODO needs auto, initial, inherit
-marginRight : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
-marginRight sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "margin-right" (sizeValue sz)
+marginRight : AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
+marginRight sizeDescriptor =
+  let sizeValue = sizeDescriptor autoSizableFactory
+  in Stylesheet.simpleProperty "margin-right" sizeValue
 
--- TODO needs auto, initial, inherit
-marginBottom : SizeDescriptor (Size a) a -> Stylesheet.PropertyRuleAppender
-marginBottom sizeDescriptor = 
-  let sz = sizeDescriptor sizeFactory 
-  in Stylesheet.simpleProperty "margin-bottom" (sizeValue sz)
+marginBottom : AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
+marginBottom sizeDescriptor =
+  let sizeValue = sizeDescriptor autoSizableFactory
+  in Stylesheet.simpleProperty "margin-bottom" sizeValue
 
 -------------------------------------------------------------------------------
 
-type alias SizeFactory a c = -- c is the constraint type (Abs or Rel)
-  { size: Property.Value -> a -- This has to be more open than Size so that 
-                              -- we can use sizes in properties requiring various. 
-                              -- other descriptors. 
-                              -- See e.g., Css.Display.verticalAlign.
-  , other: Property.Value -> Size c
+-- c is the constraint type (Abs or Rel)
+type alias SizeFactory rec c =            -- 
+  { rec | size: Property.Value -> Property.Value
+        , other_: Property.Value -> Property.Value
   }
 
-sizeFactory : SizeFactory (Size a) a
-sizeFactory =
-  {
-    size value = Size value
-  , other val = OtherSize val
+type alias BasicSizeFactory rec c =
+  SizeFactory (
+    Common.Initial Property.Value (
+      Common.Inherit Property.Value (
+        Common.Unset Property.Value rec
+    ))) c
+  
+basicSizeFactory : BasicSizeFactory {} c
+basicSizeFactory =
+  { size value = value
+  , initial_ = Common.initialValue
+  , inherit_ = Common.inheritValue
+  , unset_ = Common.unsetValue
+  , other_ val = Common.otherValue val
   }
 
-sizeValue : Size a -> Property.Value
-sizeValue size =
-  case size of
-    Size val -> val
-    OtherSize val -> Common.otherValue val
+type alias AutoSizableFactory rec c =  
+  BasicSizeFactory (Common.Auto Property.Value rec) c
+
+autoSizableFactory : AutoSizableFactory {} c
+autoSizableFactory = { basicSizeFactory | auto_ = Common.autoValue }
+
+type alias SizeFactoryWithNone rec c =  
+  BasicSizeFactory (Common.None Property.Value rec) c
+
+sizeFactoryWithNone : SizeFactoryWithNone {} c
+sizeFactoryWithNone = { basicSizeFactory | none_ = Common.noneValue }

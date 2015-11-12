@@ -215,11 +215,11 @@ suite = describe "Css.BackgroundTests"
     ]
   , describe "backgroundOrigin"
     [ it "should render properly"
-      [ renderProperties [backgroundOrigin (origin paddingBox)]
+      [ renderProperties [backgroundOrigin paddingBox]
           `shouldEqual` "background-origin:padding-box"
-      , renderProperties [backgroundOrigin (origin borderBox)]
+      , renderProperties [backgroundOrigin borderBox]
           `shouldEqual` "background-origin:border-box"
-      , renderProperties [backgroundOrigin (origin contentBox)]
+      , renderProperties [backgroundOrigin contentBox]
           `shouldEqual` "background-origin:content-box"
       ]  
     , it "should render generic origin properties properly" 
@@ -252,11 +252,11 @@ suite = describe "Css.BackgroundTests"
     ]
   , describe "backgroundClip"
     [ it "should render properly"
-      [ renderProperties [backgroundClip (boxClip paddingBox)]
+      [ renderProperties [backgroundClip paddingBox]
           `shouldEqual` "background-clip:padding-box"
-      , renderProperties [backgroundClip (boxClip borderBox)]
+      , renderProperties [backgroundClip borderBox]
           `shouldEqual` "background-clip:border-box"
-      , renderProperties [backgroundClip (boxClip contentBox)]
+      , renderProperties [backgroundClip contentBox]
           `shouldEqual` "background-clip:content-box"
       ]  
     , it "should render generic clip properties properly" 
@@ -339,8 +339,8 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background:round #73D216"
       , renderProperties 
           [ background (withImage (url "URL") >> 
-                        withClip (boxClip paddingBox) >> 
-                        withOrigin (origin contentBox)) ]
+                        withClip paddingBox >> 
+                        withOrigin contentBox) ]
           `shouldEqual` "background:url(\"URL\") content-box padding-box"
       , renderProperties 
           [ background (withAttachment attachFixed) ]

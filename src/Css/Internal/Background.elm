@@ -4,8 +4,6 @@ module Css.Internal.Background
   , BackgroundSizeDescriptor, backgroundSizeFactory
   , BackgroundRepeatDescriptor, backgroundRepeatFactory
   , BackgroundImageDescriptor, backgroundImageFactory
-  , BackgroundOriginDescriptor, backgroundOriginFactory
-  , BackgroundClipDescriptor, backgroundClipFactory
   , BackgroundAttachmentDescriptor, backgroundAttachmentFactory
   , Background, BackgroundDescriptor, ComposedBackgroundDescriptor
   , BackgroundComponents (..)
@@ -14,7 +12,6 @@ module Css.Internal.Background
 
 import String
 
-import Css.Internal.Box exposing (BoxTypeDescriptor, boxTypeFactory)  
 import Css.Internal.Color exposing 
   (CssColor (..), ColorFactory, colorFactory, colorValue)
 import Css.Internal.Common exposing 
@@ -31,8 +28,8 @@ type alias BackgroundPositionDescriptor sz1 sz2 =
     BackgroundPositionFactory sz1 sz2 -> Value
 
 type alias BackgroundPositionFactory sz1 sz2 =
-  { sizedPosition : Linear.SizeDescriptor (Linear.Size sz1) sz1 -> 
-                    Linear.SizeDescriptor (Linear.Size sz2) sz2 -> 
+  { sizedPosition : Linear.SizeDescriptor {} sz1 -> 
+                    Linear.SizeDescriptor {} sz2 -> 
                     Value
   , sidedPosition : Sides.HorizontalSide -> Sides.VerticalSide -> Value
   , initial_ : Value
@@ -42,12 +39,11 @@ type alias BackgroundPositionFactory sz1 sz2 =
 
 backgroundPositionFactory : BackgroundPositionFactory sz1 sz2
 backgroundPositionFactory = 
-  { sizedPosition horiz vert = 
-      let sizes = (horiz Linear.sizeFactory, vert Linear.sizeFactory)
-          valueFactory = spacePairValue Linear.sizeValue Linear.sizeValue
-      in valueFactory sizes
-  , sidedPosition horiz vert = 
-      let sides = (horiz, vert)
+  { sizedPosition horizontalDescriptor verticalDescriptor = 
+      let valueFactory = spacePairValue Linear.sizeValue Linear.sizeValue
+      in valueFactory (horizontalDescriptor, verticalDescriptor)
+  , sidedPosition horizontal vertical = 
+      let sides = (horizontal, vertical)
           valueFactory = spacePairValue Sides.horizontalSideValue Sides.verticalSideValue
       in valueFactory sides
   , initial_ = initialValue
@@ -59,11 +55,11 @@ backgroundPositionFactory =
 
 type alias BackgroundSizeDescriptor sz = BackgroundSizeFactory sz -> Value
 
-type alias BackgroundSizeFactory sz =
-  { backgroundSize : Linear.SizeDescriptor (Linear.Size sz) sz -> 
-                     Linear.SizeDescriptor (Linear.Size sz) sz -> 
+type alias BackgroundSizeFactory szTyp =
+  { backgroundSize : Linear.SizeDescriptor {} szTyp -> 
+                     Linear.SizeDescriptor {} szTyp -> 
                      Value
-  , partial : Linear.SizeDescriptor (Linear.Size sz) sz -> Value
+  , partial : Linear.SizeDescriptor {} szTyp -> Value
   , named : String -> Value
   , auto_ : Value
   , initial_ : Value
@@ -74,14 +70,11 @@ type alias BackgroundSizeFactory sz =
 backgroundSizeFactory : BackgroundSizeFactory sz
 backgroundSizeFactory =
   { backgroundSize widthDescriptor heightDescriptor = 
-      let width = widthDescriptor Linear.sizeFactory 
-          height = heightDescriptor Linear.sizeFactory 
-          valueFactory = spacePairValue Linear.sizeValue Linear.sizeValue
-      in valueFactory (width, height)
+      let valueFactory = spacePairValue Linear.sizeValue Linear.sizeValue
+      in valueFactory (widthDescriptor, heightDescriptor)
   , partial widthDescriptor = 
-      let width = widthDescriptor Linear.sizeFactory 
-          valueFactory = spacePairValue Linear.sizeValue identity
-      in valueFactory (width, autoValue)
+      let valueFactory = spacePairValue Linear.sizeValue identity
+      in valueFactory (widthDescriptor, autoValue)
   , named str = stringValue str
   , auto_ = autoValue
   , initial_ = initialValue
@@ -139,44 +132,6 @@ backgroundRepeatFactory =
   , initial_ = initialValue 
   , inherit_ = inheritValue 
   , other_ val = otherValue val
-  }  
-
--------------------------------------------------------------------------------
-
-type alias BackgroundOriginDescriptor = BackgroundOriginFactory -> Value
-
-type alias BackgroundOriginFactory =
-  { origin : BoxTypeDescriptor -> Value 
-  , initial_ : Value 
-  , inherit_ : Value 
-  , other_ : Value -> Value 
-  }  
-
-backgroundOriginFactory : BackgroundOriginFactory
-backgroundOriginFactory =
-  { origin boxTypeDescriptor = boxTypeDescriptor boxTypeFactory
-  , initial_ = initialValue 
-  , inherit_ = inheritValue 
-  , other_ val = otherValue val 
-  }  
-
--------------------------------------------------------------------------------
-
-type alias BackgroundClipDescriptor = BackgroundClipFactory -> Value
-
-type alias BackgroundClipFactory =
-  { clip : BoxTypeDescriptor -> Value 
-  , initial_ : Value 
-  , inherit_ : Value 
-  , other_ : Value -> Value 
-  }  
-
-backgroundClipFactory : BackgroundClipFactory
-backgroundClipFactory =
-  { clip boxTypeDescriptor = boxTypeDescriptor boxTypeFactory
-  , initial_ = initialValue 
-  , inherit_ = inheritValue 
-  , other_ val = otherValue val 
   }  
 
 -------------------------------------------------------------------------------

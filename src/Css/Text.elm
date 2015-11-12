@@ -78,15 +78,15 @@ import Css.Internal.Geometry.Sides as Sides
 
 -------------------------------------------------------------------------------
 -- TODO Should also allow normal, initial, inherit, other
-letterSpacing : Linear.SizeDescriptor (Linear.Size a) a -> PropertyRuleAppender
+letterSpacing : Linear.SizeDescriptor {} a -> PropertyRuleAppender
 letterSpacing sizeDescriptor =
-  let sizeVal = sizeDescriptor Linear.sizeFactory |> Linear.sizeValue
+  let sizeVal = Linear.sizeValue sizeDescriptor
   in simpleProperty "letter-spacing" sizeVal
 
 -- TODO Should also allow normal, initial, inherit, other
-wordSpacing : Linear.SizeDescriptor (Linear.Size a) a -> PropertyRuleAppender
+wordSpacing : Linear.SizeDescriptor {} a -> PropertyRuleAppender
 wordSpacing sizeDescriptor =
-  let sizeVal = sizeDescriptor Linear.sizeFactory |> Linear.sizeValue
+  let sizeVal = Linear.sizeValue sizeDescriptor
   in simpleProperty "word-spacing" sizeVal
 
 -------------------------------------------------------------------------------
@@ -125,21 +125,18 @@ textShadows descriptors =
       valueFactory = commaListValue textShadowValue
   in simpleProperty "text-shadow" (valueFactory values)
   
-aShadow : Linear.SizeDescriptor (Linear.Size hSz) hSz -> 
-          Linear.SizeDescriptor (Linear.Size vSz) vSz -> 
+aShadow : Linear.SizeDescriptor {} hSz -> 
+          Linear.SizeDescriptor {} vSz -> 
           CompositeTextShadowDescriptor hSz vSz blrSz
 aShadow horizontalDescriptor verticalDescriptor factory =
-  let horizontal = horizontalDescriptor Linear.sizeFactory
-      vertical = verticalDescriptor Linear.sizeFactory
-  in factory.baseShadow horizontal vertical
+  factory.baseShadow horizontalDescriptor verticalDescriptor
 
-shadowBlur : Linear.SizeDescriptor (Linear.Size blrSz) blrSz ->
+shadowBlur : Linear.SizeDescriptor {} blrSz ->
              CompositeTextShadowDescriptor hSz vSz blrSz -> 
              CompositeTextShadowDescriptor hSz vSz blrSz
 shadowBlur blurDescriptor innerDescriptor factory =
-  let radius = blurDescriptor Linear.sizeFactory
-      innerCompositeShadow = innerDescriptor factory
-  in factory.withBlurRadius radius innerCompositeShadow.textShadow
+  let innerCompositeShadow = innerDescriptor factory
+  in factory.withBlurRadius blurDescriptor innerCompositeShadow.textShadow
 
 shadowColor : ColorDescriptor {} ->
               CompositeTextShadowDescriptor hSz vSz blrSz -> 
@@ -148,7 +145,6 @@ shadowColor colorDescriptor innerDescriptor factory =
   let colour = colorDescriptor colorFactory
       innerCompositeShadow = innerDescriptor factory
   in factory.withColor colour innerCompositeShadow.textShadow
-
   
 -------------------------------------------------------------------------------
 
@@ -163,10 +159,8 @@ eachLine factory = factory.indentEachLine
 hanging : TextIndentDescriptor a
 hanging factory = factory.hangingIndent
 
-indent : Linear.SizeDescriptor (Linear.Size a) a -> TextIndentDescriptor a
-indent sizeDescriptor factory =
-  let size = sizeDescriptor Linear.sizeFactory
-  in factory.textIndent size
+indent : Linear.SizeDescriptor {} a -> TextIndentDescriptor a
+indent sizeDescriptor factory = factory.textIndent sizeDescriptor
 
 -------------------------------------------------------------------------------
 

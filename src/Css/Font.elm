@@ -202,9 +202,9 @@ weight i factory = factory.weight (toString i)
 -------------------------------------------------------------------------------
 -- TODO Fix when we fix sizes
 -- TODO also takes normal, initial, inherit, unset, other
-lineHeight : Linear.SizeDescriptor (Linear.Size c) c -> PropertyRuleAppender
+lineHeight : Linear.SizeDescriptor {} c -> PropertyRuleAppender
 lineHeight descriptor = 
-  simpleProperty "line-height" (descriptor Linear.sizeFactory |> Linear.sizeValue) 
+  simpleProperty "line-height" (Linear.sizeValue descriptor) 
 
 -------------------------------------------------------------------------------
 
@@ -219,15 +219,14 @@ aFont : Linear.SizeDescriptor (Linear.Size sz) sz ->
            FontFactory sz -> 
            ComposedFont sz
 -}  
-aFont : Linear.SizeDescriptor (Linear.Size sz) sz -> 
+aFont : Linear.SizeDescriptor {} sz -> 
            List String -> 
            List GenericFontFamilyDescriptor -> 
            ComposedFontDescriptor sz
 aFont sizeDescriptor customFonts genericFontDescriptors compositeFactory =
-  let size = sizeDescriptor Linear.sizeFactory
-      genericFontFrom familyDescriptor = familyDescriptor genericFontFamilyFactory
+  let genericFontFrom familyDescriptor = familyDescriptor genericFontFamilyFactory
       genericFonts = List.map genericFontFrom genericFontDescriptors
-  in compositeFactory.leaf size customFonts genericFonts
+  in compositeFactory.leaf sizeDescriptor customFonts genericFonts
 
 {- Equivalent to
 withLineHeight :  Linear.SizeDescriptor (Linear.Size sz) sz -> 
@@ -235,7 +234,7 @@ withLineHeight :  Linear.SizeDescriptor (Linear.Size sz) sz ->
                   FontFactory sz -> 
                   ComposedFont sz
 -}
-withLineHeight : Linear.SizeDescriptor (Linear.Size sz) sz -> 
+withLineHeight : Linear.SizeDescriptor {} sz -> 
                  ComposedFontDescriptor sz -> 
                  ComposedFontDescriptor sz
 withLineHeight lineHeightDescriptor compositeDescriptor compositeFactory =
@@ -247,7 +246,7 @@ withLineHeight lineHeightDescriptor compositeDescriptor compositeFactory =
            WithLineHeight _ _ _ _ as leaf -> fontWithComponents
            BaseComponent size customFonts genericFonts -> 
              let components = 
-               WithLineHeight size lineHeight customFonts genericFonts
+               WithLineHeight size (Linear.sizeValue lineHeight) customFonts genericFonts
              in { font = CompositeFont components, fontComponents = components }
            WithWeight weight innerComposedFont -> 
             let components = 
@@ -261,7 +260,7 @@ withLineHeight lineHeightDescriptor compositeDescriptor compositeFactory =
              let components =
                WithStyle style (rewrapWithLineHeight innerComposedFont lineHeight)
              in { font = CompositeFont components, fontComponents = components }
-   in rewrapWithLineHeight composedFont (lineHeightDescriptor Linear.sizeFactory)
+   in rewrapWithLineHeight composedFont lineHeightDescriptor
 
 {- Equivalent to 
 withWeight : FontWeight -> 

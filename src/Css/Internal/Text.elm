@@ -81,23 +81,21 @@ textRenderingValue textRendering =
 -------------------------------------------------------------------------------
 
 type alias TextShadowDescriptor a hSz vSz blrSz = 
-  TextShadowFactory hSz vSz blrSz -> TextShadow a hSz vSz blrSz
+  TextShadowFactory hSz vSz blrSz -> TextShadow a
 
 type alias CompositeTextShadowDescriptor hSz vSz blrSz = 
-  TextShadowFactory hSz vSz blrSz -> CompositeTextShadow hSz vSz blrSz  
+  TextShadowFactory hSz vSz blrSz -> CompositeTextShadow
 
-type alias TextShadow a hSz vSz blrSz = 
-  { a | textShadow : TextShadowComponent hSz vSz blrSz }
+type alias TextShadow a = { a | textShadow : TextShadowComponent }
 
 type alias WithComponents = { withComponents : () }
 
-type alias CompositeTextShadow hSz vSz blrSz = 
-  TextShadow (WithComponents) hSz vSz blrSz
+type alias CompositeTextShadow = TextShadow WithComponents
 
-type TextShadowComponent hSz vSz blrSz
-  = BaseShadow (Linear.Size hSz) (Linear.Size vSz) 
-  | WithBlurRadius (Linear.Size blrSz) (TextShadowComponent hSz vSz blrSz)
-  | WithColor CssColor (TextShadowComponent hSz vSz blrSz)
+type TextShadowComponent
+  = BaseShadow Value Value
+  | WithBlurRadius Value TextShadowComponent
+  | WithColor CssColor TextShadowComponent
   | InitialTextShadow
   | InheritTextShadow
   | NoTextShadow
@@ -105,34 +103,31 @@ type TextShadowComponent hSz vSz blrSz
   | OtherTextShadow Value
 
 type alias TextShadowFactory hSz vSz blrSz =
-  { baseShadow : Linear.Size hSz -> Linear.Size vSz -> CompositeTextShadow hSz vSz blrSz 
-  , withBlurRadius : Linear.Size blrSz -> 
-                     TextShadowComponent hSz vSz blrSz -> 
-                     CompositeTextShadow hSz vSz blrSz 
+  { baseShadow : Linear.SizeDescriptor {} hSz -> 
+                 Linear.SizeDescriptor {} vSz -> 
+                 CompositeTextShadow
+  , withBlurRadius : Linear.SizeDescriptor {} blrSz -> 
+                     TextShadowComponent -> 
+                     CompositeTextShadow
   , withColor : CssColor -> 
-                TextShadowComponent hSz vSz blrSz -> 
-                CompositeTextShadow hSz vSz blrSz
-  , initial_ : TextShadow {} hSz vSz blrSz 
-  , inherit_ : TextShadow {} hSz vSz blrSz 
-  , none_ : TextShadow {} hSz vSz blrSz 
-  , unset_ : TextShadow {} hSz vSz blrSz 
-  , other_ : Value -> CompositeTextShadow hSz vSz blrSz 
-  }
-
-toSimpleShadow : TextShadowComponent hSz vSz blrSz -> TextShadow {} hSz vSz blrSz
-toSimpleShadow component = { textShadow = component }
-
-toCompositeShadow : TextShadowComponent hSz vSz blrSz -> 
-                    CompositeTextShadow hSz vSz blrSz
-toCompositeShadow component =
-  { textShadow = component
-  , withComponents = ()
+                TextShadowComponent -> 
+                CompositeTextShadow
+  , initial_ : TextShadow {}
+  , inherit_ : TextShadow {}
+  , none_ : TextShadow {}
+  , unset_ : TextShadow {}
+  , other_ : Value -> CompositeTextShadow
   }
   
 textShadowFactory : TextShadowFactory hSz vSz blrSz
 textShadowFactory =
-  { baseShadow horizontal vertical = BaseShadow horizontal vertical |> toCompositeShadow
-  , withBlurRadius radius inner = WithBlurRadius radius inner |> toCompositeShadow
+  { baseShadow horizontalDescriptor verticalDescriptor = 
+      let horizontal = Linear.sizeValue horizontalDescriptor
+          vertical = Linear.sizeValue verticalDescriptor
+      in BaseShadow horizontal vertical |> toCompositeShadow
+  , withBlurRadius radiusDescriptor inner = 
+      let radius = Linear.sizeValue radiusDescriptor
+      in WithBlurRadius radius inner |> toCompositeShadow
   , withColor colour inner = WithColor colour inner |> toCompositeShadow
   , initial_ = InitialTextShadow |> toSimpleShadow
   , inherit_ = InheritTextShadow |> toSimpleShadow
@@ -141,7 +136,16 @@ textShadowFactory =
   , other_ val = OtherTextShadow val |> toCompositeShadow
   }
 
-textShadowValue : TextShadow a hSz vSz blrSz -> Value 
+toSimpleShadow : TextShadowComponent -> TextShadow {}
+toSimpleShadow component = { textShadow = component }
+
+toCompositeShadow : TextShadowComponent -> CompositeTextShadow
+toCompositeShadow component =
+  { textShadow = component
+  , withComponents = ()
+  }
+
+textShadowValue : TextShadow a -> Value 
 textShadowValue textShadow =
   case textShadow.textShadow of
     InitialTextShadow -> initialValue
@@ -151,47 +155,43 @@ textShadowValue textShadow =
     OtherTextShadow val -> otherValue val
     somethingElse -> textShadowValueRecursive somethingElse Nothing Nothing
 
-textShadowValueRecursive : TextShadowComponent hSz vSz blrSz -> 
-                           Maybe (Linear.Size blrSz) -> 
+textShadowValueRecursive : TextShadowComponent -> 
+                           Maybe Value -> 
                            Maybe CssColor -> 
                            Value
-textShadowValueRecursive component maybeSize maybeColor =
+textShadowValueRecursive component maybeRadius maybeColor =
   -- If the TextShadowComponent combinators are called more than once,
   -- the last (outer) one wins. So if it's already set we don't reset it.
   case component of
     WithBlurRadius radius inner -> 
-      case maybeSize of
+      case maybeRadius of
         Just _ -> 
-          textShadowValueRecursive inner maybeSize maybeColor
+          textShadowValueRecursive inner maybeRadius maybeColor
         Nothing -> 
           textShadowValueRecursive inner (Just radius) maybeColor
     WithColor colour inner -> 
       case maybeColor of
         Just _ -> 
-          textShadowValueRecursive inner maybeSize maybeColor
+          textShadowValueRecursive inner maybeRadius maybeColor
         Nothing -> 
-          textShadowValueRecursive inner maybeSize (Just colour)
+          textShadowValueRecursive inner maybeRadius (Just colour)
     BaseShadow horizontal vertical -> 
-      let horizontalValue = Linear.sizeValue horizontal
-          verticalValue = Linear.sizeValue vertical
-          maybeRadiusValue = Maybe.map Linear.sizeValue maybeSize
-          maybeColorValue = Maybe.map colorValue maybeColor
+      let maybeColorValue = Maybe.map colorValue maybeColor
           
           allValues = 
-            [ (Just horizontalValue)
-            , (Just verticalValue)
-            , maybeRadiusValue
+            [ (Just horizontal)
+            , (Just vertical)
+            , maybeRadius
             , maybeColorValue
             ] |> List.filterMap identity
             
       in spaceListValue identity allValues
 -------------------------------------------------------------------------------
 
-type alias TextIndentDescriptor a =
-  TextIndentFactory a -> TextIndent a
+type alias TextIndentDescriptor sz = TextIndentFactory sz -> TextIndent
   
-type TextIndent a
-  = TextIndent (Linear.Size a)
+type TextIndent
+  = TextIndent Value
   | IndentEachLine 
   | HangingIndent
   | InitialTextIndent
@@ -199,19 +199,19 @@ type TextIndent a
   | UnsetTextIndent
   | OtherTextIndent Value
   
-type alias TextIndentFactory a =
-  { textIndent : Linear.Size a -> TextIndent a
-  , indentEachLine : TextIndent a
-  , hangingIndent : TextIndent a
-  , initial_ : TextIndent a
-  , inherit_ : TextIndent a
-  , unset_ : TextIndent a
-  , other_ : Value -> TextIndent a
+type alias TextIndentFactory sz =
+  { textIndent : Linear.SizeDescriptor {} sz -> TextIndent
+  , indentEachLine : TextIndent
+  , hangingIndent : TextIndent
+  , initial_ : TextIndent
+  , inherit_ : TextIndent
+  , unset_ : TextIndent
+  , other_ : Value -> TextIndent
   } 
   
-textIndentFactory : TextIndentFactory a
+textIndentFactory : TextIndentFactory sz
 textIndentFactory =
-  { textIndent size = TextIndent size
+  { textIndent sizeDescriptor = Linear.sizeValue sizeDescriptor |> TextIndent
   , indentEachLine = IndentEachLine
   , hangingIndent = HangingIndent
   , initial_ = InitialTextIndent
@@ -220,10 +220,10 @@ textIndentFactory =
   , other_ val = OtherTextIndent val
   }
 
-textIndentValue : TextIndent a -> Value 
+textIndentValue : TextIndent -> Value 
 textIndentValue textIndent =
   case textIndent of
-    TextIndent size -> Linear.sizeValue size
+    TextIndent sizeValue -> sizeValue
     IndentEachLine -> stringValue "each-line"
     HangingIndent -> stringValue "hanging"
     InitialTextIndent -> initialValue

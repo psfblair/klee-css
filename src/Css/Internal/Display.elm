@@ -165,10 +165,10 @@ type alias ClipDescriptor a b c d = ClipFactory a b c d -> Property.Value
 
 type alias ClipFactory a b c d =
   {
-    rect : Linear.Size a -> 
-           Linear.Size b -> 
-           Linear.Size c -> 
-           Linear.Size d -> 
+    rect : Linear.SizeDescriptor {} a -> 
+           Linear.SizeDescriptor {} b -> 
+           Linear.SizeDescriptor {} c -> 
+           Linear.SizeDescriptor {} d -> 
            Property.Value
   , auto_ : Property.Value
   , inherit_ : Property.Value

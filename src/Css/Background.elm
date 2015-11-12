@@ -25,12 +25,10 @@ module Css.Background
   -- * The background-origin.
 
   , backgroundOrigin
-  , origin
 
   -- * The background-clip.
 
   , backgroundClip
-  , boxClip
 
   -- * The background-attachment.
 
@@ -51,13 +49,14 @@ module Css.Background
   ) where
 
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
-import Css.Internal.Box exposing (BoxTypeDescriptor)
 import Css.Internal.Color exposing (colorValue)
 
+import Css.Internal.Box.Sizing as BoxSizing
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Geometry.Sides as Sides
 
 import Css.Internal.Background exposing (..)
+
 
 -------------------------------------------------------------------------------
 
@@ -69,8 +68,8 @@ backgroundPosition descriptor =
 placed : Sides.HorizontalSide -> Sides.VerticalSide -> BackgroundPositionDescriptor sz1 sz2
 placed horiz vert factory = factory.sidedPosition horiz vert
 
-positioned : Linear.SizeDescriptor (Linear.Size sz1) sz1 -> 
-             Linear.SizeDescriptor (Linear.Size sz2) sz2 -> 
+positioned : Linear.SizeDescriptor {} sz1 -> 
+             Linear.SizeDescriptor {} sz2 -> 
              BackgroundPositionDescriptor sz1 sz2
 positioned horiz vert factory = factory.sizedPosition horiz vert
 
@@ -87,12 +86,12 @@ contain factory = backgroundSizeFactory.named "contain"
 cover : BackgroundSizeDescriptor sz
 cover factory = backgroundSizeFactory.named "cover"
 
-by : Linear.SizeDescriptor (Linear.Size sz) sz -> 
-     Linear.SizeDescriptor (Linear.Size sz) sz -> 
+by : Linear.SizeDescriptor {} sz -> 
+     Linear.SizeDescriptor {} sz -> 
      BackgroundSizeDescriptor sz
 by width height factory = backgroundSizeFactory.backgroundSize width height
 
-bgWidth : Linear.SizeDescriptor (Linear.Size sz) sz -> BackgroundSizeDescriptor sz
+bgWidth : Linear.SizeDescriptor {} sz -> BackgroundSizeDescriptor sz
 bgWidth width factory = backgroundSizeFactory.partial width
 
 -------------------------------------------------------------------------------
@@ -145,23 +144,17 @@ repeatY factory = backgroundRepeatFactory.repeat "repeat-y"
 
 -------------------------------------------------------------------------------
 
-backgroundOrigin : BackgroundOriginDescriptor -> PropertyRuleAppender
+backgroundOrigin : BoxSizing.BoxSizingDescriptor -> PropertyRuleAppender
 backgroundOrigin descriptor = 
-  let bgOrigin = descriptor backgroundOriginFactory
+  let bgOrigin = BoxSizing.boxSizeValue descriptor 
   in simpleProperty "background-origin" bgOrigin
-
-origin : BoxTypeDescriptor -> BackgroundOriginDescriptor
-origin boxTypeDescriptor factory = factory.origin boxTypeDescriptor
 
 -------------------------------------------------------------------------------
 
-backgroundClip : BackgroundClipDescriptor -> PropertyRuleAppender
+backgroundClip : BoxSizing.BoxSizingDescriptor -> PropertyRuleAppender
 backgroundClip descriptor = 
-  let bgClip = descriptor backgroundClipFactory
+  let bgClip = BoxSizing.boxSizeValue descriptor
   in simpleProperty "background-clip" bgClip
-
-boxClip : BoxTypeDescriptor -> BackgroundClipDescriptor
-boxClip boxTypeDescriptor factory = factory.clip boxTypeDescriptor
 
 -------------------------------------------------------------------------------
 
@@ -232,18 +225,18 @@ withImage imageDescriptor composedDescriptor =
        newComponents = WithImage image innerComponents
    in adjoinComponents newComponents
 
-withOrigin : BackgroundOriginDescriptor -> 
+withOrigin : BoxSizing.BareBoxTypeDescriptor -> 
              ComposedBackgroundDescriptor a sz1 sz2 sz3
 withOrigin originDescriptor composedDescriptor =
-   let origin = originDescriptor backgroundOriginFactory
+   let origin = BoxSizing.boxTypeValue originDescriptor
        innerComponents = composedDescriptor.backgroundComponents
        newComponents = WithOrigin origin innerComponents
    in adjoinComponents newComponents
   
-withClip : BackgroundClipDescriptor -> 
+withClip : BoxSizing.BareBoxTypeDescriptor -> 
            ComposedBackgroundDescriptor a sz1 sz2 sz3
 withClip clipDescriptor composedDescriptor =
-   let clip = clipDescriptor backgroundClipFactory
+   let clip = BoxSizing.boxTypeValue clipDescriptor
        innerComponents = composedDescriptor.backgroundComponents
        newComponents = WithClip clip innerComponents
    in adjoinComponents newComponents

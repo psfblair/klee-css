@@ -223,17 +223,12 @@ clip descriptor =
   let clipValue = descriptor clipFactory
   in simpleProperty "clip" clipValue
 
-rect : Linear.SizeDescriptor (Linear.Size a) a ->
-       Linear.SizeDescriptor (Linear.Size b) b ->
-       Linear.SizeDescriptor (Linear.Size c) c ->
-       Linear.SizeDescriptor (Linear.Size d) d ->
+rect : Linear.SizeDescriptor {} a ->
+       Linear.SizeDescriptor {} b ->
+       Linear.SizeDescriptor {} c ->
+       Linear.SizeDescriptor {} d ->
        ClipDescriptor a b c d
-rect top right bottom left factory =
-  let t = top Linear.sizeFactory
-      r = right Linear.sizeFactory
-      b = bottom Linear.sizeFactory
-      l = left Linear.sizeFactory
-  in factory.rect t r b l
+rect top right bottom left factory = factory.rect top right bottom left
 
 -------------------------------------------------------------------------------
 

@@ -198,15 +198,15 @@ type FontAlternative sz
 
 -- Font sizes can be absolute or relative
 type FontComponents sz
-  = BaseComponent (Linear.Size sz) (List String) (List GenericFontFamily)
+  = BaseComponent Value (List String) (List GenericFontFamily)
   -- Line height case needs to be a second kind of leaf, to ease rendering
-  | WithLineHeight (Linear.Size sz) (Linear.Size sz) (List String) (List GenericFontFamily)
+  | WithLineHeight Value Value (List String) (List GenericFontFamily)
   | WithWeight Value (ComposedFont sz)
   | WithVariant Value (ComposedFont sz)
   | WithStyle Value (ComposedFont sz)
 
 type alias FontFactory sz =
-  { leaf : Linear.Size sz -> List String -> List GenericFontFamily -> ComposedFont sz
+  { leaf : Linear.SizeDescriptor {} sz -> List String -> List GenericFontFamily -> ComposedFont sz
   , composite : (ComposedFont sz -> FontComponents sz) -> ComposedFont sz -> ComposedFont sz 
   , named : String -> Font {} sz
   , initial_ : Font {} sz
@@ -217,8 +217,9 @@ type alias FontFactory sz =
 
 fontFactory : FontFactory sz
 fontFactory =
-  { leaf size customFonts genericFonts = 
-      let baseComponent = BaseComponent size customFonts genericFonts 
+  { leaf sizeDescriptor customFonts genericFonts = 
+      let sizeVal = Linear.sizeValue sizeDescriptor
+          baseComponent = BaseComponent sizeVal customFonts genericFonts 
       in { font = CompositeFont baseComponent, fontComponents = baseComponent }
   , composite composer innerComposedFont =
       let newComponents = composer innerComposedFont
@@ -277,19 +278,16 @@ componentsToValueRecursive components maybeWeight maybeVariant maybeStyle =
             componentsToValueRecursive inner maybeWeight maybeVariant (Just style)
       BaseComponent fontSize customFamilies genericFamilies -> 
         -- should go to "italic bold 15px arial, sans-serif"
-        let fontSizeValue = Linear.sizeValue fontSize
-        in componentsLeafToValue fontSizeValue
-                                 customFamilies 
-                                 genericFamilies 
-                                 maybeWeight 
-                                 maybeVariant 
-                                 maybeStyle
+        componentsLeafToValue fontSize
+                              customFamilies 
+                              genericFamilies 
+                              maybeWeight 
+                              maybeVariant 
+                              maybeStyle
       WithLineHeight fontSize lineHeight customFamilies genericFamilies -> 
         -- should go to "italic bold 12px/30px Georgia, serif"
-        let fontSizeValue = Linear.sizeValue lineHeight
-            lineHeightValue = Linear.sizeValue fontSize
-            sizes = intersperse "/" [ fontSizeValue, lineHeightValue ]
-        in componentsLeafToValue fontSizeValue
+        let sizes = intersperse "/" [ fontSize, lineHeight ]
+        in componentsLeafToValue sizes
                                  customFamilies 
                                  genericFamilies 
                                  maybeWeight 

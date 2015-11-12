@@ -1,6 +1,6 @@
 module Css.Geometry 
   (
-  -- * Size constructors
+  -- * Linear size constructors.
 
     nil, unitless
   , cm, mm, inches
@@ -9,28 +9,33 @@ module Css.Geometry
   , em, srem, ex
   , vw, vh, vmin, vmax
 
-  -- * Constructing angles
+  -- * Angle constructors.
 
   , deg, rad, grad, turn
   
-  -- * Constructing positions
+  -- * Position constructors.
     
   , sideLeft, sideCenter, sideRight
   , sideTop, sideMiddle, sideBottom
 
   -- * Positioning properties.
+    
   , top, left, bottom, right
 
   -- * Sizing properties.
+    
   , width, height, minWidth, minHeight, maxWidth, maxHeight
 
   -- * Padding.
+    
   , padding
   , paddingTop, paddingLeft, paddingRight, paddingBottom
 
   -- * Margin.
+    
   , margin
   , marginTop, marginLeft, marginRight, marginBottom
+  
   ) where
 
 import Css.Internal.Geometry.Angle as Angle
@@ -154,74 +159,74 @@ sideBottom = Sides.sideBottom
 
 -------------------------------------------------------------------------------
 
-top : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+top : Linear.AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 top = Linear.top 
 
-left : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+left : Linear.AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 left = Linear.left
 
-bottom : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+bottom : Linear.AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 bottom = Linear.bottom
 
-right : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+right : Linear.AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 right = Linear.right
 
-width : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+width : Linear.AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 width = Linear.width
 
-height : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+height : Linear.AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 height = Linear.height
 
-minWidth : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+minWidth : Linear.BasicSizeDescriptor c -> Stylesheet.PropertyRuleAppender
 minWidth = Linear.minWidth
 
-minHeight : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+minHeight : Linear.BasicSizeDescriptor c -> Stylesheet.PropertyRuleAppender
 minHeight = Linear.minHeight
 
-maxWidth : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+maxWidth : Linear.SizeDescriptorWithNone c -> Stylesheet.PropertyRuleAppender
 maxWidth = Linear.maxWidth
 
-maxHeight : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+maxHeight : Linear.SizeDescriptorWithNone c -> Stylesheet.PropertyRuleAppender
 maxHeight = Linear.maxHeight
 
 -------------------------------------------------------------------------------
-padding : Linear.SizeDescriptor (Linear.Size a) a -> 
-          Linear.SizeDescriptor (Linear.Size a) a -> 
-          Linear.SizeDescriptor (Linear.Size a) a -> 
-          Linear.SizeDescriptor (Linear.Size a) a -> 
+padding : Linear.BasicSizeDescriptor c -> 
+          Linear.BasicSizeDescriptor c -> 
+          Linear.BasicSizeDescriptor c -> 
+          Linear.BasicSizeDescriptor c -> 
           Stylesheet.PropertyRuleAppender
 padding = Linear.padding
 
-paddingTop : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+paddingTop : Linear.BasicSizeDescriptor c -> Stylesheet.PropertyRuleAppender
 paddingTop = Linear.paddingTop
 
-paddingLeft : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+paddingLeft : Linear.BasicSizeDescriptor c -> Stylesheet.PropertyRuleAppender
 paddingLeft = Linear.paddingLeft
 
-paddingRight : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+paddingRight : Linear.BasicSizeDescriptor c -> Stylesheet.PropertyRuleAppender
 paddingRight = Linear.paddingRight
 
-paddingBottom : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+paddingBottom : Linear.BasicSizeDescriptor c -> Stylesheet.PropertyRuleAppender
 paddingBottom = Linear.paddingBottom
 
 -------------------------------------------------------------------------------
-margin : Linear.SizeDescriptor (Linear.Size a) a -> 
-         Linear.SizeDescriptor (Linear.Size a) a -> 
-         Linear.SizeDescriptor (Linear.Size a) a -> 
-         Linear.SizeDescriptor (Linear.Size a) a -> 
+margin : Linear.AutoSizableDescriptor c -> 
+         Linear.AutoSizableDescriptor c -> 
+         Linear.AutoSizableDescriptor c -> 
+         Linear.AutoSizableDescriptor c -> 
          Stylesheet.PropertyRuleAppender
 margin = Linear.margin
 
-marginTop : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+marginTop : Linear.AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 marginTop = Linear.marginTop
 
-marginLeft : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+marginLeft : Linear.AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 marginLeft = Linear.marginLeft
 
-marginRight : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+marginRight : Linear.AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 marginRight = Linear.marginRight
 
-marginBottom : Linear.SizeDescriptor (Linear.Size a) a -> Stylesheet.PropertyRuleAppender
+marginBottom : Linear.AutoSizableDescriptor c -> Stylesheet.PropertyRuleAppender
 marginBottom = Linear.marginBottom
 
   
