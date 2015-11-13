@@ -82,8 +82,8 @@ suite = describe "Css.GeometryTests"
       --     `shouldEqual` "bottom:should not compile"
       ]      
     , it "should render the left property correctly"
-      [ renderProperties [left (px 20)]
-          `shouldEqual` "left:20px"
+      [ renderProperties [left (pct 20)]
+          `shouldEqual` "left:20%"
       ]
     , it "should render generic arguments to the left property correctly"
       [ renderProperties [left auto]
@@ -112,45 +112,43 @@ suite = describe "Css.GeometryTests"
       --     `shouldEqual` "left:should not compile"
       -- , renderProperties [left hidden]
       --     `shouldEqual` "left:should not compile"
-      ]        
-    , it "should render the right property correctly"
-      [ renderProperties [right (px 20)]
-          `shouldEqual` "right:20px"
       ]
-    , it "should render generic arguments to the right property correctly"
-      [ renderProperties [right auto]
-          `shouldEqual` "right:auto"
-      , renderProperties [right initial]
-          `shouldEqual` "right:initial"
-      , renderProperties [right inherit]
-          `shouldEqual` "right:inherit"
-      , renderProperties [right unset]
-          `shouldEqual` "right:unset"
-      , renderProperties [right (other "foo")]
-          `shouldEqual` "right:foo"
-      , renderProperties [right (otherPrefixed [webkit_, moz_] "foo")]
-          `shouldEqual` "right:-webkit-foo;right:-moz-foo"
-      -- , renderProperties [right all]
-      --     `shouldEqual` "right:should not compile"
-      -- , renderProperties [right baseline]
-      --     `shouldEqual` "right:should not compile"
-      -- , renderProperties [right center]
-      --     `shouldEqual` "right:should not compile"
-      -- , renderProperties [right normal]
-      --     `shouldEqual` "right:should not compile"
-      -- , renderProperties [right none]
-      --     `shouldEqual` "right:should not compile"
-      -- , renderProperties [right visible]
-      --     `shouldEqual` "right:should not compile"
-      -- , renderProperties [right hidden]
-      --     `shouldEqual` "right:should not compile"
+    , it "should render the bottom property correctly"
+      [ renderProperties [bottom (px 20)]
+          `shouldEqual` "bottom:20px"
+      ]
+    , it "should render generic arguments to the bottom property correctly"
+      [ renderProperties [bottom auto]
+          `shouldEqual` "bottom:auto"
+      , renderProperties [bottom initial]
+          `shouldEqual` "bottom:initial"
+      , renderProperties [bottom inherit]
+          `shouldEqual` "bottom:inherit"
+      , renderProperties [bottom unset]
+          `shouldEqual` "bottom:unset"
+      , renderProperties [bottom (other "foo")]
+          `shouldEqual` "bottom:foo"
+      , renderProperties [bottom (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "bottom:-webkit-foo;bottom:-moz-foo"
+      -- , renderProperties [bottom all]
+      --     `shouldEqual` "bottom:should not compile"
+      -- , renderProperties [bottom baseline]
+      --     `shouldEqual` "bottom:should not compile"
+      -- , renderProperties [bottom center]
+      --     `shouldEqual` "bottom:should not compile"
+      -- , renderProperties [bottom normal]
+      --     `shouldEqual` "bottom:should not compile"
+      -- , renderProperties [bottom none]
+      --     `shouldEqual` "bottom:should not compile"
+      -- , renderProperties [bottom visible]
+      --     `shouldEqual` "bottom:should not compile"
+      -- , renderProperties [bottom hidden]
+      --     `shouldEqual` "bottom:should not compile"
       ]  
     ]
   , describe "The sizing functions"
     [ it "should render the width property correctly"
-      [ renderProperties [width (px 20)]
-          `shouldEqual` "width:20px"
-      , renderProperties [width (pct 20)]
+      [ renderProperties [width (pct 20)]
           `shouldEqual` "width:20%"
       ]
     , it "should render generic arguments to the width property correctly"
@@ -184,8 +182,6 @@ suite = describe "Css.GeometryTests"
     , it "should render the height property correctly"
       [ renderProperties [height (px 20)]
           `shouldEqual` "height:20px"
-      , renderProperties [height (pct 20)]
-          `shouldEqual` "height:20%"
       ]
     , it "should render generic arguments to the height property correctly"
       [ renderProperties [height auto]
@@ -216,29 +212,133 @@ suite = describe "Css.GeometryTests"
       --     `shouldEqual` "height:should not compile"
       ] 
     , it "should render the min-width property correctly"
-      [ renderProperties [minWidth (px 20)]
-          `shouldEqual` "min-width:20px"
-      , renderProperties [minWidth (pct 20)]
+      [ renderProperties [minWidth (pct 20)]
           `shouldEqual` "min-width:20%"
       ]
+    , it "should render generic arguments to the min-width property correctly"
+      [ renderProperties [minWidth initial]
+          `shouldEqual` "min-width:initial"
+      , renderProperties [minWidth inherit]
+          `shouldEqual` "min-width:inherit"
+      , renderProperties [minWidth unset]
+          `shouldEqual` "min-width:unset"
+      , renderProperties [minWidth (other "foo")]
+          `shouldEqual` "min-width:foo"
+      , renderProperties [minWidth (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "min-width:-webkit-foo;min-width:-moz-foo"
+      -- , renderProperties [minWidth all]
+      --     `shouldEqual` "min-width:should not compile"
+      -- , renderProperties [minWidth auto]
+      --     `shouldEqual` "min-width:should not compile"
+      -- , renderProperties [minWidth baseline]
+      --     `shouldEqual` "min-width:should not compile"
+      -- , renderProperties [minWidth center]
+      --     `shouldEqual` "min-width:should not compile"
+      -- , renderProperties [minWidth normal]
+      --     `shouldEqual` "min-width:should not compile"
+      -- , renderProperties [minWidth none]
+      --     `shouldEqual` "min-width:should not compile"
+      -- , renderProperties [minWidth visible]
+      --     `shouldEqual` "min-width:should not compile"
+      -- , renderProperties [minWidth hidden]
+      --     `shouldEqual` "min-width:should not compile"
+      ] 
     , it "should render the min-height property correctly"
       [ renderProperties [minHeight (px 20)]
           `shouldEqual` "min-height:20px"
-      , renderProperties [minHeight (pct 20)]
-          `shouldEqual` "min-height:20%"
       ]
+    , it "should render generic arguments to the min-height property correctly"
+      [ renderProperties [minHeight initial]
+          `shouldEqual` "min-height:initial"
+      , renderProperties [minHeight inherit]
+          `shouldEqual` "min-height:inherit"
+      , renderProperties [minHeight unset]
+          `shouldEqual` "min-height:unset"
+      , renderProperties [minHeight (other "foo")]
+          `shouldEqual` "min-height:foo"
+      , renderProperties [minHeight (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "min-height:-webkit-foo;min-height:-moz-foo"
+      -- , renderProperties [minHeight all]
+      --     `shouldEqual` "min-height:should not compile"
+      -- , renderProperties [minHeight auto]
+      --     `shouldEqual` "min-height:should not compile"
+      -- , renderProperties [minHeight baseline]
+      --     `shouldEqual` "min-height:should not compile"
+      -- , renderProperties [minHeight center]
+      --     `shouldEqual` "min-height:should not compile"
+      -- , renderProperties [minHeight normal]
+      --     `shouldEqual` "min-height:should not compile"
+      -- , renderProperties [minHeight none]
+      --     `shouldEqual` "min-height:should not compile"
+      -- , renderProperties [minHeight visible]
+      --     `shouldEqual` "min-height:should not compile"
+      -- , renderProperties [minHeight hidden]
+      --     `shouldEqual` "min-height:should not compile"
+      ] 
     , it "should render the max-width property correctly"
-      [ renderProperties [maxWidth (px 20)]
-          `shouldEqual` "max-width:20px"
-      , renderProperties [maxWidth (pct 20)]
+      [ renderProperties [maxWidth (pct 20)]
           `shouldEqual` "max-width:20%"
+      ]
+    , it "should render generic arguments to the max-width property correctly"
+      [ renderProperties [maxWidth initial]
+          `shouldEqual` "max-width:initial"
+      , renderProperties [maxWidth inherit]
+          `shouldEqual` "max-width:inherit"
+      , renderProperties [maxWidth unset]
+          `shouldEqual` "max-width:unset"
+      , renderProperties [maxWidth none]
+          `shouldEqual` "max-width:none"          
+      , renderProperties [maxWidth (other "foo")]
+          `shouldEqual` "max-width:foo"
+      , renderProperties [maxWidth (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "max-width:-webkit-foo;max-width:-moz-foo"
+      -- , renderProperties [maxWidth all]
+      --     `shouldEqual` "max-width:should not compile"
+      -- , renderProperties [maxWidth auto]
+      --     `shouldEqual` "max-width:should not compile"
+      -- , renderProperties [maxWidth baseline]
+      --     `shouldEqual` "max-width:should not compile"
+      -- , renderProperties [maxWidth center]
+      --     `shouldEqual` "max-width:should not compile"
+      -- , renderProperties [maxWidth normal]
+      --     `shouldEqual` "max-width:should not compile"
+      -- , renderProperties [maxWidth visible]
+      --     `shouldEqual` "max-width:should not compile"
+      -- , renderProperties [maxWidth hidden]
+      --     `shouldEqual` "max-width:should not compile"
       ]
     , it "should render the max-height property correctly"
       [ renderProperties [maxHeight (px 20)]
           `shouldEqual` "max-height:20px"
-      , renderProperties [maxHeight (pct 20)]
-          `shouldEqual` "max-height:20%"
       ]
+    , it "should render generic arguments to the max-height property correctly"
+      [ renderProperties [maxHeight initial]
+          `shouldEqual` "max-height:initial"
+      , renderProperties [maxHeight inherit]
+          `shouldEqual` "max-height:inherit"
+      , renderProperties [maxHeight none]
+          `shouldEqual` "max-height:none"
+      , renderProperties [maxHeight unset]
+          `shouldEqual` "max-height:unset"
+      , renderProperties [maxHeight (other "foo")]
+          `shouldEqual` "max-height:foo"
+      , renderProperties [maxHeight (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "max-height:-webkit-foo;max-height:-moz-foo"
+      -- , renderProperties [maxHeight all]
+      --     `shouldEqual` "max-height:should not compile"
+      -- , renderProperties [maxHeight auto]
+      --     `shouldEqual` "max-height:should not compile"
+      -- , renderProperties [maxHeight baseline]
+      --     `shouldEqual` "max-height:should not compile"
+      -- , renderProperties [maxHeight center]
+      --     `shouldEqual` "max-height:should not compile"
+      -- , renderProperties [maxHeight normal]
+      --     `shouldEqual` "max-height:should not compile"
+      -- , renderProperties [maxHeight visible]
+      --     `shouldEqual` "max-height:should not compile"
+      -- , renderProperties [maxHeight hidden]
+      --     `shouldEqual` "max-height:should not compile"
+      ] 
     ]
   , describe "The padding functions"
     [ it "should render the padding property correctly"
