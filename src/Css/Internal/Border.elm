@@ -9,7 +9,7 @@ import Css.Internal.Common exposing
   ( otherValue, initialValue, inheritValue, autoValue, noneValue )
 
 import Css.Internal.Color exposing 
-  (CssColor (..), ColorFactory, colorFactory)
+  (CssColor (..), BasicColorFactory, colorFactory)
 -------------------------------------------------------------------------------
 
 type alias StrokeDescriptor = StrokeFactory -> Value
@@ -42,7 +42,7 @@ type alias OutlineColorDescriptor = OutlineColorFactory -> CssColor
 
 type alias InvertColorFactory = { invert: CssColor }
 
-type alias OutlineColorFactory = ColorFactory InvertColorFactory
+type alias OutlineColorFactory = BasicColorFactory InvertColorFactory
 
 outlineColorFactory : OutlineColorFactory
 outlineColorFactory = { colorFactory | invert = OtherColor (stringValue "invert") }

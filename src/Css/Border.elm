@@ -29,8 +29,8 @@ import Css.Internal.Property exposing
   , spaceTripleValue, spaceQuadrupleValue
   )
 import Css.Internal.Color exposing 
-  (CssColor (..), ColorDescriptor, ColorFactory
-  , rgbaString, hslaString, colorFactory, colorValue
+  ( ColorDescriptor, BasicColorDescriptor, ColorFactory
+  , rgbaString, hslaString, nubColorFactory, colorFactory, colorValue
   )
 import Css.Internal.Display exposing (VisibilityDescriptor, visibilityFactory)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
@@ -73,7 +73,7 @@ outset factory = factory.stroke "outset"
 
 border : StrokeDescriptor -> 
          Linear.SizeDescriptor {} Absolute.Abs -> 
-         ColorDescriptor {} -> 
+         BasicColorDescriptor -> 
          PropertyRuleAppender
 border strokeDescriptor sizeDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
@@ -83,7 +83,7 @@ border strokeDescriptor sizeDescriptor colorDescriptor =
 
 borderTop : StrokeDescriptor -> 
             Linear.SizeDescriptor {} Absolute.Abs -> 
-            ColorDescriptor {} -> 
+            BasicColorDescriptor -> 
             PropertyRuleAppender
 borderTop strokeDescriptor widthDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
@@ -93,7 +93,7 @@ borderTop strokeDescriptor widthDescriptor colorDescriptor =
 
 borderLeft : StrokeDescriptor -> 
              Linear.SizeDescriptor {} Absolute.Abs -> 
-             ColorDescriptor {} -> 
+             BasicColorDescriptor -> 
              PropertyRuleAppender
 borderLeft strokeDescriptor widthDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
@@ -103,7 +103,7 @@ borderLeft strokeDescriptor widthDescriptor colorDescriptor =
 
 borderBottom : StrokeDescriptor -> 
                Linear.SizeDescriptor {} Absolute.Abs -> 
-               ColorDescriptor {} -> 
+               BasicColorDescriptor -> 
                PropertyRuleAppender
 borderBottom strokeDescriptor widthDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
@@ -113,7 +113,7 @@ borderBottom strokeDescriptor widthDescriptor colorDescriptor =
 
 borderRight : StrokeDescriptor -> 
               Linear.SizeDescriptor {} Absolute.Abs -> 
-              ColorDescriptor {} -> 
+              BasicColorDescriptor -> 
               PropertyRuleAppender
 borderRight strokeDescriptor widthDescriptor colorDescriptor =
   let stroke = strokeDescriptor strokeFactory
@@ -123,27 +123,27 @@ borderRight strokeDescriptor widthDescriptor colorDescriptor =
 
 -------------------------------------------------------------------------------
 
-borderColor : ColorDescriptor {} -> PropertyRuleAppender
+borderColor : BasicColorDescriptor -> PropertyRuleAppender
 borderColor colorDescriptor =
   let color = colorDescriptor colorFactory
   in simpleProperty "border-color" (colorValue color)
 
-borderLeftColor : ColorDescriptor {} -> PropertyRuleAppender
+borderLeftColor : BasicColorDescriptor -> PropertyRuleAppender
 borderLeftColor colorDescriptor =
   let color = colorDescriptor colorFactory
   in simpleProperty "border-left-color" (colorValue color)
 
-borderRightColor : ColorDescriptor {} -> PropertyRuleAppender
+borderRightColor : BasicColorDescriptor -> PropertyRuleAppender
 borderRightColor colorDescriptor =
   let color = colorDescriptor colorFactory
   in simpleProperty "border-right-color" (colorValue color)
 
-borderTopColor : ColorDescriptor {} -> PropertyRuleAppender
+borderTopColor : BasicColorDescriptor -> PropertyRuleAppender
 borderTopColor colorDescriptor =
   let color = colorDescriptor colorFactory
   in simpleProperty "border-top-color" (colorValue color)
 
-borderBottomColor : ColorDescriptor {} -> PropertyRuleAppender
+borderBottomColor : BasicColorDescriptor -> PropertyRuleAppender
 borderBottomColor colorDescriptor =
   let color = colorDescriptor colorFactory
   in simpleProperty "border-bottom-color" (colorValue color)
@@ -154,10 +154,10 @@ borderColor4 : ColorDescriptor {} ->
                ColorDescriptor {} -> 
                PropertyRuleAppender
 borderColor4 colorDescriptorA colorDescriptorB colorDescriptorC colorDescriptorD =
-  let colorA = colorDescriptorA colorFactory
-      colorB = colorDescriptorB colorFactory
-      colorC = colorDescriptorC colorFactory
-      colorD = colorDescriptorD colorFactory
+  let colorA = colorDescriptorA nubColorFactory
+      colorB = colorDescriptorB nubColorFactory
+      colorC = colorDescriptorC nubColorFactory
+      colorD = colorDescriptorD nubColorFactory
       valueFactory = spaceQuadrupleValue colorValue colorValue colorValue colorValue
   in simpleProperty "border-color" (valueFactory (colorA, colorB, colorC, colorD))
 

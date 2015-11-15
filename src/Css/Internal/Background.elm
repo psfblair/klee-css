@@ -13,7 +13,7 @@ module Css.Internal.Background
 import String
 
 import Css.Internal.Color exposing 
-  (CssColor (..), ColorFactory, colorFactory, colorValue)
+  (CssColor (..), BasicColorFactory, colorFactory, colorValue)
 import Css.Internal.Common exposing 
   (autoValue, initialValue, inheritValue, noneValue, otherValue)
 import Css.Internal.Property exposing 
@@ -88,7 +88,7 @@ type alias BackgroundColorDescriptor = BackgroundColorFactory -> CssColor
 
 type alias TransparentColorFactory = { transparent: CssColor }
 
-type alias BackgroundColorFactory = ColorFactory TransparentColorFactory
+type alias BackgroundColorFactory = BasicColorFactory TransparentColorFactory
 
 backgroundColorFactory : BackgroundColorFactory
 backgroundColorFactory = 

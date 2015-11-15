@@ -17,28 +17,28 @@ import Css.Internal.Utils exposing (toFixed, fromHex)
 rgb : Int -> Int -> Int -> ColorDescriptor a
 rgb r g b factory = 
   if invalidRgb r g b
-  then factory.invalid 
+  then factory.invalid_ 
         ("INVALID COLOR: " ++ join [toString r, toString g, toString b])
   else Color.rgb r g b |> factory.rgbaColor
 
 rgba : Int -> Int -> Int -> Float -> ColorDescriptor a
 rgba r g b a factory = 
   if invalidRgb r g b || invalidFractionOf1 a
-  then factory.invalid 
+  then factory.invalid_ 
         ("INVALID COLOR: " ++ join [toString r, toString g, toString b, toString a])
   else Color.rgba r g b a |> factory.rgbaColor
 
 hsl : Int -> Float -> Float -> ColorDescriptor a
 hsl h s l factory = 
   if invalidHsl h s l
-  then factory.invalid 
+  then factory.invalid_ 
         ("INVALID COLOR: " ++ join [toString h, toString s, toString l])
   else Color.hsl (toFloat h |> degrees) s l |> factory.hslaColor
 
 hsla : Int -> Float -> Float -> Float -> ColorDescriptor a
 hsla h s l a factory = 
   if invalidHsl h s l || invalidFractionOf1 a
-  then factory.invalid 
+  then factory.invalid_ 
         ("INVALID COLOR: " ++ join [toString h, toString s, toString l, toString a])
   else Color.hsla (toFloat h |> degrees) s l a |> factory.hslaColor
 
@@ -68,7 +68,7 @@ hex str factory =
           other                    -> Err ("INVALID COLOR STRING: " ++ str)
   in case result of
     Ok color -> factory.rgbaColor color
-    Err str -> factory.invalid str
+    Err str -> factory.invalid_ str
 
 -- TODO
 -- background-color needs transparent as a special color descriptor that yields "transparent"

@@ -66,7 +66,7 @@ module Css.Text
   ) where
 
 import Css.Internal.Border exposing (StrokeDescriptor, strokeFactory)
-import Css.Internal.Color exposing (ColorDescriptor, colorFactory, colorValue)
+import Css.Internal.Color exposing (BasicColorDescriptor, colorFactory, colorValue)
 import Css.Internal.List exposing (ListStyleTypeDescriptor, listStyleTypeFactory)
 import Css.Internal.Property exposing 
   (spaceQuadrupleValue, spaceListValue, commaListValue)
@@ -138,7 +138,7 @@ shadowBlur blurDescriptor innerDescriptor factory =
   let innerCompositeShadow = innerDescriptor factory
   in factory.withBlurRadius blurDescriptor innerCompositeShadow.textShadow
 
-shadowColor : ColorDescriptor {} ->
+shadowColor : BasicColorDescriptor ->
               CompositeTextShadowDescriptor hSz vSz blrSz -> 
               CompositeTextShadowDescriptor hSz vSz blrSz
 shadowColor colorDescriptor innerDescriptor factory =
@@ -245,7 +245,7 @@ blink factory = factory.blink
 
 -------------------------------------------------------------------------------
 -- TODO This can take transparent
-textDecorationColor : ColorDescriptor {} -> PropertyRuleAppender
+textDecorationColor : BasicColorDescriptor -> PropertyRuleAppender
 textDecorationColor descriptor = 
   let colorVal = descriptor colorFactory |> colorValue
   in simpleProperty "text-decoration-color" colorVal

@@ -9,7 +9,6 @@ import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Property as Property
 import Css.Internal.Stylesheet as Stylesheet
 
-import Css.Common as CssCommon
 -------------------------------------------------------------------------------
 
 type alias BoxShadowDescriptor rec xSzTyp ySzTyp blurTyp spreadTyp
@@ -22,6 +21,7 @@ type BoxShadow
   | NoBoxShadow
   | InitialBoxShadow
   | InheritBoxShadow
+  | UnsetBoxShadow
   | OtherBoxShadow Property.Value
 
 type alias CompositeShadowDescriptor xSzTyp ySzTyp blurTyp spreadTyp
@@ -47,6 +47,7 @@ type Inset
       none | initial | inherit
 or:
       h-shadow v-shadow blur spread color inset
+
 where the last four (blur, spread, color, inset) are optional
 spread is optional but if you have it you have to have blur
 -}
@@ -54,8 +55,7 @@ boxShadow : BoxShadowDescriptor rec xSzTyp ySzTyp blurSzTyp spreadSzTyp ->
             Stylesheet.PropertyRuleAppender
 boxShadow shadowDescriptor =
   let boxShadow = shadowDescriptor boxShadowFactory
-      prefixedKeys = Property.appendToPrefixedRoot CssCommon.browsers "box-shadow"
-  in Stylesheet.prefixed prefixedKeys (boxShadowValue boxShadow)
+  in Stylesheet.simpleProperty "box-shadow" (boxShadowValue boxShadow)
 
 -- * Composable shadow descriptors.
 
@@ -107,6 +107,7 @@ type alias BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp =
   , none_ : Shadow {}
   , initial_ : Shadow {}
   , inherit_ : Shadow {}
+  , unset_ : Shadow {}
   , other_ : Property.Value -> Shadow {}
   }
 
@@ -129,6 +130,7 @@ boxShadowFactory =
   , none_ = { shadow = NoBoxShadow }
   , initial_ = { shadow = InitialBoxShadow }
   , inherit_ = { shadow = InheritBoxShadow }
+  , unset_ = { shadow = UnsetBoxShadow }
   , other_ val = { shadow = OtherBoxShadow val }
   }
 
@@ -146,7 +148,7 @@ addBlur blurDescriptor spreadDescriptor innerShadow =
 
 addColor : Color.ColorDescriptor {} -> CompositeShadow -> ShadowComponents
 addColor colorDescriptor innerShadow = 
-  let shadowColor = colorDescriptor Color.colorFactory
+  let shadowColor = colorDescriptor Color.nubColorFactory
   in case innerShadow.withComponents of
       ShadowComponents (xSize, ySize) _ blur inset ->
         ShadowComponents (xSize, ySize) (Just shadowColor) blur inset
@@ -170,6 +172,7 @@ boxShadowValue boxShadow=
     NoBoxShadow -> Common.noneValue
     InitialBoxShadow -> Common.initialValue
     InheritBoxShadow -> Common.inheritValue
+    UnsetBoxShadow -> Common.unsetValue
     OtherBoxShadow val -> Common.otherValue val
 
 extractColorValue : (Maybe Color.CssColor) -> List Property.Value

@@ -49,23 +49,21 @@ module Css.Font
 import Css.Internal.Property exposing (toLiteral, literalValue, commaListValue)
 import Css.Internal.Stylesheet exposing (simpleProperty, PropertyRuleAppender)
 import Css.Internal.Color exposing 
-  (ColorDescriptor, colorFactory, colorValue)
+  (BasicColorDescriptor, colorFactory, colorValue)
 
 import Css.Internal.Font exposing (..)  
 
 import Css.Internal.Geometry.Linear as Linear
 
 -------------------------------------------------------------------------------
-color : ColorDescriptor {} -> PropertyRuleAppender
+color : BasicColorDescriptor -> PropertyRuleAppender
 color colorDescriptor = 
   let colour = colorDescriptor colorFactory
   in simpleProperty "color" (colorValue colour)
 
 -- | An alias for `color`.
-fontColor : ColorDescriptor {} -> PropertyRuleAppender
-fontColor colorDescriptor = 
-  let colour = colorDescriptor colorFactory
-  in simpleProperty "color" (colorValue colour)
+fontColor : BasicColorDescriptor -> PropertyRuleAppender
+fontColor = color
 
 -------------------------------------------------------------------------------
 -- TODO Can take initial, inherit, unset

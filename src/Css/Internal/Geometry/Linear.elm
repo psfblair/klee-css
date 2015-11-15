@@ -136,34 +136,30 @@ rect top right bottom left factory = factory.rect_ top right bottom left
 
 -------------------------------------------------------------------------------
 
-type alias SizeFactory rec sz =            -- 
+type alias SizeFactory rec sz =
   { rec | size : Size sz -> Property.Value
         , other_ : Property.Value -> Property.Value
   }
-  
+
 nubSizeFactory : SizeFactory {} sz 
 nubSizeFactory =
   { size (Size constraint value) = value
   , other_ val = Common.otherValue val
   }
 
-type alias BasicSizeFactory rec sz =
-  { rec | size : Size sz -> Property.Value
-        , initial_ : Property.Value
-        , inherit_ : Property.Value
-        , unset_ : Property.Value
-        , other_ : Property.Value -> Property.Value
-  }
+type alias BasicSizeFactory rec sz = 
+  SizeFactory 
+    (Common.Initial Property.Value 
+      (Common.Inherit Property.Value 
+        (Common.Unset Property.Value rec))) sz
 
 basicSizeFactory : BasicSizeFactory {} sz
 basicSizeFactory =
-  { size (Size constraint value) = value
-  , initial_ = Common.initialValue
-  , inherit_ = Common.inheritValue
-  , unset_ = Common.unsetValue
-  , other_ val = Common.otherValue val
-  }
-  
+  let withInitial = { nubSizeFactory | initial_ = Common.initialValue }
+      withInherit = { withInitial    | inherit_ = Common.inheritValue }
+      withUnset =   { withInherit    | unset_ = Common.unsetValue }
+  in withUnset
+
 type alias AutoSizableFactory rec sz =  
   BasicSizeFactory (Common.Auto Property.Value rec) sz
 

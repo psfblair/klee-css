@@ -8,8 +8,6 @@ import Css.Internal.Common as Common
 import Css.Internal.Property as Property
 import Css.Internal.Stylesheet as Stylesheet
 
-import Css.Common as CssCommon
-
 -------------------------------------------------------------------------------
 type alias BoxSizingDescriptor = BoxSizingFactory -> Property.Value
 
@@ -20,8 +18,7 @@ type alias BareBoxTypeDescriptor = BareBoxTypeFactory {} -> Property.Value
 boxSizing : BoxSizingDescriptor -> Stylesheet.PropertyRuleAppender
 boxSizing descriptor =
   let boxType = descriptor boxTypeFactory
-      prefixedKeys = Property.appendToPrefixedRoot CssCommon.browsers "box-sizing"
-  in Stylesheet.prefixed prefixedKeys boxType
+  in Stylesheet.simpleProperty "box-sizing" boxType
 
 -- These functions must be usable in cases where we don't want to accept generic
 -- properties; i.e., where we are constructing more complex descriptors. So we

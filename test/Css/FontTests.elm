@@ -13,37 +13,56 @@ import Css exposing (renderProperties)
 
 suite : Spec
 suite = describe "Css.FontTests"
-  [ describe "fontColor"
+  [ describe "the font color properties"
 -- TODO can also take currentcolor  
     [ it "can accept a named color"
       [ renderProperties [fontColor green] `shouldEqual` "color:#73D216"
+      , renderProperties [color green] `shouldEqual` "color:#73D216"
       ]
     , it "can accept common properties initial, inherit, unset and other"
       [ renderProperties [fontColor initial] `shouldEqual` "color:initial"
+      , renderProperties [color initial] `shouldEqual` "color:initial"
       , renderProperties [fontColor inherit] `shouldEqual` "color:inherit"
--- TODO       
---    , renderProperties [fontColor unset] `shouldEqual` "color:unset" 
+      , renderProperties [color inherit] `shouldEqual` "color:inherit"
+      , renderProperties [fontColor unset] `shouldEqual` "color:unset" 
+      , renderProperties [color unset] `shouldEqual` "color:unset" 
       , renderProperties [fontColor (other "wild-honey")] 
+          `shouldEqual` "color:wild-honey" 
+      , renderProperties [color (other "wild-honey")] 
           `shouldEqual` "color:wild-honey" 
       -- Should not compile:
       -- , renderProperties [fontColor all]
       --     `shouldEqual` "color:should not compile"
+      -- , renderProperties [color all]
+      --     `shouldEqual` "color:should not compile"
       -- , renderProperties [fontColor auto]
+      --     `shouldEqual` "color:should not compile"
+      -- , renderProperties [color auto]
       --     `shouldEqual` "color:should not compile"
       -- , renderProperties [fontColor baseline]
       --     `shouldEqual` "color:should not compile"
+      -- , renderProperties [color baseline]
+      --     `shouldEqual` "color:should not compile"
       -- , renderProperties [fontColor center]
+      --     `shouldEqual` "color:should not compile"
+      -- , renderProperties [color center]
       --     `shouldEqual` "color:should not compile"
       -- , renderProperties [fontColor normal]
       --     `shouldEqual` "color:should not compile"
+      -- , renderProperties [color normal]
+      --     `shouldEqual` "color:should not compile"
       -- , renderProperties [fontColor none]
+      --     `shouldEqual` "color:should not compile"      
+      -- , renderProperties [color none]
       --     `shouldEqual` "color:should not compile"      
       -- , renderProperties [fontColor visible]
       --     `shouldEqual` "color:should not compile"
+      -- , renderProperties [color visible]
+      --     `shouldEqual` "color:should not compile"
       -- , renderProperties [fontColor hidden]
       --     `shouldEqual` "color:should not compile"
-      -- , renderProperties [fontColor unset]
-      --     `shouldEqual` "color:should not compile"          
+      -- , renderProperties [color hidden]
+      --     `shouldEqual` "color:should not compile"
       ]
     ]
   , describe "fontFamily"
