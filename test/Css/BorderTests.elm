@@ -18,10 +18,8 @@ suite = describe "Css.BorderTests"
     [ it "should render the simple border properties correctly"
       [ renderProperties [border solid (px 20) green]
           `shouldEqual` "border:solid 20px #73D216"
-      , renderProperties [borderTop dotted nil green]
+      , renderProperties [borderTop dotted abs0 green]
           `shouldEqual` "border-top:dotted 0 #73D216"
-      , renderProperties [borderLeft dashed (unitless 0) green]
-          `shouldEqual` "border-left:dashed 0 #73D216"
       , renderProperties [borderBottom double (cm 5) green]
           `shouldEqual` "border-bottom:double 5cm #73D216"
       , renderProperties [borderRight wavy (mm 2.0) green]

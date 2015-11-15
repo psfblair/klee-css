@@ -32,7 +32,6 @@ module Css.Display (
   -- Clipping
 
   , clip
-  , rect
 
   -- * Opacity
 
@@ -222,13 +221,6 @@ clip : ClipDescriptor a b c d -> PropertyRuleAppender
 clip descriptor =
   let clipValue = descriptor clipFactory
   in simpleProperty "clip" clipValue
-
-rect : Linear.SizeDescriptor {} a ->
-       Linear.SizeDescriptor {} b ->
-       Linear.SizeDescriptor {} c ->
-       Linear.SizeDescriptor {} d ->
-       ClipDescriptor a b c d
-rect top right bottom left factory = factory.rect top right bottom left
 
 -------------------------------------------------------------------------------
 

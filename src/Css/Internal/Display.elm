@@ -164,12 +164,11 @@ visibilityFactory =
 type alias ClipDescriptor a b c d = ClipFactory a b c d -> Property.Value
 
 type alias ClipFactory a b c d =
-  {
-    rect : Linear.SizeDescriptor {} a -> 
-           Linear.SizeDescriptor {} b -> 
-           Linear.SizeDescriptor {} c -> 
-           Linear.SizeDescriptor {} d -> 
-           Property.Value
+  { rect_ : Linear.SizeDescriptor {} a -> 
+            Linear.SizeDescriptor {} b -> 
+            Linear.SizeDescriptor {} c -> 
+            Linear.SizeDescriptor {} d -> 
+            Property.Value
   , auto_ : Property.Value
   , inherit_ : Property.Value
   , initial_ : Property.Value
@@ -179,7 +178,7 @@ type alias ClipFactory a b c d =
 clipFactory : ClipFactory a b c d
 clipFactory =
   {
-    rect top right bottom left = 
+    rect_ top right bottom left = 
       let szv = Linear.sizeValue
           quadrupleValue = 
             Property.commaQuadrupleValue szv szv szv szv (top, right, bottom, left)

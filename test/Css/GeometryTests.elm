@@ -18,7 +18,7 @@ suite = describe "Css.GeometryTests"
           `shouldEqual` "top:20px"
       , renderProperties [top (pct 20)]
           `shouldEqual` "top:20%"
-      , renderProperties [top nil]
+      , renderProperties [top abs0]
           `shouldEqual` "top:0"
       ]
     , it "should render generic arguments to the top property correctly"
@@ -342,16 +342,92 @@ suite = describe "Css.GeometryTests"
     ]
   , describe "The padding functions"
     [ it "should render the padding property correctly"
-      [ renderProperties [padding (px 20) (px 30) (px 40) (px 50)]
+      [ renderProperties [padding (rect (px 20) (px 30) (px 40) (px 50))]
           `shouldEqual` "padding:20px 30px 40px 50px"
-      , renderProperties [padding (pct 20) (pct 30) (pct 40) (pct 50)]
+      , renderProperties [padding (rect (pct 20) (pct 30) (pct 40) (pct 50))]
           `shouldEqual` "padding:20% 30% 40% 50%"
+      , renderProperties [padding (rect abs0 (px 30) (px 40) abs0)]
+          `shouldEqual` "padding:0 30px 40px 0"
+      , renderProperties [padding (rect (pct 20) rel0 (pct 40) (pct 50))]
+          `shouldEqual` "padding:20% 0 40% 50%"
+      -- , renderProperties [padding (rect (px 20) (em 30) (em 40) (em 50))]
+      --     `shouldEqual` "padding:will not compile"
+      -- , renderProperties [padding (rect (em 20) (px 30) (em 40) (em 50))]
+      --     `shouldEqual` "padding:will not compile"
+      -- , renderProperties [padding (rect abs0 (em 30) (em 40) (em 50))]
+      --     `shouldEqual` "padding:will not compile"
+      -- , renderProperties [padding (rect (px 20) (px 30) rel0 (px 50))]
+      --     `shouldEqual` "padding:will not compile"
       ]
+    , it "should render generic arguments to the padding property correctly"
+      [ renderProperties [padding initial]
+          `shouldEqual` "padding:initial"
+      , renderProperties [padding inherit]
+          `shouldEqual` "padding:inherit"
+      , renderProperties [padding unset]
+          `shouldEqual` "padding:unset"
+      , renderProperties [padding (other "foo")]
+          `shouldEqual` "padding:foo"
+      , renderProperties [padding (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "padding:-webkit-foo;padding:-moz-foo"
+      -- , renderProperties [padding (rect initial (px 30) (px 40) (px 50))]
+      --     `shouldEqual` "padding:should not compile"
+      -- , renderProperties [padding (rect (px 30) initial (px 40) (px 50))]
+      --     `shouldEqual` "padding:should not compile"
+      -- , renderProperties [padding (rect (px 30) (px 40) initial (px 50))]
+      --     `shouldEqual` "padding:should not compile"
+      -- , renderProperties [padding (rect (px 30) (px 40) (px 50) initial)]
+      --     `shouldEqual` "padding:should not compile"
+      -- , renderProperties [padding all]
+      --     `shouldEqual` "padding:should not compile"
+      -- , renderProperties [padding auto]
+      --     `shouldEqual` "padding:should not compile"
+      -- , renderProperties [padding baseline]
+      --     `shouldEqual` "padding:should not compile"
+      -- , renderProperties [padding center]
+      --     `shouldEqual` "padding:should not compile"
+      -- , renderProperties [padding none]
+      --     `shouldEqual` "padding:should not compile"
+      -- , renderProperties [padding normal]
+      --     `shouldEqual` "padding:should not compile"
+      -- , renderProperties [padding visible]
+      --     `shouldEqual` "padding:should not compile"
+      -- , renderProperties [padding hidden]
+      --     `shouldEqual` "padding:should not compile"
+      ] 
     , it "should render the padding-top property correctly"
       [ renderProperties [paddingTop (px 20)]
           `shouldEqual` "padding-top:20px"
       , renderProperties [paddingTop (pct 20)]
           `shouldEqual` "padding-top:20%"
+      ]
+    , it "should render generic arguments to the padding-top property correctly"
+      [ renderProperties [paddingTop initial]
+          `shouldEqual` "padding-top:initial"
+      , renderProperties [paddingTop inherit]
+          `shouldEqual` "padding-top:inherit"
+      , renderProperties [paddingTop unset]
+          `shouldEqual` "padding-top:unset"
+      , renderProperties [paddingTop (other "foo")]
+          `shouldEqual` "padding-top:foo"
+      , renderProperties [paddingTop (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "padding-top:-webkit-foo;padding-top:-moz-foo"
+      -- , renderProperties [paddingTop all]
+      --     `shouldEqual` "padding-top:should not compile"
+      -- , renderProperties [paddingTop auto]
+      --     `shouldEqual` "padding-top:should not compile"
+      -- , renderProperties [paddingTop baseline]
+      --     `shouldEqual` "padding-top:should not compile"
+      -- , renderProperties [paddingTop center]
+      --     `shouldEqual` "padding-top:should not compile"
+      -- , renderProperties [paddingTop none]
+      --     `shouldEqual` "padding-top:should not compile"          
+      -- , renderProperties [paddingTop normal]
+      --     `shouldEqual` "padding-top:should not compile"
+      -- , renderProperties [paddingTop visible]
+      --     `shouldEqual` "padding-top:should not compile"
+      -- , renderProperties [paddingTop hidden]
+      --     `shouldEqual` "padding-top:should not compile"
       ]
     , it "should render the padding-bottom property correctly"
       [ renderProperties [paddingBottom (px 20)]
@@ -359,37 +435,225 @@ suite = describe "Css.GeometryTests"
       , renderProperties [paddingBottom (pct 20)]
           `shouldEqual` "padding-bottom:20%"
       ]
+    , it "should render generic arguments to the padding-bottom property correctly"
+      [ renderProperties [paddingBottom initial]
+          `shouldEqual` "padding-bottom:initial"
+      , renderProperties [paddingBottom inherit]
+          `shouldEqual` "padding-bottom:inherit"
+      , renderProperties [paddingBottom unset]
+          `shouldEqual` "padding-bottom:unset"
+      , renderProperties [paddingBottom (other "foo")]
+          `shouldEqual` "padding-bottom:foo"
+      , renderProperties [paddingBottom (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "padding-bottom:-webkit-foo;padding-bottom:-moz-foo"
+      -- , renderProperties [paddingBottom all]
+      --     `shouldEqual` "padding-bottom:should not compile"
+      -- , renderProperties [paddingBottom auto]
+      --     `shouldEqual` "padding-bottom:should not compile"
+      -- , renderProperties [paddingBottom baseline]
+      --     `shouldEqual` "padding-bottom:should not compile"
+      -- , renderProperties [paddingBottom center]
+      --     `shouldEqual` "padding-bottom:should not compile"
+      -- , renderProperties [paddingBottom none]
+      --     `shouldEqual` "padding-bottom:should not compile"          
+      -- , renderProperties [paddingBottom normal]
+      --     `shouldEqual` "padding-bottom:should not compile"
+      -- , renderProperties [paddingBottom visible]
+      --     `shouldEqual` "padding-bottom:should not compile"
+      -- , renderProperties [paddingBottom hidden]
+      --     `shouldEqual` "padding-bottom:should not compile"
+      ]
     , it "should render the padding-left property correctly"
       [ renderProperties [paddingLeft (px 20)]
           `shouldEqual` "padding-left:20px"
       , renderProperties [paddingLeft (pct 20)]
           `shouldEqual` "padding-left:20%"
       ]
+    , it "should render generic arguments to the padding-left property correctly"
+      [ renderProperties [paddingLeft initial]
+          `shouldEqual` "padding-left:initial"
+      , renderProperties [paddingLeft inherit]
+          `shouldEqual` "padding-left:inherit"
+      , renderProperties [paddingLeft unset]
+          `shouldEqual` "padding-left:unset"
+      , renderProperties [paddingLeft (other "foo")]
+          `shouldEqual` "padding-left:foo"
+      , renderProperties [paddingLeft (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "padding-left:-webkit-foo;padding-left:-moz-foo"
+      -- , renderProperties [paddingLeft all]
+      --     `shouldEqual` "padding-left:should not compile"
+      -- , renderProperties [paddingLeft auto]
+      --     `shouldEqual` "padding-left:should not compile"
+      -- , renderProperties [paddingLeft baseline]
+      --     `shouldEqual` "padding-left:should not compile"
+      -- , renderProperties [paddingLeft center]
+      --     `shouldEqual` "padding-left:should not compile"
+      -- , renderProperties [paddingLeft none]
+      --     `shouldEqual` "padding-left:should not compile"          
+      -- , renderProperties [paddingLeft normal]
+      --     `shouldEqual` "padding-left:should not compile"
+      -- , renderProperties [paddingLeft visible]
+      --     `shouldEqual` "padding-left:should not compile"
+      -- , renderProperties [paddingLeft hidden]
+      --     `shouldEqual` "padding-left:should not compile"
+      ]      
     , it "should render the padding-right property correctly"
       [ renderProperties [paddingRight (px 20)]
           `shouldEqual` "padding-right:20px"
       , renderProperties [paddingRight (pct 20)]
           `shouldEqual` "padding-right:20%"
       ]
+    , it "should render generic arguments to the padding-right property correctly"
+      [ renderProperties [paddingRight initial]
+          `shouldEqual` "padding-right:initial"
+      , renderProperties [paddingRight inherit]
+          `shouldEqual` "padding-right:inherit"
+      , renderProperties [paddingRight unset]
+          `shouldEqual` "padding-right:unset"
+      , renderProperties [paddingRight (other "foo")]
+          `shouldEqual` "padding-right:foo"
+      , renderProperties [paddingRight (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "padding-right:-webkit-foo;padding-right:-moz-foo"
+      -- , renderProperties [paddingRight all]
+      --     `shouldEqual` "padding-right:should not compile"
+      -- , renderProperties [paddingRight auto]
+      --     `shouldEqual` "padding-right:should not compile"
+      -- , renderProperties [paddingRight baseline]
+      --     `shouldEqual` "padding-right:should not compile"
+      -- , renderProperties [paddingRight center]
+      --     `shouldEqual` "padding-right:should not compile"
+      -- , renderProperties [paddingRight none]
+      --     `shouldEqual` "padding-right:should not compile"          
+      -- , renderProperties [paddingRight normal]
+      --     `shouldEqual` "padding-right:should not compile"
+      -- , renderProperties [paddingRight visible]
+      --     `shouldEqual` "padding-right:should not compile"
+      -- , renderProperties [paddingRight hidden]
+      --     `shouldEqual` "padding-right:should not compile"
+      ]
     ]
   , describe "The margin functions"
     [ it "should render the margin property correctly"
-      [ renderProperties [margin (px 20) (px 30) (px 40) (px 50)]
+      [ renderProperties [margin (rect (px 20) (px 30) (px 40) (px 50))]
           `shouldEqual` "margin:20px 30px 40px 50px"
-      , renderProperties [margin (pct 20) (pct 30) (pct 40) (pct 50)]
+      , renderProperties [margin (rect (pct 20) (pct 30) (pct 40) (pct 50))]
           `shouldEqual` "margin:20% 30% 40% 50%"
+      , renderProperties [margin (rect abs0 (px 30) (px 40) abs0)]
+          `shouldEqual` "margin:0 30px 40px 0"
+      , renderProperties [margin (rect (pct 20) rel0 (pct 40) (pct 50))]
+          `shouldEqual` "margin:20% 0 40% 50%"
+      -- , renderProperties [margin (rect (px 20) (em 30) (em 40) (em 50))]
+      --     `shouldEqual` "margin:will not compile"
+      -- , renderProperties [margin (rect (em 20) (px 30) (em 40) (em 50))]
+      --     `shouldEqual` "margin:will not compile"
+      -- , renderProperties [margin (rect abs0 (em 30) (em 40) (em 50))]
+      --     `shouldEqual` "margin:will not compile"
+      -- , renderProperties [margin (rect (px 20) (px 30) rel0 (px 50))]
+      --     `shouldEqual` "margin:will not compile"
       ]
+    , it "should render generic arguments to the margin property correctly"
+      [ renderProperties [margin initial]
+          `shouldEqual` "margin:initial"
+      , renderProperties [margin inherit]
+          `shouldEqual` "margin:inherit"
+      , renderProperties [margin auto]
+          `shouldEqual` "margin:auto"
+      , renderProperties [margin unset]
+          `shouldEqual` "margin:unset"
+      , renderProperties [margin (other "foo")]
+          `shouldEqual` "margin:foo"
+      , renderProperties [margin (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "margin:-webkit-foo;margin:-moz-foo"
+      -- , renderProperties [margin (rect initial (px 30) (px 40) (px 50))]
+      --     `shouldEqual` "margin:should not compile"
+      -- , renderProperties [margin (rect (px 30) initial (px 40) (px 50))]
+      --     `shouldEqual` "margin:should not compile"
+      -- , renderProperties [margin (rect (px 30) (px 40) initial (px 50))]
+      --     `shouldEqual` "margin:should not compile"
+      -- , renderProperties [margin (rect (px 30) (px 40) (px 50) initial)]
+      --     `shouldEqual` "margin:should not compile"
+      -- , renderProperties [margin all]
+      --     `shouldEqual` "margin:should not compile"
+      -- , renderProperties [margin baseline]
+      --     `shouldEqual` "margin:should not compile"
+      -- , renderProperties [margin center]
+      --     `shouldEqual` "margin:should not compile"
+      -- , renderProperties [margin none]
+      --     `shouldEqual` "margin:should not compile"
+      -- , renderProperties [margin normal]
+      --     `shouldEqual` "margin:should not compile"
+      -- , renderProperties [margin visible]
+      --     `shouldEqual` "margin:should not compile"
+      -- , renderProperties [margin hidden]
+      --     `shouldEqual` "margin:should not compile"
+      ]       
     , it "should render the margin-top property correctly"
       [ renderProperties [marginTop (px 20)]
           `shouldEqual` "margin-top:20px"
       , renderProperties [marginTop (pct 20)]
           `shouldEqual` "margin-top:20%"
       ]
-    , it "should render the margin-right property correctly"
-      [ renderProperties [marginRight (px 20)]
-          `shouldEqual` "margin-right:20px"
-      , renderProperties [marginRight (pct 20)]
-          `shouldEqual` "margin-right:20%"
+    , it "should render generic arguments to the margin-top property correctly"
+      [ renderProperties [marginTop initial]
+          `shouldEqual` "margin-top:initial"
+      , renderProperties [marginTop inherit]
+          `shouldEqual` "margin-top:inherit"
+      , renderProperties [marginTop auto]
+          `shouldEqual` "margin-top:auto"
+      , renderProperties [marginTop unset]
+          `shouldEqual` "margin-top:unset"
+      , renderProperties [marginTop (other "foo")]
+          `shouldEqual` "margin-top:foo"
+      , renderProperties [marginTop (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "margin-top:-webkit-foo;margin-top:-moz-foo"
+      -- , renderProperties [marginTop all]
+      --     `shouldEqual` "margin-top:should not compile"
+      -- , renderProperties [marginTop baseline]
+      --     `shouldEqual` "margin-top:should not compile"
+      -- , renderProperties [marginTop center]
+      --     `shouldEqual` "margin-top:should not compile"
+      -- , renderProperties [marginTop none]
+      --     `shouldEqual` "margin-top:should not compile"          
+      -- , renderProperties [marginTop normal]
+      --     `shouldEqual` "margin-top:should not compile"
+      -- , renderProperties [marginTop visible]
+      --     `shouldEqual` "margin-top:should not compile"
+      -- , renderProperties [marginTop hidden]
+      --     `shouldEqual` "margin-top:should not compile"
+      ]
+    , it "should render the margin-bottom property correctly"
+      [ renderProperties [marginBottom (px 20)]
+          `shouldEqual` "margin-bottom:20px"
+      , renderProperties [marginBottom (pct 20)]
+          `shouldEqual` "margin-bottom:20%"
+      ]
+    , it "should render generic arguments to the margin-bottom property correctly"
+      [ renderProperties [marginBottom initial]
+          `shouldEqual` "margin-bottom:initial"
+      , renderProperties [marginBottom inherit]
+          `shouldEqual` "margin-bottom:inherit"
+      , renderProperties [marginBottom auto]
+          `shouldEqual` "margin-bottom:auto"
+      , renderProperties [marginBottom unset]
+          `shouldEqual` "margin-bottom:unset"
+      , renderProperties [marginBottom (other "foo")]
+          `shouldEqual` "margin-bottom:foo"
+      , renderProperties [marginBottom (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "margin-bottom:-webkit-foo;margin-bottom:-moz-foo"
+      -- , renderProperties [marginBottom all]
+      --     `shouldEqual` "margin-bottom:should not compile"
+      -- , renderProperties [marginBottom baseline]
+      --     `shouldEqual` "margin-bottom:should not compile"
+      -- , renderProperties [marginBottom center]
+      --     `shouldEqual` "margin-bottom:should not compile"
+      -- , renderProperties [marginBottom none]
+      --     `shouldEqual` "margin-bottom:should not compile"          
+      -- , renderProperties [marginBottom normal]
+      --     `shouldEqual` "margin-bottom:should not compile"
+      -- , renderProperties [marginBottom visible]
+      --     `shouldEqual` "margin-bottom:should not compile"
+      -- , renderProperties [marginBottom hidden]
+      --     `shouldEqual` "margin-bottom:should not compile"
       ]
     , it "should render the margin-left property correctly"
       [ renderProperties [marginLeft (px 20)]
@@ -397,11 +661,67 @@ suite = describe "Css.GeometryTests"
       , renderProperties [marginLeft (pct 20)]
           `shouldEqual` "margin-left:20%"
       ]
+    , it "should render generic arguments to the margin-left property correctly"
+      [ renderProperties [marginLeft initial]
+          `shouldEqual` "margin-left:initial"
+      , renderProperties [marginLeft inherit]
+          `shouldEqual` "margin-left:inherit"
+      , renderProperties [marginLeft auto]
+          `shouldEqual` "margin-left:auto"
+      , renderProperties [marginLeft unset]
+          `shouldEqual` "margin-left:unset"
+      , renderProperties [marginLeft (other "foo")]
+          `shouldEqual` "margin-left:foo"
+      , renderProperties [marginLeft (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "margin-left:-webkit-foo;margin-left:-moz-foo"
+      -- , renderProperties [marginLeft all]
+      --     `shouldEqual` "margin-left:should not compile"
+      -- , renderProperties [marginLeft baseline]
+      --     `shouldEqual` "margin-left:should not compile"
+      -- , renderProperties [marginLeft center]
+      --     `shouldEqual` "margin-left:should not compile"
+      -- , renderProperties [marginLeft none]
+      --     `shouldEqual` "margin-left:should not compile"          
+      -- , renderProperties [marginLeft normal]
+      --     `shouldEqual` "margin-left:should not compile"
+      -- , renderProperties [marginLeft visible]
+      --     `shouldEqual` "margin-left:should not compile"
+      -- , renderProperties [marginLeft hidden]
+      --     `shouldEqual` "margin-left:should not compile"
+      ]      
     , it "should render the margin-right property correctly"
       [ renderProperties [marginRight (px 20)]
           `shouldEqual` "margin-right:20px"
       , renderProperties [marginRight (pct 20)]
           `shouldEqual` "margin-right:20%"
+      ]
+    , it "should render generic arguments to the margin-right property correctly"
+      [ renderProperties [marginRight initial]
+          `shouldEqual` "margin-right:initial"
+      , renderProperties [marginRight inherit]
+          `shouldEqual` "margin-right:inherit"
+      , renderProperties [marginRight auto]
+          `shouldEqual` "margin-right:auto"
+      , renderProperties [marginRight unset]
+          `shouldEqual` "margin-right:unset"
+      , renderProperties [marginRight (other "foo")]
+          `shouldEqual` "margin-right:foo"
+      , renderProperties [marginRight (otherPrefixed [webkit_, moz_] "foo")]
+          `shouldEqual` "margin-right:-webkit-foo;margin-right:-moz-foo"
+      -- , renderProperties [marginRight all]
+      --     `shouldEqual` "margin-right:should not compile"
+      -- , renderProperties [marginRight baseline]
+      --     `shouldEqual` "margin-right:should not compile"
+      -- , renderProperties [marginRight center]
+      --     `shouldEqual` "margin-right:should not compile"
+      -- , renderProperties [marginRight none]
+      --     `shouldEqual` "margin-right:should not compile"          
+      -- , renderProperties [marginRight normal]
+      --     `shouldEqual` "margin-right:should not compile"
+      -- , renderProperties [marginRight visible]
+      --     `shouldEqual` "margin-right:should not compile"
+      -- , renderProperties [marginRight hidden]
+      --     `shouldEqual` "margin-right:should not compile"
       ]
     ]
   ]
