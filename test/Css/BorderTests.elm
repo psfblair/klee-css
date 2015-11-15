@@ -244,27 +244,202 @@ suite = describe "Css.BorderTests"
           `shouldEqual` "border-color:#73D216"
       , renderProperties [borderColor transparent]
           `shouldEqual` "border-color:transparent"
-      , renderProperties [borderLeftColor green]
+      ]
+    , it "should render generic properties properly"
+      [ renderProperties [ borderColor initial ] 
+          `shouldEqual` "border-color:initial"
+      , renderProperties [ borderColor inherit ] 
+          `shouldEqual` "border-color:inherit"
+      , renderProperties [ borderColor unset ] 
+          `shouldEqual` "border-color:unset"
+      , renderProperties [ borderColor (other "foo") ] 
+          `shouldEqual` "border-color:foo"
+      , renderProperties [ borderColor (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-color:-webkit-foo;border-color:-moz-foo"
+      -- , renderProperties [ borderColor all ]
+      --     `shouldEqual` "border-color:should not compile"
+      -- , renderProperties [ borderColor auto ]
+      --     `shouldEqual` "border-color:should not compile"
+      -- , renderProperties [ borderColor baseline ]
+      --     `shouldEqual` "border-color:should not compile"
+      -- , renderProperties [ borderColor center ]
+      --     `shouldEqual` "border-color:should not compile"
+      -- , renderProperties [ borderColor normal ]
+      --     `shouldEqual` "border-color:should not compile"
+      -- , renderProperties [ borderColor none ]
+      --     `shouldEqual` "border-color:should not compile"
+      -- , renderProperties [ borderColor visible ]
+      --     `shouldEqual` "border-color:should not compile"
+      -- , renderProperties [ borderColor hidden ]
+      --     `shouldEqual` "border-color:should not compile"
+      ]
+    ]
+  , describe "the borderLeftColor function" 
+    [ it "should render the border color properties properly"
+      [ renderProperties [borderLeftColor green]
           `shouldEqual` "border-left-color:#73D216"
       , renderProperties [borderLeftColor transparent]
           `shouldEqual` "border-left-color:transparent"
-      , renderProperties [borderRightColor green]
+      ]
+    , it "should render generic properties properly"
+      [ renderProperties [ borderLeftColor initial ] 
+          `shouldEqual` "border-left-color:initial"
+      , renderProperties [ borderLeftColor inherit ] 
+          `shouldEqual` "border-left-color:inherit"
+      , renderProperties [ borderLeftColor unset ] 
+          `shouldEqual` "border-left-color:unset"
+      , renderProperties [ borderLeftColor (other "foo") ] 
+          `shouldEqual` "border-left-color:foo"
+      , renderProperties [ borderLeftColor (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-left-color:-webkit-foo;border-left-color:-moz-foo"
+      -- , renderProperties [ borderLeftColor all ]
+      --     `shouldEqual` "border-left-color:should not compile"
+      -- , renderProperties [ borderLeftColor auto ]
+      --     `shouldEqual` "border-left-color:should not compile"
+      -- , renderProperties [ borderLeftColor baseline ]
+      --     `shouldEqual` "border-left-color:should not compile"
+      -- , renderProperties [ borderLeftColor center ]
+      --     `shouldEqual` "border-left-color:should not compile"
+      -- , renderProperties [ borderLeftColor normal ]
+      --     `shouldEqual` "border-left-color:should not compile"
+      -- , renderProperties [ borderLeftColor none ]
+      --     `shouldEqual` "border-left-color:should not compile"
+      -- , renderProperties [ borderLeftColor visible ]
+      --     `shouldEqual` "border-left-color:should not compile"
+      -- , renderProperties [ borderLeftColor hidden ]
+      --     `shouldEqual` "border-left-color:should not compile"
+      ]
+    ]    
+  , describe "the borderRightColor function" 
+    [ it "should render the border color properties properly"
+      [ renderProperties [borderRightColor green]
           `shouldEqual` "border-right-color:#73D216"
       , renderProperties [borderRightColor transparent]
           `shouldEqual` "border-right-color:transparent"
-      , renderProperties [borderTopColor green]
+      ]
+    , it "should render generic properties properly"
+      [ renderProperties [ borderRightColor initial ] 
+          `shouldEqual` "border-right-color:initial"
+      , renderProperties [ borderRightColor inherit ] 
+          `shouldEqual` "border-right-color:inherit"
+      , renderProperties [ borderRightColor unset ] 
+          `shouldEqual` "border-right-color:unset"
+      , renderProperties [ borderRightColor (other "foo") ] 
+          `shouldEqual` "border-right-color:foo"
+      , renderProperties [ borderRightColor (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-right-color:-webkit-foo;border-right-color:-moz-foo"
+      -- , renderProperties [ borderRightColor all ]
+      --     `shouldEqual` "border-right-color:should not compile"
+      -- , renderProperties [ borderRightColor auto ]
+      --     `shouldEqual` "border-right-color:should not compile"
+      -- , renderProperties [ borderRightColor baseline ]
+      --     `shouldEqual` "border-right-color:should not compile"
+      -- , renderProperties [ borderRightColor center ]
+      --     `shouldEqual` "border-right-color:should not compile"
+      -- , renderProperties [ borderRightColor normal ]
+      --     `shouldEqual` "border-right-color:should not compile"
+      -- , renderProperties [ borderRightColor none ]
+      --     `shouldEqual` "border-right-color:should not compile"
+      -- , renderProperties [ borderRightColor visible ]
+      --     `shouldEqual` "border-right-color:should not compile"
+      -- , renderProperties [ borderRightColor hidden ]
+      --     `shouldEqual` "border-right-color:should not compile"
+      ]
+    ]    
+  , describe "the borderTopColor function" 
+    [ it "should render the border color properties properly"
+      [ renderProperties [borderTopColor green]
           `shouldEqual` "border-top-color:#73D216"
       , renderProperties [borderTopColor transparent]
           `shouldEqual` "border-top-color:transparent"
-      , renderProperties [borderBottomColor green]
+      ]
+    , it "should render generic properties properly"
+      [ renderProperties [ borderTopColor initial ] 
+          `shouldEqual` "border-top-color:initial"
+      , renderProperties [ borderTopColor inherit ] 
+          `shouldEqual` "border-top-color:inherit"
+      , renderProperties [ borderTopColor unset ] 
+          `shouldEqual` "border-top-color:unset"
+      , renderProperties [ borderTopColor (other "foo") ] 
+          `shouldEqual` "border-top-color:foo"
+      , renderProperties [ borderTopColor (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-top-color:-webkit-foo;border-top-color:-moz-foo"
+      -- , renderProperties [ borderTopColor all ]
+      --     `shouldEqual` "border-top-color:should not compile"
+      -- , renderProperties [ borderTopColor auto ]
+      --     `shouldEqual` "border-top-color:should not compile"
+      -- , renderProperties [ borderTopColor baseline ]
+      --     `shouldEqual` "border-top-color:should not compile"
+      -- , renderProperties [ borderTopColor center ]
+      --     `shouldEqual` "border-top-color:should not compile"
+      -- , renderProperties [ borderTopColor normal ]
+      --     `shouldEqual` "border-top-color:should not compile"
+      -- , renderProperties [ borderTopColor none ]
+      --     `shouldEqual` "border-top-color:should not compile"
+      -- , renderProperties [ borderTopColor visible ]
+      --     `shouldEqual` "border-top-color:should not compile"
+      -- , renderProperties [ borderTopColor hidden ]
+      --     `shouldEqual` "border-top-color:should not compile"
+      ]
+    ]    
+  , describe "the borderBottomColor function" 
+    [ it "should render the border color properties properly"
+      [ renderProperties [borderBottomColor green]
           `shouldEqual` "border-bottom-color:#73D216"
       , renderProperties [borderBottomColor transparent]
           `shouldEqual` "border-bottom-color:transparent"
-      , renderProperties [borderColor4 green black blue white]
-          `shouldEqual` ("border-color:#73D216 #000000 " ++
-                          "#3465A4 #FFFFFF")
       ]
-    ]
+    , it "should render generic properties properly"
+      [ renderProperties [ borderBottomColor initial ] 
+          `shouldEqual` "border-bottom-color:initial"
+      , renderProperties [ borderBottomColor inherit ] 
+          `shouldEqual` "border-bottom-color:inherit"
+      , renderProperties [ borderBottomColor unset ] 
+          `shouldEqual` "border-bottom-color:unset"
+      , renderProperties [ borderBottomColor (other "foo") ] 
+          `shouldEqual` "border-bottom-color:foo"
+      , renderProperties [ borderBottomColor (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-bottom-color:-webkit-foo;border-bottom-color:-moz-foo"
+      -- , renderProperties [ borderBottomColor all ]
+      --     `shouldEqual` "border-bottom-color:should not compile"
+      -- , renderProperties [ borderBottomColor auto ]
+      --     `shouldEqual` "border-bottom-color:should not compile"
+      -- , renderProperties [ borderBottomColor baseline ]
+      --     `shouldEqual` "border-bottom-color:should not compile"
+      -- , renderProperties [ borderBottomColor center ]
+      --     `shouldEqual` "border-bottom-color:should not compile"
+      -- , renderProperties [ borderBottomColor normal ]
+      --     `shouldEqual` "border-bottom-color:should not compile"
+      -- , renderProperties [ borderBottomColor none ]
+      --     `shouldEqual` "border-bottom-color:should not compile"
+      -- , renderProperties [ borderBottomColor visible ]
+      --     `shouldEqual` "border-bottom-color:should not compile"
+      -- , renderProperties [ borderBottomColor hidden ]
+      --     `shouldEqual` "border-bottom-color:should not compile"
+      ]
+    ]    
+  , describe "the borderColor4 function" 
+    [ it "should render the border color properties properly"
+      [ renderProperties [ borderColor4 green black blue white ]
+          `shouldEqual` ("border-color:#73D216 #000000 #3465A4 #FFFFFF")
+      , renderProperties [ borderColor4 transparent black blue white ]
+          `shouldEqual` ("border-color:transparent #000000 #3465A4 #FFFFFF")
+      ]
+    , it "should not accept generic properties"
+      [
+        -- renderProperties [ borderColor4 initial black blue white ] 
+        --   `shouldEqual` "border-bottom-color:should not compile"
+        -- ,
+        -- renderProperties [ borderColor4 black inherit blue white ] 
+        --   `shouldEqual` "border-bottom-color:should not compile"
+        -- ,
+        -- renderProperties [ borderColor4 black blue unset white ] 
+        --   `shouldEqual` "border-bottom-color:should not compile"
+        -- ,
+        -- renderProperties [ borderColor4 black blue white initial ] 
+        --   `shouldEqual` "border-bottom-color:should not compile"
+      ]
+    ]    
   , describe "the borderStyle function" 
     [ it "should render the border style properties properly"
       [ renderProperties [borderStyle groove]
