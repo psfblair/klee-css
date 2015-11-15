@@ -65,13 +65,13 @@ module Css.Text
 
   ) where
 
-import Css.Internal.Border exposing (StrokeDescriptor, strokeFactory)
 import Css.Internal.List exposing (ListStyleTypeDescriptor, listStyleTypeFactory)
 import Css.Internal.Property exposing 
   (spaceQuadrupleValue, spaceListValue, commaListValue)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Text exposing (..)
 
+import Css.Internal.Box.Border.Stroke as Stroke
 import Css.Internal.Color as Color
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Geometry.Sides as Sides
@@ -243,14 +243,14 @@ blink factory = factory.blink
 
 -------------------------------------------------------------------------------
 
-textDecorationColor : Color.ColorDescriptorWithTransparent {} -> PropertyRuleAppender
+textDecorationColor : Color.BasicColorDescriptor -> PropertyRuleAppender
 textDecorationColor descriptor = 
-  let colorVal = descriptor Color.colorFactoryWithTransparent
+  let colorVal = descriptor Color.colorFactory
   in simpleProperty "text-decoration-color" colorVal
 
-textDecorationStyle : StrokeDescriptor -> PropertyRuleAppender
+textDecorationStyle : Stroke.StrokeDescriptor {} -> PropertyRuleAppender
 textDecorationStyle descriptor = 
-  let strokeVal = descriptor strokeFactory
+  let strokeVal = descriptor Stroke.strokeFactory
   in simpleProperty "text-decoration-style" strokeVal
 
 -------------------------------------------------------------------------------

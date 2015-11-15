@@ -145,6 +145,7 @@ type alias VisibilityFactory =
   , hidden_ : Property.Value
   , inherit_ : Property.Value
   , initial_ : Property.Value
+  , unset_ : Property.Value
   , other_ : Property.Value -> Property.Value
   }
 
@@ -156,6 +157,7 @@ visibilityFactory =
   , hidden_ = Common.hiddenValue
   , inherit_ = Common.inheritValue
   , initial_ = Common.initialValue
+  , unset_ = Common.unsetValue
   , other_ val = Common.otherValue val
   }
 

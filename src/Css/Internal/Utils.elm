@@ -8,7 +8,6 @@ import String
 
 type Either a b = Left a | Right b
 
-
 compose : List (a -> a) -> a -> a
 compose = List.foldl (>>) identity
 
@@ -18,6 +17,9 @@ mapPairwise combineFn xs ys =
   let partiallyBoundFns = List.map combineFn xs
   in partiallyBoundFns |> List.concatMap (\fn -> List.map fn ys)
 
+
+quadrupleOf : a -> (a,a,a,a)
+quadrupleOf item = (item, item, item, item)
 
 {-| Some auxiliary mathematical functions.  -}
 

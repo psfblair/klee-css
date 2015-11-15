@@ -96,9 +96,9 @@ bgWidth width factory = backgroundSizeFactory.partial width
 
 -------------------------------------------------------------------------------
 
-backgroundColor : Color.ColorDescriptorWithTransparent {} -> PropertyRuleAppender
+backgroundColor : Color.BasicColorDescriptor -> PropertyRuleAppender
 backgroundColor colorDescriptor = 
-  let colorValue = colorDescriptor Color.colorFactoryWithTransparent
+  let colorValue = colorDescriptor Color.colorFactory
   in simpleProperty "background-color" colorValue
 
 -------------------------------------------------------------------------------
@@ -196,10 +196,10 @@ withPosition positionDescriptor
        newComponents = WithPositionAndSize position maybeSize innerComponents
    in adjoinComponents newComponents
 
-withBgColor : Color.ColorDescriptorWithTransparent {} -> 
+withBgColor : Color.ColorDescriptor {} -> 
               ComposedBackgroundDescriptor a sz1 sz2 sz3 
 withBgColor colorDescriptor composedDescriptor = 
-   let colorValue = colorDescriptor Color.colorFactoryWithTransparent
+   let colorValue = colorDescriptor Color.nubColorFactory
        innerComponents = composedDescriptor.backgroundComponents
        newComponents = WithColor colorValue innerComponents
    in adjoinComponents newComponents

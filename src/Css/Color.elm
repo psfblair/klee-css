@@ -13,6 +13,8 @@ import String
 import Color exposing (Color)
 import Css.Internal.Color exposing (..)
 import Css.Internal.Utils exposing (toFixed, fromHex)
+
+import Css.Internal.Property as Property
 -------------------------------------------------------------------------------
 
 rgb : Int -> Int -> Int -> ColorDescriptor rec
@@ -74,10 +76,10 @@ hex str factory =
 currentColor : ColorDescriptor rec
 currentColor factory = factory.currentColor
 
-transparent : ColorDescriptorWithTransparent rec
-transparent factory = factory.transparent
+transparent : ColorDescriptor rec
+transparent factory = Property.stringValue "transparent" |> factory.other_
 
-invert : ColorDescriptorWithInvert rec
+invert : NubColorDescriptorWithInvert rec
 invert factory = factory.invert
 
 red : ColorDescriptor rec

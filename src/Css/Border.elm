@@ -1,9 +1,12 @@
 module Css.Border (
-  -- * Stroke type, used for border-style and outline-style.
+
+  -- * Stroke. Used for border-style and outline-style.
+    
   solid, dotted, dashed, double, wavy, groove, ridge, inset, outset
 
   -- * Border properties.
-
+    
+  , aBorderWith
   , border, borderTop, borderLeft, borderBottom, borderRight
   , borderColor, borderLeftColor, borderRightColor, borderTopColor, borderBottomColor, borderColor4
   , borderStyle, borderLeftStyle, borderRightStyle, borderTopStyle, borderBottomStyle, borderStyle4
@@ -13,336 +16,363 @@ module Css.Border (
 
   -- * Outline properties.
 
-  , outline, outlineStyle, outlineWidth, outlineOffset, outlineColor
+  , outline, anOutlineWith
+  , outlineStyle, outlineWidth, outlineOffset, outlineColor
 
   -- * Border radius.
 
-  , borderRadius
-  , borderTopLeftRadius, borderTopRightRadius
-  , borderBottomLeftRadius, borderBottomRightRadius
+  , borderRadius, borderRadius4
+  , borderTopLeftRadius, borderTopLeftRadius2
+  , borderTopRightRadius, borderTopRightRadius2
+  , borderBottomLeftRadius, borderBottomLeftRadius2
+  , borderBottomRightRadius, borderBottomRightRadius2
 
   -- * Collapsing borders model for a table
   , borderCollapse
   , borderSpacing, borderSpacing2
   ) where
 
-import Css.Internal.Property exposing
-  ( Value, stringValue, spacePairValue
-  , spaceTripleValue, spaceQuadrupleValue
-  )
-
 import Css.Internal.Display exposing (VisibilityDescriptor, visibilityFactory)
-import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 
-import Css.Internal.Border exposing (..)
-
+import Css.Internal.Box.Border as Border
+import Css.Internal.Box.Border.Stroke as Stroke
+import Css.Internal.Box.Border.Width as BorderWidth
+import Css.Internal.Box.Outline as Outline
 import Css.Internal.Color as Color
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Geometry.Linear.Absolute as Absolute
+import Css.Internal.Property as Property
+import Css.Internal.Stylesheet as Stylesheet
+import Css.Internal.Utils as Utils
 
 -------------------------------------------------------------------------------
 
-solid : StrokeDescriptor
-solid factory = factory.stroke "solid"
+solid : Stroke.NubStrokeDescriptor rec
+solid = \factory -> factory.stroke "solid"
 
-dotted : StrokeDescriptor
-dotted factory = factory.stroke "dotted"
+dotted : Stroke.NubStrokeDescriptor rec
+dotted = \factory -> factory.stroke "dotted"
 
-dashed : StrokeDescriptor
-dashed factory = factory.stroke "dashed"
+dashed : Stroke.NubStrokeDescriptor rec
+dashed = \factory -> factory.stroke "dashed"
 
-double : StrokeDescriptor
-double factory = factory.stroke "double"
+double : Stroke.NubStrokeDescriptor rec
+double = \factory -> factory.stroke "double"
 
-wavy : StrokeDescriptor
-wavy factory = factory.stroke "wavy"
+wavy : Stroke.NubStrokeDescriptor rec
+wavy = \factory -> factory.stroke "wavy"
 
-groove : StrokeDescriptor
-groove factory = factory.stroke "groove"
+groove : Stroke.NubStrokeDescriptor rec
+groove = \factory -> factory.stroke "groove"
 
-ridge : StrokeDescriptor
-ridge factory = factory.stroke "ridge"
+ridge : Stroke.NubStrokeDescriptor rec
+ridge = \factory -> factory.stroke "ridge"
 
-inset : StrokeDescriptor
-inset factory = factory.stroke "inset"
+inset : Stroke.NubStrokeDescriptor rec
+inset = \factory -> factory.stroke "inset"
 
-outset : StrokeDescriptor
-outset factory = factory.stroke "outset"
+outset : Stroke.NubStrokeDescriptor rec
+outset = \factory -> factory.stroke "outset"
 
 -------------------------------------------------------------------------------
--- TODO Fix these shorthand properties - should take generics too
-border : StrokeDescriptor -> 
-         Linear.SizeDescriptor {} Absolute.Abs -> 
-         Color.ColorDescriptor {} -> 
-         PropertyRuleAppender
-border strokeDescriptor sizeDescriptor colorDescriptor =
-  let stroke = strokeDescriptor strokeFactory
-      valueFactory = spaceTripleValue identity sizeDescriptor colorDescriptor
-      tuple = (stroke, Linear.nubSizeFactory, Color.nubColorFactory)
-  in simpleProperty "border" (valueFactory tuple)
 
-borderTop : StrokeDescriptor -> 
-            Linear.SizeDescriptor {} Absolute.Abs -> 
-            Color.ColorDescriptor {} -> 
-            PropertyRuleAppender
-borderTop strokeDescriptor widthDescriptor colorDescriptor =
-  let stroke = strokeDescriptor strokeFactory
-      valueFactory = spaceTripleValue identity widthDescriptor colorDescriptor
-      tuple = (stroke, Linear.nubSizeFactory, Color.nubColorFactory)
-  in simpleProperty "border-top" (valueFactory tuple)
-
-borderLeft : StrokeDescriptor -> 
-             Linear.SizeDescriptor {} Absolute.Abs -> 
-             Color.ColorDescriptor {} -> 
-             PropertyRuleAppender
-borderLeft strokeDescriptor widthDescriptor colorDescriptor =
-  let stroke = strokeDescriptor strokeFactory
-      valueFactory = spaceTripleValue identity widthDescriptor colorDescriptor
-      tuple = (stroke, Linear.nubSizeFactory, Color.nubColorFactory)
-  in simpleProperty "border-left" (valueFactory tuple)
-
-borderBottom : StrokeDescriptor -> 
-               Linear.SizeDescriptor {} Absolute.Abs -> 
-               Color.ColorDescriptor {} -> 
-               PropertyRuleAppender
-borderBottom strokeDescriptor widthDescriptor colorDescriptor =
-  let stroke = strokeDescriptor strokeFactory
-      valueFactory = spaceTripleValue identity widthDescriptor colorDescriptor
-      tuple = (stroke, Linear.nubSizeFactory, Color.nubColorFactory)
-  in simpleProperty "border-bottom" (valueFactory tuple)
-
-borderRight : StrokeDescriptor -> 
+aBorderWith : Stroke.NubStrokeDescriptor {} -> 
               Linear.SizeDescriptor {} Absolute.Abs -> 
-              Color.ColorDescriptor {} -> 
-              PropertyRuleAppender
-borderRight strokeDescriptor widthDescriptor colorDescriptor =
-  let stroke = strokeDescriptor strokeFactory
-      valueFactory = spaceTripleValue identity widthDescriptor colorDescriptor
-      tuple = (stroke, Linear.nubSizeFactory, Color.nubColorFactory)
-  in simpleProperty "border-right" (valueFactory tuple)
+              Color.ColorDescriptor {} ->
+              Border.BorderDescriptor
+aBorderWith strokeDescriptor widthDescriptor colorDescriptor factory =
+  factory.border strokeDescriptor widthDescriptor colorDescriptor
+  
+border : Border.BorderDescriptor -> Stylesheet.PropertyRuleAppender
+border borderDescriptor =
+  let borderValue = borderDescriptor Border.borderFactory
+  in Stylesheet.simpleProperty "border" borderValue
+
+borderTop : Border.BorderDescriptor -> Stylesheet.PropertyRuleAppender
+borderTop borderDescriptor =
+  let borderValue = borderDescriptor Border.borderFactory
+  in Stylesheet.simpleProperty "border-top" borderValue
+
+borderLeft : Border.BorderDescriptor -> Stylesheet.PropertyRuleAppender
+borderLeft borderDescriptor =
+  let borderValue = borderDescriptor Border.borderFactory
+  in Stylesheet.simpleProperty "border-left" borderValue
+
+borderBottom : Border.BorderDescriptor -> Stylesheet.PropertyRuleAppender
+borderBottom borderDescriptor =
+  let borderValue = borderDescriptor Border.borderFactory
+  in Stylesheet.simpleProperty "border-bottom" borderValue
+
+borderRight : Border.BorderDescriptor -> Stylesheet.PropertyRuleAppender
+borderRight borderDescriptor =
+  let borderValue = borderDescriptor Border.borderFactory
+  in Stylesheet.simpleProperty "border-right" borderValue
 
 -------------------------------------------------------------------------------
 
-borderColor : Color.BasicColorDescriptor -> PropertyRuleAppender
+borderColor : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
 borderColor colorDescriptor =
   let colorValue = colorDescriptor Color.colorFactory
-  in simpleProperty "border-color" colorValue
-
-borderLeftColor : Color.BasicColorDescriptor -> PropertyRuleAppender
-borderLeftColor colorDescriptor =
-  let colorValue = colorDescriptor Color.colorFactory
-  in simpleProperty "border-left-color" colorValue
-
-borderRightColor : Color.BasicColorDescriptor -> PropertyRuleAppender
-borderRightColor colorDescriptor =
-  let colorValue = colorDescriptor Color.colorFactory
-  in simpleProperty "border-right-color" colorValue
-
-borderTopColor : Color.BasicColorDescriptor -> PropertyRuleAppender
-borderTopColor colorDescriptor =
-  let colorValue = colorDescriptor Color.colorFactory
-  in simpleProperty "border-top-color" colorValue
-
-borderBottomColor : Color.BasicColorDescriptor -> PropertyRuleAppender
-borderBottomColor colorDescriptor =
-  let colorValue = colorDescriptor Color.colorFactory
-  in simpleProperty "border-bottom-color" colorValue
+  in Stylesheet.simpleProperty "border-color" colorValue
 
 borderColor4 : Color.ColorDescriptor {} -> 
                Color.ColorDescriptor {} -> 
                Color.ColorDescriptor {} -> 
                Color.ColorDescriptor {} -> 
-               PropertyRuleAppender
+               Stylesheet.PropertyRuleAppender
 borderColor4 topColor rightColor bottomColor leftColor =
-  let colorFactory = Color.nubColorFactory
-      -- This looks backwards because the descriptors are the functions that 
-      -- construct values and the factories are what those functions are applied to.
-      valueFactory = spaceQuadrupleValue topColor rightColor bottomColor leftColor      
-      tuple = (colorFactory, colorFactory, colorFactory, colorFactory)
-  in simpleProperty "border-color" (valueFactory tuple)
+  let compositeDescriptor = 
+        Property.spaceQuadrupleValue topColor rightColor bottomColor leftColor      
+      factory = Utils.quadrupleOf Color.nubColorFactory
+  in Stylesheet.simpleProperty "border-color" (compositeDescriptor factory)
+
+borderLeftColor : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
+borderLeftColor colorDescriptor =
+  let colorValue = colorDescriptor Color.colorFactory
+  in Stylesheet.simpleProperty "border-left-color" colorValue
+
+borderRightColor : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
+borderRightColor colorDescriptor =
+  let colorValue = colorDescriptor Color.colorFactory
+  in Stylesheet.simpleProperty "border-right-color" colorValue
+
+borderTopColor : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
+borderTopColor colorDescriptor =
+  let colorValue = colorDescriptor Color.colorFactory
+  in Stylesheet.simpleProperty "border-top-color" colorValue
+
+borderBottomColor : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
+borderBottomColor colorDescriptor =
+  let colorValue = colorDescriptor Color.colorFactory
+  in Stylesheet.simpleProperty "border-bottom-color" colorValue
 
 -------------------------------------------------------------------------------
 
-borderStyle : StrokeDescriptor -> PropertyRuleAppender
+borderStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
 borderStyle strokeDescriptor =
-  let style = strokeDescriptor strokeFactory
-  in simpleProperty "border-style" style
+  let style = strokeDescriptor Stroke.strokeFactory
+  in Stylesheet.simpleProperty "border-style" style
 
-borderLeftStyle : StrokeDescriptor -> PropertyRuleAppender
+borderStyle4 : Stroke.NubStrokeDescriptor {} ->
+               Stroke.NubStrokeDescriptor {} ->
+               Stroke.NubStrokeDescriptor {} ->
+               Stroke.NubStrokeDescriptor {} ->
+               Stylesheet.PropertyRuleAppender
+borderStyle4 topStroke rightStroke bottomStroke leftStroke  =
+  let compositeDescriptor = 
+        Property.spaceQuadrupleValue topStroke rightStroke bottomStroke leftStroke
+      factory = Utils.quadrupleOf Stroke.nubStrokeFactory
+  in Stylesheet.simpleProperty "border-style" (compositeDescriptor factory)
+
+borderLeftStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
 borderLeftStyle strokeDescriptor =
-  let style = strokeDescriptor strokeFactory
-  in simpleProperty "border-left-style" style
+  let style = strokeDescriptor Stroke.strokeFactory
+  in Stylesheet.simpleProperty "border-left-style" style
 
-borderRightStyle : StrokeDescriptor -> PropertyRuleAppender
+borderRightStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
 borderRightStyle strokeDescriptor =
-  let style = strokeDescriptor strokeFactory
-  in simpleProperty "border-right-style" style
+  let style = strokeDescriptor Stroke.strokeFactory
+  in Stylesheet.simpleProperty "border-right-style" style
 
-borderTopStyle : StrokeDescriptor -> PropertyRuleAppender
+borderTopStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
 borderTopStyle strokeDescriptor =
-  let style = strokeDescriptor strokeFactory
-  in simpleProperty "border-top-style" style
+  let style = strokeDescriptor Stroke.strokeFactory
+  in Stylesheet.simpleProperty "border-top-style" style
 
-borderBottomStyle : StrokeDescriptor -> PropertyRuleAppender
+borderBottomStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
 borderBottomStyle strokeDescriptor =
-  let style = strokeDescriptor strokeFactory
-  in simpleProperty "border-bottom-style" style
-
-borderStyle4 : StrokeDescriptor ->
-               StrokeDescriptor ->
-               StrokeDescriptor ->
-               StrokeDescriptor ->
-               PropertyRuleAppender
-borderStyle4 strokeDescriptorA strokeDescriptorB strokeDescriptorC strokeDescriptorD =
-  let strokeA = strokeDescriptorA strokeFactory
-      strokeB = strokeDescriptorB strokeFactory
-      strokeC = strokeDescriptorC strokeFactory
-      strokeD = strokeDescriptorD strokeFactory
-      valueFactory = spaceQuadrupleValue identity identity identity identity
-  in simpleProperty "border-style" (valueFactory (strokeA, strokeB, strokeC, strokeD))
+  let style = strokeDescriptor Stroke.strokeFactory
+  in Stylesheet.simpleProperty "border-bottom-style" style
 
 -------------------------------------------------------------------------------
 
-medium : BorderWidthDescriptor rec
+medium : BorderWidth.BorderWidthDescriptor rec
 medium = \factory -> factory.medium
   
-thin : BorderWidthDescriptor rec
+thin : BorderWidth.BorderWidthDescriptor rec
 thin = \factory -> factory.thin
 
-thick : BorderWidthDescriptor rec
+thick : BorderWidth.BorderWidthDescriptor rec
 thick = \factory -> factory.thick
 
-borderWidth : BasicBorderWidthDescriptor {} -> PropertyRuleAppender
-borderWidth sizeDescriptor = 
-  simpleProperty "border-width" (sizeDescriptor borderWidthFactory)
+-- May be a linear absolute value as well as medium, thick, thin, or generics.
+borderWidth : BorderWidth.BasicBorderWidthDescriptor {} -> 
+              Stylesheet.PropertyRuleAppender
+borderWidth widthDescriptor = 
+  let borderWidthValue = widthDescriptor BorderWidth.borderWidthFactory
+  in Stylesheet.simpleProperty "border-width" borderWidthValue
 
-borderLeftWidth : BasicBorderWidthDescriptor {} -> PropertyRuleAppender
-borderLeftWidth sizeDescriptor =
-  simpleProperty "border-left-width" (sizeDescriptor borderWidthFactory)
-
-borderRightWidth : BasicBorderWidthDescriptor {} -> PropertyRuleAppender
-borderRightWidth sizeDescriptor =
-  simpleProperty "border-right-width" (sizeDescriptor borderWidthFactory)
-
-borderTopWidth : BasicBorderWidthDescriptor {} -> PropertyRuleAppender
-borderTopWidth sizeDescriptor =
-  simpleProperty "border-top-width" (sizeDescriptor borderWidthFactory)
-
-borderBottomWidth : BasicBorderWidthDescriptor {} -> PropertyRuleAppender
-borderBottomWidth sizeDescriptor =
-  simpleProperty "border-bottom-width" (sizeDescriptor borderWidthFactory)
-
-borderWidth4 : BorderWidthDescriptor {} ->
-               BorderWidthDescriptor {} ->
-               BorderWidthDescriptor {} ->
-               BorderWidthDescriptor {} ->
-               PropertyRuleAppender
+borderWidth4 : BorderWidth.BorderWidthDescriptor {} ->
+               BorderWidth.BorderWidthDescriptor {} ->
+               BorderWidth.BorderWidthDescriptor {} ->
+               BorderWidth.BorderWidthDescriptor {} ->
+               Stylesheet.PropertyRuleAppender
 borderWidth4 topWidth rightWidth bottomWidth leftWidth =
-  let valueFactory = 
-        spaceQuadrupleValue topWidth rightWidth bottomWidth leftWidth
-      tuple = (nubBorderWidthFactory, nubBorderWidthFactory, nubBorderWidthFactory, nubBorderWidthFactory)
-  in simpleProperty "border-width" (valueFactory tuple)
+  let widthFactory = BorderWidth.nubBorderWidthFactory
+      compositeDescriptor = 
+        Property.spaceQuadrupleValue topWidth rightWidth bottomWidth leftWidth
+      factory = Utils.quadrupleOf widthFactory
+  in Stylesheet.simpleProperty "border-width" (compositeDescriptor factory)
+
+borderLeftWidth : BorderWidth.BasicBorderWidthDescriptor {} -> 
+                  Stylesheet.PropertyRuleAppender
+borderLeftWidth widthDescriptor = 
+  let borderWidthValue = widthDescriptor BorderWidth.borderWidthFactory
+  in Stylesheet.simpleProperty "border-left-width" borderWidthValue
+
+borderRightWidth : BorderWidth.BasicBorderWidthDescriptor {} -> 
+                   Stylesheet.PropertyRuleAppender
+borderRightWidth widthDescriptor = 
+  let borderWidthValue = widthDescriptor BorderWidth.borderWidthFactory
+  in Stylesheet.simpleProperty "border-right-width" borderWidthValue
+
+borderTopWidth : BorderWidth.BasicBorderWidthDescriptor {} -> 
+                 Stylesheet.PropertyRuleAppender
+borderTopWidth widthDescriptor = 
+  let borderWidthValue = widthDescriptor BorderWidth.borderWidthFactory
+  in Stylesheet.simpleProperty "border-top-width" borderWidthValue
+
+borderBottomWidth : BorderWidth.BasicBorderWidthDescriptor {} -> 
+                    Stylesheet.PropertyRuleAppender
+borderBottomWidth widthDescriptor = 
+  let borderWidthValue = widthDescriptor BorderWidth.borderWidthFactory
+  in Stylesheet.simpleProperty "border-bottom-width" borderWidthValue
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
--- TODO Fix shorthand property - should not take separate arguments like this
-outline : StrokeDescriptor -> 
-          Linear.SizeDescriptor {} Absolute.Abs -> 
-          Color.ColorDescriptorWithInvert {} -> 
-          PropertyRuleAppender
-outline strokeDescriptor sizeDescriptor colorDescriptor =
-  let valueFactory = spaceTripleValue strokeDescriptor sizeDescriptor colorDescriptor
-      tuple = (strokeFactory, Linear.nubSizeFactory, Color.colorFactoryWithInvert)
-  in simpleProperty "outline" (valueFactory tuple)
 
-outlineStyle : StrokeDescriptor -> PropertyRuleAppender
+anOutlineWith : Stroke.NubStrokeDescriptor {} -> 
+                Linear.SizeDescriptor {} Absolute.Abs -> 
+                Color.NubColorDescriptorWithInvert {} ->
+                Outline.OutlineDescriptor
+anOutlineWith strokeDescriptor widthDescriptor colorDescriptor =
+  \factory -> factory.outline strokeDescriptor widthDescriptor colorDescriptor
+
+outline : Outline.OutlineDescriptor -> 
+          Stylesheet.PropertyRuleAppender
+outline outlineDescriptor =
+  let outlineValue = outlineDescriptor Outline.outlineFactory
+  in Stylesheet.simpleProperty "outline" outlineValue
+
+outlineStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
 outlineStyle strokeDescriptor =
-  let style = strokeDescriptor strokeFactory
-  in simpleProperty "outline-style" style
+  let style = strokeDescriptor Stroke.strokeFactory
+  in Stylesheet.simpleProperty "outline-style" style
 
-outlineWidth : BasicBorderWidthDescriptor {} -> PropertyRuleAppender
+outlineWidth : BorderWidth.BasicBorderWidthDescriptor {} -> 
+               Stylesheet.PropertyRuleAppender
 outlineWidth widthDescriptor =
-  simpleProperty "outline-width" (widthDescriptor borderWidthFactory)
+  let widthValue = widthDescriptor BorderWidth.borderWidthFactory
+  in Stylesheet.simpleProperty "outline-width" widthValue
 
-outlineOffset : Linear.BasicSizeDescriptor Absolute.Abs -> PropertyRuleAppender
+outlineOffset : Linear.BasicSizeDescriptor Absolute.Abs -> 
+                Stylesheet.PropertyRuleAppender
 outlineOffset offsetDescriptor =
-  simpleProperty "outline-offset" (offsetDescriptor Linear.basicSizeFactory)
+  let offsetValue = offsetDescriptor Linear.basicSizeFactory
+  in Stylesheet.simpleProperty "outline-offset" offsetValue
 
--------------------------------------------------------------------------------
-outlineColor : Color.ColorDescriptorWithInvert {} -> PropertyRuleAppender
+outlineColor : Color.ColorDescriptorWithInvert {} -> 
+               Stylesheet.PropertyRuleAppender
 outlineColor colorDescriptor = 
   let colorValue = colorDescriptor Color.colorFactoryWithInvert
-  in simpleProperty "outline-color" colorValue
+  in Stylesheet.simpleProperty "outline-color" colorValue
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
--- TODO Should take initial, inherit, other. Do like above, have borderRadius4
-borderRadius : Linear.SizeDescriptor {} a ->
-               Linear.SizeDescriptor {} b ->
-               Linear.SizeDescriptor {} c ->
-               Linear.SizeDescriptor {} d ->
-               PropertyRuleAppender
-borderRadius topLeftRadius topRightRadius bottomRightRadius bottomLeftRadius =
-  let valueFactory = 
-        spaceQuadrupleValue topLeftRadius topRightRadius bottomRightRadius bottomLeftRadius
-      tuple = 
-        (Linear.nubSizeFactory, Linear.nubSizeFactory, Linear.nubSizeFactory, Linear.nubSizeFactory)
-  in simpleProperty "border-radius" (valueFactory tuple)
+-- TODO radius syntax with slashes
+borderRadius : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
+borderRadius radiusDescriptor = 
+  let radiusValue = radiusDescriptor Linear.basicSizeFactory
+  in Stylesheet.simpleProperty "border-radius" radiusValue
 
--- TODO Should take initial, inherit, other
-borderTopLeftRadius : Linear.SizeDescriptor {} a ->
-                      Linear.SizeDescriptor {} b ->
-                      PropertyRuleAppender
-borderTopLeftRadius horizontal vertical =
-  let valueFactory = spacePairValue horizontal vertical 
-      tuple = (Linear.nubSizeFactory, Linear.nubSizeFactory)
-  in simpleProperty "border-top-left-radius" (valueFactory tuple)
+borderRadius4 : Linear.SizeDescriptor {} szTopL ->
+                Linear.SizeDescriptor {} szTopR ->
+                Linear.SizeDescriptor {} szBotL ->
+                Linear.SizeDescriptor {} szBotR ->
+                Stylesheet.PropertyRuleAppender
+borderRadius4 topLRadius topRRadius bottomRRadius bottomLRadius =
+  let topLValue = topLRadius Linear.nubSizeFactory
+      topRValue = topRRadius Linear.nubSizeFactory
+      bottomRValue = bottomRRadius Linear.nubSizeFactory
+      bottomLValue = bottomLRadius Linear.nubSizeFactory
+      valueFactory = 
+        Property.spaceQuadrupleValue identity identity identity identity
+      values = (topLValue, topRValue, bottomRValue, bottomLValue)
+  in Stylesheet.simpleProperty "border-radius" (valueFactory values)
 
--- TODO Should take initial, inherit, other
-borderTopRightRadius : Linear.SizeDescriptor {} a ->
-                       Linear.SizeDescriptor {} b ->
-                       PropertyRuleAppender
-borderTopRightRadius horizontal vertical =
-  let valueFactory = spacePairValue horizontal vertical 
-      tuple = (Linear.nubSizeFactory, Linear.nubSizeFactory)
-  in simpleProperty "border-top-right-radius" (valueFactory tuple)
+borderTopLeftRadius : Linear.BasicSizeDescriptor sz ->
+                      Stylesheet.PropertyRuleAppender
+borderTopLeftRadius radiusDescriptor =
+  let radiusValue = radiusDescriptor Linear.basicSizeFactory
+  in Stylesheet.simpleProperty "border-top-left-radius" radiusValue
 
--- TODO Should take initial, inherit, other
-borderBottomLeftRadius : Linear.SizeDescriptor {} a ->
-                         Linear.SizeDescriptor {} b ->
-                         PropertyRuleAppender
-borderBottomLeftRadius horizontal vertical =
-  let valueFactory = spacePairValue horizontal vertical 
-      tuple = (Linear.nubSizeFactory, Linear.nubSizeFactory)
-  in simpleProperty "border-bottom-left-radius" (valueFactory tuple)
+borderTopLeftRadius2 : Linear.SizeDescriptor {} szH ->
+                       Linear.SizeDescriptor {} szV ->
+                       Stylesheet.PropertyRuleAppender
+borderTopLeftRadius2 horizontal vertical =
+  let compositeDescriptor = Property.spacePairValue horizontal vertical 
+      factory = (Linear.nubSizeFactory, Linear.nubSizeFactory)
+  in Stylesheet.simpleProperty "border-top-left-radius" (compositeDescriptor factory)
 
--- TODO Should take initial, inherit, other
-borderBottomRightRadius : Linear.SizeDescriptor {} a ->
+borderTopRightRadius : Linear.BasicSizeDescriptor sz ->
+                       Stylesheet.PropertyRuleAppender
+borderTopRightRadius radiusDescriptor =
+  let radiusValue = radiusDescriptor Linear.basicSizeFactory
+  in Stylesheet.simpleProperty "border-top-right-radius" radiusValue
+
+borderTopRightRadius2 : Linear.SizeDescriptor {} szH ->
+                        Linear.SizeDescriptor {} szV ->
+                        Stylesheet.PropertyRuleAppender
+borderTopRightRadius2 horizontal vertical =
+  let compositeDescriptor = Property.spacePairValue horizontal vertical 
+      factory = (Linear.nubSizeFactory, Linear.nubSizeFactory)
+  in Stylesheet.simpleProperty "border-top-right-radius" (compositeDescriptor factory)
+
+borderBottomLeftRadius : Linear.BasicSizeDescriptor sz ->
+                         Stylesheet.PropertyRuleAppender
+borderBottomLeftRadius radiusDescriptor =
+  let radiusValue = radiusDescriptor Linear.basicSizeFactory
+  in Stylesheet.simpleProperty "border-bottom-left-radius" radiusValue
+
+borderBottomLeftRadius2 : Linear.SizeDescriptor {} a ->
                           Linear.SizeDescriptor {} b ->
-                          PropertyRuleAppender
-borderBottomRightRadius horizontal vertical =
-  let valueFactory = spacePairValue horizontal vertical 
-      tuple = (Linear.nubSizeFactory, Linear.nubSizeFactory)
-  in simpleProperty "border-bottom-right-radius" (valueFactory tuple)
+                          Stylesheet.PropertyRuleAppender
+borderBottomLeftRadius2 horizontal vertical =
+  let compositeDescriptor = Property.spacePairValue horizontal vertical 
+      factory = (Linear.nubSizeFactory, Linear.nubSizeFactory)
+  in Stylesheet.simpleProperty "border-bottom-left-radius" (compositeDescriptor factory)
 
+borderBottomRightRadius : Linear.BasicSizeDescriptor sz ->
+                          Stylesheet.PropertyRuleAppender
+borderBottomRightRadius radiusDescriptor =
+  let radiusValue = radiusDescriptor Linear.basicSizeFactory
+  in Stylesheet.simpleProperty "border-bottom-right-radius" radiusValue
+
+borderBottomRightRadius2 : Linear.SizeDescriptor {} a ->
+                           Linear.SizeDescriptor {} b ->
+                           Stylesheet.PropertyRuleAppender
+borderBottomRightRadius2 horizontal vertical =
+  let compositeDescriptor = Property.spacePairValue horizontal vertical 
+      factory = (Linear.nubSizeFactory, Linear.nubSizeFactory)
+  in Stylesheet.simpleProperty "border-bottom-right-radius" (compositeDescriptor factory)
+  
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-borderCollapse : VisibilityDescriptor -> PropertyRuleAppender
+borderCollapse : VisibilityDescriptor -> Stylesheet.PropertyRuleAppender
 borderCollapse visibilityDescriptor =
   let visibility = visibilityDescriptor visibilityFactory
-  in simpleProperty "border-collapse" visibility
+  in Stylesheet.simpleProperty "border-collapse" visibility
 
--- TODO Should take initial, inherit, other
-borderSpacing : Linear.SizeDescriptor {} a -> PropertyRuleAppender
+borderSpacing : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
 borderSpacing lengthDescriptor =
-  simpleProperty "border-spacing" (lengthDescriptor Linear.nubSizeFactory)
+  let spacingValue = lengthDescriptor Linear.basicSizeFactory
+  in Stylesheet.simpleProperty "border-spacing" spacingValue
 
--- TODO Should take initial, inherit, other
 borderSpacing2 : Linear.SizeDescriptor {} a ->
                  Linear.SizeDescriptor {} b ->
-                 PropertyRuleAppender
+                 Stylesheet.PropertyRuleAppender
 borderSpacing2 horizontal vertical =
-  let valueFactory = spacePairValue horizontal vertical 
-      tuple = (Linear.nubSizeFactory, Linear.nubSizeFactory)
-  in simpleProperty "border-spacing" (valueFactory tuple)
+  let compositeDescriptor = Property.spacePairValue horizontal vertical 
+      factory = (Linear.nubSizeFactory, Linear.nubSizeFactory)
+  in Stylesheet.simpleProperty "border-spacing" (compositeDescriptor factory)

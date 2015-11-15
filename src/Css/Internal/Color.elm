@@ -1,8 +1,7 @@
 module Css.Internal.Color
   ( ColorDescriptor, nubColorFactory
   , BasicColorDescriptor, colorFactory
-  , NubColorDescriptorWithTransparent, nubColorFactoryWithTransparent
-  , ColorDescriptorWithTransparent, colorFactoryWithTransparent
+  , NubColorDescriptorWithInvert, nubColorFactoryWithInvert
   , ColorDescriptorWithInvert, colorFactoryWithInvert
   , rgbaString, hslaString, invalidRgb, invalidHsl
   , invalidFractionOf1, join
@@ -21,14 +20,11 @@ type alias ColorDescriptor rec = ColorFactory rec -> Property.Value
 
 type alias BasicColorDescriptor = BasicColorFactory {} -> Property.Value
 
-type alias NubColorDescriptorWithTransparent rec =
-  NubColorFactoryWithTransparent rec -> Property.Value
-
-type alias ColorDescriptorWithTransparent rec =
-  ColorFactoryWithTransparent rec -> Property.Value
+type alias NubColorDescriptorWithInvert rec =
+  ColorFactory (WithInvert rec) -> Property.Value
 
 type alias ColorDescriptorWithInvert rec =
-  ColorFactoryWithInvert rec -> Property.Value
+  BasicColorFactory (WithInvert rec) -> Property.Value
 
 -------------------------------------------------------------------------------
 
@@ -63,26 +59,13 @@ colorFactory =
       withUnset   = { withInherit     | unset_   = Common.unsetValue }
   in withUnset
 
-type alias WithTransparent rec = { rec | transparent: Property.Value }
-
-type alias NubColorFactoryWithTransparent rec = 
-  ColorFactory (WithTransparent rec)
-
-nubColorFactoryWithTransparent : NubColorFactoryWithTransparent {}
-nubColorFactoryWithTransparent = 
-  { nubColorFactory | transparent = Property.stringValue "transparent" }
-
-type alias ColorFactoryWithTransparent rec = 
-  BasicColorFactory (WithTransparent rec)
-
-colorFactoryWithTransparent : ColorFactoryWithTransparent {}
-colorFactoryWithTransparent = 
-  { colorFactory | transparent = Property.stringValue "transparent" }
-
 type alias WithInvert rec = { rec | invert: Property.Value }
-type alias ColorFactoryWithInvert rec = BasicColorFactory (WithInvert rec)
 
-colorFactoryWithInvert : ColorFactoryWithInvert {}
+nubColorFactoryWithInvert : ColorFactory (WithInvert {})
+nubColorFactoryWithInvert =
+  { nubColorFactory | invert = Property.stringValue "invert" }
+
+colorFactoryWithInvert : BasicColorFactory (WithInvert {})
 colorFactoryWithInvert =
   { colorFactory | invert = Property.stringValue "invert" }
 
