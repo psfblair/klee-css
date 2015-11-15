@@ -14,10 +14,11 @@ import Css exposing (renderProperties)
 suite : Spec
 suite = describe "Css.FontTests"
   [ describe "the font color properties"
--- TODO can also take currentcolor  
     [ it "can accept a named color"
       [ renderProperties [fontColor green] `shouldEqual` "color:#73D216"
       , renderProperties [color green] `shouldEqual` "color:#73D216"
+      , renderProperties [fontColor currentColor] `shouldEqual` "color:currentColor"
+      , renderProperties [color currentColor] `shouldEqual` "color:currentColor"
       ]
     , it "can accept common properties initial, inherit, unset and other"
       [ renderProperties [fontColor initial] `shouldEqual` "color:initial"

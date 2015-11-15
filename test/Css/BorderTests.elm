@@ -10,7 +10,7 @@ import Css.Geometry exposing (..)
 import Css exposing (renderProperties)
 
 -------------------------------------------------------------------------------
--- TODO Test generic properties
+-- TODO Test generic properties + invert for border color
 
 suite : Spec
 suite = describe "Css.BorderTests"
@@ -24,6 +24,8 @@ suite = describe "Css.BorderTests"
           `shouldEqual` "border-bottom:double 5cm #73D216"
       , renderProperties [borderRight wavy (mm 2.0) green]
           `shouldEqual` "border-right:wavy 2mm #73D216"
+      , renderProperties [borderRight wavy (mm 2.0) currentColor]
+          `shouldEqual` "border-right:wavy 2mm currentColor"
       -- Relative widths should not compile; uncomment to see:
       -- , border solid (pct 20) green `shouldEqual` border solid (pct 20) green
       -- , borderTop dotted (pct 20) antiquewhite `shouldEqual` borderTop dotted (pct 20) antiquewhite
@@ -59,7 +61,8 @@ suite = describe "Css.BorderTests"
           `shouldEqual` "border-bottom-style:solid"
       , renderProperties [borderStyle4 solid solid solid solid]
           `shouldEqual` "border-style:solid solid solid solid"
-      ]
+      ]    
+-- TODO Test thin, thick, medium, generics        
     , it "should render the border width properties properly"
       [ renderProperties [borderWidth (inches 3.8)]
           `shouldEqual` "border-width:3.8in"
@@ -91,7 +94,7 @@ suite = describe "Css.BorderTests"
           `shouldEqual` "outline:solid 20px invert"
       -- Relative widths should not compile; uncomment to see:
       -- , outline solid (pct 20) green `shouldEqual` outline solid (pct 20) green
-      ]
+      ]      
     , it "should render the outline color properties correctly"
       [ renderProperties [outlineColor green]
           `shouldEqual` "outline-color:#73D216"
@@ -101,10 +104,16 @@ suite = describe "Css.BorderTests"
     , it "should render the outline style properties properly"
       [ renderProperties [outlineStyle solid]
           `shouldEqual` "outline-style:solid"
-      ]
+      ]      
     , it "should render the outline width properties properly"
       [ renderProperties [outlineWidth (px 20)]
           `shouldEqual` "outline-width:20px"
+      , renderProperties [outlineWidth thin]
+            `shouldEqual` "outline-width:thin"
+      , renderProperties [outlineWidth medium]
+            `shouldEqual` "outline-width:medium"
+      , renderProperties [outlineWidth thick]
+            `shouldEqual` "outline-width:thick"
       -- Relative widths should not compile; uncomment to see:
       -- , outlineWidth (pct 20) `shouldEqual` outlineWidth (pct 20)
       ]

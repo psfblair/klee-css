@@ -14,7 +14,7 @@ module Css.Background
 
   -- * The background-color.
 
-  , backgroundColor, transparent
+  , backgroundColor
 
   -- * The background-repeat.
 
@@ -49,9 +49,9 @@ module Css.Background
   ) where
 
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
-import Css.Internal.Color exposing (colorValue)
 
 import Css.Internal.Box.Sizing as BoxSizing
+import Css.Internal.Color as Color
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Geometry.Sides as Sides
 
@@ -96,15 +96,10 @@ bgWidth width factory = backgroundSizeFactory.partial width
 
 -------------------------------------------------------------------------------
 
--- NOTE background-color takes "transparent" as well as the standard color 
--- descriptors, which is one reason we need ColorDescriptor to be parameterized.
-backgroundColor : BackgroundColorDescriptor -> PropertyRuleAppender
+backgroundColor : Color.ColorDescriptorWithTransparent {} -> PropertyRuleAppender
 backgroundColor colorDescriptor = 
-  let color = colorDescriptor backgroundColorFactory
-  in simpleProperty "background-color" (colorValue color)
-
-transparent : BackgroundColorDescriptor
-transparent factory = factory.transparent
+  let colorValue = colorDescriptor Color.colorFactoryWithTransparent
+  in simpleProperty "background-color" colorValue
 
 -------------------------------------------------------------------------------
 
@@ -201,12 +196,12 @@ withPosition positionDescriptor
        newComponents = WithPositionAndSize position maybeSize innerComponents
    in adjoinComponents newComponents
 
-withBgColor : BackgroundColorDescriptor -> 
+withBgColor : Color.ColorDescriptorWithTransparent {} -> 
               ComposedBackgroundDescriptor a sz1 sz2 sz3 
 withBgColor colorDescriptor composedDescriptor = 
-   let color = colorDescriptor backgroundColorFactory
+   let colorValue = colorDescriptor Color.colorFactoryWithTransparent
        innerComponents = composedDescriptor.backgroundComponents
-       newComponents = WithColor color innerComponents
+       newComponents = WithColor colorValue innerComponents
    in adjoinComponents newComponents
 
 withRepeat : BackgroundRepeatDescriptor -> 

@@ -66,27 +66,26 @@ module Css.Text
   ) where
 
 import Css.Internal.Border exposing (StrokeDescriptor, strokeFactory)
-import Css.Internal.Color exposing (BasicColorDescriptor, colorFactory, colorValue)
 import Css.Internal.List exposing (ListStyleTypeDescriptor, listStyleTypeFactory)
 import Css.Internal.Property exposing 
   (spaceQuadrupleValue, spaceListValue, commaListValue)
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Text exposing (..)
 
+import Css.Internal.Color as Color
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Geometry.Sides as Sides
 
 -------------------------------------------------------------------------------
--- TODO Should also allow normal, initial, inherit, other
-letterSpacing : Linear.SizeDescriptor {} a -> PropertyRuleAppender
+
+letterSpacing : Linear.SizeDescriptorWithNormal sz -> PropertyRuleAppender
 letterSpacing sizeDescriptor =
-  let sizeVal = Linear.sizeValue sizeDescriptor
+  let sizeVal = sizeDescriptor Linear.sizeFactoryWithNormal 
   in simpleProperty "letter-spacing" sizeVal
 
--- TODO Should also allow normal, initial, inherit, other
-wordSpacing : Linear.SizeDescriptor {} a -> PropertyRuleAppender
+wordSpacing : Linear.SizeDescriptorWithNormal sz -> PropertyRuleAppender
 wordSpacing sizeDescriptor =
-  let sizeVal = Linear.sizeValue sizeDescriptor
+  let sizeVal = sizeDescriptor Linear.sizeFactoryWithNormal 
   in simpleProperty "word-spacing" sizeVal
 
 -------------------------------------------------------------------------------
@@ -138,13 +137,12 @@ shadowBlur blurDescriptor innerDescriptor factory =
   let innerCompositeShadow = innerDescriptor factory
   in factory.withBlurRadius blurDescriptor innerCompositeShadow.textShadow
 
-shadowColor : BasicColorDescriptor ->
+shadowColor : Color.ColorDescriptor {} ->
               CompositeTextShadowDescriptor hSz vSz blrSz -> 
               CompositeTextShadowDescriptor hSz vSz blrSz
 shadowColor colorDescriptor innerDescriptor factory =
-  let colour = colorDescriptor colorFactory
-      innerCompositeShadow = innerDescriptor factory
-  in factory.withColor colour innerCompositeShadow.textShadow
+  let innerCompositeShadow = innerDescriptor factory
+  in factory.withColor colorDescriptor innerCompositeShadow.textShadow
   
 -------------------------------------------------------------------------------
 
@@ -244,10 +242,10 @@ blink : TextDecorationDescriptor
 blink factory = factory.blink
 
 -------------------------------------------------------------------------------
--- TODO This can take transparent
-textDecorationColor : BasicColorDescriptor -> PropertyRuleAppender
+
+textDecorationColor : Color.ColorDescriptorWithTransparent {} -> PropertyRuleAppender
 textDecorationColor descriptor = 
-  let colorVal = descriptor colorFactory |> colorValue
+  let colorVal = descriptor Color.colorFactoryWithTransparent
   in simpleProperty "text-decoration-color" colorVal
 
 textDecorationStyle : StrokeDescriptor -> PropertyRuleAppender

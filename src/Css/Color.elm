@@ -1,5 +1,6 @@
 module Css.Color
   ( rgb, rgba, hsl, hsla, hex
+  , currentColor, transparent, invert
   , red, orange, yellow, green, blue, purple, brown
   , lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
   , darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
@@ -13,36 +14,36 @@ import Color exposing (Color)
 import Css.Internal.Color exposing (..)
 import Css.Internal.Utils exposing (toFixed, fromHex)
 -------------------------------------------------------------------------------
-  
-rgb : Int -> Int -> Int -> ColorDescriptor a
+
+rgb : Int -> Int -> Int -> ColorDescriptor rec
 rgb r g b factory = 
   if invalidRgb r g b
   then factory.invalid_ 
         ("INVALID COLOR: " ++ join [toString r, toString g, toString b])
   else Color.rgb r g b |> factory.rgbaColor
 
-rgba : Int -> Int -> Int -> Float -> ColorDescriptor a
+rgba : Int -> Int -> Int -> Float -> ColorDescriptor rec
 rgba r g b a factory = 
   if invalidRgb r g b || invalidFractionOf1 a
   then factory.invalid_ 
         ("INVALID COLOR: " ++ join [toString r, toString g, toString b, toString a])
   else Color.rgba r g b a |> factory.rgbaColor
 
-hsl : Int -> Float -> Float -> ColorDescriptor a
+hsl : Int -> Float -> Float -> ColorDescriptor rec
 hsl h s l factory = 
   if invalidHsl h s l
   then factory.invalid_ 
         ("INVALID COLOR: " ++ join [toString h, toString s, toString l])
   else Color.hsl (toFloat h |> degrees) s l |> factory.hslaColor
 
-hsla : Int -> Float -> Float -> Float -> ColorDescriptor a
+hsla : Int -> Float -> Float -> Float -> ColorDescriptor rec
 hsla h s l a factory = 
   if invalidHsl h s l || invalidFractionOf1 a
   then factory.invalid_ 
         ("INVALID COLOR: " ++ join [toString h, toString s, toString l, toString a])
   else Color.hsla (toFloat h |> degrees) s l a |> factory.hslaColor
 
-hex : String -> ColorDescriptor a
+hex : String -> ColorDescriptor rec
 hex str factory =
   let unhex digit1 digit2 = fromHex <| String.fromList [digit1, digit2]
       toAlpha digit1 digit2 = 
@@ -70,107 +71,113 @@ hex str factory =
     Ok color -> factory.rgbaColor color
     Err str -> factory.invalid_ str
 
--- TODO
--- background-color needs transparent as a special color descriptor that yields "transparent"
+currentColor : ColorDescriptor rec
+currentColor factory = factory.currentColor
 
-red : ColorDescriptor a
+transparent : ColorDescriptorWithTransparent rec
+transparent factory = factory.transparent
+
+invert : ColorDescriptorWithInvert rec
+invert factory = factory.invert
+
+red : ColorDescriptor rec
 red factory = Color.red |> factory.rgbaColor
 
-orange : ColorDescriptor a
+orange : ColorDescriptor rec
 orange factory = Color.orange |> factory.rgbaColor
 
-yellow : ColorDescriptor a
+yellow : ColorDescriptor rec
 yellow factory = Color.yellow |> factory.rgbaColor
 
-green : ColorDescriptor a
+green : ColorDescriptor rec
 green factory = Color.green |> factory.rgbaColor
 
-blue : ColorDescriptor a
+blue : ColorDescriptor rec
 blue factory = Color.blue |> factory.rgbaColor
 
-purple : ColorDescriptor a
+purple : ColorDescriptor rec
 purple factory = Color.purple |> factory.rgbaColor
 
-brown : ColorDescriptor a
+brown : ColorDescriptor rec
 brown factory = Color.brown |> factory.rgbaColor
 
 
 
-lightRed : ColorDescriptor a
+lightRed : ColorDescriptor rec
 lightRed factory = Color.lightRed |> factory.rgbaColor
 
-lightOrange : ColorDescriptor a
+lightOrange : ColorDescriptor rec
 lightOrange factory = Color.lightOrange |> factory.rgbaColor
 
-lightYellow : ColorDescriptor a
+lightYellow : ColorDescriptor rec
 lightYellow factory = Color.lightYellow |> factory.rgbaColor
 
-lightGreen : ColorDescriptor a
+lightGreen : ColorDescriptor rec
 lightGreen factory = Color.lightGreen |> factory.rgbaColor
 
-lightBlue : ColorDescriptor a
+lightBlue : ColorDescriptor rec
 lightBlue factory = Color.lightBlue |> factory.rgbaColor
 
-lightPurple : ColorDescriptor a
+lightPurple : ColorDescriptor rec
 lightPurple factory = Color.lightPurple |> factory.rgbaColor
 
-lightBrown : ColorDescriptor a
+lightBrown : ColorDescriptor rec
 lightBrown factory = Color.lightBrown |> factory.rgbaColor
 
 
 
-darkRed : ColorDescriptor a
+darkRed : ColorDescriptor rec
 darkRed factory = Color.darkRed |> factory.rgbaColor
 
-darkOrange : ColorDescriptor a
+darkOrange : ColorDescriptor rec
 darkOrange factory = Color.darkOrange |> factory.rgbaColor
 
-darkYellow : ColorDescriptor a
+darkYellow : ColorDescriptor rec
 darkYellow factory = Color.darkYellow |> factory.rgbaColor
 
-darkGreen : ColorDescriptor a
+darkGreen : ColorDescriptor rec
 darkGreen factory = Color.darkGreen |> factory.rgbaColor
 
-darkBlue : ColorDescriptor a
+darkBlue : ColorDescriptor rec
 darkBlue factory = Color.darkBlue |> factory.rgbaColor
 
-darkPurple : ColorDescriptor a
+darkPurple : ColorDescriptor rec
 darkPurple factory = Color.darkPurple |> factory.rgbaColor
 
-darkBrown : ColorDescriptor a
+darkBrown : ColorDescriptor rec
 darkBrown factory = Color.darkBrown |> factory.rgbaColor
 
 
 
-white : ColorDescriptor a
+white : ColorDescriptor rec
 white factory = Color.white |> factory.rgbaColor
 
-lightGrey : ColorDescriptor a
+lightGrey : ColorDescriptor rec
 lightGrey factory = Color.lightGrey |> factory.rgbaColor
 
-lightGray : ColorDescriptor a
+lightGray : ColorDescriptor rec
 lightGray factory = Color.lightGray |> factory.rgbaColor
 
-grey : ColorDescriptor a
+grey : ColorDescriptor rec
 grey factory = Color.grey |> factory.rgbaColor
 
-gray : ColorDescriptor a
+gray : ColorDescriptor rec
 gray factory = Color.gray |> factory.rgbaColor
 
-darkGrey : ColorDescriptor a
+darkGrey : ColorDescriptor rec
 darkGrey factory = Color.darkGrey |> factory.rgbaColor
 
-darkGray : ColorDescriptor a
+darkGray : ColorDescriptor rec
 darkGray factory = Color.darkGray |> factory.rgbaColor
 
-lightCharcoal : ColorDescriptor a 
+lightCharcoal : ColorDescriptor rec 
 lightCharcoal factory = Color.lightCharcoal |> factory.rgbaColor
 
-charcoal : ColorDescriptor a
+charcoal : ColorDescriptor rec
 charcoal factory = Color.charcoal |> factory.rgbaColor
 
-darkCharcoal : ColorDescriptor a
+darkCharcoal : ColorDescriptor rec
 darkCharcoal factory = Color.darkCharcoal |> factory.rgbaColor
 
-black : ColorDescriptor a
+black : ColorDescriptor rec
 black factory = Color.black |> factory.rgbaColor

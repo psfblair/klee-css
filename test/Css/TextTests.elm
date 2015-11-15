@@ -4,7 +4,7 @@ import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
 import Css.Border exposing (solid)
-import Css.Color exposing (green)
+import Css.Color exposing (green, currentColor, transparent, rgb)
 import Css.Common exposing (..)
 import Css.Geometry exposing (..)
 import Css.List exposing (disc)
@@ -129,6 +129,15 @@ suite = describe "Css.TextTests"
       [ renderProperties 
         [ textShadow (aShadow (px 20) (em 30) |> shadowBlur (px 30) |> shadowColor green) ]
             `shouldEqual` "text-shadow:20px 30em 30px #73D216"
+      , renderProperties 
+        [ textShadow (aShadow (px 20) (em 30) |> shadowColor currentColor) ]
+            `shouldEqual` "text-shadow:20px 30em currentColor"
+      -- , renderProperties 
+      --   [ textShadow (aShadow (px 20) (em 30) |> shadowColor transparent) ]
+      --       `shouldEqual` "text-shadow:should not compile"
+      -- , renderProperties 
+      --   [ textShadow (aShadow (px 20) (em 30) |> shadowColor inherit) ]
+      --       `shouldEqual` "text-shadow:should not compile"
       ]
     , it "should render generic properties properly"
       [ renderProperties [textShadow initial]
@@ -380,15 +389,20 @@ suite = describe "Css.TextTests"
     [ it "should render preset values properly"
       [ renderProperties [ textDecorationColor green ]
           `shouldEqual` "text-decoration-color:#73D216"
+      , renderProperties [ textDecorationColor (rgb 255 255 255) ]
+          `shouldEqual` "text-decoration-color:#FFFFFF"
+      , renderProperties [ textDecorationColor currentColor ]
+          `shouldEqual` "text-decoration-color:currentColor"
+      , renderProperties [ textDecorationColor transparent ]
+          `shouldEqual` "text-decoration-color:transparent"
       ]
     , it "should render generic properties properly"
       [ renderProperties [textDecorationColor initial]
           `shouldEqual` "text-decoration-color:initial"
       , renderProperties [textDecorationColor inherit]
           `shouldEqual` "text-decoration-color:inherit"
--- TODO
-      -- , renderProperties [textDecorationColor unset]
-      --     `shouldEqual` "text-decoration-color:unset"
+      , renderProperties [textDecorationColor unset]
+          `shouldEqual` "text-decoration-color:unset"
       , renderProperties [textDecorationColor (other "foo")]
           `shouldEqual` "text-decoration-color:foo"
       -- Should not compile:

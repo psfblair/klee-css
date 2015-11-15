@@ -179,9 +179,10 @@ clipFactory : ClipFactory a b c d
 clipFactory =
   {
     rect_ top right bottom left = 
-      let szv = Linear.sizeValue
-          quadrupleValue = 
-            Property.commaQuadrupleValue szv szv szv szv (top, right, bottom, left)
+      let quadrupleValueFactory = Property.commaQuadrupleValue top right bottom left
+          tuple = 
+            (Linear.nubSizeFactory, Linear.nubSizeFactory, Linear.nubSizeFactory, Linear.nubSizeFactory)
+          quadrupleValue = quadrupleValueFactory tuple
           prefixValue = Property.stringValue "rect("
           suffixValue = Property.stringValue ")"
       in Property.concatenateValues [ prefixValue, quadrupleValue, suffixValue ]    

@@ -218,7 +218,7 @@ type alias FontFactory sz =
 fontFactory : FontFactory sz
 fontFactory =
   { leaf sizeDescriptor customFonts genericFonts = 
-      let sizeVal = Linear.sizeValue sizeDescriptor
+      let sizeVal = sizeDescriptor Linear.nubSizeFactory 
           baseComponent = BaseComponent sizeVal customFonts genericFonts 
       in { font = CompositeFont baseComponent, fontComponents = baseComponent }
   , composite composer innerComposedFont =

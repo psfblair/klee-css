@@ -1,7 +1,9 @@
 module Css.Internal.Color
-  ( CssColor (..), ColorDescriptor, ColorFactory
-  , BasicColorDescriptor, BasicColorFactory
-  , nubColorFactory, colorFactory, colorValue
+  ( ColorDescriptor, nubColorFactory
+  , BasicColorDescriptor, colorFactory
+  , NubColorDescriptorWithTransparent, nubColorFactoryWithTransparent
+  , ColorDescriptorWithTransparent, colorFactoryWithTransparent
+  , ColorDescriptorWithInvert, colorFactoryWithInvert
   , rgbaString, hslaString, invalidRgb, invalidHsl
   , invalidFractionOf1, join
   ) where
@@ -15,57 +17,74 @@ import Css.Internal.Utils as Utils
 
 -------------------------------------------------------------------------------
 
-type alias ColorDescriptor rec = ColorFactory rec -> CssColor
+type alias ColorDescriptor rec = ColorFactory rec -> Property.Value
 
-type alias BasicColorDescriptor = BasicColorFactory {} -> CssColor
+type alias BasicColorDescriptor = BasicColorFactory {} -> Property.Value
 
-type CssColor
-  = CssRgba ElmColor.Color 
-  | CssHsla ElmColor.Color 
-  | InitialColor
-  | InheritColor
-  | UnsetColor
-  | InvalidColor String
-  | OtherColor Property.Value
+type alias NubColorDescriptorWithTransparent rec =
+  NubColorFactoryWithTransparent rec -> Property.Value
 
--- We make ColorFactory extensible because there are some colors that are not 
--- generally applicable. E.g., invert for outline, or transparent for background.
+type alias ColorDescriptorWithTransparent rec =
+  ColorFactoryWithTransparent rec -> Property.Value
+
+type alias ColorDescriptorWithInvert rec =
+  ColorFactoryWithInvert rec -> Property.Value
+
+-------------------------------------------------------------------------------
+
 type alias ColorFactory rec =
-  { rec | rgbaColor: ElmColor.Color -> CssColor
-        , hslaColor: ElmColor.Color -> CssColor
-        , invalid_ : String -> CssColor
-        , other_ : Property.Value -> CssColor
+  { rec | rgbaColor : ElmColor.Color -> Property.Value
+        , hslaColor : ElmColor.Color -> Property.Value
+        , currentColor : Property.Value
+        , invalid_ : String -> Property.Value
+        , other_ : Property.Value -> Property.Value
   }
 
+-- TODO Create Property.invalidValue to spit out validation errors.
 nubColorFactory : ColorFactory {}
 nubColorFactory =
-  { rgbaColor color = CssRgba color
-  , hslaColor color = CssHsla color
-  , invalid_ str = InvalidColor str
-  , other_ val = OtherColor val
+  { rgbaColor color = rgbaString color |> Property.stringValue
+  , hslaColor color = hslaString color |> Property.stringValue
+  , currentColor = Property.stringValue "currentColor"
+  , invalid_ str = Property.stringValue str
+  , other_ val = Common.otherValue val
   }
 
 type alias BasicColorFactory rec = 
   ColorFactory 
-    (Common.Initial CssColor
-      (Common.Inherit CssColor
-        (Common.Unset CssColor rec)))
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value rec)))
 
 colorFactory : BasicColorFactory {}
 colorFactory =
-  let withInitial = { nubColorFactory | initial_ = InitialColor }
-      withInherit = { withInitial    | inherit_ = InheritColor }
-  in { withInherit | unset_ = UnsetColor }
+  let withInitial = { nubColorFactory | initial_ = Common.initialValue }
+      withInherit = { withInitial     | inherit_ = Common.inheritValue }
+      withUnset   = { withInherit     | unset_   = Common.unsetValue }
+  in withUnset
 
-colorValue : CssColor -> Property.Value
-colorValue cssColor =
-  case cssColor of 
-    CssRgba color ->  rgbaString color |> Property.stringValue
-    CssHsla color ->  hslaString color |> Property.stringValue
-    InitialColor -> Common.initialValue
-    InheritColor -> Common.inheritValue
-    UnsetColor -> Common.unsetValue
-    OtherColor val -> Common.otherValue val
+type alias WithTransparent rec = { rec | transparent: Property.Value }
+
+type alias NubColorFactoryWithTransparent rec = 
+  ColorFactory (WithTransparent rec)
+
+nubColorFactoryWithTransparent : NubColorFactoryWithTransparent {}
+nubColorFactoryWithTransparent = 
+  { nubColorFactory | transparent = Property.stringValue "transparent" }
+
+type alias ColorFactoryWithTransparent rec = 
+  BasicColorFactory (WithTransparent rec)
+
+colorFactoryWithTransparent : ColorFactoryWithTransparent {}
+colorFactoryWithTransparent = 
+  { colorFactory | transparent = Property.stringValue "transparent" }
+
+type alias WithInvert rec = { rec | invert: Property.Value }
+type alias ColorFactoryWithInvert rec = BasicColorFactory (WithInvert rec)
+
+colorFactoryWithInvert : ColorFactoryWithInvert {}
+colorFactoryWithInvert =
+  { colorFactory | invert = Property.stringValue "invert" }
 
 rgbaString : ElmColor.Color -> String
 rgbaString color =

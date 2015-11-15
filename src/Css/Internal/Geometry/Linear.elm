@@ -1,8 +1,9 @@
 module Css.Internal.Geometry.Linear 
-  ( Size, SizeDescriptor, toSize, sizeValue
+  ( Size, SizeDescriptor, SizeFactory, toSize, nubSizeFactory
   , BasicSizeDescriptor, BasicSizeFactory, basicSizeFactory
   , AutoSizableDescriptor, AutoSizableFactory, autoSizableFactory
   , SizeDescriptorWithNone, SizeFactoryWithNone, sizeFactoryWithNone
+  , SizeDescriptorWithNormal, sizeFactoryWithNormal
   
   -- * Generic linear size constructors
   
@@ -48,12 +49,12 @@ type alias AutoSizableDescriptor sz = AutoSizableFactory {} sz -> Property.Value
 -- adds none to initial, inherit, unset
 type alias SizeDescriptorWithNone sz = SizeFactoryWithNone {} sz -> Property.Value
 
+-- adds normal to initial, inherit, unset
+type alias SizeDescriptorWithNormal sz = SizeFactoryWithNormal {} sz -> Property.Value
+
 toSize : a -> Property.Value -> Size a
 toSize constraint val = Size constraint val
 
--- For other modules that use bare size descriptors for more complex descriptors.
-sizeValue : SizeDescriptor {} sz -> Property.Value
-sizeValue descriptor = descriptor nubSizeFactory
 -------------------------------------------------------------------------------
 
 -- | Unitless size (as recommended for line-height).
@@ -171,3 +172,9 @@ type alias SizeFactoryWithNone rec sz =
 
 sizeFactoryWithNone : SizeFactoryWithNone {} sz
 sizeFactoryWithNone = { basicSizeFactory | none_ = Common.noneValue }
+
+type alias SizeFactoryWithNormal rec sz =  
+  BasicSizeFactory (Common.Normal Property.Value rec) sz
+
+sizeFactoryWithNormal : SizeFactoryWithNormal {} sz
+sizeFactoryWithNormal = { basicSizeFactory | normal_ = Common.normalValue }

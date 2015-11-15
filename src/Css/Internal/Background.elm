@@ -1,6 +1,5 @@
 module Css.Internal.Background
-  ( BackgroundColorDescriptor, backgroundColorFactory
-  , BackgroundPositionDescriptor, backgroundPositionFactory
+  ( BackgroundPositionDescriptor, backgroundPositionFactory
   , BackgroundSizeDescriptor, backgroundSizeFactory
   , BackgroundRepeatDescriptor, backgroundRepeatFactory
   , BackgroundImageDescriptor, backgroundImageFactory
@@ -12,8 +11,6 @@ module Css.Internal.Background
 
 import String
 
-import Css.Internal.Color exposing 
-  (CssColor (..), BasicColorFactory, colorFactory, colorValue)
 import Css.Internal.Common exposing 
   (autoValue, initialValue, inheritValue, noneValue, otherValue)
 import Css.Internal.Property exposing 
@@ -40,8 +37,8 @@ type alias BackgroundPositionFactory sz1 sz2 =
 backgroundPositionFactory : BackgroundPositionFactory sz1 sz2
 backgroundPositionFactory = 
   { sizedPosition horizontalDescriptor verticalDescriptor = 
-      let valueFactory = spacePairValue Linear.sizeValue Linear.sizeValue
-      in valueFactory (horizontalDescriptor, verticalDescriptor)
+      let valueFactory = spacePairValue horizontalDescriptor verticalDescriptor
+      in valueFactory (Linear.nubSizeFactory, Linear.nubSizeFactory)
   , sidedPosition horizontal vertical = 
       let sides = (horizontal, vertical)
           valueFactory = spacePairValue Sides.horizontalSideValue Sides.verticalSideValue
@@ -70,29 +67,17 @@ type alias BackgroundSizeFactory szTyp =
 backgroundSizeFactory : BackgroundSizeFactory sz
 backgroundSizeFactory =
   { backgroundSize widthDescriptor heightDescriptor = 
-      let valueFactory = spacePairValue Linear.sizeValue Linear.sizeValue
-      in valueFactory (widthDescriptor, heightDescriptor)
+      let valueFactory = spacePairValue widthDescriptor heightDescriptor
+      in valueFactory (Linear.nubSizeFactory, Linear.nubSizeFactory)
   , partial widthDescriptor = 
-      let valueFactory = spacePairValue Linear.sizeValue identity
-      in valueFactory (widthDescriptor, autoValue)
+      let valueFactory = spacePairValue widthDescriptor identity
+      in valueFactory (Linear.nubSizeFactory, autoValue)
   , named str = stringValue str
   , auto_ = autoValue
   , initial_ = initialValue
   , inherit_ = inheritValue
   , other_ val = otherValue val
   }
-
--------------------------------------------------------------------------------
---TODO Fix when colors are fixed
-type alias BackgroundColorDescriptor = BackgroundColorFactory -> CssColor
-
-type alias TransparentColorFactory = { transparent: CssColor }
-
-type alias BackgroundColorFactory = BasicColorFactory TransparentColorFactory
-
-backgroundColorFactory : BackgroundColorFactory
-backgroundColorFactory = 
-  { colorFactory | transparent = OtherColor (stringValue "transparent") }
 
 -------------------------------------------------------------------------------
 
@@ -167,7 +152,7 @@ type BackgroundAlternative sz1 sz2 sz3
 type BackgroundComponents sz1 sz2 sz3
   = NoComponents
   | WithPositionAndSize Value (Maybe Value) (BackgroundComponents sz1 sz2 sz3)
-  | WithColor CssColor (BackgroundComponents sz1 sz2 sz3)
+  | WithColor Value (BackgroundComponents sz1 sz2 sz3)
   | WithImage Value (BackgroundComponents sz1 sz2 sz3)
   | WithRepeat Value (BackgroundComponents sz1 sz2 sz3)
   | WithOrigin Value (BackgroundComponents sz1 sz2 sz3)
@@ -264,7 +249,7 @@ componentsToValueRecursive : BackgroundComponents sz1 sz2 sz3 ->
                              Maybe Value ->   -- attachment
                              Maybe Value ->   -- origin
                              Maybe Value ->   -- clip
-                             Maybe CssColor ->
+                             Maybe Value ->   -- color
                              Value
 componentsToValueRecursive 
     components mImg mPos mSiz mRepeat mAttach mOrig mClip mColor =
@@ -320,8 +305,6 @@ componentsToValueRecursive
                 (Just (pos), _) -> Just (pos)
                 _ -> Nothing -- Size without position can't happen and is invalid.
 
-            maybeColor = Maybe.map colorValue mColor
-
             allValues = 
               [ mImg
               , maybePositionAndSize
@@ -329,7 +312,7 @@ componentsToValueRecursive
               , mAttach
               , mOrig
               , mClip
-              , maybeColor
+              , mColor
               ] |> List.filterMap identity
               
         in spaceListValue identity allValues

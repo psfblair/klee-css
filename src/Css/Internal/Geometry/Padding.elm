@@ -47,10 +47,10 @@ paddingSizeFactory : Linear.BasicSizeFactory (Linear.Rect Property.Value sz {}) 
 paddingSizeFactory = 
   let basicFactory = Linear.basicSizeFactory
       rectValue topDescriptor rightDescriptor bottomDescriptor leftDescriptor = 
-        let topValue     = Linear.sizeValue topDescriptor   
-            rightValue   = Linear.sizeValue rightDescriptor 
-            bottomValue  = Linear.sizeValue bottomDescriptor
-            leftValue    = Linear.sizeValue leftDescriptor  
+        let topValue     = topDescriptor    Linear.nubSizeFactory
+            rightValue   = rightDescriptor  Linear.nubSizeFactory
+            bottomValue  = bottomDescriptor Linear.nubSizeFactory
+            leftValue    = leftDescriptor   Linear.nubSizeFactory
             valueFactory =
               Property.spaceQuadrupleValue identity identity identity identity
         in valueFactory (topValue, rightValue, bottomValue, leftValue)

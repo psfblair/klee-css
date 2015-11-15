@@ -48,21 +48,21 @@ module Css.Font
 
 import Css.Internal.Property exposing (toLiteral, literalValue, commaListValue)
 import Css.Internal.Stylesheet exposing (simpleProperty, PropertyRuleAppender)
-import Css.Internal.Color exposing 
-  (BasicColorDescriptor, colorFactory, colorValue)
 
 import Css.Internal.Font exposing (..)  
 
+import Css.Internal.Color as Color
 import Css.Internal.Geometry.Linear as Linear
 
 -------------------------------------------------------------------------------
-color : BasicColorDescriptor -> PropertyRuleAppender
+
+color : Color.BasicColorDescriptor -> PropertyRuleAppender
 color colorDescriptor = 
-  let colour = colorDescriptor colorFactory
-  in simpleProperty "color" (colorValue colour)
+  let theColor = colorDescriptor Color.colorFactory
+  in simpleProperty "color" theColor
 
 -- | An alias for `color`.
-fontColor : BasicColorDescriptor -> PropertyRuleAppender
+fontColor : Color.BasicColorDescriptor -> PropertyRuleAppender
 fontColor = color
 
 -------------------------------------------------------------------------------
@@ -198,11 +198,10 @@ weight : Int -> FontWeightDescriptor
 weight i factory = factory.weight (toString i)
 
 -------------------------------------------------------------------------------
--- TODO Fix when we fix sizes
--- TODO also takes normal, initial, inherit, unset, other
-lineHeight : Linear.SizeDescriptor {} c -> PropertyRuleAppender
+
+lineHeight : Linear.SizeDescriptorWithNormal sz -> PropertyRuleAppender
 lineHeight descriptor = 
-  simpleProperty "line-height" (Linear.sizeValue descriptor) 
+  simpleProperty "line-height" (descriptor Linear.sizeFactoryWithNormal) 
 
 -------------------------------------------------------------------------------
 
@@ -244,7 +243,7 @@ withLineHeight lineHeightDescriptor compositeDescriptor compositeFactory =
            WithLineHeight _ _ _ _ as leaf -> fontWithComponents
            BaseComponent size customFonts genericFonts -> 
              let components = 
-               WithLineHeight size (Linear.sizeValue lineHeight) customFonts genericFonts
+               WithLineHeight size (lineHeight Linear.nubSizeFactory) customFonts genericFonts
              in { font = CompositeFont components, fontComponents = components }
            WithWeight weight innerComposedFont -> 
             let components = 

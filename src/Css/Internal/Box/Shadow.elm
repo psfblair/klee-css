@@ -20,7 +20,7 @@ type BoxShadow
   | OtherBoxShadow Property.Value
     
 type ShadowComponents 
-  = ShadowComponents (Property.Value, Property.Value) (Maybe Color.CssColor) Blur Inset
+  = ShadowComponents (Property.Value, Property.Value) (Maybe Property.Value) Blur Inset
 
 type Blur
   = Blur Property.Value Property.Value
@@ -114,8 +114,8 @@ type alias BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp =
 boxShadowFactory : BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp
 boxShadowFactory =
   { sizedShadow xOffsetDescriptor yOffsetDescriptor = 
-      let xSize = Linear.sizeValue xOffsetDescriptor
-          ySize = Linear.sizeValue yOffsetDescriptor
+      let xSize = xOffsetDescriptor Linear.nubSizeFactory 
+          ySize = yOffsetDescriptor Linear.nubSizeFactory
           components = ShadowComponents (xSize, ySize) Nothing NoBlur NoInset
       in { shadow = BoxShadow components, withComponents = components } 
   , withBlur blurDescriptor spreadDescriptor innerShadow = 
@@ -139,8 +139,8 @@ addBlur : Linear.SizeDescriptor {} blurSzTyp ->
           CompositeShadow ->
           ShadowComponents
 addBlur blurDescriptor spreadDescriptor innerShadow = 
-  let blur = Linear.sizeValue blurDescriptor
-      spread = Linear.sizeValue spreadDescriptor
+  let blur = blurDescriptor Linear.nubSizeFactory
+      spread = spreadDescriptor Linear.nubSizeFactory
       blurComponent = Blur blur spread
   in case innerShadow.withComponents of
       ShadowComponents (xSize, ySize) shadowColor _ inset ->
@@ -175,10 +175,10 @@ boxShadowValue boxShadow=
     UnsetBoxShadow -> Common.unsetValue
     OtherBoxShadow val -> Common.otherValue val
 
-extractColorValue : (Maybe Color.CssColor) -> List Property.Value
+extractColorValue : (Maybe Property.Value) -> List Property.Value
 extractColorValue maybeColor =
   case maybeColor of
-    Just color -> [ Color.colorValue color ]
+    Just color -> [ color ]
     Nothing -> []
 
 extractBlurValues : Blur -> List Property.Value

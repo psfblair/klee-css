@@ -14,7 +14,6 @@ module Css.Internal.Text
   , CounterResetDescriptor, counterResetFactory
   ) where
 
-import Css.Internal.Color exposing (ColorDescriptor, CssColor, colorValue)
 import Css.Internal.Common exposing 
   ( initialValue, inheritValue, autoValue
   , noneValue, normalValue, unsetValue, otherValue)
@@ -25,6 +24,7 @@ import Css.Internal.Property exposing
   , spacePairValue, spaceListValue
   )
 
+import Css.Internal.Color as Color
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Geometry.Sides as Sides
 
@@ -95,7 +95,7 @@ type alias CompositeTextShadow = TextShadow WithComponents
 type TextShadowComponent
   = BaseShadow Value Value
   | WithBlurRadius Value TextShadowComponent
-  | WithColor CssColor TextShadowComponent
+  | WithColor Value TextShadowComponent
   | InitialTextShadow
   | InheritTextShadow
   | NoTextShadow
@@ -109,7 +109,7 @@ type alias TextShadowFactory hSz vSz blrSz =
   , withBlurRadius : Linear.SizeDescriptor {} blrSz -> 
                      TextShadowComponent -> 
                      CompositeTextShadow
-  , withColor : CssColor -> 
+  , withColor : Color.ColorDescriptor {} -> 
                 TextShadowComponent -> 
                 CompositeTextShadow
   , initial_ : TextShadow {}
@@ -122,13 +122,15 @@ type alias TextShadowFactory hSz vSz blrSz =
 textShadowFactory : TextShadowFactory hSz vSz blrSz
 textShadowFactory =
   { baseShadow horizontalDescriptor verticalDescriptor = 
-      let horizontal = Linear.sizeValue horizontalDescriptor
-          vertical = Linear.sizeValue verticalDescriptor
+      let horizontal = horizontalDescriptor Linear.nubSizeFactory 
+          vertical = verticalDescriptor Linear.nubSizeFactory
       in BaseShadow horizontal vertical |> toCompositeShadow
   , withBlurRadius radiusDescriptor inner = 
-      let radius = Linear.sizeValue radiusDescriptor
+      let radius = radiusDescriptor Linear.nubSizeFactory
       in WithBlurRadius radius inner |> toCompositeShadow
-  , withColor colour inner = WithColor colour inner |> toCompositeShadow
+  , withColor colorDescriptor inner = 
+      let colorValue = colorDescriptor Color.nubColorFactory
+      in WithColor colorValue inner |> toCompositeShadow
   , initial_ = InitialTextShadow |> toSimpleShadow
   , inherit_ = InheritTextShadow |> toSimpleShadow
   , none_ = NoTextShadow |> toSimpleShadow
@@ -157,7 +159,7 @@ textShadowValue textShadow =
 
 textShadowValueRecursive : TextShadowComponent -> 
                            Maybe Value -> 
-                           Maybe CssColor -> 
+                           Maybe Value -> 
                            Value
 textShadowValueRecursive component maybeRadius maybeColor =
   -- If the TextShadowComponent combinators are called more than once,
@@ -176,13 +178,11 @@ textShadowValueRecursive component maybeRadius maybeColor =
         Nothing -> 
           textShadowValueRecursive inner maybeRadius (Just colour)
     BaseShadow horizontal vertical -> 
-      let maybeColorValue = Maybe.map colorValue maybeColor
-          
-          allValues = 
+      let allValues = 
             [ (Just horizontal)
             , (Just vertical)
             , maybeRadius
-            , maybeColorValue
+            , maybeColor
             ] |> List.filterMap identity
             
       in spaceListValue identity allValues
@@ -211,7 +211,7 @@ type alias TextIndentFactory sz =
   
 textIndentFactory : TextIndentFactory sz
 textIndentFactory =
-  { textIndent sizeDescriptor = Linear.sizeValue sizeDescriptor |> TextIndent
+  { textIndent sizeDescriptor = sizeDescriptor Linear.nubSizeFactory |> TextIndent
   , indentEachLine = IndentEachLine
   , hangingIndent = HangingIndent
   , initial_ = InitialTextIndent
