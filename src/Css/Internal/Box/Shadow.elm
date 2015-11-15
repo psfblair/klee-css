@@ -11,11 +11,6 @@ import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
-type alias BoxShadowDescriptor rec xSzTyp ySzTyp blurTyp spreadTyp
-  = BoxShadowFactory xSzTyp ySzTyp blurTyp spreadTyp -> Shadow rec
-
-type alias Shadow rec = { rec | shadow : BoxShadow }
-
 type BoxShadow 
   = BoxShadow ShadowComponents
   | NoBoxShadow
@@ -23,13 +18,6 @@ type BoxShadow
   | InheritBoxShadow
   | UnsetBoxShadow
   | OtherBoxShadow Property.Value
-
-type alias CompositeShadowDescriptor xSzTyp ySzTyp blurTyp spreadTyp
-  = BoxShadowFactory xSzTyp ySzTyp blurTyp spreadTyp -> CompositeShadow
-
-type alias CompositeShadow = Shadow WithComponents
-
-type alias WithComponents = { withComponents : ShadowComponents }
     
 type ShadowComponents 
   = ShadowComponents (Property.Value, Property.Value) (Maybe Color.CssColor) Blur Inset
@@ -41,6 +29,18 @@ type Blur
 type Inset
   = Inset
   | NoInset
+
+type alias BoxShadowDescriptor rec xSzTyp ySzTyp blurTyp spreadTyp
+  = BoxShadowFactory xSzTyp ySzTyp blurTyp spreadTyp -> Shadow rec
+
+type alias Shadow rec = { rec | shadow : BoxShadow }
+
+type alias CompositeShadowDescriptor xSzTyp ySzTyp blurTyp spreadTyp
+  = BoxShadowFactory xSzTyp ySzTyp blurTyp spreadTyp -> CompositeShadow
+
+type alias CompositeShadow = Shadow WithComponents
+
+type alias WithComponents = { withComponents : ShadowComponents }
 
 -------------------------------------------------------------------------------
 {- boxShadow can be:

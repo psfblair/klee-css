@@ -63,9 +63,7 @@ type alias BoxSizingFactory = BareBoxTypeFactory (WithCommonProperties {})
 
 boxTypeFactory : BoxSizingFactory
 boxTypeFactory = 
-  { boxType str = Property.stringValue str
-  , inherit_ = Common.inheritValue
-  , initial_ = Common.initialValue
-  , unset_ = Common.unsetValue
-  , other_ val = Common.otherValue val
-  }
+  let withInherit = { bareBoxTypeFactory | inherit_ = Common.inheritValue }
+      withInitial = { withInherit | initial_ = Common.initialValue }
+      withUnset   = { withInitial | unset_ = Common.unsetValue }
+  in withUnset
