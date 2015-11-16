@@ -12,7 +12,7 @@ import Css.Internal.Property as Property
 type alias BorderDescriptor = BorderFactory -> Property.Value
 
 type alias BorderFactory =
-  { border : Stroke.NubStrokeDescriptor {} -> 
+  { border : Stroke.NubBorderStyleDescriptor {} -> 
              Linear.SizeDescriptor {} Absolute.Abs -> 
              Color.ColorDescriptor {} -> 
              Property.Value
@@ -28,7 +28,7 @@ borderFactory =
       let compositeDescriptor = 
             Property.spaceTripleValue strokeDescriptor widthDescriptor colorDescriptor
           factory = 
-            (Stroke.nubStrokeFactory, Linear.nubSizeFactory, Color.nubColorFactory)
+            (Stroke.nubBorderStyleStrokeFactory, Linear.nubSizeFactory, Color.nubColorFactory)
       in compositeDescriptor factory
   in { border = borderValue
      , initial_ = Common.initialValue

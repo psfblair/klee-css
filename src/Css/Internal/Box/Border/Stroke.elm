@@ -1,6 +1,9 @@
 module Css.Internal.Box.Border.Stroke
   ( NubStrokeDescriptor, nubStrokeFactory
   , StrokeDescriptor, strokeFactory
+  , NubBorderStrokeDescriptor
+  , NubBorderStyleDescriptor, nubBorderStyleStrokeFactory
+  , BorderStyleDescriptor, borderStyleStrokeFactory
   ) where
   
 import Css.Internal.Property as Property
@@ -11,6 +14,15 @@ import Css.Internal.Common as Common
 type alias StrokeDescriptor rec = StrokeFactory rec -> Property.Value
 
 type alias NubStrokeDescriptor rec = NubStrokeFactory rec -> Property.Value
+
+type alias NubBorderStrokeDescriptor rec = 
+  NubBorderStrokeFactory rec -> Property.Value
+
+type alias NubBorderStyleDescriptor rec =
+  NubBorderStyleStrokeFactory rec -> Property.Value
+  
+type alias BorderStyleDescriptor rec =
+  BorderStyleStrokeFactory rec -> Property.Value
 
 type alias NubStrokeFactory rec =
   { rec | stroke: String -> Property.Value
@@ -27,15 +39,43 @@ type alias StrokeFactory rec =
   NubStrokeFactory 
     (Common.Inherit Property.Value 
       (Common.Initial Property.Value 
-        (Common.Auto Property.Value 
-          (Common.None Property.Value 
-            (Common.Unset Property.Value rec)))))
+        (Common.Unset Property.Value rec)))
 
 strokeFactory : StrokeFactory {}
 strokeFactory =
   let withInherit = { nubStrokeFactory | inherit_ = Common.inheritValue }
       withInitial = { withInherit      | initial_ = Common.initialValue }
-      withAuto    = { withInitial      | auto_    = Common.autoValue }
-      withNone    = { withAuto         | none_    = Common.noneValue }
-      withUnset   = { withNone         | unset_   = Common.unsetValue }
+      withUnset   = { withInitial      | unset_   = Common.unsetValue }
   in withUnset
+
+
+type alias NubBorderStrokeFactory rec =  
+  NubStrokeFactory (Common.None Property.Value rec)
+  
+nubBorderStrokeFactory : NubBorderStrokeFactory {}
+nubBorderStrokeFactory = { nubStrokeFactory | none_ = Common.noneValue }
+
+type alias BorderStrokeFactory rec =  
+  StrokeFactory (Common.None Property.Value rec)
+
+borderStrokeFactory : BorderStrokeFactory {}
+borderStrokeFactory = { strokeFactory | none_ = Common.noneValue }
+
+type alias OutlineStrokeFactory rec = 
+  BorderStrokeFactory (Common.Auto Property.Value rec)
+
+outlineStrokeFactory : OutlineStrokeFactory {}
+outlineStrokeFactory = { borderStrokeFactory | auto_ = Common.autoValue }
+
+type alias NubBorderStyleStrokeFactory rec =  
+  NubBorderStrokeFactory (Common.Hidden Property.Value rec)
+  
+nubBorderStyleStrokeFactory : NubBorderStyleStrokeFactory {}
+nubBorderStyleStrokeFactory = 
+  { nubBorderStrokeFactory | hidden_ = Common.hiddenValue }
+
+type alias BorderStyleStrokeFactory rec = 
+  BorderStrokeFactory (Common.Hidden Property.Value rec)
+
+borderStyleStrokeFactory : BorderStyleStrokeFactory {}
+borderStyleStrokeFactory = { borderStrokeFactory | hidden_ = Common.hiddenValue }

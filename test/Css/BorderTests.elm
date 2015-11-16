@@ -22,7 +22,7 @@ suite = describe "Css.BorderTests"
           `shouldEqual` "border:dotted 0 transparent"
       , renderProperties [ border (aBorderWith dotted abs0 transparent) ]
           `shouldEqual` "border:dotted 0 transparent"
-      -- , renderProperties [ border solid (pct 20) green ] 
+      -- , renderProperties [ border (aBorderWith solid (pct 20) green) ] 
       --     `shouldEqual` "border:should not compile"
       -- , renderProperties [ border (aBorderWith inherit (px 20) green) ]
       --     `shouldEqual` "border:should not compile"
@@ -65,7 +65,7 @@ suite = describe "Css.BorderTests"
           `shouldEqual` "border-top:dotted 0 transparent"
       , renderProperties [ borderTop (aBorderWith dotted abs0 transparent) ]
           `shouldEqual` "border-top:dotted 0 transparent"
-      -- , renderProperties [ borderTop solid (pct 20) green ] 
+      -- , renderProperties [ borderTop (aBorderWith solid (pct 20) green) ] 
       --     `shouldEqual` "border-top:should not compile"
       -- , renderProperties [ borderTop (aBorderWith inherit (px 20) green) ]
       --     `shouldEqual` "border-top:should not compile"
@@ -108,7 +108,7 @@ suite = describe "Css.BorderTests"
           `shouldEqual` "border-bottom:dotted 0 transparent"
       , renderProperties [ borderBottom (aBorderWith dotted abs0 transparent) ]
           `shouldEqual` "border-bottom:dotted 0 transparent"
-      -- , renderProperties [ borderBottom solid (pct 20) green ] 
+      -- , renderProperties [ borderBottom (aBorderWith solid (pct 20) green) ] 
       --     `shouldEqual` "border-bottom:should not compile"
       -- , renderProperties [ borderBottom (aBorderWith inherit (px 20) green) ]
       --     `shouldEqual` "border-bottom:should not compile"
@@ -428,35 +428,228 @@ suite = describe "Css.BorderTests"
     , it "should not accept generic properties"
       [
         -- renderProperties [ borderColor4 initial black blue white ] 
-        --   `shouldEqual` "border-bottom-color:should not compile"
+        --   `shouldEqual` "border-color:should not compile"
         -- ,
         -- renderProperties [ borderColor4 black inherit blue white ] 
-        --   `shouldEqual` "border-bottom-color:should not compile"
+        --   `shouldEqual` "border-color:should not compile"
         -- ,
         -- renderProperties [ borderColor4 black blue unset white ] 
-        --   `shouldEqual` "border-bottom-color:should not compile"
+        --   `shouldEqual` "border-color:should not compile"
         -- ,
         -- renderProperties [ borderColor4 black blue white initial ] 
-        --   `shouldEqual` "border-bottom-color:should not compile"
+        --   `shouldEqual` "border-color:should not compile"
       ]
     ]    
   , describe "the borderStyle function" 
     [ it "should render the border style properties properly"
-      [ renderProperties [borderStyle groove]
+      [ renderProperties [ borderStyle groove ]
           `shouldEqual` "border-style:groove"
-      , renderProperties [borderLeftStyle ridge]
-          `shouldEqual` "border-left-style:ridge"
-      , renderProperties [borderRightStyle inset]
-          `shouldEqual` "border-right-style:inset"
-      , renderProperties [borderTopStyle outset]
-          `shouldEqual` "border-top-style:outset"
-      , renderProperties [borderBottomStyle solid]
-          `shouldEqual` "border-bottom-style:solid"
-      , renderProperties [borderStyle4 solid solid solid solid]
-          `shouldEqual` "border-style:solid solid solid solid"
-      ]    
--- TODO Test thin, thick, medium, generics        
+      , renderProperties [ borderStyle ridge ]
+          `shouldEqual` "border-style:ridge"
+      , renderProperties [ borderStyle inset ]
+          `shouldEqual` "border-style:inset"
+      , renderProperties [ borderStyle outset ]
+          `shouldEqual` "border-style:outset"
+      , renderProperties [ borderStyle solid ]
+          `shouldEqual` "border-style:solid"
+      , renderProperties [ borderStyle dotted ]
+          `shouldEqual` "border-style:dotted"
+      , renderProperties [ borderStyle dashed ]
+          `shouldEqual` "border-style:dashed"
+      , renderProperties [ borderStyle double ]
+          `shouldEqual` "border-style:double"
+      ]
+      -- border style can have hidden and none but not auto
+    , it "should render generic properties properly"
+      [ renderProperties [ borderStyle initial ] 
+          `shouldEqual` "border-style:initial"
+      , renderProperties [ borderStyle inherit ] 
+          `shouldEqual` "border-style:inherit"
+      , renderProperties [ borderStyle hidden ]
+          `shouldEqual` "border-style:hidden"
+      , renderProperties [ borderStyle none ]
+          `shouldEqual` "border-style:none"
+      , renderProperties [ borderStyle unset ] 
+          `shouldEqual` "border-style:unset"
+      , renderProperties [ borderStyle (other "foo") ] 
+          `shouldEqual` "border-style:foo"
+      , renderProperties [ borderStyle (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-style:-webkit-foo;border-style:-moz-foo"
+      -- , renderProperties [ borderStyle all ]
+      --     `shouldEqual` "border-style:should not compile"
+      -- , renderProperties [ borderStyle auto ]
+      --     `shouldEqual` "border-style:should not compile"
+      -- , renderProperties [ borderStyle baseline ]
+      --     `shouldEqual` "border-style:should not compile"
+      -- , renderProperties [ borderStyle center ]
+      --     `shouldEqual` "border-style:should not compile"
+      -- , renderProperties [ borderStyle normal ]
+      --     `shouldEqual` "border-style:should not compile"
+      -- , renderProperties [ borderStyle visible ]
+      --     `shouldEqual` "border-style:should not compile"
+      ]
     ]
+  , describe "the borderLeftStyle function" 
+    [ it "should render the border style properties properly"
+      [ renderProperties [ borderLeftStyle groove ]
+          `shouldEqual` "border-left-style:groove"
+      ]
+      -- border style can have hidden and none but not auto
+    , it "should render generic properties properly"
+      [ renderProperties [ borderLeftStyle initial ] 
+          `shouldEqual` "border-left-style:initial"
+      , renderProperties [ borderLeftStyle inherit ] 
+          `shouldEqual` "border-left-style:inherit"
+      , renderProperties [ borderLeftStyle hidden ]
+          `shouldEqual` "border-left-style:hidden"
+      , renderProperties [ borderLeftStyle none ]
+          `shouldEqual` "border-left-style:none"
+      , renderProperties [ borderLeftStyle unset ] 
+          `shouldEqual` "border-left-style:unset"
+      , renderProperties [ borderLeftStyle (other "foo") ] 
+          `shouldEqual` "border-left-style:foo"
+      , renderProperties [ borderLeftStyle (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-left-style:-webkit-foo;border-left-style:-moz-foo"
+      -- , renderProperties [ borderLeftStyle all ]
+      --     `shouldEqual` "border-left-style:should not compile"
+      -- , renderProperties [ borderLeftStyle auto ]
+      --     `shouldEqual` "border-left-style:should not compile"
+      -- , renderProperties [ borderLeftStyle baseline ]
+      --     `shouldEqual` "border-left-style:should not compile"
+      -- , renderProperties [ borderLeftStyle center ]
+      --     `shouldEqual` "border-left-style:should not compile"
+      -- , renderProperties [ borderLeftStyle normal ]
+      --     `shouldEqual` "border-left-style:should not compile"
+      -- , renderProperties [ borderLeftStyle visible ]
+      --     `shouldEqual` "border-left-style:should not compile"
+      ]
+    ]
+  , describe "the borderRightStyle function" 
+    [ it "should render the border style properties properly"
+      [ renderProperties [ borderRightStyle groove ]
+          `shouldEqual` "border-right-style:groove"
+      ]
+      -- border style can have hidden and none but not auto
+    , it "should render generic properties properly"
+      [ renderProperties [ borderRightStyle initial ] 
+          `shouldEqual` "border-right-style:initial"
+      , renderProperties [ borderRightStyle inherit ] 
+          `shouldEqual` "border-right-style:inherit"
+      , renderProperties [ borderRightStyle hidden ]
+          `shouldEqual` "border-right-style:hidden"
+      , renderProperties [ borderRightStyle none ]
+          `shouldEqual` "border-right-style:none"
+      , renderProperties [ borderRightStyle unset ] 
+          `shouldEqual` "border-right-style:unset"
+      , renderProperties [ borderRightStyle (other "foo") ] 
+          `shouldEqual` "border-right-style:foo"
+      , renderProperties [ borderRightStyle (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-right-style:-webkit-foo;border-right-style:-moz-foo"
+      -- , renderProperties [ borderRightStyle all ]
+      --     `shouldEqual` "border-right-style:should not compile"
+      -- , renderProperties [ borderRightStyle auto ]
+      --     `shouldEqual` "border-right-style:should not compile"
+      -- , renderProperties [ borderRightStyle baseline ]
+      --     `shouldEqual` "border-right-style:should not compile"
+      -- , renderProperties [ borderRightStyle center ]
+      --     `shouldEqual` "border-right-style:should not compile"
+      -- , renderProperties [ borderRightStyle normal ]
+      --     `shouldEqual` "border-right-style:should not compile"
+      -- , renderProperties [ borderRightStyle visible ]
+      --     `shouldEqual` "border-right-style:should not compile"
+      ]
+    ]
+  , describe "the borderTopStyle function" 
+    [ it "should render the border style properties properly"
+      [ renderProperties [ borderTopStyle groove ]
+          `shouldEqual` "border-top-style:groove"
+      ]
+      -- border style can have hidden and none but not auto
+    , it "should render generic properties properly"
+      [ renderProperties [ borderTopStyle initial ] 
+          `shouldEqual` "border-top-style:initial"
+      , renderProperties [ borderTopStyle inherit ] 
+          `shouldEqual` "border-top-style:inherit"
+      , renderProperties [ borderTopStyle hidden ]
+          `shouldEqual` "border-top-style:hidden"
+      , renderProperties [ borderTopStyle none ]
+          `shouldEqual` "border-top-style:none"
+      , renderProperties [ borderTopStyle unset ] 
+          `shouldEqual` "border-top-style:unset"
+      , renderProperties [ borderTopStyle (other "foo") ] 
+          `shouldEqual` "border-top-style:foo"
+      , renderProperties [ borderTopStyle (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-top-style:-webkit-foo;border-top-style:-moz-foo"
+      -- , renderProperties [ borderTopStyle all ]
+      --     `shouldEqual` "border-top-style:should not compile"
+      -- , renderProperties [ borderTopStyle auto ]
+      --     `shouldEqual` "border-top-style:should not compile"
+      -- , renderProperties [ borderTopStyle baseline ]
+      --     `shouldEqual` "border-top-style:should not compile"
+      -- , renderProperties [ borderTopStyle center ]
+      --     `shouldEqual` "border-top-style:should not compile"
+      -- , renderProperties [ borderTopStyle normal ]
+      --     `shouldEqual` "border-top-style:should not compile"
+      -- , renderProperties [ borderTopStyle visible ]
+      --     `shouldEqual` "border-top-style:should not compile"
+      ]
+    ]
+  , describe "the borderBottomStyle function" 
+    [ it "should render the border style properties properly"
+      [ renderProperties [ borderBottomStyle groove ]
+          `shouldEqual` "border-bottom-style:groove"
+      ]
+      -- border style can have hidden and none but not auto
+    , it "should render generic properties properly"
+      [ renderProperties [ borderBottomStyle initial ] 
+          `shouldEqual` "border-bottom-style:initial"
+      , renderProperties [ borderBottomStyle inherit ] 
+          `shouldEqual` "border-bottom-style:inherit"
+      , renderProperties [ borderBottomStyle hidden ]
+          `shouldEqual` "border-bottom-style:hidden"
+      , renderProperties [ borderBottomStyle none ]
+          `shouldEqual` "border-bottom-style:none"
+      , renderProperties [ borderBottomStyle unset ] 
+          `shouldEqual` "border-bottom-style:unset"
+      , renderProperties [ borderBottomStyle (other "foo") ] 
+          `shouldEqual` "border-bottom-style:foo"
+      , renderProperties [ borderBottomStyle (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-bottom-style:-webkit-foo;border-bottom-style:-moz-foo"
+      -- , renderProperties [ borderBottomStyle all ]
+      --     `shouldEqual` "border-bottom-style:should not compile"
+      -- , renderProperties [ borderBottomStyle auto ]
+      --     `shouldEqual` "border-bottom-style:should not compile"
+      -- , renderProperties [ borderBottomStyle baseline ]
+      --     `shouldEqual` "border-bottom-style:should not compile"
+      -- , renderProperties [ borderBottomStyle center ]
+      --     `shouldEqual` "border-bottom-style:should not compile"
+      -- , renderProperties [ borderBottomStyle normal ]
+      --     `shouldEqual` "border-bottom-style:should not compile"
+      -- , renderProperties [ borderBottomStyle visible ]
+      --     `shouldEqual` "border-bottom-style:should not compile"
+      ]
+    ]
+  , describe "the borderStyle4 function" 
+    [ it "should render the border style properties properly"
+      [ renderProperties [ borderStyle4 solid dotted dashed groove ]
+          `shouldEqual` ("border-style:solid dotted dashed groove")
+      ]
+    , it "should not accept generic properties"
+      [
+        -- renderProperties [ borderStyle4 initial dotted dashed groove ] 
+        --   `shouldEqual` "border-style:should not compile"
+        -- ,
+        -- renderProperties [ borderStyle4 solid inherit dashed groove] 
+        --   `shouldEqual` "border-style:should not compile"
+        -- ,
+        -- renderProperties [ borderStyle4 solid dotted unset groove ] 
+        --   `shouldEqual` "border-style:should not compile"
+        -- ,
+        -- renderProperties [ borderStyle4 solid dotted dashed initial ] 
+        --   `shouldEqual` "border-style:should not compile"
+      ]
+    ]    
+-- TODO Test thin, thick, medium, generics        
   , describe "the borderWidth function" 
     [ it "should render the border width properties properly"
       [ renderProperties [borderWidth (inches 3.8)]
@@ -496,6 +689,7 @@ suite = describe "Css.BorderTests"
       , renderProperties [outlineColor invert]
           `shouldEqual` "outline-color:invert"
       ]
+      -- TODO outline style can have auto and none but not hidden      
     , it "should render the outline style properties properly"
       [ renderProperties [outlineStyle solid]
           `shouldEqual` "outline-style:solid"

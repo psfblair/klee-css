@@ -62,26 +62,26 @@ double = \factory -> factory.stroke "double"
 wavy : Stroke.NubStrokeDescriptor rec
 wavy = \factory -> factory.stroke "wavy"
 
-groove : Stroke.NubStrokeDescriptor rec
+groove : Stroke.NubBorderStrokeDescriptor rec
 groove = \factory -> factory.stroke "groove"
 
-ridge : Stroke.NubStrokeDescriptor rec
+ridge : Stroke.NubBorderStrokeDescriptor rec
 ridge = \factory -> factory.stroke "ridge"
 
-inset : Stroke.NubStrokeDescriptor rec
+inset : Stroke.NubBorderStrokeDescriptor rec
 inset = \factory -> factory.stroke "inset"
 
-outset : Stroke.NubStrokeDescriptor rec
+outset : Stroke.NubBorderStrokeDescriptor rec
 outset = \factory -> factory.stroke "outset"
 
 -------------------------------------------------------------------------------
 
-aBorderWith : Stroke.NubStrokeDescriptor {} -> 
+aBorderWith : Stroke.NubBorderStyleDescriptor {} -> 
               Linear.SizeDescriptor {} Absolute.Abs -> 
               Color.ColorDescriptor {} ->
               Border.BorderDescriptor
-aBorderWith strokeDescriptor widthDescriptor colorDescriptor factory =
-  factory.border strokeDescriptor widthDescriptor colorDescriptor
+aBorderWith strokeDescriptor widthDescriptor colorDescriptor =
+  \factory -> factory.border strokeDescriptor widthDescriptor colorDescriptor
   
 border : Border.BorderDescriptor -> Stylesheet.PropertyRuleAppender
 border borderDescriptor =
@@ -148,40 +148,44 @@ borderBottomColor colorDescriptor =
 
 -------------------------------------------------------------------------------
 
-borderStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
+borderStyle : Stroke.BorderStyleDescriptor {} -> Stylesheet.PropertyRuleAppender
 borderStyle strokeDescriptor =
-  let style = strokeDescriptor Stroke.strokeFactory
+  let style = strokeDescriptor Stroke.borderStyleStrokeFactory
   in Stylesheet.simpleProperty "border-style" style
 
-borderStyle4 : Stroke.NubStrokeDescriptor {} ->
-               Stroke.NubStrokeDescriptor {} ->
-               Stroke.NubStrokeDescriptor {} ->
-               Stroke.NubStrokeDescriptor {} ->
+borderStyle4 : Stroke.NubBorderStyleDescriptor {} ->
+               Stroke.NubBorderStyleDescriptor {} ->
+               Stroke.NubBorderStyleDescriptor {} ->
+               Stroke.NubBorderStyleDescriptor {} ->
                Stylesheet.PropertyRuleAppender
 borderStyle4 topStroke rightStroke bottomStroke leftStroke  =
   let compositeDescriptor = 
         Property.spaceQuadrupleValue topStroke rightStroke bottomStroke leftStroke
-      factory = Utils.quadrupleOf Stroke.nubStrokeFactory
+      factory = Utils.quadrupleOf Stroke.nubBorderStyleStrokeFactory
   in Stylesheet.simpleProperty "border-style" (compositeDescriptor factory)
 
-borderLeftStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
+borderLeftStyle : Stroke.BorderStyleDescriptor {} -> 
+                  Stylesheet.PropertyRuleAppender
 borderLeftStyle strokeDescriptor =
-  let style = strokeDescriptor Stroke.strokeFactory
+  let style = strokeDescriptor Stroke.borderStyleStrokeFactory
   in Stylesheet.simpleProperty "border-left-style" style
 
-borderRightStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
+borderRightStyle : Stroke.BorderStyleDescriptor {} -> 
+                   Stylesheet.PropertyRuleAppender
 borderRightStyle strokeDescriptor =
-  let style = strokeDescriptor Stroke.strokeFactory
+  let style = strokeDescriptor Stroke.borderStyleStrokeFactory
   in Stylesheet.simpleProperty "border-right-style" style
 
-borderTopStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
+borderTopStyle : Stroke.BorderStyleDescriptor {} -> 
+                 Stylesheet.PropertyRuleAppender
 borderTopStyle strokeDescriptor =
-  let style = strokeDescriptor Stroke.strokeFactory
+  let style = strokeDescriptor Stroke.borderStyleStrokeFactory
   in Stylesheet.simpleProperty "border-top-style" style
 
-borderBottomStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
+borderBottomStyle : Stroke.BorderStyleDescriptor {} -> 
+                    Stylesheet.PropertyRuleAppender
 borderBottomStyle strokeDescriptor =
-  let style = strokeDescriptor Stroke.strokeFactory
+  let style = strokeDescriptor Stroke.borderStyleStrokeFactory
   in Stylesheet.simpleProperty "border-bottom-style" style
 
 -------------------------------------------------------------------------------

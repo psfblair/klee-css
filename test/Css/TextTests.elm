@@ -319,6 +319,8 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "white-space:should not compile"
       ]
     ]
+-- TODO text-decoration can have neither, only solid double dotted dashed wavy
+-- cannot have the rest of the strokes used in borders        
   , describe "the text decoration function"
     [ it "should render preset values properly"
       [ renderProperties [ textDecoration underline ]
