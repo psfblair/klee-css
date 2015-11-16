@@ -6,7 +6,7 @@ import Css.TestUtils exposing (it)
 import Css.Border exposing (..)
 import Css.Color exposing (..)
 import Css.Common exposing (..)
-import Css.Display exposing (collapse)
+import Css.Display exposing (collapse, separate)
 import Css.Geometry exposing (..)
 import Css exposing (renderProperties)
 
@@ -1167,20 +1167,90 @@ suite = describe "Css.BorderTests"
         --   `shouldEqual` "border-bottom-right-radius:should not compile"
       ]
     ]   
-  , describe "The border collapse function"
-    [ it "should render the border collapse property correctly"
-      [ renderProperties [borderCollapse collapse]
-          `shouldEqual` "border-collapse:collapse"
+  , describe "The borderSpacing function"
+    [ it "should render the border spacing properties correctly"
+      [ renderProperties [ borderSpacing (px 20) ]
+           `shouldEqual` "border-spacing:20px"
+      ,  renderProperties [ borderSpacing (pct 20) ]
+           `shouldEqual` "border-spacing:20%"
+      ]
+    , it "should render generic properties correctly"
+      [ renderProperties [ borderSpacing initial ] 
+          `shouldEqual` "border-spacing:initial"
+      , renderProperties [ borderSpacing inherit ] 
+          `shouldEqual` "border-spacing:inherit"
+      , renderProperties [ borderSpacing unset ] 
+          `shouldEqual` "border-spacing:unset"
+      , renderProperties [ borderSpacing (other "foo") ] 
+          `shouldEqual` "border-spacing:foo"
+      , renderProperties [ borderSpacing (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-spacing:-webkit-foo;border-spacing:-moz-foo"
+      -- , renderProperties [ borderSpacing all ]
+      --     `shouldEqual` "border-spacing:should not compile"
+      -- , renderProperties [ borderSpacing auto ]
+      --     `shouldEqual` "border-spacing:should not compile"
+      -- , renderProperties [ borderSpacing baseline ]
+      --     `shouldEqual` "border-spacing:should not compile"
+      -- , renderProperties [ borderSpacing center ]
+      --     `shouldEqual` "border-spacing:should not compile"
+      -- , renderProperties [ borderSpacing normal ]
+      --     `shouldEqual` "border-spacing:should not compile"
+      -- , renderProperties [ borderSpacing none ]
+      --     `shouldEqual` "border-spacing:should not compile"
+      -- , renderProperties [ borderSpacing visible ]
+      --     `shouldEqual` "border-spacing:should not compile"
+      -- , renderProperties [ borderSpacing hidden ]
+      --     `shouldEqual` "border-spacing:should not compile"
       ]
     ]
-  , describe "The border spacing functions"
+  , describe "The borderSpacing function"
     [ it "should render the border spacing properties correctly"
-      [ renderProperties [borderSpacing (px 20)]
-           `shouldEqual` "border-spacing:20px"
-      ,  renderProperties [borderSpacing (pct 20)]
-           `shouldEqual` "border-spacing:20%"
-      , renderProperties [borderSpacing2 (px 20) (pct 30)]
+      [ renderProperties [ borderSpacing2 (px 20) (pct 30) ]
           `shouldEqual` "border-spacing:20px 30%"
+      ]
+    , it "should not accept generic properties"
+      [
+        -- renderProperties [ borderSpacing2 initial (px 7.6) ] 
+        --   `shouldEqual` "border-spacing:should not compile"
+        -- ,
+        -- renderProperties [ borderSpacing2 (px 7.6) inherit ] 
+        --   `shouldEqual` "border-spacing:should not compile"
+      ]
+    ]
+  , describe "The border collapse function"
+    [ it "should render the border collapse property correctly"
+      [ renderProperties [ borderCollapse collapse ]
+          `shouldEqual` "border-collapse:collapse"
+      , renderProperties [ borderCollapse separate ]
+          `shouldEqual` "border-collapse:separate"
+      ]
+    , it "should render generic properties correctly"
+      [ renderProperties [ borderCollapse initial ] 
+          `shouldEqual` "border-collapse:initial"
+      , renderProperties [ borderCollapse inherit ] 
+          `shouldEqual` "border-collapse:inherit"
+      , renderProperties [ borderCollapse unset ] 
+          `shouldEqual` "border-collapse:unset"
+      , renderProperties [ borderCollapse (other "foo") ] 
+          `shouldEqual` "border-collapse:foo"
+      , renderProperties [ borderCollapse (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-collapse:-webkit-foo;border-collapse:-moz-foo"
+      -- , renderProperties [ borderCollapse all ]
+      --     `shouldEqual` "border-collapse:should not compile"
+      -- , renderProperties [ borderCollapse auto ]
+      --     `shouldEqual` "border-collapse:should not compile"
+      -- , renderProperties [ borderCollapse baseline ]
+      --     `shouldEqual` "border-collapse:should not compile"
+      -- , renderProperties [ borderCollapse center ]
+      --     `shouldEqual` "border-collapse:should not compile"
+      -- , renderProperties [ borderCollapse normal ]
+      --     `shouldEqual` "border-collapse:should not compile"
+      -- , renderProperties [ borderCollapse none ]
+      --     `shouldEqual` "border-collapse:should not compile"
+      -- , renderProperties [ borderCollapse visible ]
+      --     `shouldEqual` "border-collapse:should not compile"
+      -- , renderProperties [ borderCollapse hidden ]
+      --     `shouldEqual` "border-collapse:should not compile"
       ]
     ]
   , describe "The outline functions"

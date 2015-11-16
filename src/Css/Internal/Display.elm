@@ -5,6 +5,7 @@ module Css.Internal.Display
   , DisplayDescriptor, displayFactory
   , OverflowDescriptor, overflowFactory
   , VisibilityDescriptor, visibilityFactory
+  , ExtendedVisibilityDescriptor, extendedVisibilityFactory
   , ClipDescriptor, clipFactory
   , OpacityDescriptor, opacityFactory
   , ZIndexDescriptor, zIndexFactory
@@ -136,30 +137,43 @@ overflowFactory =
 
 -------------------------------------------------------------------------------
 
-type alias VisibilityDescriptor = VisibilityFactory -> Property.Value
+type alias VisibilityDescriptor rec =
+  VisibilityFactory rec -> Property.Value
 
-type alias VisibilityFactory =
-  {
-    visibility : String -> Property.Value
-  , visible_ : Property.Value
-  , hidden_ : Property.Value
-  , inherit_ : Property.Value
-  , initial_ : Property.Value
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value
+type alias VisibilityFactory rec =
+  { rec | visibility : String -> Property.Value
+        , inherit_ : Property.Value
+        , initial_ : Property.Value
+        , unset_ : Property.Value
+        , other_ : Property.Value -> Property.Value
   }
-
-visibilityFactory : VisibilityFactory
+  
+visibilityFactory : VisibilityFactory {}
 visibilityFactory =
   {
     visibility str = Property.stringValue str
-  , visible_ = Common.visibleValue
-  , hidden_ = Common.hiddenValue
   , inherit_ = Common.inheritValue
   , initial_ = Common.initialValue
   , unset_ = Common.unsetValue
   , other_ val = Common.otherValue val
   }
+
+type alias ExtendedVisibilityDescriptor rec = 
+  ExtendedVisibilityFactory rec -> Property.Value
+
+type alias WithExtendedVisibility rec = 
+  { rec | visible_ : Property.Value
+        , hidden_ : Property.Value
+  }
+  
+type alias ExtendedVisibilityFactory rec = 
+  VisibilityFactory (WithExtendedVisibility rec)
+
+extendedVisibilityFactory : ExtendedVisibilityFactory {}
+extendedVisibilityFactory =
+  let withVisible = { visibilityFactory | visible_ = Common.visibleValue }
+      withHidden  = { withVisible       | hidden_  = Common.hiddenValue  }
+  in withHidden
 
 -------------------------------------------------------------------------------
 

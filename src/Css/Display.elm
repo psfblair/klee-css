@@ -204,16 +204,16 @@ scroll factory = factory.overflow "scroll"
 
 -------------------------------------------------------------------------------
 
-visibility : VisibilityDescriptor -> PropertyRuleAppender
+visibility : ExtendedVisibilityDescriptor {} -> PropertyRuleAppender
 visibility descriptor =
-  let visibilityValue = descriptor visibilityFactory
+  let visibilityValue = descriptor extendedVisibilityFactory
   in simpleProperty "visibility" visibilityValue
 
-separate : VisibilityDescriptor
-separate factory = factory.visibility "separate"
+separate : VisibilityDescriptor rec
+separate = \factory -> factory.visibility "separate"
 
-collapse : VisibilityDescriptor
-collapse factory = factory.visibility "collapse"
+collapse : VisibilityDescriptor rec
+collapse = \factory -> factory.visibility "collapse"
 
 -------------------------------------------------------------------------------
 

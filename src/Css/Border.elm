@@ -324,11 +324,6 @@ borderBottomRightRadius2 horizontal vertical =
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-borderCollapse : VisibilityDescriptor -> Stylesheet.PropertyRuleAppender
-borderCollapse visibilityDescriptor =
-  let visibility = visibilityDescriptor visibilityFactory
-  in Stylesheet.simpleProperty "border-collapse" visibility
-
 borderSpacing : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
 borderSpacing lengthDescriptor =
   let spacingValue = lengthDescriptor Linear.basicSizeFactory
@@ -341,6 +336,11 @@ borderSpacing2 horizontal vertical =
   let compositeDescriptor = Property.spacePairValue horizontal vertical 
       factory = (Linear.nubSizeFactory, Linear.nubSizeFactory)
   in Stylesheet.simpleProperty "border-spacing" (compositeDescriptor factory)
+
+borderCollapse : VisibilityDescriptor {} -> Stylesheet.PropertyRuleAppender
+borderCollapse visibilityDescriptor =
+  let visibility = visibilityDescriptor visibilityFactory
+  in Stylesheet.simpleProperty "border-collapse" visibility
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
