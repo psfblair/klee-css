@@ -244,45 +244,6 @@ borderBottomWidth widthDescriptor =
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-
-anOutlineWith : Stroke.NubStrokeDescriptor {} -> 
-                Linear.SizeDescriptor {} Absolute.Abs -> 
-                Color.NubColorDescriptorWithInvert {} ->
-                Outline.OutlineDescriptor
-anOutlineWith strokeDescriptor widthDescriptor colorDescriptor =
-  \factory -> factory.outline strokeDescriptor widthDescriptor colorDescriptor
-
-outline : Outline.OutlineDescriptor -> 
-          Stylesheet.PropertyRuleAppender
-outline outlineDescriptor =
-  let outlineValue = outlineDescriptor Outline.outlineFactory
-  in Stylesheet.simpleProperty "outline" outlineValue
-
-outlineStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
-outlineStyle strokeDescriptor =
-  let style = strokeDescriptor Stroke.strokeFactory
-  in Stylesheet.simpleProperty "outline-style" style
-
-outlineWidth : BorderWidth.BasicBorderWidthDescriptor {} -> 
-               Stylesheet.PropertyRuleAppender
-outlineWidth widthDescriptor =
-  let widthValue = widthDescriptor BorderWidth.borderWidthFactory
-  in Stylesheet.simpleProperty "outline-width" widthValue
-
-outlineOffset : Linear.BasicSizeDescriptor Absolute.Abs -> 
-                Stylesheet.PropertyRuleAppender
-outlineOffset offsetDescriptor =
-  let offsetValue = offsetDescriptor Linear.basicSizeFactory
-  in Stylesheet.simpleProperty "outline-offset" offsetValue
-
-outlineColor : Color.ColorDescriptorWithInvert {} -> 
-               Stylesheet.PropertyRuleAppender
-outlineColor colorDescriptor = 
-  let colorValue = colorDescriptor Color.colorFactoryWithInvert
-  in Stylesheet.simpleProperty "outline-color" colorValue
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
 -- TODO radius syntax with slashes
 borderRadius : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
 borderRadius radiusDescriptor = 
@@ -380,3 +341,42 @@ borderSpacing2 horizontal vertical =
   let compositeDescriptor = Property.spacePairValue horizontal vertical 
       factory = (Linear.nubSizeFactory, Linear.nubSizeFactory)
   in Stylesheet.simpleProperty "border-spacing" (compositeDescriptor factory)
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+anOutlineWith : Stroke.NubStrokeDescriptor {} -> 
+                Linear.SizeDescriptor {} Absolute.Abs -> 
+                Color.NubColorDescriptorWithInvert {} ->
+                Outline.OutlineDescriptor
+anOutlineWith strokeDescriptor widthDescriptor colorDescriptor =
+  \factory -> factory.outline strokeDescriptor widthDescriptor colorDescriptor
+
+outline : Outline.OutlineDescriptor -> 
+          Stylesheet.PropertyRuleAppender
+outline outlineDescriptor =
+  let outlineValue = outlineDescriptor Outline.outlineFactory
+  in Stylesheet.simpleProperty "outline" outlineValue
+
+outlineStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
+outlineStyle strokeDescriptor =
+  let style = strokeDescriptor Stroke.strokeFactory
+  in Stylesheet.simpleProperty "outline-style" style
+
+outlineWidth : BorderWidth.BasicBorderWidthDescriptor {} -> 
+               Stylesheet.PropertyRuleAppender
+outlineWidth widthDescriptor =
+  let widthValue = widthDescriptor BorderWidth.borderWidthFactory
+  in Stylesheet.simpleProperty "outline-width" widthValue
+
+outlineOffset : Linear.BasicSizeDescriptor Absolute.Abs -> 
+                Stylesheet.PropertyRuleAppender
+outlineOffset offsetDescriptor =
+  let offsetValue = offsetDescriptor Linear.basicSizeFactory
+  in Stylesheet.simpleProperty "outline-offset" offsetValue
+
+outlineColor : Color.ColorDescriptorWithInvert {} -> 
+               Stylesheet.PropertyRuleAppender
+outlineColor colorDescriptor = 
+  let colorValue = colorDescriptor Color.colorFactoryWithInvert
+  in Stylesheet.simpleProperty "outline-color" colorValue

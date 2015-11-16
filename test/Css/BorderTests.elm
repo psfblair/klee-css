@@ -649,29 +649,277 @@ suite = describe "Css.BorderTests"
         --   `shouldEqual` "border-style:should not compile"
       ]
     ]    
--- TODO Test thin, thick, medium, generics        
   , describe "the borderWidth function" 
     [ it "should render the border width properties properly"
-      [ renderProperties [borderWidth (inches 3.8)]
+      [ renderProperties [ borderWidth thick ]
+          `shouldEqual` "border-width:thick"
+      , renderProperties [ borderWidth thin ]
+          `shouldEqual` "border-width:thin"
+      , renderProperties [ borderWidth medium ]
+          `shouldEqual` "border-width:medium"
+      , renderProperties [ borderWidth (inches 3.8) ]
           `shouldEqual` "border-width:3.8in"
-      , renderProperties [borderLeftWidth (px 0.5)]
-          `shouldEqual` "border-left-width:0.5px"
-      , renderProperties [borderRightWidth (pt 2)]
-          `shouldEqual` "border-right-width:2pt"
-      , renderProperties [borderTopWidth (pc 1)]
-          `shouldEqual` "border-top-width:1pc"
-      , renderProperties [borderBottomWidth (pc 3.4)]
-          `shouldEqual` "border-bottom-width:3.4pc"
-      , renderProperties [borderWidth4 (px 5.2) (px 7.6) (px 5) (px 5.4)]
-          `shouldEqual` "border-width:5.2px 7.6px 5px 5.4px"
-      -- Relative widths should not compile; uncomment to see:
-      -- , borderWidth (em 3.8) `shouldEqual` borderWidth (em 3.8)
-      -- , borderLeftWidth (pct 0.5) `shouldEqual` borderLeftWidth (pct 0.5)
-      -- , borderRightWidth (pct 2) `shouldEqual` borderRightWidth (pct 2)
-      -- , borderTopWidth (ex 1) `shouldEqual` borderTopWidth (ex 1)
-      -- , borderBottomWidth (em 3.4) `shouldEqual` borderBottomWidth (em 3.4)
-      -- , borderWidth4 (ex 5.2) (pct 7.6) (srem 5) (vw 5.4)
-      --     `shouldEqual` borderWidth4 (ex 5.2) (pct 7.6) (srem 5) (vw 5.4)
+      -- , renderProperties [ borderWidth (em 3.8) ]
+      --     `shouldEqual` "border-width:should not compile"
+      ]
+    , it "should render generic properties properly"
+      [ renderProperties [ borderWidth initial ] 
+          `shouldEqual` "border-width:initial"
+      , renderProperties [ borderWidth inherit ] 
+          `shouldEqual` "border-width:inherit"
+      , renderProperties [ borderWidth unset ] 
+          `shouldEqual` "border-width:unset"
+      , renderProperties [ borderWidth (other "foo") ] 
+          `shouldEqual` "border-width:foo"
+      , renderProperties [ borderWidth (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-width:-webkit-foo;border-width:-moz-foo"
+      -- , renderProperties [ borderWidth all ]
+      --     `shouldEqual` "border-width:should not compile"
+      -- , renderProperties [ borderWidth auto ]
+      --     `shouldEqual` "border-width:should not compile"
+      -- , renderProperties [ borderWidth baseline ]
+      --     `shouldEqual` "border-width:should not compile"
+      -- , renderProperties [ borderWidth center ]
+      --     `shouldEqual` "border-width:should not compile"
+      -- , renderProperties [ borderWidth normal ]
+      --     `shouldEqual` "border-width:should not compile"
+      -- , renderProperties [ borderWidth none ]
+      --     `shouldEqual` "border-width:should not compile"
+      -- , renderProperties [ borderWidth visible ]
+      --     `shouldEqual` "border-width:should not compile"
+      -- , renderProperties [ borderWidth hidden ]
+      --     `shouldEqual` "border-width:should not compile"
+      ]
+    ]
+  , describe "the borderLeftWidth function" 
+    [ it "should render the border width properties properly"
+      [ renderProperties [ borderLeftWidth thick ]
+          `shouldEqual` "border-left-width:thick"
+      , renderProperties [ borderLeftWidth thin ]
+          `shouldEqual` "border-left-width:thin"
+      , renderProperties [ borderLeftWidth medium ]
+          `shouldEqual` "border-left-width:medium"
+      , renderProperties [ borderLeftWidth (inches 3.8) ]
+          `shouldEqual` "border-left-width:3.8in"
+      -- , renderProperties [ borderLeftWidth (em 3.8) ]
+      --     `shouldEqual` "border-left-width:should not compile"
+      ]
+    , it "should render generic properties properly"
+      [ renderProperties [ borderLeftWidth initial ] 
+          `shouldEqual` "border-left-width:initial"
+      , renderProperties [ borderLeftWidth inherit ] 
+          `shouldEqual` "border-left-width:inherit"
+      , renderProperties [ borderLeftWidth unset ] 
+          `shouldEqual` "border-left-width:unset"
+      , renderProperties [ borderLeftWidth (other "foo") ] 
+          `shouldEqual` "border-left-width:foo"
+      , renderProperties [ borderLeftWidth (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-left-width:-webkit-foo;border-left-width:-moz-foo"
+      -- , renderProperties [ borderLeftWidth all ]
+      --     `shouldEqual` "border-left-width:should not compile"
+      -- , renderProperties [ borderLeftWidth auto ]
+      --     `shouldEqual` "border-left-width:should not compile"
+      -- , renderProperties [ borderLeftWidth baseline ]
+      --     `shouldEqual` "border-left-width:should not compile"
+      -- , renderProperties [ borderLeftWidth center ]
+      --     `shouldEqual` "border-left-width:should not compile"
+      -- , renderProperties [ borderLeftWidth normal ]
+      --     `shouldEqual` "border-left-width:should not compile"
+      -- , renderProperties [ borderLeftWidth none ]
+      --     `shouldEqual` "border-left-width:should not compile"
+      -- , renderProperties [ borderLeftWidth visible ]
+      --     `shouldEqual` "border-left-width:should not compile"
+      -- , renderProperties [ borderLeftWidth hidden ]
+      --     `shouldEqual` "border-left-width:should not compile"
+      ]
+    ]
+  , describe "the borderRightWidth function" 
+    [ it "should render the border width properties properly"
+      [ renderProperties [ borderRightWidth thick ]
+          `shouldEqual` "border-right-width:thick"
+      , renderProperties [ borderRightWidth thin ]
+          `shouldEqual` "border-right-width:thin"
+      , renderProperties [ borderRightWidth medium ]
+          `shouldEqual` "border-right-width:medium"
+      , renderProperties [ borderRightWidth (inches 3.8) ]
+          `shouldEqual` "border-right-width:3.8in"
+      -- , renderProperties [ borderRightWidth (em 3.8) ]
+      --     `shouldEqual` "border-right-width:should not compile"
+      ]
+    , it "should render generic properties properly"
+      [ renderProperties [ borderRightWidth initial ] 
+          `shouldEqual` "border-right-width:initial"
+      , renderProperties [ borderRightWidth inherit ] 
+          `shouldEqual` "border-right-width:inherit"
+      , renderProperties [ borderRightWidth unset ] 
+          `shouldEqual` "border-right-width:unset"
+      , renderProperties [ borderRightWidth (other "foo") ] 
+          `shouldEqual` "border-right-width:foo"
+      , renderProperties [ borderRightWidth (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-right-width:-webkit-foo;border-right-width:-moz-foo"
+      -- , renderProperties [ borderRightWidth all ]
+      --     `shouldEqual` "border-right-width:should not compile"
+      -- , renderProperties [ borderRightWidth auto ]
+      --     `shouldEqual` "border-right-width:should not compile"
+      -- , renderProperties [ borderRightWidth baseline ]
+      --     `shouldEqual` "border-right-width:should not compile"
+      -- , renderProperties [ borderRightWidth center ]
+      --     `shouldEqual` "border-right-width:should not compile"
+      -- , renderProperties [ borderRightWidth normal ]
+      --     `shouldEqual` "border-right-width:should not compile"
+      -- , renderProperties [ borderRightWidth none ]
+      --     `shouldEqual` "border-right-width:should not compile"
+      -- , renderProperties [ borderRightWidth visible ]
+      --     `shouldEqual` "border-right-width:should not compile"
+      -- , renderProperties [ borderRightWidth hidden ]
+      --     `shouldEqual` "border-right-width:should not compile"
+      ]
+    ]
+  , describe "the borderTopWidth function" 
+    [ it "should render the border width properties properly"
+      [ renderProperties [ borderTopWidth thick ]
+          `shouldEqual` "border-top-width:thick"
+      , renderProperties [ borderTopWidth thin ]
+          `shouldEqual` "border-top-width:thin"
+      , renderProperties [ borderTopWidth medium ]
+          `shouldEqual` "border-top-width:medium"
+      , renderProperties [ borderTopWidth (inches 3.8) ]
+          `shouldEqual` "border-top-width:3.8in"
+      -- , renderProperties [ borderTopWidth (em 3.8) ]
+      --     `shouldEqual` "border-top-width:should not compile"
+      ]
+    , it "should render generic properties properly"
+      [ renderProperties [ borderTopWidth initial ] 
+          `shouldEqual` "border-top-width:initial"
+      , renderProperties [ borderTopWidth inherit ] 
+          `shouldEqual` "border-top-width:inherit"
+      , renderProperties [ borderTopWidth unset ] 
+          `shouldEqual` "border-top-width:unset"
+      , renderProperties [ borderTopWidth (other "foo") ] 
+          `shouldEqual` "border-top-width:foo"
+      , renderProperties [ borderTopWidth (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-top-width:-webkit-foo;border-top-width:-moz-foo"
+      -- , renderProperties [ borderTopWidth all ]
+      --     `shouldEqual` "border-top-width:should not compile"
+      -- , renderProperties [ borderTopWidth auto ]
+      --     `shouldEqual` "border-top-width:should not compile"
+      -- , renderProperties [ borderTopWidth baseline ]
+      --     `shouldEqual` "border-top-width:should not compile"
+      -- , renderProperties [ borderTopWidth center ]
+      --     `shouldEqual` "border-top-width:should not compile"
+      -- , renderProperties [ borderTopWidth normal ]
+      --     `shouldEqual` "border-top-width:should not compile"
+      -- , renderProperties [ borderTopWidth none ]
+      --     `shouldEqual` "border-top-width:should not compile"
+      -- , renderProperties [ borderTopWidth visible ]
+      --     `shouldEqual` "border-top-width:should not compile"
+      -- , renderProperties [ borderTopWidth hidden ]
+      --     `shouldEqual` "border-top-width:should not compile"
+      ]
+    ]
+  , describe "the borderBottomWidth function" 
+    [ it "should render the border width properties properly"
+      [ renderProperties [ borderBottomWidth thick ]
+          `shouldEqual` "border-bottom-width:thick"
+      , renderProperties [ borderBottomWidth thin ]
+          `shouldEqual` "border-bottom-width:thin"
+      , renderProperties [ borderBottomWidth medium ]
+          `shouldEqual` "border-bottom-width:medium"
+      , renderProperties [ borderBottomWidth (inches 3.8) ]
+          `shouldEqual` "border-bottom-width:3.8in"
+      -- , renderProperties [ borderBottomWidth (em 3.8) ]
+      --     `shouldEqual` "border-bottom-width:should not compile"
+      ]
+    , it "should render generic properties properly"
+      [ renderProperties [ borderBottomWidth initial ] 
+          `shouldEqual` "border-bottom-width:initial"
+      , renderProperties [ borderBottomWidth inherit ] 
+          `shouldEqual` "border-bottom-width:inherit"
+      , renderProperties [ borderBottomWidth unset ] 
+          `shouldEqual` "border-bottom-width:unset"
+      , renderProperties [ borderBottomWidth (other "foo") ] 
+          `shouldEqual` "border-bottom-width:foo"
+      , renderProperties [ borderBottomWidth (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-bottom-width:-webkit-foo;border-bottom-width:-moz-foo"
+      -- , renderProperties [ borderBottomWidth all ]
+      --     `shouldEqual` "border-bottom-width:should not compile"
+      -- , renderProperties [ borderBottomWidth auto ]
+      --     `shouldEqual` "border-bottom-width:should not compile"
+      -- , renderProperties [ borderBottomWidth baseline ]
+      --     `shouldEqual` "border-bottom-width:should not compile"
+      -- , renderProperties [ borderBottomWidth center ]
+      --     `shouldEqual` "border-bottom-width:should not compile"
+      -- , renderProperties [ borderBottomWidth normal ]
+      --     `shouldEqual` "border-bottom-width:should not compile"
+      -- , renderProperties [ borderBottomWidth none ]
+      --     `shouldEqual` "border-bottom-width:should not compile"
+      -- , renderProperties [ borderBottomWidth visible ]
+      --     `shouldEqual` "border-bottom-width:should not compile"
+      -- , renderProperties [ borderBottomWidth hidden ]
+      --     `shouldEqual` "border-bottom-width:should not compile"
+      ]
+    ]
+  , describe "the borderWidth4 function" 
+    [ it "should render the border width properties properly"
+      [ renderProperties [ borderWidth4 (px 5.2) (px 7.6) (px 5) (px 5.4) ]
+          `shouldEqual` ("border-width:5.2px 7.6px 5px 5.4px")
+      , renderProperties [ borderWidth4 thick thin thick thin ]
+          `shouldEqual` ("border-width:thick thin thick thin")
+      , renderProperties [ borderWidth4 thick (px 7.6) (px 5) (px 5.4) ]
+          `shouldEqual` ("border-width:thick 7.6px 5px 5.4px")
+      , renderProperties [ borderWidth4 (px 5.2) thin (px 5) (px 5.4) ]
+          `shouldEqual` ("border-width:5.2px thin 5px 5.4px")
+      , renderProperties [ borderWidth4 (px 5.2) (px 7.6) medium (px 5.4) ]
+          `shouldEqual` ("border-width:5.2px 7.6px medium 5.4px")
+      , renderProperties [ borderWidth4 (px 5.2) (px 7.6) (px 5) medium ]
+          `shouldEqual` ("border-width:5.2px 7.6px 5px medium")
+      -- , renderProperties [ borderWidth4 (em 5.2) (em 7.6) (em 5) (em 5.4) ]
+      --     `shouldEqual` ("border-width:should not compile")
+      ]
+    , it "should not accept generic properties"
+      [
+        -- renderProperties [ borderWidth4 initial (px 7.6) (px 5) (px 5.4) ] 
+        --   `shouldEqual` "border-width:should not compile"
+        -- ,
+        -- renderProperties [ borderWidth4 (px 7.6) inherit (px 5) (px 5.4) ] 
+        --   `shouldEqual` "border-width:should not compile"
+        -- ,
+        -- renderProperties [ borderWidth4 (px 7.6) (px 5) unset (px 5.4) ] 
+        --   `shouldEqual` "border-width:should not compile"
+        -- ,
+        -- renderProperties [ borderWidth4 black blue white initial ] 
+        --   `shouldEqual` "border-width:should not compile"
+      ]
+    ]    
+  --TODO add new functions and generics
+  , describe "The border radius functions"
+    [ it "should render the border radius properties correctly"
+      [ renderProperties [borderRadius4 (px 20) (pct 30) (px 40) (px 50)]
+          `shouldEqual` "border-radius:20px 30% 40px 50px"
+      , renderProperties [borderTopLeftRadius2 (px 20) (pct 30)]
+          `shouldEqual` "border-top-left-radius:20px 30%"
+      , renderProperties [borderTopRightRadius2 (px 20) (pct 30)]
+          `shouldEqual` "border-top-right-radius:20px 30%"
+      , renderProperties [borderBottomLeftRadius2 (px 20) (pct 30)]
+          `shouldEqual` "border-bottom-left-radius:20px 30%"
+      , renderProperties [borderBottomRightRadius2 (px 20) (pct 30)]
+          `shouldEqual` "border-bottom-right-radius:20px 30%"
+      ]
+    ]
+  , describe "The border collapse function"
+    [ it "should render the border collapse property correctly"
+      [ renderProperties [borderCollapse collapse]
+          `shouldEqual` "border-collapse:collapse"
+      ]
+    ]
+  , describe "The border spacing functions"
+    [ it "should render the border spacing properties correctly"
+      [ renderProperties [borderSpacing (px 20)]
+           `shouldEqual` "border-spacing:20px"
+      ,  renderProperties [borderSpacing (pct 20)]
+           `shouldEqual` "border-spacing:20%"
+      , renderProperties [borderSpacing2 (px 20) (pct 30)]
+          `shouldEqual` "border-spacing:20px 30%"
       ]
     ]
   , describe "The outline functions"
@@ -710,36 +958,5 @@ suite = describe "Css.BorderTests"
       [ renderProperties [outlineOffset (px 20)]
           `shouldEqual` "outline-offset:20px"
       ]
-    ]
-    --TODO add new functions and generics
-  , describe "The border radius functions"
-    [ it "should render the border radius properties correctly"
-      [ renderProperties [borderRadius4 (px 20) (pct 30) (px 40) (px 50)]
-          `shouldEqual` "border-radius:20px 30% 40px 50px"
-      , renderProperties [borderTopLeftRadius2 (px 20) (pct 30)]
-          `shouldEqual` "border-top-left-radius:20px 30%"
-      , renderProperties [borderTopRightRadius2 (px 20) (pct 30)]
-          `shouldEqual` "border-top-right-radius:20px 30%"
-      , renderProperties [borderBottomLeftRadius2 (px 20) (pct 30)]
-          `shouldEqual` "border-bottom-left-radius:20px 30%"
-      , renderProperties [borderBottomRightRadius2 (px 20) (pct 30)]
-          `shouldEqual` "border-bottom-right-radius:20px 30%"
-      ]
-    ]
-  , describe "The border collapse function"
-    [ it "should render the border collapse property correctly"
-      [ renderProperties [borderCollapse collapse]
-          `shouldEqual` "border-collapse:collapse"
-      ]
-    ]
-  , describe "The border spacing functions"
-    [ it "should render the border spacing properties correctly"
-      [ renderProperties [borderSpacing (px 20)]
-           `shouldEqual` "border-spacing:20px"
-      ,  renderProperties [borderSpacing (pct 20)]
-           `shouldEqual` "border-spacing:20%"
-      , renderProperties [borderSpacing2 (px 20) (pct 30)]
-          `shouldEqual` "border-spacing:20px 30%"
-      ]
-    ]
+    ]    
   ]
