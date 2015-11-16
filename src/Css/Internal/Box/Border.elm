@@ -17,7 +17,7 @@ type alias BorderDescriptor = BorderFactory -> Property.Value
 type alias BorderFactory =
   { border : Stroke.NubBorderStyleDescriptor {} -> 
              Linear.SizeDescriptor {} Linear.Abs -> 
-             Color.ColorDescriptor {} -> 
+             Color.NubColorDescriptor {} -> 
              Property.Value
   , initial_ : Property.Value
   , inherit_ : Property.Value

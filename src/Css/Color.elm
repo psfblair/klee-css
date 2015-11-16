@@ -11,45 +11,47 @@ module Css.Color
 import String 
 
 import Color exposing (Color)
-import Css.Internal.Color exposing (..)
 import Css.Internal.Utils exposing (toFixed, fromHex)
 
+import Css.Internal.Color as Color
 import Css.Internal.Property as Property
 -------------------------------------------------------------------------------
 
-rgb : Int -> Int -> Int -> ColorDescriptor rec
+rgb : Int -> Int -> Int -> Color.NubColorDescriptor rec
 rgb r g b = 
   \factory -> 
-    if invalidRgb r g b
+    if Color.invalidRgb r g b
     then factory.invalid_ 
-          ("INVALID COLOR: " ++ join [toString r, toString g, toString b])
+          ("INVALID COLOR: " ++ Color.join [toString r, toString g, toString b])
     else Color.rgb r g b |> factory.rgbaColor
 
-rgba : Int -> Int -> Int -> Float -> ColorDescriptor rec
+rgba : Int -> Int -> Int -> Float -> Color.NubColorDescriptor rec
 rgba r g b a = 
   \factory -> 
-    if invalidRgb r g b || invalidFractionOf1 a
+    if Color.invalidRgb r g b || Color.invalidFractionOf1 a
     then factory.invalid_ 
-          ("INVALID COLOR: " ++ join [toString r, toString g, toString b, toString a])
+          ("INVALID COLOR: " ++ 
+            Color.join [toString r, toString g, toString b, toString a])
     else Color.rgba r g b a |> factory.rgbaColor
 
-hsl : Int -> Float -> Float -> ColorDescriptor rec
+hsl : Int -> Float -> Float -> Color.NubColorDescriptor rec
 hsl h s l = 
   \factory -> 
-    if invalidHsl h s l
+    if Color.invalidHsl h s l
     then factory.invalid_ 
-          ("INVALID COLOR: " ++ join [toString h, toString s, toString l])
+          ("INVALID COLOR: " ++ Color.join [toString h, toString s, toString l])
     else Color.hsl (toFloat h |> degrees) s l |> factory.hslaColor
 
-hsla : Int -> Float -> Float -> Float -> ColorDescriptor rec
+hsla : Int -> Float -> Float -> Float -> Color.NubColorDescriptor rec
 hsla h s l a = 
   \factory -> 
-    if invalidHsl h s l || invalidFractionOf1 a
+    if Color.invalidHsl h s l || Color.invalidFractionOf1 a
     then factory.invalid_ 
-          ("INVALID COLOR: " ++ join [toString h, toString s, toString l, toString a])
+          ("INVALID COLOR: " ++ 
+            Color.join [toString h, toString s, toString l, toString a])
     else Color.hsla (toFloat h |> degrees) s l a |> factory.hslaColor
 
-hex : String -> ColorDescriptor rec
+hex : String -> Color.NubColorDescriptor rec
 hex str = 
   \factory ->
     let unhex digit1 digit2 = fromHex <| String.fromList [digit1, digit2]
@@ -78,113 +80,113 @@ hex str =
       Ok color -> factory.rgbaColor color
       Err str -> factory.invalid_ str
 
-currentColor : ColorDescriptor rec
+currentColor : Color.NubColorDescriptor rec
 currentColor = \factory -> factory.currentColor
 
-transparent : ColorDescriptor rec
+transparent : Color.NubColorDescriptor rec
 transparent = \factory -> Property.stringValue "transparent" |> factory.other_
 
-invert : NubColorDescriptorWithInvert rec
+invert : Color.NubColorDescriptorWithInvert rec
 invert = \factory -> factory.invert
 
-red : ColorDescriptor rec
+red : Color.NubColorDescriptor rec
 red = \factory -> Color.red |> factory.rgbaColor
 
-orange : ColorDescriptor rec
+orange : Color.NubColorDescriptor rec
 orange = \factory -> Color.orange |> factory.rgbaColor
 
-yellow : ColorDescriptor rec
+yellow : Color.NubColorDescriptor rec
 yellow = \factory -> Color.yellow |> factory.rgbaColor
 
-green : ColorDescriptor rec
+green : Color.NubColorDescriptor rec
 green = \factory -> Color.green |> factory.rgbaColor
 
-blue : ColorDescriptor rec
+blue : Color.NubColorDescriptor rec
 blue = \factory -> Color.blue |> factory.rgbaColor
 
-purple : ColorDescriptor rec
+purple : Color.NubColorDescriptor rec
 purple = \factory -> Color.purple |> factory.rgbaColor
 
-brown : ColorDescriptor rec
+brown : Color.NubColorDescriptor rec
 brown = \factory -> Color.brown |> factory.rgbaColor
 
 
 
-lightRed : ColorDescriptor rec
+lightRed : Color.NubColorDescriptor rec
 lightRed = \factory -> Color.lightRed |> factory.rgbaColor
 
-lightOrange : ColorDescriptor rec
+lightOrange : Color.NubColorDescriptor rec
 lightOrange = \factory -> Color.lightOrange |> factory.rgbaColor
 
-lightYellow : ColorDescriptor rec
+lightYellow : Color.NubColorDescriptor rec
 lightYellow = \factory -> Color.lightYellow |> factory.rgbaColor
 
-lightGreen : ColorDescriptor rec
+lightGreen : Color.NubColorDescriptor rec
 lightGreen = \factory -> Color.lightGreen |> factory.rgbaColor
 
-lightBlue : ColorDescriptor rec
+lightBlue : Color.NubColorDescriptor rec
 lightBlue = \factory -> Color.lightBlue |> factory.rgbaColor
 
-lightPurple : ColorDescriptor rec
+lightPurple : Color.NubColorDescriptor rec
 lightPurple = \factory -> Color.lightPurple |> factory.rgbaColor
 
-lightBrown : ColorDescriptor rec
+lightBrown : Color.NubColorDescriptor rec
 lightBrown = \factory -> Color.lightBrown |> factory.rgbaColor
 
 
 
-darkRed : ColorDescriptor rec
+darkRed : Color.NubColorDescriptor rec
 darkRed = \factory -> Color.darkRed |> factory.rgbaColor
 
-darkOrange : ColorDescriptor rec
+darkOrange : Color.NubColorDescriptor rec
 darkOrange = \factory -> Color.darkOrange |> factory.rgbaColor
 
-darkYellow : ColorDescriptor rec
+darkYellow : Color.NubColorDescriptor rec
 darkYellow = \factory -> Color.darkYellow |> factory.rgbaColor
 
-darkGreen : ColorDescriptor rec
+darkGreen : Color.NubColorDescriptor rec
 darkGreen = \factory -> Color.darkGreen |> factory.rgbaColor
 
-darkBlue : ColorDescriptor rec
+darkBlue : Color.NubColorDescriptor rec
 darkBlue = \factory -> Color.darkBlue |> factory.rgbaColor
 
-darkPurple : ColorDescriptor rec
+darkPurple : Color.NubColorDescriptor rec
 darkPurple = \factory -> Color.darkPurple |> factory.rgbaColor
 
-darkBrown : ColorDescriptor rec
+darkBrown : Color.NubColorDescriptor rec
 darkBrown = \factory -> Color.darkBrown |> factory.rgbaColor
 
 
 
-white : ColorDescriptor rec
+white : Color.NubColorDescriptor rec
 white = \factory -> Color.white |> factory.rgbaColor
 
-lightGrey : ColorDescriptor rec
+lightGrey : Color.NubColorDescriptor rec
 lightGrey = \factory -> Color.lightGrey |> factory.rgbaColor
 
-lightGray : ColorDescriptor rec
+lightGray : Color.NubColorDescriptor rec
 lightGray = \factory -> Color.lightGray |> factory.rgbaColor
 
-grey : ColorDescriptor rec
+grey : Color.NubColorDescriptor rec
 grey = \factory -> Color.grey |> factory.rgbaColor
 
-gray : ColorDescriptor rec
+gray : Color.NubColorDescriptor rec
 gray = \factory -> Color.gray |> factory.rgbaColor
 
-darkGrey : ColorDescriptor rec
+darkGrey : Color.NubColorDescriptor rec
 darkGrey = \factory -> Color.darkGrey |> factory.rgbaColor
 
-darkGray : ColorDescriptor rec
+darkGray : Color.NubColorDescriptor rec
 darkGray = \factory -> Color.darkGray |> factory.rgbaColor
 
-lightCharcoal : ColorDescriptor rec 
+lightCharcoal : Color.NubColorDescriptor rec 
 lightCharcoal = \factory -> Color.lightCharcoal |> factory.rgbaColor
 
-charcoal : ColorDescriptor rec
+charcoal : Color.NubColorDescriptor rec
 charcoal = \factory -> Color.charcoal |> factory.rgbaColor
 
-darkCharcoal : ColorDescriptor rec
+darkCharcoal : Color.NubColorDescriptor rec
 darkCharcoal = \factory -> Color.darkCharcoal |> factory.rgbaColor
 
-black : ColorDescriptor rec
+black : Color.NubColorDescriptor rec
 black = \factory -> Color.black |> factory.rgbaColor

@@ -109,7 +109,7 @@ type alias TextShadowFactory hSz vSz blrSz =
   , withBlurRadius : Linear.SizeDescriptor {} blrSz -> 
                      TextShadowComponent -> 
                      CompositeTextShadow
-  , withColor : Color.ColorDescriptor {} -> 
+  , withColor : Color.NubColorDescriptor {} -> 
                 TextShadowComponent -> 
                 CompositeTextShadow
   , initial_ : TextShadow {}

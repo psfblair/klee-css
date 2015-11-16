@@ -196,7 +196,7 @@ withPosition positionDescriptor
        newComponents = WithPositionAndSize position maybeSize innerComponents
    in adjoinComponents newComponents
 
-withBgColor : Color.ColorDescriptor {} -> 
+withBgColor : Color.NubColorDescriptor {} -> 
               ComposedBackgroundDescriptor a sz1 sz2 sz3 
 withBgColor colorDescriptor composedDescriptor = 
    let colorValue = colorDescriptor Color.nubColorFactory

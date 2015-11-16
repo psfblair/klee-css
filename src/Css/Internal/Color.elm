@@ -1,5 +1,5 @@
 module Css.Internal.Color
-  ( ColorDescriptor, nubColorFactory
+  ( NubColorDescriptor, nubColorFactory
   , BasicColorDescriptor, colorFactory
   , NubColorDescriptorWithInvert, nubColorFactoryWithInvert
   , ColorDescriptorWithInvert, colorFactoryWithInvert
@@ -16,19 +16,19 @@ import Css.Internal.Utils as Utils
 
 -------------------------------------------------------------------------------
 
-type alias ColorDescriptor rec = ColorFactory rec -> Property.Value
+type alias NubColorDescriptor rec = NubColorFactory rec -> Property.Value
 
-type alias BasicColorDescriptor = BasicColorFactory {} -> Property.Value
+type alias BasicColorDescriptor = ColorFactory {} -> Property.Value
 
 type alias NubColorDescriptorWithInvert rec =
-  ColorFactory (WithInvert rec) -> Property.Value
+  NubColorFactory (WithInvert rec) -> Property.Value
 
 type alias ColorDescriptorWithInvert rec =
-  BasicColorFactory (WithInvert rec) -> Property.Value
+  ColorFactory (WithInvert rec) -> Property.Value
 
 -------------------------------------------------------------------------------
 
-type alias ColorFactory rec =
+type alias NubColorFactory rec =
   { rec | rgbaColor : ElmColor.Color -> Property.Value
         , hslaColor : ElmColor.Color -> Property.Value
         , currentColor : Property.Value
@@ -37,7 +37,7 @@ type alias ColorFactory rec =
   }
 
 -- TODO Create Property.invalidValue to spit out validation errors.
-nubColorFactory : ColorFactory {}
+nubColorFactory : NubColorFactory {}
 nubColorFactory =
   { rgbaColor color = rgbaString color |> Property.stringValue
   , hslaColor color = hslaString color |> Property.stringValue
@@ -46,13 +46,13 @@ nubColorFactory =
   , other_ val = Common.otherValue val
   }
 
-type alias BasicColorFactory rec = 
-  ColorFactory 
+type alias ColorFactory rec = 
+  NubColorFactory 
     (Common.Initial Property.Value
       (Common.Inherit Property.Value
         (Common.Unset Property.Value rec)))
 
-colorFactory : BasicColorFactory {}
+colorFactory : ColorFactory {}
 colorFactory =
   let withInitial = { nubColorFactory | initial_ = Common.initialValue }
       withInherit = { withInitial     | inherit_ = Common.inheritValue }
@@ -61,11 +61,11 @@ colorFactory =
 
 type alias WithInvert rec = { rec | invert: Property.Value }
 
-nubColorFactoryWithInvert : ColorFactory (WithInvert {})
+nubColorFactoryWithInvert : NubColorFactory (WithInvert {})
 nubColorFactoryWithInvert =
   { nubColorFactory | invert = Property.stringValue "invert" }
 
-colorFactoryWithInvert : BasicColorFactory (WithInvert {})
+colorFactoryWithInvert : ColorFactory (WithInvert {})
 colorFactoryWithInvert =
   { colorFactory | invert = Property.stringValue "invert" }
 

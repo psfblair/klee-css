@@ -137,7 +137,7 @@ shadowBlur blurDescriptor innerDescriptor factory =
   let innerCompositeShadow = innerDescriptor factory
   in factory.withBlurRadius blurDescriptor innerCompositeShadow.textShadow
 
-shadowColor : Color.ColorDescriptor {} ->
+shadowColor : Color.NubColorDescriptor {} ->
               CompositeTextShadowDescriptor hSz vSz blrSz -> 
               CompositeTextShadowDescriptor hSz vSz blrSz
 shadowColor colorDescriptor innerDescriptor factory =

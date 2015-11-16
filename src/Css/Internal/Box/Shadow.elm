@@ -51,7 +51,7 @@ type alias BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp =
                Linear.SizeDescriptor {} spreadSzTyp ->
                CompositeShadow ->
                CompositeShadow 
-  , withColor : Color.ColorDescriptor {} -> 
+  , withColor : Color.NubColorDescriptor {} -> 
                 CompositeShadow ->
                 CompositeShadow 
   , withInset : CompositeShadow ->
@@ -98,7 +98,7 @@ addBlur blurDescriptor spreadDescriptor innerShadow =
       ShadowComponents (xSize, ySize) shadowColor _ inset ->
         ShadowComponents (xSize, ySize) shadowColor blurComponent inset
 
-addColor : Color.ColorDescriptor {} -> CompositeShadow -> ShadowComponents
+addColor : Color.NubColorDescriptor {} -> CompositeShadow -> ShadowComponents
 addColor colorDescriptor innerShadow = 
   let shadowColor = colorDescriptor Color.nubColorFactory
   in case innerShadow.withComponents of

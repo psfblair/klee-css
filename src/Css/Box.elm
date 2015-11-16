@@ -103,7 +103,7 @@ boxInset innerDescriptor shadowFactory =
   in shadowFactory.withInset innerShadow
 
 
-boxColor : Color.ColorDescriptor {} ->
+boxColor : Color.NubColorDescriptor {} ->
            BoxShadow.CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp ->
            BoxShadow.CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp
 boxColor colorDescriptor innerDescriptor shadowFactory =
@@ -152,7 +152,7 @@ outset = \factory -> factory.stroke "outset"
 
 aBorderWith : Stroke.NubBorderStyleDescriptor {} -> 
               Linear.SizeDescriptor {} Linear.Abs -> 
-              Color.ColorDescriptor {} ->
+              Color.NubColorDescriptor {} ->
               Border.BorderDescriptor
 aBorderWith strokeDescriptor widthDescriptor colorDescriptor =
   \factory -> factory.border strokeDescriptor widthDescriptor colorDescriptor
@@ -189,10 +189,10 @@ borderColor colorDescriptor =
   let colorValue = colorDescriptor Color.colorFactory
   in Stylesheet.simpleProperty "border-color" colorValue
 
-borderColor4 : Color.ColorDescriptor {} -> 
-               Color.ColorDescriptor {} -> 
-               Color.ColorDescriptor {} -> 
-               Color.ColorDescriptor {} -> 
+borderColor4 : Color.NubColorDescriptor {} -> 
+               Color.NubColorDescriptor {} -> 
+               Color.NubColorDescriptor {} -> 
+               Color.NubColorDescriptor {} -> 
                Stylesheet.PropertyRuleAppender
 borderColor4 topColor rightColor bottomColor leftColor =
   let compositeDescriptor = 
