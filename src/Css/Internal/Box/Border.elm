@@ -7,7 +7,6 @@ module Css.Internal.Box.Border
 import Css.Internal.Color as Color
 import Css.Internal.Common as Common
 import Css.Internal.Geometry.Linear as Linear
-import Css.Internal.Geometry.Linear.Absolute as Absolute
 import Css.Internal.Property as Property
 import Css.Internal.Stroke as Stroke
 
@@ -17,7 +16,7 @@ type alias BorderDescriptor = BorderFactory -> Property.Value
 
 type alias BorderFactory =
   { border : Stroke.NubBorderStyleDescriptor {} -> 
-             Linear.SizeDescriptor {} Absolute.Abs -> 
+             Linear.SizeDescriptor {} Linear.Abs -> 
              Color.ColorDescriptor {} -> 
              Property.Value
   , initial_ : Property.Value
@@ -55,7 +54,7 @@ type alias WithBorderWidths rec =
   }  
 
 type alias BorderWidthFactory rec =
-  Linear.SizeFactory (WithBorderWidths rec) Absolute.Abs
+  Linear.SizeFactory (WithBorderWidths rec) Linear.Abs
 
 nubBorderWidthFactory : BorderWidthFactory {}
 nubBorderWidthFactory = 
@@ -66,7 +65,7 @@ nubBorderWidthFactory =
   in withThick
 
 type alias BasicBorderWidthFactory rec =
-  Linear.BasicSizeFactory (WithBorderWidths rec) Absolute.Abs
+  Linear.BasicSizeFactory (WithBorderWidths rec) Linear.Abs
 
 borderWidthFactory : BasicBorderWidthFactory {}
 borderWidthFactory = 

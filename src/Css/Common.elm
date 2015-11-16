@@ -94,37 +94,37 @@ sym2 fourSidedFunction topBottom leftRight =
   property descriptors that take many different type; e.g., borderStyle, borderWidth, etc.
 -}
 all : All a rec -> a
-all factory = factory.all_
+all = \factory -> factory.all_
 
 auto : Auto a rec -> a
-auto factory = factory.auto_
+auto = \factory -> factory.auto_
 
 baseline : Baseline a rec -> a
-baseline factory = factory.baseline_
+baseline = \factory -> factory.baseline_
 
 center : Center a rec -> a
-center factory = factory.center_
+center = \factory -> factory.center_
 
 inherit : Inherit a rec -> a
-inherit factory = factory.inherit_
+inherit = \factory -> factory.inherit_
 
 normal : Normal a rec -> a
-normal factory = factory.normal_
+normal = \factory -> factory.normal_
 
 none : None a rec -> a
-none factory = factory.none_
+none = \factory -> factory.none_
 
 visible : Visible a rec -> a
-visible factory = factory.visible_
+visible = \factory -> factory.visible_
 
 hidden : Hidden a rec -> a
-hidden factory = factory.hidden_
+hidden = \factory -> factory.hidden_
 
 initial : Initial a rec -> a
-initial factory = factory.initial_
+initial = \factory -> factory.initial_
 
 unset : Unset a rec -> a
-unset factory = factory.unset_
+unset = \factory -> factory.unset_
 
 {- The generic `other` and `otherPrefixed` value descriptors are used to escape 
 from the type safety introduced by embedding CSS properties in the typed world. 
@@ -133,11 +133,10 @@ These functions allow you to extract a specific value type out of any string
 that accepts `Other.`
 -}
 other : String -> Other a rec -> a
-other str factory = str |> stringValue |> factory.other_ 
+other str = \factory -> str |> stringValue |> factory.other_ 
 
 otherPrefixed : List BrowserPrefix -> String -> Other a rec -> a
-otherPrefixed browserPrefixes val factory =
+otherPrefixed browserPrefixes val = 
+  \factory ->
     let prefixed = toPrefixes browserPrefixes 
     in appendToPrefixedRoot prefixed val |> prefixedValue |> factory.other_ 
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------

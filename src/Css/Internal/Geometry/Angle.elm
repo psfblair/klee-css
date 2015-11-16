@@ -1,11 +1,5 @@
 module Css.Internal.Geometry.Angle
-  ( AngleDescriptor, Deg, Rad, Grad, Turn
-  
-  -- * Constructing angles
-
-  , deg, rad, grad, turn
-  
-  ) where
+  ( AngleDescriptor, Deg, Rad, Grad, Turn) where
 
 import Css.Internal.Common as Common
 import Css.Internal.Property as Property
@@ -22,24 +16,6 @@ type Deg = Deg
 type Rad = Rad
 type Grad = Grad
 type Turn = Turn
-
--------------------------------------------------------------------------------
-
--- | Angle in degrees.
-deg : Float -> AngleDescriptor Deg
-deg amount = \factory -> factory.angle (Property.appendUnits amount "deg")
-
--- | Angle in radians.
-rad : Float -> AngleDescriptor Rad
-rad amount = \factory -> factory.angle (Property.appendUnits amount "rad")
-
--- | Angle in gradians (also knows as gons or grades).
-grad : Float -> AngleDescriptor Grad
-grad amount = \factory -> factory.angle (Property.appendUnits amount "grad")
-
--- | Angle in turns.
-turn : Float -> AngleDescriptor Turn
-turn amount = \factory -> factory.angle (Property.appendUnits amount "turn")
 
 -------------------------------------------------------------------------------
 

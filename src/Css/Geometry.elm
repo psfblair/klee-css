@@ -6,7 +6,7 @@ module Css.Geometry
   , cm, mm, inches
   , px, pt, pc
   , pct
-  , em, srem, ex
+  , em, rems, ex
   , vw, vh, vmin, vmax
 
   -- * Linear size composers.
@@ -44,107 +44,138 @@ module Css.Geometry
 
 import Css.Internal.Geometry.Angle as Angle
 import Css.Internal.Geometry.Linear as Linear
-import Css.Internal.Geometry.Linear.Absolute as Absolute
-import Css.Internal.Geometry.Linear.Relative as Relative
 import Css.Internal.Geometry.Margin as Margin
 import Css.Internal.Geometry.Padding as Padding
 import Css.Internal.Geometry.Sides as Sides
+import Css.Internal.Property as Property
 import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
--- | Zero absolute size.
-abs0 : Linear.SizeDescriptor rec Absolute.Abs
-abs0 = Absolute.abs0
-
--- | Zero relative size.
-rel0 : Linear.SizeDescriptor rec Relative.Rel
-rel0 = Relative.rel0
-
 -- | Unitless size (as recommended for line-height).
 unitless : Float -> Linear.SizeDescriptor rec {}
-unitless = Linear.unitless
+unitless length = \factory -> factory.size (Linear.unitlessSize length)
 
 -------------------------------------------------------------------------------
 -- Absolute sizes
 
+-- | Zero absolute size.
+abs0 : Linear.SizeDescriptor rec Linear.Abs
+abs0 = 
+  let zeroSize = Property.stringValue "0"
+  in \factory -> factory.size (Linear.absolute zeroSize)
+
 -- | Size in centimeters.
-cm : Float -> Linear.SizeDescriptor a Absolute.Abs
-cm = Absolute.cm
+cm : Float -> Linear.SizeDescriptor a Linear.Abs
+cm length = 
+  let lengthValue = Property.appendUnits length "cm"
+  in \factory -> factory.size (Linear.absolute lengthValue)
 
 -- | Size in millimeters.
-mm : Float -> Linear.SizeDescriptor a Absolute.Abs
-mm = Absolute.mm
+mm : Float -> Linear.SizeDescriptor a Linear.Abs
+mm length = 
+  let lengthValue = Property.appendUnits length "mm"
+  in \factory -> factory.size (Linear.absolute lengthValue)
 
 -- | Size in inches (1in = 2.54 cm).
-inches : Float -> Linear.SizeDescriptor a Absolute.Abs
-inches = Absolute.inches
+inches : Float -> Linear.SizeDescriptor a Linear.Abs
+inches length = 
+  let lengthValue = Property.appendUnits length "in"
+  in \factory -> factory.size (Linear.absolute lengthValue)
 
 -- | Size in pixels.
-px : Float -> Linear.SizeDescriptor a Absolute.Abs
-px = Absolute.px
+px : Float -> Linear.SizeDescriptor a Linear.Abs
+px length = 
+  let lengthValue = Property.appendUnits length "px"
+  in \factory -> factory.size (Linear.absolute lengthValue)
 
 -- | Size in points (1pt = 1/72 of 1in).
-pt : Float -> Linear.SizeDescriptor a Absolute.Abs
-pt = Absolute.pt
+pt : Float -> Linear.SizeDescriptor a Linear.Abs
+pt length = 
+  let lengthValue = Property.appendUnits length "pt"
+  in \factory -> factory.size (Linear.absolute lengthValue)
 
 -- | Size in picas (1pc = 12pt).
-pc : Float -> Linear.SizeDescriptor a Absolute.Abs
-pc = Absolute.pc
+pc : Float -> Linear.SizeDescriptor a Linear.Abs
+pc length = 
+  let lengthValue = Property.appendUnits length "pc"
+  in \factory -> factory.size (Linear.absolute lengthValue)
 
 -------------------------------------------------------------------------------
 -- Relative sizes
 
+-- | Zero relative size.
+rel0 : Linear.SizeDescriptor rec Linear.Rel
+rel0 = 
+  let zeroSize = Property.stringValue "0"
+  in \factory -> factory.size (Linear.relative zeroSize)
+
 -- | Size in percents.
-pct : Float -> Linear.SizeDescriptor a Relative.Rel
-pct = Relative.pct
+pct : Float -> Linear.SizeDescriptor a Linear.Rel
+pct length = 
+  let lengthValue = Property.appendUnits length "%"
+  in \factory -> factory.size (Linear.relative lengthValue)
 
 -- | Size in em's (computed value of the font-size).
-em : Float -> Linear.SizeDescriptor a Relative.Rel
-em = Relative.em
+em : Float -> Linear.SizeDescriptor a Linear.Rel
+em length =  
+  let lengthValue = Property.appendUnits length "em"
+  in \factory -> factory.size (Linear.relative lengthValue)
 
 -- | Size in rem's (em's, but always relative to the root element).
--- renamed to srem in order not to collide with Basics.rem
-srem : Float -> Linear.SizeDescriptor a Relative.Rel
-srem = Relative.srem
+-- named rems in order not to collide with Basics.rem
+rems : Float -> Linear.SizeDescriptor a Linear.Rel
+rems length =  
+  let lengthValue = Property.appendUnits length "rem"
+  in \factory -> factory.size (Linear.relative lengthValue)
 
 -- Double -> Size Rel| Size in ex'es (x-height of the first avaliable font).
-ex : Float -> Linear.SizeDescriptor a Relative.Rel
-ex = Relative.ex
+ex : Float -> Linear.SizeDescriptor a Linear.Rel
+ex length =  
+  let lengthValue = Property.appendUnits length "ex"
+  in \factory -> factory.size (Linear.relative lengthValue)
 
 -- | Size in vw's (1vw = 1% of viewport width).
-vw : Float -> Linear.SizeDescriptor a Relative.Rel
-vw = Relative.vw
+vw : Float -> Linear.SizeDescriptor a Linear.Rel
+vw length =  
+  let lengthValue = Property.appendUnits length "vw"
+  in \factory -> factory.size (Linear.relative lengthValue)
 
 -- | Size in vh's (1vh = 1% of viewport height).
-vh : Float -> Linear.SizeDescriptor a Relative.Rel
-vh = Relative.vh
+vh : Float -> Linear.SizeDescriptor a Linear.Rel
+vh length =  
+  let lengthValue = Property.appendUnits length "vh"
+  in \factory -> factory.size (Linear.relative lengthValue)
 
 -- | Size in vmin's (the smaller of vw or vh).
-vmin : Float -> Linear.SizeDescriptor a Relative.Rel
-vmin = Relative.vmin
+vmin : Float -> Linear.SizeDescriptor a Linear.Rel
+vmin length =  
+  let lengthValue = Property.appendUnits length "vmin"
+  in \factory -> factory.size (Linear.relative lengthValue)
 
 -- | Size in vmax's (the larger of vw or vh).
-vmax : Float -> Linear.SizeDescriptor a Relative.Rel
-vmax = Relative.vmax
+vmax : Float -> Linear.SizeDescriptor a Linear.Rel
+vmax length =  
+  let lengthValue = Property.appendUnits length "vmax"
+  in \factory -> factory.size (Linear.relative lengthValue)
 
 -------------------------------------------------------------------------------
 
 -- | Angle in degrees.
 deg : Float -> Angle.AngleDescriptor Angle.Deg
-deg = Angle.deg
+deg amount = \factory -> factory.angle (Property.appendUnits amount "deg")
 
 -- | Angle in radians.
 rad : Float -> Angle.AngleDescriptor Angle.Rad
-rad = Angle.rad
+rad amount = \factory -> factory.angle (Property.appendUnits amount "rad")
 
 -- | Angle in gradians (also knows as gons or grades).
 grad : Float -> Angle.AngleDescriptor Angle.Grad
-grad = Angle.grad
+grad amount = \factory -> factory.angle (Property.appendUnits amount "grad")
 
 -- | Angle in turns.
 turn : Float -> Angle.AngleDescriptor Angle.Turn
-turn = Angle.turn
+turn amount = \factory -> factory.angle (Property.appendUnits amount "turn")
 
 -------------------------------------------------------------------------------
 -- Positioning
@@ -170,34 +201,56 @@ sideBottom = Sides.sideBottom
 -------------------------------------------------------------------------------
 
 top : Linear.AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-top = Linear.top 
+top sizeDescriptor = 
+  let sizeValue = sizeDescriptor Linear.autoSizableFactory 
+  in Stylesheet.simpleProperty "top" sizeValue
 
 left : Linear.AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-left = Linear.left
+left sizeDescriptor = 
+  let sizeValue = sizeDescriptor Linear.autoSizableFactory 
+  in Stylesheet.simpleProperty "left" sizeValue
 
 bottom : Linear.AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-bottom = Linear.bottom
+bottom sizeDescriptor = 
+  let sizeValue = sizeDescriptor Linear.autoSizableFactory 
+  in Stylesheet.simpleProperty "bottom" sizeValue
 
 right : Linear.AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-right = Linear.right
+right sizeDescriptor = 
+  let sizeValue = sizeDescriptor Linear.autoSizableFactory 
+  in Stylesheet.simpleProperty "right" sizeValue
 
 width : Linear.AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-width = Linear.width
+width sizeDescriptor = 
+  let sizeValue = sizeDescriptor Linear.autoSizableFactory 
+  in Stylesheet.simpleProperty "width" sizeValue
 
 height : Linear.AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-height = Linear.height
+height sizeDescriptor = 
+  let sizeValue = sizeDescriptor Linear.autoSizableFactory 
+  in Stylesheet.simpleProperty "height" sizeValue
+
+-------------------------------------------------------------------------------
 
 minWidth : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
-minWidth = Linear.minWidth
+minWidth sizeDescriptor = 
+  let sizeValue = sizeDescriptor Linear.basicSizeFactory 
+  in Stylesheet.simpleProperty "min-width" sizeValue
 
 minHeight : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
-minHeight = Linear.minHeight
+minHeight sizeDescriptor = 
+  let sizeValue = sizeDescriptor Linear.basicSizeFactory 
+  in Stylesheet.simpleProperty "min-height" sizeValue
 
 maxWidth : Linear.SizeDescriptorWithNone sz -> Stylesheet.PropertyRuleAppender
-maxWidth = Linear.maxWidth
+maxWidth sizeDescriptor = 
+  let sizeValue = sizeDescriptor Linear.sizeFactoryWithNone 
+  in Stylesheet.simpleProperty "max-width" sizeValue
 
 maxHeight : Linear.SizeDescriptorWithNone sz -> Stylesheet.PropertyRuleAppender
-maxHeight = Linear.maxHeight
+maxHeight sizeDescriptor = 
+  let sizeValue = sizeDescriptor Linear.sizeFactoryWithNone 
+  in Stylesheet.simpleProperty "max-height" sizeValue
 
 -------------------------------------------------------------------------------
 
@@ -207,40 +260,59 @@ rect : Linear.SizeDescriptor {} sz ->
        Linear.SizeDescriptor {} sz ->
        Linear.Rect a sz rec ->
        a
-rect = Linear.rect
+rect topLength rightLength bottomLength leftLength = 
+  \factory -> factory.rect_ topLength rightLength bottomLength leftLength
 
 -------------------------------------------------------------------------------
 
 padding : Padding.PaddingDescriptor sz -> Stylesheet.PropertyRuleAppender
-padding = Padding.padding
+padding paddingDescriptor =
+  Stylesheet.simpleProperty "padding" (paddingDescriptor Padding.paddingSizeFactory)
 
 paddingTop : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
-paddingTop = Padding.paddingTop
+paddingTop sizeDescriptor =
+  let sizeValue = sizeDescriptor Linear.basicSizeFactory
+  in Stylesheet.simpleProperty "padding-top" sizeValue
 
 paddingLeft : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
-paddingLeft = Padding.paddingLeft
+paddingLeft sizeDescriptor =
+  let sizeValue = sizeDescriptor Linear.basicSizeFactory
+  in Stylesheet.simpleProperty "padding-left" sizeValue
 
 paddingRight : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
-paddingRight = Padding.paddingRight
+paddingRight sizeDescriptor =
+  let sizeValue = sizeDescriptor Linear.basicSizeFactory
+  in Stylesheet.simpleProperty "padding-right" sizeValue
 
 paddingBottom : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
-paddingBottom = Padding.paddingBottom
+paddingBottom sizeDescriptor =
+  let sizeValue = sizeDescriptor Linear.basicSizeFactory
+  in Stylesheet.simpleProperty "padding-bottom" sizeValue
 
 -------------------------------------------------------------------------------
 margin : Margin.MarginDescriptor sz -> Stylesheet.PropertyRuleAppender
-margin = Margin.margin
+margin marginDescriptor =
+    Stylesheet.simpleProperty "margin" (marginDescriptor Margin.marginSizeFactory)
 
 marginTop : Linear.AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-marginTop = Margin.marginTop
+marginTop sizeDescriptor =
+  let sizeValue = sizeDescriptor Linear.autoSizableFactory
+  in Stylesheet.simpleProperty "margin-top" sizeValue
 
 marginLeft : Linear.AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-marginLeft = Margin.marginLeft
+marginLeft sizeDescriptor =
+  let sizeValue = sizeDescriptor Linear.autoSizableFactory
+  in Stylesheet.simpleProperty "margin-left" sizeValue
 
 marginRight : Linear.AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-marginRight = Margin.marginRight
+marginRight sizeDescriptor =
+  let sizeValue = sizeDescriptor Linear.autoSizableFactory
+  in Stylesheet.simpleProperty "margin-right" sizeValue
 
 marginBottom : Linear.AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-marginBottom = Margin.marginBottom
+marginBottom sizeDescriptor =
+  let sizeValue = sizeDescriptor Linear.autoSizableFactory
+  in Stylesheet.simpleProperty "margin-bottom" sizeValue
 
   
   

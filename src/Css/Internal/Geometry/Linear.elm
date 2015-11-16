@@ -5,28 +5,16 @@ module Css.Internal.Geometry.Linear
   , SizeDescriptorWithNone, SizeFactoryWithNone, sizeFactoryWithNone
   , SizeDescriptorWithNormal, sizeFactoryWithNormal
   
-  -- * Generic linear size constructors
-  
-  , unitless
+  , unitlessSize
+  , Abs, absolute
+  , Rel, relative
 
-  -- * Positioning properties.
-    
-  , top, left, bottom, right
-
-  -- * Sizing properties.
-    
-  , width, height, minWidth, minHeight, maxWidth, maxHeight
-
-  -- * Size composers.
-    
   , Rect
-  , rect
 
   ) where
 
 import Css.Internal.Common as Common
 import Css.Internal.Property as Property
-import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
@@ -52,70 +40,26 @@ type alias SizeDescriptorWithNone sz = SizeFactoryWithNone {} sz -> Property.Val
 -- adds normal to initial, inherit, unset
 type alias SizeDescriptorWithNormal sz = SizeFactoryWithNormal {} sz -> Property.Value
 
+-------------------------------------------------------------------------------
+
 toSize : a -> Property.Value -> Size a
 toSize constraint val = Size constraint val
 
 -------------------------------------------------------------------------------
 
--- | Unitless size (as recommended for line-height).
-unitless : Float -> SizeDescriptor rec {}
-unitless length = 
-  let unitlessSize = Size {} (Property.floatValue length)
-  in \factory -> factory.size unitlessSize
+unitlessSize : Float -> Size {}
+unitlessSize length = Size {} ( Property.floatValue length )
 
--------------------------------------------------------------------------------
+type Abs = Abs
 
-top : AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-top sizeDescriptor = 
-  let sizeValue = sizeDescriptor autoSizableFactory 
-  in Stylesheet.simpleProperty "top" sizeValue
+absolute : Property.Value -> Size Abs
+absolute lengthValue = toSize Abs lengthValue
 
-left : AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-left sizeDescriptor = 
-  let sizeValue = sizeDescriptor autoSizableFactory 
-  in Stylesheet.simpleProperty "left" sizeValue
+-- | Sizes can be relative like percentages or rems.
+type Rel = Rel
 
-bottom : AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-bottom sizeDescriptor = 
-  let sizeValue = sizeDescriptor autoSizableFactory 
-  in Stylesheet.simpleProperty "bottom" sizeValue
-
-right : AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-right sizeDescriptor = 
-  let sizeValue = sizeDescriptor autoSizableFactory 
-  in Stylesheet.simpleProperty "right" sizeValue
-
-width : AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-width sizeDescriptor = 
-  let sizeValue = sizeDescriptor autoSizableFactory 
-  in Stylesheet.simpleProperty "width" sizeValue
-
-height : AutoSizableDescriptor sz -> Stylesheet.PropertyRuleAppender
-height sizeDescriptor = 
-  let sizeValue = sizeDescriptor autoSizableFactory 
-  in Stylesheet.simpleProperty "height" sizeValue
-
--------------------------------------------------------------------------------
-
-minWidth : BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
-minWidth sizeDescriptor = 
-  let sizeValue = sizeDescriptor basicSizeFactory 
-  in Stylesheet.simpleProperty "min-width" sizeValue
-
-minHeight : BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
-minHeight sizeDescriptor = 
-  let sizeValue = sizeDescriptor basicSizeFactory 
-  in Stylesheet.simpleProperty "min-height" sizeValue
-
-maxWidth : SizeDescriptorWithNone sz -> Stylesheet.PropertyRuleAppender
-maxWidth sizeDescriptor = 
-  let sizeValue = sizeDescriptor sizeFactoryWithNone 
-  in Stylesheet.simpleProperty "max-width" sizeValue
-
-maxHeight : SizeDescriptorWithNone sz -> Stylesheet.PropertyRuleAppender
-maxHeight sizeDescriptor = 
-  let sizeValue = sizeDescriptor sizeFactoryWithNone 
-  in Stylesheet.simpleProperty "max-height" sizeValue
+relative : Property.Value -> Size Rel
+relative lengthValue = toSize Rel lengthValue
 
 -------------------------------------------------------------------------------
 
@@ -126,14 +70,6 @@ type alias Rect a sz rec =
                   SizeDescriptor {} sz ->
                   a 
   }
-
-rect : SizeDescriptor {} sz ->
-       SizeDescriptor {} sz ->
-       SizeDescriptor {} sz ->
-       SizeDescriptor {} sz ->
-       Rect a sz rec -> 
-       a
-rect top right bottom left factory = factory.rect_ top right bottom left
 
 -------------------------------------------------------------------------------
 

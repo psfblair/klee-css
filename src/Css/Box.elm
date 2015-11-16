@@ -49,7 +49,6 @@ import Css.Internal.Box.Outline as Outline
 import Css.Internal.Color as Color
 import Css.Internal.Display as Display
 import Css.Internal.Geometry.Linear as Linear
-import Css.Internal.Geometry.Linear.Absolute as Absolute
 import Css.Internal.Property as Property
 import Css.Internal.Stroke as Stroke
 import Css.Internal.Stylesheet as Stylesheet
@@ -152,7 +151,7 @@ outset = \factory -> factory.stroke "outset"
 -------------------------------------------------------------------------------
 
 aBorderWith : Stroke.NubBorderStyleDescriptor {} -> 
-              Linear.SizeDescriptor {} Absolute.Abs -> 
+              Linear.SizeDescriptor {} Linear.Abs -> 
               Color.ColorDescriptor {} ->
               Border.BorderDescriptor
 aBorderWith strokeDescriptor widthDescriptor colorDescriptor =
@@ -421,7 +420,7 @@ borderCollapse visibilityDescriptor =
 -------------------------------------------------------------------------------
 
 anOutlineWith : Stroke.NubOutlineStrokeDescriptor {} -> 
-                Linear.SizeDescriptor {} Absolute.Abs -> 
+                Linear.SizeDescriptor {} Linear.Abs -> 
                 Color.NubColorDescriptorWithInvert {} ->
                 Outline.OutlineDescriptor
 anOutlineWith strokeDescriptor widthDescriptor colorDescriptor =
