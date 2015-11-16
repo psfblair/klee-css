@@ -4,6 +4,8 @@ module Css.Internal.Box.Border.Stroke
   , NubBorderStrokeDescriptor
   , NubBorderStyleDescriptor, nubBorderStyleStrokeFactory
   , BorderStyleDescriptor, borderStyleStrokeFactory
+  , NubOutlineStrokeDescriptor, nubOutlineStrokeFactory
+  , OutlineStrokeDescriptor, outlineStrokeFactory
   ) where
   
 import Css.Internal.Property as Property
@@ -20,9 +22,15 @@ type alias NubBorderStrokeDescriptor rec =
 
 type alias NubBorderStyleDescriptor rec =
   NubBorderStyleStrokeFactory rec -> Property.Value
-  
+
 type alias BorderStyleDescriptor rec =
   BorderStyleStrokeFactory rec -> Property.Value
+
+type alias NubOutlineStrokeDescriptor rec =
+  NubOutlineStrokeFactory rec -> Property.Value
+
+type alias OutlineStrokeDescriptor rec =
+  OutlineStrokeFactory rec -> Property.Value
 
 type alias NubStrokeFactory rec =
   { rec | stroke: String -> Property.Value
@@ -61,12 +69,6 @@ type alias BorderStrokeFactory rec =
 borderStrokeFactory : BorderStrokeFactory {}
 borderStrokeFactory = { strokeFactory | none_ = Common.noneValue }
 
-type alias OutlineStrokeFactory rec = 
-  BorderStrokeFactory (Common.Auto Property.Value rec)
-
-outlineStrokeFactory : OutlineStrokeFactory {}
-outlineStrokeFactory = { borderStrokeFactory | auto_ = Common.autoValue }
-
 type alias NubBorderStyleStrokeFactory rec =  
   NubBorderStrokeFactory (Common.Hidden Property.Value rec)
   
@@ -79,3 +81,15 @@ type alias BorderStyleStrokeFactory rec =
 
 borderStyleStrokeFactory : BorderStyleStrokeFactory {}
 borderStyleStrokeFactory = { borderStrokeFactory | hidden_ = Common.hiddenValue }
+
+type alias NubOutlineStrokeFactory rec = 
+  NubBorderStyleStrokeFactory (Common.Auto Property.Value rec)
+
+nubOutlineStrokeFactory : NubOutlineStrokeFactory {}
+nubOutlineStrokeFactory = { nubBorderStyleStrokeFactory | auto_ = Common.autoValue }
+
+type alias OutlineStrokeFactory rec = 
+  BorderStyleStrokeFactory (Common.Auto Property.Value rec)
+
+outlineStrokeFactory : OutlineStrokeFactory {}
+outlineStrokeFactory = { borderStyleStrokeFactory | auto_ = Common.autoValue }

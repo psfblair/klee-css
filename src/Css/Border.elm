@@ -345,7 +345,7 @@ borderCollapse visibilityDescriptor =
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-anOutlineWith : Stroke.NubStrokeDescriptor {} -> 
+anOutlineWith : Stroke.NubOutlineStrokeDescriptor {} -> 
                 Linear.SizeDescriptor {} Absolute.Abs -> 
                 Color.NubColorDescriptorWithInvert {} ->
                 Outline.OutlineDescriptor
@@ -358,9 +358,16 @@ outline outlineDescriptor =
   let outlineValue = outlineDescriptor Outline.outlineFactory
   in Stylesheet.simpleProperty "outline" outlineValue
 
-outlineStyle : Stroke.StrokeDescriptor {} -> Stylesheet.PropertyRuleAppender
+outlineColor : Color.ColorDescriptorWithInvert {} -> 
+               Stylesheet.PropertyRuleAppender
+outlineColor colorDescriptor = 
+  let colorValue = colorDescriptor Color.colorFactoryWithInvert
+  in Stylesheet.simpleProperty "outline-color" colorValue
+
+outlineStyle : Stroke.OutlineStrokeDescriptor {} -> 
+               Stylesheet.PropertyRuleAppender
 outlineStyle strokeDescriptor =
-  let style = strokeDescriptor Stroke.strokeFactory
+  let style = strokeDescriptor Stroke.outlineStrokeFactory
   in Stylesheet.simpleProperty "outline-style" style
 
 outlineWidth : BorderWidth.BasicBorderWidthDescriptor {} -> 
@@ -369,14 +376,8 @@ outlineWidth widthDescriptor =
   let widthValue = widthDescriptor BorderWidth.borderWidthFactory
   in Stylesheet.simpleProperty "outline-width" widthValue
 
-outlineOffset : Linear.BasicSizeDescriptor Absolute.Abs -> 
+outlineOffset : Linear.BasicSizeDescriptor rec -> 
                 Stylesheet.PropertyRuleAppender
 outlineOffset offsetDescriptor =
   let offsetValue = offsetDescriptor Linear.basicSizeFactory
   in Stylesheet.simpleProperty "outline-offset" offsetValue
-
-outlineColor : Color.ColorDescriptorWithInvert {} -> 
-               Stylesheet.PropertyRuleAppender
-outlineColor colorDescriptor = 
-  let colorValue = colorDescriptor Color.colorFactoryWithInvert
-  in Stylesheet.simpleProperty "outline-color" colorValue

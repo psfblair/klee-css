@@ -12,7 +12,7 @@ import Css.Internal.Property as Property
 type alias OutlineDescriptor = OutlineFactory -> Property.Value
 
 type alias OutlineFactory =
-  { outline : Stroke.NubStrokeDescriptor {} -> 
+  { outline : Stroke.NubOutlineStrokeDescriptor {} -> 
               Linear.SizeDescriptor {} Absolute.Abs -> 
               Color.NubColorDescriptorWithInvert {} -> 
               Property.Value
@@ -28,7 +28,7 @@ outlineFactory =
       let compositeDescriptor = 
             Property.spaceTripleValue strokeDescriptor widthDescriptor colorDescriptor
           factory = 
-            (Stroke.nubStrokeFactory, Linear.nubSizeFactory, Color.nubColorFactoryWithInvert)
+            (Stroke.nubOutlineStrokeFactory, Linear.nubSizeFactory, Color.nubColorFactoryWithInvert)
       in compositeDescriptor factory
   in { outline = outlineValue
      , initial_ = Common.initialValue

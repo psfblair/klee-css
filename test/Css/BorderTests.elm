@@ -634,19 +634,23 @@ suite = describe "Css.BorderTests"
       [ renderProperties [ borderStyle4 solid dotted dashed groove ]
           `shouldEqual` ("border-style:solid dotted dashed groove")
       ]
-    , it "should not accept generic properties"
-      [
-        -- renderProperties [ borderStyle4 initial dotted dashed groove ] 
-        --   `shouldEqual` "border-style:should not compile"
-        -- ,
-        -- renderProperties [ borderStyle4 solid inherit dashed groove] 
-        --   `shouldEqual` "border-style:should not compile"
-        -- ,
-        -- renderProperties [ borderStyle4 solid dotted unset groove ] 
-        --   `shouldEqual` "border-style:should not compile"
-        -- ,
-        -- renderProperties [ borderStyle4 solid dotted dashed initial ] 
-        --   `shouldEqual` "border-style:should not compile"
+    , it "should accept only none and hidden among generic properties"
+      [ renderProperties [ borderStyle4 none dotted dashed groove ] 
+          `shouldEqual` "border-style:none dotted dashed groove"
+      , renderProperties [ borderStyle4 solid hidden dashed groove ] 
+          `shouldEqual` "border-style:solid hidden dashed groove"
+      , renderProperties [ borderStyle4 solid dotted none groove ] 
+          `shouldEqual` "border-style:solid dotted none groove"
+      , renderProperties [ borderStyle4 solid dotted dashed hidden ] 
+          `shouldEqual` "border-style:solid dotted dashed hidden"
+      -- , renderProperties [ borderStyle4 initial dotted dashed groove ] 
+      --     `shouldEqual` "border-style:should not compile"
+      -- , renderProperties [ borderStyle4 solid inherit dashed groove] 
+      --     `shouldEqual` "border-style:should not compile"
+      -- , renderProperties [ borderStyle4 solid dotted unset groove ] 
+      --     `shouldEqual` "border-style:should not compile"
+      -- , renderProperties [ borderStyle4 solid dotted dashed initial ] 
+      --     `shouldEqual` "border-style:should not compile"
       ]
     ]    
   , describe "the borderWidth function" 
@@ -1253,41 +1257,202 @@ suite = describe "Css.BorderTests"
       --     `shouldEqual` "border-collapse:should not compile"
       ]
     ]
-  , describe "The outline functions"
+  , describe "The outline function"
     [ it "should render the simple outline properties correctly"
       [ renderProperties [ outline (anOutlineWith solid (px 20) green) ]
           `shouldEqual` "outline:solid 20px #73D216"
-      , renderProperties [ outline (anOutlineWith solid (px 20) invert) ]
-          `shouldEqual` "outline:solid 20px invert"
-      -- Relative widths should not compile; uncomment to see:
-      -- , outline solid (pct 20) green `shouldEqual` outline solid (pct 20) green
-      ]      
-    , it "should render the outline color properties correctly"
+      , renderProperties [ outline (anOutlineWith groove (px 20) invert) ]
+          `shouldEqual` "outline:groove 20px invert"
+      , renderProperties [ outline (anOutlineWith none (px 20) green) ]
+          `shouldEqual` "outline:none 20px #73D216"
+      , renderProperties [ outline (anOutlineWith hidden (px 20) green) ]
+          `shouldEqual` "outline:hidden 20px #73D216"
+      -- , renderProperties [ outline (anOutlineWith solid (pct 20) green) ]
+      --     `shouldEqual` "outline:should not compile"
+      -- , renderProperties [ outline (anOutlineWith inherit (px 20) green) ]
+      --     `shouldEqual` "outline:should not compile"
+      -- , renderProperties [ outline (anOutlineWith solid inherit green) ]
+      --     `shouldEqual` "outline:should not compile"
+      -- , renderProperties [ outline (anOutlineWith solid (px 20) inherit) ]
+      --     `shouldEqual` "outline:should not compile"
+      ]   
+    , it "should render generic properties correctly"
+      [ renderProperties [ outline initial ] 
+          `shouldEqual` "outline:initial"
+      , renderProperties [ outline inherit ] 
+          `shouldEqual` "outline:inherit"
+      , renderProperties [ outline unset ] 
+          `shouldEqual` "outline:unset"
+      , renderProperties [ outline (other "foo") ] 
+          `shouldEqual` "outline:foo"
+      , renderProperties [ outline (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "outline:-webkit-foo;outline:-moz-foo"
+      -- , renderProperties [ outline all ]
+      --     `shouldEqual` "outline:should not compile"
+      -- , renderProperties [ outline auto ]
+      --     `shouldEqual` "outline:should not compile"
+      -- , renderProperties [ outline baseline ]
+      --     `shouldEqual` "outline:should not compile"
+      -- , renderProperties [ outline center ]
+      --     `shouldEqual` "outline:should not compile"
+      -- , renderProperties [ outline normal ]
+      --     `shouldEqual` "outline:should not compile"
+      -- , renderProperties [ outline none ]
+      --     `shouldEqual` "outline:should not compile"
+      -- , renderProperties [ outline visible ]
+      --     `shouldEqual` "outline:should not compile"
+      -- , renderProperties [ outline hidden ]
+      --     `shouldEqual` "outline:should not compile"
+      ]
+    ]
+  , describe "The outline color function"      
+    [ it "should render the outline color properties correctly"
       [ renderProperties [outlineColor green]
           `shouldEqual` "outline-color:#73D216"
       , renderProperties [outlineColor invert]
           `shouldEqual` "outline-color:invert"
       ]
-      -- TODO outline style can have auto and none but not hidden      
-    , it "should render the outline style properties properly"
-      [ renderProperties [outlineStyle solid]
+    , it "should render generic properties correctly"
+      [ renderProperties [ outlineColor initial ] 
+          `shouldEqual` "outline-color:initial"
+      , renderProperties [ outlineColor inherit ] 
+          `shouldEqual` "outline-color:inherit"
+      , renderProperties [ outlineColor unset ] 
+          `shouldEqual` "outline-color:unset"
+      , renderProperties [ outlineColor (other "foo") ] 
+          `shouldEqual` "outline-color:foo"
+      , renderProperties [ outlineColor (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "outline-color:-webkit-foo;outline-color:-moz-foo"
+      -- , renderProperties [ outlineColor all ]
+      --     `shouldEqual` "outline-color:should not compile"
+      -- , renderProperties [ outlineColor auto ]
+      --     `shouldEqual` "outline-color:should not compile"
+      -- , renderProperties [ outlineColor baseline ]
+      --     `shouldEqual` "outline-color:should not compile"
+      -- , renderProperties [ outlineColor center ]
+      --     `shouldEqual` "outline-color:should not compile"
+      -- , renderProperties [ outlineColor normal ]
+      --     `shouldEqual` "outline-color:should not compile"
+      -- , renderProperties [ outlineColor none ]
+      --     `shouldEqual` "outline-color:should not compile"
+      -- , renderProperties [ outlineColor visible ]
+      --     `shouldEqual` "outline-color:should not compile"
+      -- , renderProperties [ outlineColor hidden ]
+      --     `shouldEqual` "outline-color:should not compile"
+      ]
+    ]
+  , describe "The outline style function"      
+    [ it "should render the outline style properties properly"
+      [ renderProperties [ outlineStyle solid ]
           `shouldEqual` "outline-style:solid"
+      , renderProperties [ outlineStyle groove ]
+          `shouldEqual` "outline-style:groove"    
       ]      
-    , it "should render the outline width properties properly"
+    , it "should render generic properties correctly"
+      [ renderProperties [ outlineStyle initial ] 
+          `shouldEqual` "outline-style:initial"
+      , renderProperties [ outlineStyle inherit ] 
+          `shouldEqual` "outline-style:inherit"
+      , renderProperties [ outlineStyle auto ]
+          `shouldEqual` "outline-style:auto"
+      , renderProperties [ outlineStyle none ]
+          `shouldEqual` "outline-style:none"
+      , renderProperties [ outlineStyle hidden ]
+          `shouldEqual` "outline-style:hidden"
+      , renderProperties [ outlineStyle unset ] 
+          `shouldEqual` "outline-style:unset"
+      , renderProperties [ outlineStyle (other "foo") ] 
+          `shouldEqual` "outline-style:foo"
+      , renderProperties [ outlineStyle (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "outline-style:-webkit-foo;outline-style:-moz-foo"
+      -- , renderProperties [ outlineStyle all ]
+      --     `shouldEqual` "outline-style:should not compile"
+      -- , renderProperties [ outlineStyle baseline ]
+      --     `shouldEqual` "outline-style:should not compile"
+      -- , renderProperties [ outlineStyle center ]
+      --     `shouldEqual` "outline-style:should not compile"
+      -- , renderProperties [ outlineStyle normal ]
+      --     `shouldEqual` "outline-style:should not compile"
+      -- , renderProperties [ outlineStyle visible ]
+      --     `shouldEqual` "outline-style:should not compile"
+      ]
+    ]
+  , describe "The outline width function"      
+    [ it "should render the outline width properties properly"
       [ renderProperties [outlineWidth (px 20)]
           `shouldEqual` "outline-width:20px"
       , renderProperties [outlineWidth thin]
-            `shouldEqual` "outline-width:thin"
+          `shouldEqual` "outline-width:thin"
       , renderProperties [outlineWidth medium]
-            `shouldEqual` "outline-width:medium"
+          `shouldEqual` "outline-width:medium"
       , renderProperties [outlineWidth thick]
-            `shouldEqual` "outline-width:thick"
-      -- Relative widths should not compile; uncomment to see:
-      -- , outlineWidth (pct 20) `shouldEqual` outlineWidth (pct 20)
+          `shouldEqual` "outline-width:thick"
+      -- , renderProperties [ outlineWidth (pct 20) ]
+      --     `shouldEqual` "outline-width:should not compile"
       ]
-    , it "should render the outline offset property properly"
-      [ renderProperties [outlineOffset (px 20)]
+    , it "should render generic properties correctly"
+      [ renderProperties [ outlineWidth initial ] 
+          `shouldEqual` "outline-width:initial"
+      , renderProperties [ outlineWidth inherit ] 
+          `shouldEqual` "outline-width:inherit"
+      , renderProperties [ outlineWidth unset ] 
+          `shouldEqual` "outline-width:unset"
+      , renderProperties [ outlineWidth (other "foo") ] 
+          `shouldEqual` "outline-width:foo"
+      , renderProperties [ outlineWidth (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "outline-width:-webkit-foo;outline-width:-moz-foo"
+      -- , renderProperties [ outlineWidth all ]
+      --     `shouldEqual` "outline-width:should not compile"
+      -- , renderProperties [ outlineWidth auto ]
+      --     `shouldEqual` "outline-width:should not compile"
+      -- , renderProperties [ outlineWidth baseline ]
+      --     `shouldEqual` "outline-width:should not compile"
+      -- , renderProperties [ outlineWidth center ]
+      --     `shouldEqual` "outline-width:should not compile"
+      -- , renderProperties [ outlineWidth normal ]
+      --     `shouldEqual` "outline-width:should not compile"
+      -- , renderProperties [ outlineWidth none ]
+      --     `shouldEqual` "outline-width:should not compile"
+      -- , renderProperties [ outlineWidth visible ]
+      --     `shouldEqual` "outline-width:should not compile"
+      -- , renderProperties [ outlineWidth hidden ]
+      --     `shouldEqual` "outline-width:should not compile"
+      ]
+    ]
+  , describe "The outline offset function"      
+    [ it "should render the outline offset property properly"
+      [ renderProperties [ outlineOffset (px 20) ]
           `shouldEqual` "outline-offset:20px"
+      , renderProperties [ outlineOffset rel0 ]
+          `shouldEqual` "outline-offset:0"
+      ]
+    , it "should render generic properties correctly"
+      [ renderProperties [ outlineOffset initial ] 
+          `shouldEqual` "outline-offset:initial"
+      , renderProperties [ outlineOffset inherit ] 
+          `shouldEqual` "outline-offset:inherit"
+      , renderProperties [ outlineOffset unset ] 
+          `shouldEqual` "outline-offset:unset"
+      , renderProperties [ outlineOffset (other "foo") ] 
+          `shouldEqual` "outline-offset:foo"
+      , renderProperties [ outlineOffset (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "outline-offset:-webkit-foo;outline-offset:-moz-foo"
+      -- , renderProperties [ outlineOffset all ]
+      --     `shouldEqual` "outline-offset:should not compile"
+      -- , renderProperties [ outlineOffset auto ]
+      --     `shouldEqual` "outline-offset:should not compile"
+      -- , renderProperties [ outlineOffset baseline ]
+      --     `shouldEqual` "outline-offset:should not compile"
+      -- , renderProperties [ outlineOffset center ]
+      --     `shouldEqual` "outline-offset:should not compile"
+      -- , renderProperties [ outlineOffset normal ]
+      --     `shouldEqual` "outline-offset:should not compile"
+      -- , renderProperties [ outlineOffset none ]
+      --     `shouldEqual` "outline-offset:should not compile"
+      -- , renderProperties [ outlineOffset visible ]
+      --     `shouldEqual` "outline-offset:should not compile"
+      -- , renderProperties [ outlineOffset hidden ]
+      --     `shouldEqual` "outline-offset:should not compile"
       ]
     ]    
   ]
