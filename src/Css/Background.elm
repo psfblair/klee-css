@@ -141,14 +141,14 @@ repeatY factory = backgroundRepeatFactory.repeat "repeat-y"
 
 backgroundOrigin : BoxSizing.BoxSizingDescriptor -> PropertyRuleAppender
 backgroundOrigin descriptor = 
-  let bgOrigin = BoxSizing.boxSizeValue descriptor 
+  let bgOrigin = descriptor BoxSizing.boxTypeFactory  
   in simpleProperty "background-origin" bgOrigin
 
 -------------------------------------------------------------------------------
 
 backgroundClip : BoxSizing.BoxSizingDescriptor -> PropertyRuleAppender
 backgroundClip descriptor = 
-  let bgClip = BoxSizing.boxSizeValue descriptor
+  let bgClip = descriptor BoxSizing.boxTypeFactory 
   in simpleProperty "background-clip" bgClip
 
 -------------------------------------------------------------------------------
@@ -220,18 +220,18 @@ withImage imageDescriptor composedDescriptor =
        newComponents = WithImage image innerComponents
    in adjoinComponents newComponents
 
-withOrigin : BoxSizing.BareBoxTypeDescriptor -> 
+withOrigin : BoxSizing.NubBoxTypeDescriptor -> 
              ComposedBackgroundDescriptor a sz1 sz2 sz3
 withOrigin originDescriptor composedDescriptor =
-   let origin = BoxSizing.boxTypeValue originDescriptor
+   let origin = originDescriptor BoxSizing.nubBoxTypeFactory 
        innerComponents = composedDescriptor.backgroundComponents
        newComponents = WithOrigin origin innerComponents
    in adjoinComponents newComponents
   
-withClip : BoxSizing.BareBoxTypeDescriptor -> 
+withClip : BoxSizing.NubBoxTypeDescriptor -> 
            ComposedBackgroundDescriptor a sz1 sz2 sz3
 withClip clipDescriptor composedDescriptor =
-   let clip = BoxSizing.boxTypeValue clipDescriptor
+   let clip = clipDescriptor BoxSizing.nubBoxTypeFactory 
        innerComponents = composedDescriptor.backgroundComponents
        newComponents = WithClip clip innerComponents
    in adjoinComponents newComponents

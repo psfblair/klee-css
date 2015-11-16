@@ -1,6 +1,6 @@
 module Css.Internal.Box.Sizing
-  ( BoxSizingDescriptor, BoxTypeDescriptor, BareBoxTypeDescriptor
-  , boxSizeValue, boxTypeFactory, boxTypeValue
+  ( BoxSizingDescriptor, BoxTypeDescriptor, NubBoxTypeDescriptor
+  , nubBoxTypeFactory, boxTypeFactory
   ) where
 
 import Css.Internal.Common as Common
@@ -9,27 +9,19 @@ import Css.Internal.Property as Property
 -------------------------------------------------------------------------------
 type alias BoxSizingDescriptor = BoxSizingFactory -> Property.Value
 
-type alias BoxTypeDescriptor rec = BareBoxTypeFactory rec -> Property.Value
+type alias BoxTypeDescriptor rec = NubBoxTypeFactory rec -> Property.Value
 
-type alias BareBoxTypeDescriptor = BareBoxTypeFactory {} -> Property.Value
-
--- Exported for other modules that use box types (e.g., Background).
-boxSizeValue : BoxSizingDescriptor -> Property.Value
-boxSizeValue descriptor = descriptor boxTypeFactory
-
--- For other modules that use box types in constructing more complex descriptors.
-boxTypeValue : BareBoxTypeDescriptor -> Property.Value
-boxTypeValue descriptor = descriptor bareBoxTypeFactory
+type alias NubBoxTypeDescriptor = NubBoxTypeFactory {} -> Property.Value
 
 -------------------------------------------------------------------------------
 -- For other modules that use box types in constructing more complex descriptors.
-type alias BareBoxTypeFactory rec = 
+type alias NubBoxTypeFactory rec = 
   { rec | boxType: String -> Property.Value
         , other_ : Property.Value -> Property.Value
   }
 
-bareBoxTypeFactory : BareBoxTypeFactory {}
-bareBoxTypeFactory =
+nubBoxTypeFactory : NubBoxTypeFactory {}
+nubBoxTypeFactory =
   { boxType str = Property.stringValue str
   , other_ val = Common.otherValue val
   }
@@ -40,11 +32,11 @@ type alias WithCommonProperties rec =
         , unset_ : Property.Value
   }
   
-type alias BoxSizingFactory = BareBoxTypeFactory (WithCommonProperties {})
+type alias BoxSizingFactory = NubBoxTypeFactory (WithCommonProperties {})
 
 boxTypeFactory : BoxSizingFactory
 boxTypeFactory = 
-  let withInherit = { bareBoxTypeFactory | inherit_ = Common.inheritValue }
-      withInitial = { withInherit | initial_ = Common.initialValue }
-      withUnset   = { withInitial | unset_ = Common.unsetValue }
+  let withInherit = { nubBoxTypeFactory | inherit_ = Common.inheritValue }
+      withInitial = { withInherit       | initial_ = Common.initialValue }
+      withUnset   = { withInitial       | unset_ = Common.unsetValue }
   in withUnset
