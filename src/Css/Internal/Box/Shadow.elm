@@ -1,13 +1,12 @@
 module Css.Internal.Box.Shadow
   ( BoxShadowDescriptor, CompositeShadowDescriptor
-  , boxShadow, shadow, inset, boxColor, boxBlur
+  , boxShadowFactory, boxShadowValue
   ) where
 
 import Css.Internal.Color as Color
 import Css.Internal.Common as Common
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Property as Property
-import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
@@ -41,53 +40,6 @@ type alias CompositeShadowDescriptor xSzTyp ySzTyp blurTyp spreadTyp
 type alias CompositeShadow = Shadow WithComponents
 
 type alias WithComponents = { withComponents : ShadowComponents }
-
--------------------------------------------------------------------------------
-{- boxShadow can be:
-      none | initial | inherit
-or:
-      h-shadow v-shadow blur spread color inset
-
-where the last four (blur, spread, color, inset) are optional
-spread is optional but if you have it you have to have blur
--}
-boxShadow : BoxShadowDescriptor rec xSzTyp ySzTyp blurSzTyp spreadSzTyp -> 
-            Stylesheet.PropertyRuleAppender
-boxShadow shadowDescriptor =
-  let boxShadow = shadowDescriptor boxShadowFactory
-  in Stylesheet.simpleProperty "box-shadow" (boxShadowValue boxShadow)
-
--- * Composable shadow descriptors.
-
-shadow : Linear.SizeDescriptor {} xSzTyp ->
-         Linear.SizeDescriptor {} ySzTyp ->
-         CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp
-shadow xOffsetDescriptor yOffsetDescriptor shadowFactory =
-  shadowFactory.sizedShadow xOffsetDescriptor yOffsetDescriptor
-
-
-inset : CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp -> 
-        CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp
-inset innerDescriptor shadowFactory =
-  let innerShadow = innerDescriptor shadowFactory
-  in shadowFactory.withInset innerShadow
-
-
-boxColor : Color.ColorDescriptor {} ->
-           CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp ->
-           CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp
-boxColor colorDescriptor innerDescriptor shadowFactory =
-  let innerShadow = innerDescriptor shadowFactory
-  in shadowFactory.withColor colorDescriptor innerShadow
-
-
-boxBlur : Linear.SizeDescriptor {} blurSzTyp ->
-          Linear.SizeDescriptor {} spreadSzTyp ->
-          CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp ->
-          CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp
-boxBlur blurDescriptor spreadDescriptor innerDescriptor shadowFactory =
-  let innerShadow = innerDescriptor shadowFactory
-  in shadowFactory.withBlur blurDescriptor spreadDescriptor innerShadow
 
 -------------------------------------------------------------------------------
 

@@ -57,17 +57,22 @@ import Css.Internal.Utils as Utils
 
 -------------------------------------------------------------------------------
 
-boxSizing : BoxSizing.BoxSizingDescriptor -> Stylesheet.PropertyRuleAppender
-boxSizing = BoxSizing.boxSizing
-
+-- These descriptors must be usable in cases where we don't want to accept 
+-- generic properties; i.e., where we are constructing more complex descriptors. 
+-- So we don't require that the common properties be present.
 paddingBox : BoxSizing.BoxTypeDescriptor rec
-paddingBox = BoxSizing.paddingBox
+paddingBox = \factory -> factory.boxType "padding-box"
 
 borderBox : BoxSizing.BoxTypeDescriptor rec
-borderBox = BoxSizing.borderBox
+borderBox = \factory ->  factory.boxType "border-box"
 
 contentBox : BoxSizing.BoxTypeDescriptor rec
-contentBox = BoxSizing.contentBox
+contentBox = \factory ->  factory.boxType "content-box"
+
+boxSizing : BoxSizing.BoxSizingDescriptor -> Stylesheet.PropertyRuleAppender
+boxSizing descriptor =
+  let boxType = descriptor BoxSizing.boxTypeFactory
+  in Stylesheet.simpleProperty "box-sizing" boxType
 
 -------------------------------------------------------------------------------
 {- boxShadow can be:
@@ -79,32 +84,41 @@ spread is optional but if you have it you have to have blur
 -}
 boxShadow : BoxShadow.BoxShadowDescriptor rec xSzTyp ySzTyp blurSzTyp spreadSzTyp -> 
             Stylesheet.PropertyRuleAppender
-boxShadow = BoxShadow.boxShadow
+boxShadow shadowDescriptor =
+  let boxShadow = shadowDescriptor BoxShadow.boxShadowFactory
+  in Stylesheet.simpleProperty "box-shadow" (BoxShadow.boxShadowValue boxShadow)
 
 -- * Composable shadow descriptors.
 
 shadow : Linear.SizeDescriptor {} xSzTyp ->
          Linear.SizeDescriptor {} ySzTyp ->
          BoxShadow.CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp
-shadow = BoxShadow.shadow
+shadow xOffsetDescriptor yOffsetDescriptor shadowFactory =
+  shadowFactory.sizedShadow xOffsetDescriptor yOffsetDescriptor
 
 
 boxInset : BoxShadow.CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp -> 
            BoxShadow.CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp
-boxInset = BoxShadow.inset
+boxInset innerDescriptor shadowFactory =
+  let innerShadow = innerDescriptor shadowFactory
+  in shadowFactory.withInset innerShadow
 
 
 boxColor : Color.ColorDescriptor {} ->
            BoxShadow.CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp ->
            BoxShadow.CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp
-boxColor = BoxShadow.boxColor
+boxColor colorDescriptor innerDescriptor shadowFactory =
+  let innerShadow = innerDescriptor shadowFactory
+  in shadowFactory.withColor colorDescriptor innerShadow
 
 
 boxBlur : Linear.SizeDescriptor {} blurSzTyp ->
           Linear.SizeDescriptor {} spreadSzTyp ->
           BoxShadow.CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp ->
           BoxShadow.CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp
-boxBlur = BoxShadow.boxBlur
+boxBlur blurDescriptor spreadDescriptor innerDescriptor shadowFactory =
+  let innerShadow = innerDescriptor shadowFactory
+  in shadowFactory.withBlur blurDescriptor spreadDescriptor innerShadow
 
 -------------------------------------------------------------------------------
 

@@ -1,12 +1,10 @@
 module Css.Internal.Box.Sizing
   ( BoxSizingDescriptor, BoxTypeDescriptor, BareBoxTypeDescriptor
-  , boxSizing, paddingBox, borderBox, contentBox
-  , boxSizeValue, boxTypeValue
+  , boxSizeValue, boxTypeFactory, boxTypeValue
   ) where
 
 import Css.Internal.Common as Common
 import Css.Internal.Property as Property
-import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 type alias BoxSizingDescriptor = BoxSizingFactory -> Property.Value
@@ -14,23 +12,6 @@ type alias BoxSizingDescriptor = BoxSizingFactory -> Property.Value
 type alias BoxTypeDescriptor rec = BareBoxTypeFactory rec -> Property.Value
 
 type alias BareBoxTypeDescriptor = BareBoxTypeFactory {} -> Property.Value
-
-boxSizing : BoxSizingDescriptor -> Stylesheet.PropertyRuleAppender
-boxSizing descriptor =
-  let boxType = descriptor boxTypeFactory
-  in Stylesheet.simpleProperty "box-sizing" boxType
-
--- These functions must be usable in cases where we don't want to accept generic
--- properties; i.e., where we are constructing more complex descriptors. So we
--- don't require that the common properties be present.
-paddingBox : BoxTypeDescriptor rec
-paddingBox factory = factory.boxType "padding-box"
-
-borderBox : BoxTypeDescriptor rec
-borderBox factory = factory.boxType "border-box"
-
-contentBox : BoxTypeDescriptor rec
-contentBox factory = factory.boxType "content-box"
 
 -- Exported for other modules that use box types (e.g., Background).
 boxSizeValue : BoxSizingDescriptor -> Property.Value
