@@ -35,13 +35,13 @@ module Css.Border (
 import Css.Internal.Display exposing (VisibilityDescriptor, visibilityFactory)
 
 import Css.Internal.Box.Border as Border
-import Css.Internal.Box.Border.Stroke as Stroke
 import Css.Internal.Box.Border.Width as BorderWidth
 import Css.Internal.Box.Outline as Outline
 import Css.Internal.Color as Color
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Geometry.Linear.Absolute as Absolute
 import Css.Internal.Property as Property
+import Css.Internal.Stroke as Stroke
 import Css.Internal.Stylesheet as Stylesheet
 import Css.Internal.Utils as Utils
 

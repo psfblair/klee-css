@@ -71,10 +71,10 @@ import Css.Internal.Property exposing
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Text exposing (..)
 
-import Css.Internal.Box.Border.Stroke as Stroke
 import Css.Internal.Color as Color
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Geometry.Sides as Sides
+import Css.Internal.Stroke as Stroke
 
 -------------------------------------------------------------------------------
 

@@ -1,4 +1,4 @@
-module Css.Internal.Box.Border.Stroke
+module Css.Internal.Stroke
   ( NubStrokeDescriptor, nubStrokeFactory
   , StrokeDescriptor, strokeFactory
   , NubBorderStrokeDescriptor

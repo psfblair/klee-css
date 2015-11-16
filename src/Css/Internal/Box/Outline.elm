@@ -1,11 +1,11 @@
 module Css.Internal.Box.Outline ( OutlineDescriptor, outlineFactory) where
 
-import Css.Internal.Box.Border.Stroke as Stroke
 import Css.Internal.Color as Color
 import Css.Internal.Common as Common
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Geometry.Linear.Absolute as Absolute
 import Css.Internal.Property as Property
+import Css.Internal.Stroke as Stroke
 
 -------------------------------------------------------------------------------
 
