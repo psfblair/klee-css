@@ -3,23 +3,28 @@ module Css.PseudoTests where
 import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
-import Css.Pseudo exposing (..)
+import Css exposing (renderCompact, (:|))
+import Css.Box exposing (solid,borderStyle)
 import Css.Elements exposing (p)
-import Css.Border exposing (solid,borderStyle)
-import Css exposing (renderCompact, (.|))
+
+import Css.Pseudo exposing (..)
 
 suite : Spec
 suite = describe "Css.PseudoTests"
   [ describe "The pseudo classes"
     [ it "should render correctly"
-        [ renderCompact ((p .| lastOfType) [ borderStyle solid ])
-            `shouldEqual` "p:last-of-type{border-style:solid}"
+        [ let stylesheet =
+            [ (p :| lastOfType) [ borderStyle solid ] [] ]
+          in renderCompact stylesheet 
+              `shouldEqual` "p:last-of-type {border-style:solid}"
         ]
     ]
   , describe "The pseudo functions"
     [ it "should render correctly"
-        [ renderCompact ((p .| lang "no") [ borderStyle solid ])
-            `shouldEqual` "p:lang(no){border-style:solid}"
+        [ let stylesheet =
+            [ (p :| lang "no") [ borderStyle solid ] [] ]
+          in renderCompact stylesheet 
+              `shouldEqual` "p:lang(no) {border-style:solid}"
         ]
     ]
   ]

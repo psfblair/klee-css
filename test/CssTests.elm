@@ -4,7 +4,7 @@ import Spec exposing (..)
 
 import Css exposing (..)
 import Css.Elements exposing (..)
-import Css.Border exposing (borderStyle, borderColor, solid)
+import Css.Box exposing (borderStyle, borderColor, solid)
 import Css.Color exposing (green)
 import Css.Display exposing (float, floatLeft, clear, both)
 import Css.FontFace exposing 

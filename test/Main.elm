@@ -7,16 +7,17 @@ import Spec.Runner.Console as Console
 import Spec exposing (..)
 
 import CssTests
-import Css.Internal.PropertyTests
-import Css.Internal.UtilsTests
-import Css.BorderTests
+import Css.BackgroundTests
 import Css.BoxTests
 import Css.ColorTests
+-- import Css.DisplayTests
 import Css.FontTests
 import Css.GeometryTests
-import Css.BackgroundTests
-import Css.TextTests
 import Css.ListTests
+import Css.TextTests
+import Css.PseudoTests
+import Css.Internal.PropertyTests
+import Css.Internal.UtilsTests
 
 -------------------------------------------------------------------------------
 
@@ -24,16 +25,17 @@ allTests : Spec
 allTests =
   describe  "All tests"
     [ CssTests.suite
-    , Css.Internal.PropertyTests.suite
-    , Css.Internal.UtilsTests.suite
-    , Css.BorderTests.suite
+    , Css.BackgroundTests.suite
     , Css.BoxTests.suite
     , Css.ColorTests.suite
+--    , Css.DisplayTests.suite
     , Css.FontTests.suite
     , Css.GeometryTests.suite
-    , Css.BackgroundTests.suite
-    , Css.TextTests.suite
     , Css.ListTests.suite
+    , Css.TextTests.suite
+    , Css.PseudoTests.suite
+    , Css.Internal.PropertyTests.suite
+    , Css.Internal.UtilsTests.suite
     ]
 
 testRunner : IO ()
