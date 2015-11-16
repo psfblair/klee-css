@@ -891,21 +891,282 @@ suite = describe "Css.BorderTests"
         --   `shouldEqual` "border-width:should not compile"
       ]
     ]    
-  --TODO add new functions and generics
-  , describe "The border radius functions"
+  , describe "The border radius function"
     [ it "should render the border radius properties correctly"
-      [ renderProperties [borderRadius4 (px 20) (pct 30) (px 40) (px 50)]
-          `shouldEqual` "border-radius:20px 30% 40px 50px"
-      , renderProperties [borderTopLeftRadius2 (px 20) (pct 30)]
-          `shouldEqual` "border-top-left-radius:20px 30%"
-      , renderProperties [borderTopRightRadius2 (px 20) (pct 30)]
-          `shouldEqual` "border-top-right-radius:20px 30%"
-      , renderProperties [borderBottomLeftRadius2 (px 20) (pct 30)]
-          `shouldEqual` "border-bottom-left-radius:20px 30%"
-      , renderProperties [borderBottomRightRadius2 (px 20) (pct 30)]
-          `shouldEqual` "border-bottom-right-radius:20px 30%"
+      [ renderProperties [ borderRadius (px 20) ]
+          `shouldEqual` "border-radius:20px"
+      , renderProperties [ borderRadius rel0 ]
+          `shouldEqual` "border-radius:0"
+      ]
+    , it "should render generic properties correctly"
+      [ renderProperties [ borderRadius initial ] 
+          `shouldEqual` "border-radius:initial"
+      , renderProperties [ borderRadius inherit ] 
+          `shouldEqual` "border-radius:inherit"
+      , renderProperties [ borderRadius unset ] 
+          `shouldEqual` "border-radius:unset"
+      , renderProperties [ borderRadius (other "foo") ] 
+          `shouldEqual` "border-radius:foo"
+      , renderProperties [ borderRadius (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-radius:-webkit-foo;border-radius:-moz-foo"
+      -- , renderProperties [ borderRadius all ]
+      --     `shouldEqual` "border-radius:should not compile"
+      -- , renderProperties [ borderRadius auto ]
+      --     `shouldEqual` "border-radius:should not compile"
+      -- , renderProperties [ borderRadius baseline ]
+      --     `shouldEqual` "border-radius:should not compile"
+      -- , renderProperties [ borderRadius center ]
+      --     `shouldEqual` "border-radius:should not compile"
+      -- , renderProperties [ borderRadius normal ]
+      --     `shouldEqual` "border-radius:should not compile"
+      -- , renderProperties [ borderRadius none ]
+      --     `shouldEqual` "border-radius:should not compile"
+      -- , renderProperties [ borderRadius visible ]
+      --     `shouldEqual` "border-radius:should not compile"
+      -- , renderProperties [ borderRadius hidden ]
+      --     `shouldEqual` "border-radius:should not compile"
       ]
     ]
+  , describe "the borderRadius4 function" 
+    [ it "should render the border radius properties properly"
+      [ renderProperties [ borderRadius4 (px 5.2) (px 7.6) (px 5) (px 5.4) ]
+          `shouldEqual` ("border-radius:5.2px 7.6px 5px 5.4px")
+      , renderProperties [ borderRadius4 (px 5.2) (em 7.6) (em 5) (em 5.4) ]
+          `shouldEqual` ("border-radius:5.2px 7.6em 5em 5.4em")
+      , renderProperties [ borderRadius4 (em 5.2) (em 7.6) (em 5) (em 5.4) ]
+          `shouldEqual` ("border-radius:5.2em 7.6em 5em 5.4em")
+      ]
+    , it "should not accept generic properties"
+      [
+        -- renderProperties [ borderRadius4 initial (px 7.6) (px 5) (px 5.4) ] 
+        --   `shouldEqual` "border-radius:should not compile"
+        -- ,
+        -- renderProperties [ borderRadius4 (px 7.6) inherit (px 5) (px 5.4) ] 
+        --   `shouldEqual` "border-radius:should not compile"
+        -- ,
+        -- renderProperties [ borderRadius4 (px 7.6) (px 5) unset (px 5.4) ] 
+        --   `shouldEqual` "border-radius:should not compile"
+        -- ,
+        -- renderProperties [ borderRadius4 black blue white initial ] 
+        --   `shouldEqual` "border-radius:should not compile"
+      ]
+    ]    
+  , describe "The borderTopLeftRadius function"
+    [ it "should render the border radius properties correctly"
+      [ renderProperties [ borderTopLeftRadius (px 20) ]
+          `shouldEqual` "border-top-left-radius:20px"
+      , renderProperties [ borderTopLeftRadius rel0 ]
+          `shouldEqual` "border-top-left-radius:0"
+      ]
+    , it "should render generic properties correctly"
+      [ renderProperties [ borderTopLeftRadius initial ] 
+          `shouldEqual` "border-top-left-radius:initial"
+      , renderProperties [ borderTopLeftRadius inherit ] 
+          `shouldEqual` "border-top-left-radius:inherit"
+      , renderProperties [ borderTopLeftRadius unset ] 
+          `shouldEqual` "border-top-left-radius:unset"
+      , renderProperties [ borderTopLeftRadius (other "foo") ] 
+          `shouldEqual` "border-top-left-radius:foo"
+      , renderProperties [ borderTopLeftRadius (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-top-left-radius:-webkit-foo;border-top-left-radius:-moz-foo"
+      -- , renderProperties [ borderTopLeftRadius all ]
+      --     `shouldEqual` "border-top-left-radius:should not compile"
+      -- , renderProperties [ borderTopLeftRadius auto ]
+      --     `shouldEqual` "border-top-left-radius:should not compile"
+      -- , renderProperties [ borderTopLeftRadius baseline ]
+      --     `shouldEqual` "border-top-left-radius:should not compile"
+      -- , renderProperties [ borderTopLeftRadius center ]
+      --     `shouldEqual` "border-top-left-radius:should not compile"
+      -- , renderProperties [ borderTopLeftRadius normal ]
+      --     `shouldEqual` "border-top-left-radius:should not compile"
+      -- , renderProperties [ borderTopLeftRadius none ]
+      --     `shouldEqual` "border-top-left-radius:should not compile"
+      -- , renderProperties [ borderTopLeftRadius visible ]
+      --     `shouldEqual` "border-top-left-radius:should not compile"
+      -- , renderProperties [ borderTopLeftRadius hidden ]
+      --     `shouldEqual` "border-top-left-radius:should not compile"
+      ]
+    ]
+  , describe "the borderTopLeftRadius2 function" 
+    [ it "should render the border radius properties properly"
+      [ renderProperties [ borderTopLeftRadius2 (px 5.2) (px 7.6) ]
+          `shouldEqual` ("border-top-left-radius:5.2px 7.6px")
+      , renderProperties [ borderTopLeftRadius2 (px 5.2) (em 7.6) ]
+          `shouldEqual` ("border-top-left-radius:5.2px 7.6em")
+      , renderProperties [ borderTopLeftRadius2 (em 5.2) (em 7.6) ]
+          `shouldEqual` ("border-top-left-radius:5.2em 7.6em")
+      ]
+    , it "should not accept generic properties"
+      [
+        -- renderProperties [ borderTopLeftRadius2 initial (px 7.6) ] 
+        --   `shouldEqual` "border-top-left-radius:should not compile"
+        -- ,
+        -- renderProperties [ borderTopLeftRadius2 (px 7.6) inherit ] 
+        --   `shouldEqual` "border-top-left-radius:should not compile"
+      ]
+    ]    
+  , describe "The borderTopRightRadius function"
+    [ it "should render the border radius properties correctly"
+      [ renderProperties [ borderTopRightRadius (px 20) ]
+          `shouldEqual` "border-top-right-radius:20px"
+      , renderProperties [ borderTopRightRadius rel0 ]
+          `shouldEqual` "border-top-right-radius:0"
+      ]
+    , it "should render generic properties correctly"
+      [ renderProperties [ borderTopRightRadius initial ] 
+          `shouldEqual` "border-top-right-radius:initial"
+      , renderProperties [ borderTopRightRadius inherit ] 
+          `shouldEqual` "border-top-right-radius:inherit"
+      , renderProperties [ borderTopRightRadius unset ] 
+          `shouldEqual` "border-top-right-radius:unset"
+      , renderProperties [ borderTopRightRadius (other "foo") ] 
+          `shouldEqual` "border-top-right-radius:foo"
+      , renderProperties [ borderTopRightRadius (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-top-right-radius:-webkit-foo;border-top-right-radius:-moz-foo"
+      -- , renderProperties [ borderTopRightRadius all ]
+      --     `shouldEqual` "border-top-right-radius:should not compile"
+      -- , renderProperties [ borderTopRightRadius auto ]
+      --     `shouldEqual` "border-top-right-radius:should not compile"
+      -- , renderProperties [ borderTopRightRadius baseline ]
+      --     `shouldEqual` "border-top-right-radius:should not compile"
+      -- , renderProperties [ borderTopRightRadius center ]
+      --     `shouldEqual` "border-top-right-radius:should not compile"
+      -- , renderProperties [ borderTopRightRadius normal ]
+      --     `shouldEqual` "border-top-right-radius:should not compile"
+      -- , renderProperties [ borderTopRightRadius none ]
+      --     `shouldEqual` "border-top-right-radius:should not compile"
+      -- , renderProperties [ borderTopRightRadius visible ]
+      --     `shouldEqual` "border-top-right-radius:should not compile"
+      -- , renderProperties [ borderTopRightRadius hidden ]
+      --     `shouldEqual` "border-top-right-radius:should not compile"
+      ]
+    ]
+  , describe "the borderTopRightRadius2 function" 
+    [ it "should render the border radius properties properly"
+      [ renderProperties [ borderTopRightRadius2 (px 5.2) (px 7.6) ]
+          `shouldEqual` ("border-top-right-radius:5.2px 7.6px")
+      , renderProperties [ borderTopRightRadius2 (px 5.2) (em 7.6) ]
+          `shouldEqual` ("border-top-right-radius:5.2px 7.6em")
+      , renderProperties [ borderTopRightRadius2 (em 5.2) (em 7.6) ]
+          `shouldEqual` ("border-top-right-radius:5.2em 7.6em")
+      ]
+    , it "should not accept generic properties"
+      [
+        -- renderProperties [ borderTopRightRadius2 initial (px 7.6) ] 
+        --   `shouldEqual` "border-top-right-radius:should not compile"
+        -- ,
+        -- renderProperties [ borderTopRightRadius2 (px 7.6) inherit ] 
+        --   `shouldEqual` "border-top-right-radius:should not compile"
+      ]
+    ]    
+  , describe "The borderBottomLeftRadius function"
+    [ it "should render the border radius properties correctly"
+      [ renderProperties [ borderBottomLeftRadius (px 20) ]
+          `shouldEqual` "border-bottom-left-radius:20px"
+      , renderProperties [ borderBottomLeftRadius rel0 ]
+          `shouldEqual` "border-bottom-left-radius:0"
+      ]
+    , it "should render generic properties correctly"
+      [ renderProperties [ borderBottomLeftRadius initial ] 
+          `shouldEqual` "border-bottom-left-radius:initial"
+      , renderProperties [ borderBottomLeftRadius inherit ] 
+          `shouldEqual` "border-bottom-left-radius:inherit"
+      , renderProperties [ borderBottomLeftRadius unset ] 
+          `shouldEqual` "border-bottom-left-radius:unset"
+      , renderProperties [ borderBottomLeftRadius (other "foo") ] 
+          `shouldEqual` "border-bottom-left-radius:foo"
+      , renderProperties [ borderBottomLeftRadius (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-bottom-left-radius:-webkit-foo;border-bottom-left-radius:-moz-foo"
+      -- , renderProperties [ borderBottomLeftRadius all ]
+      --     `shouldEqual` "border-bottom-left-radius:should not compile"
+      -- , renderProperties [ borderBottomLeftRadius auto ]
+      --     `shouldEqual` "border-bottom-left-radius:should not compile"
+      -- , renderProperties [ borderBottomLeftRadius baseline ]
+      --     `shouldEqual` "border-bottom-left-radius:should not compile"
+      -- , renderProperties [ borderBottomLeftRadius center ]
+      --     `shouldEqual` "border-bottom-left-radius:should not compile"
+      -- , renderProperties [ borderBottomLeftRadius normal ]
+      --     `shouldEqual` "border-bottom-left-radius:should not compile"
+      -- , renderProperties [ borderBottomLeftRadius none ]
+      --     `shouldEqual` "border-bottom-left-radius:should not compile"
+      -- , renderProperties [ borderBottomLeftRadius visible ]
+      --     `shouldEqual` "border-bottom-left-radius:should not compile"
+      -- , renderProperties [ borderBottomLeftRadius hidden ]
+      --     `shouldEqual` "border-bottom-left-radius:should not compile"
+      ]
+    ]
+  , describe "the borderBottomLeftRadius2 function" 
+    [ it "should render the border radius properties properly"
+      [ renderProperties [ borderBottomLeftRadius2 (px 5.2) (px 7.6) ]
+          `shouldEqual` ("border-bottom-left-radius:5.2px 7.6px")
+      , renderProperties [ borderBottomLeftRadius2 (px 5.2) (em 7.6) ]
+          `shouldEqual` ("border-bottom-left-radius:5.2px 7.6em")
+      , renderProperties [ borderBottomLeftRadius2 (em 5.2) (em 7.6) ]
+          `shouldEqual` ("border-bottom-left-radius:5.2em 7.6em")
+      ]
+    , it "should not accept generic properties"
+      [
+        -- renderProperties [ borderBottomLeftRadius2 initial (px 7.6) ] 
+        --   `shouldEqual` "border-bottom-left-radius:should not compile"
+        -- ,
+        -- renderProperties [ borderBottomLeftRadius2 (px 7.6) inherit ] 
+        --   `shouldEqual` "border-bottom-left-radius:should not compile"
+      ]
+    ]    
+  , describe "The borderBottomRightRadius function"
+    [ it "should render the border radius properties correctly"
+      [ renderProperties [ borderBottomRightRadius (px 20) ]
+          `shouldEqual` "border-bottom-right-radius:20px"
+      , renderProperties [ borderBottomRightRadius rel0 ]
+          `shouldEqual` "border-bottom-right-radius:0"
+      ]
+    , it "should render generic properties correctly"
+      [ renderProperties [ borderBottomRightRadius initial ] 
+          `shouldEqual` "border-bottom-right-radius:initial"
+      , renderProperties [ borderBottomRightRadius inherit ] 
+          `shouldEqual` "border-bottom-right-radius:inherit"
+      , renderProperties [ borderBottomRightRadius unset ] 
+          `shouldEqual` "border-bottom-right-radius:unset"
+      , renderProperties [ borderBottomRightRadius (other "foo") ] 
+          `shouldEqual` "border-bottom-right-radius:foo"
+      , renderProperties [ borderBottomRightRadius (otherPrefixed [webkit_, moz_] "foo") ] 
+          `shouldEqual` "border-bottom-right-radius:-webkit-foo;border-bottom-right-radius:-moz-foo"
+      -- , renderProperties [ borderBottomRightRadius all ]
+      --     `shouldEqual` "border-bottom-right-radius:should not compile"
+      -- , renderProperties [ borderBottomRightRadius auto ]
+      --     `shouldEqual` "border-bottom-right-radius:should not compile"
+      -- , renderProperties [ borderBottomRightRadius baseline ]
+      --     `shouldEqual` "border-bottom-right-radius:should not compile"
+      -- , renderProperties [ borderBottomRightRadius center ]
+      --     `shouldEqual` "border-bottom-right-radius:should not compile"
+      -- , renderProperties [ borderBottomRightRadius normal ]
+      --     `shouldEqual` "border-bottom-right-radius:should not compile"
+      -- , renderProperties [ borderBottomRightRadius none ]
+      --     `shouldEqual` "border-bottom-right-radius:should not compile"
+      -- , renderProperties [ borderBottomRightRadius visible ]
+      --     `shouldEqual` "border-bottom-right-radius:should not compile"
+      -- , renderProperties [ borderBottomRightRadius hidden ]
+      --     `shouldEqual` "border-bottom-right-radius:should not compile"
+      ]
+    ]
+  , describe "the borderBottomRightRadius2 function" 
+    [ it "should render the border radius properties properly"
+      [ renderProperties [ borderBottomRightRadius2 (px 5.2) (px 7.6) ]
+          `shouldEqual` ("border-bottom-right-radius:5.2px 7.6px")
+      , renderProperties [ borderBottomRightRadius2 (px 5.2) (em 7.6) ]
+          `shouldEqual` ("border-bottom-right-radius:5.2px 7.6em")
+      , renderProperties [ borderBottomRightRadius2 (em 5.2) (em 7.6) ]
+          `shouldEqual` ("border-bottom-right-radius:5.2em 7.6em")
+      ]
+    , it "should not accept generic properties"
+      [
+        -- renderProperties [ borderBottomRightRadius2 initial (px 7.6) ] 
+        --   `shouldEqual` "border-bottom-right-radius:should not compile"
+        -- ,
+        -- renderProperties [ borderBottomRightRadius2 (px 7.6) inherit ] 
+        --   `shouldEqual` "border-bottom-right-radius:should not compile"
+      ]
+    ]   
   , describe "The border collapse function"
     [ it "should render the border collapse property correctly"
       [ renderProperties [borderCollapse collapse]
