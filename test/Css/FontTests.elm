@@ -3,7 +3,7 @@ module Css.FontTests where
 import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
-import Css.Color exposing (..)
+import Css.ColorsAndStrokes exposing (..)
 import Css.Common exposing (..)
 import Css.Font exposing (..)
 import Css.Geometry exposing (..)

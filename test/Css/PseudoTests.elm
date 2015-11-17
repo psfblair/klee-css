@@ -4,7 +4,8 @@ import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
 import Css exposing (renderCompact, (:|))
-import Css.Box exposing (solid,borderStyle)
+import Css.Box exposing (borderStyle)
+import Css.ColorsAndStrokes exposing (solid)
 import Css.Elements exposing (p)
 
 import Css.Pseudo exposing (..)

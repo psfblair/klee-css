@@ -9,10 +9,6 @@ module Css.Box
   , boxShadow
   , shadow, boxInset, boxColor, boxBlur
 
-  -- * Stroke. Used for border-style and outline-style.
-    
-  , solid, dotted, dashed, double, wavy, groove, ridge, inset, outset
-
   -- * Border properties.
     
   , aBorderWith
@@ -118,35 +114,6 @@ boxBlur : Linear.SizeDescriptor {} blurSzTyp ->
 boxBlur blurDescriptor spreadDescriptor innerDescriptor shadowFactory =
   let innerShadow = innerDescriptor shadowFactory
   in shadowFactory.withBlur blurDescriptor spreadDescriptor innerShadow
-
--------------------------------------------------------------------------------
-
-solid : Stroke.NubStrokeDescriptor rec
-solid = \factory -> factory.stroke "solid"
-
-dotted : Stroke.NubStrokeDescriptor rec
-dotted = \factory -> factory.stroke "dotted"
-
-dashed : Stroke.NubStrokeDescriptor rec
-dashed = \factory -> factory.stroke "dashed"
-
-double : Stroke.NubStrokeDescriptor rec
-double = \factory -> factory.stroke "double"
-
-wavy : Stroke.NubStrokeDescriptor rec
-wavy = \factory -> factory.stroke "wavy"
-
-groove : Stroke.NubBorderStrokeDescriptor rec
-groove = \factory -> factory.stroke "groove"
-
-ridge : Stroke.NubBorderStrokeDescriptor rec
-ridge = \factory -> factory.stroke "ridge"
-
-inset : Stroke.NubBorderStrokeDescriptor rec
-inset = \factory -> factory.stroke "inset"
-
-outset : Stroke.NubBorderStrokeDescriptor rec
-outset = \factory -> factory.stroke "outset"
 
 -------------------------------------------------------------------------------
 

@@ -8,7 +8,7 @@ import Css.Internal.Property exposing (Value, stringValue)
 import Css.Internal.Utils exposing (toFixed)
 
 import Color as ElmColor
-import Css.Color exposing (..)
+import Css.ColorsAndStrokes exposing (..)
 
 
 -------------------------------------------------------------------------------

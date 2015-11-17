@@ -1,5 +1,10 @@
-module Css.Color
-  ( rgb, rgba, hsl, hsla, hex
+module Css.ColorsAndStrokes
+  (   
+  -- * Stroke. Used for border-style, outline-style, text-decoration-style.
+    
+    solid, dotted, dashed, double, wavy, groove, ridge, inset, outset
+
+  , rgb, rgba, hsl, hsla, hex
   , currentColor, transparent, invert
   , red, orange, yellow, green, blue, purple, brown
   , lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
@@ -15,6 +20,37 @@ import Css.Internal.Utils exposing (toFixed, fromHex)
 
 import Css.Internal.Color as Color
 import Css.Internal.Property as Property
+import Css.Internal.Stroke as Stroke
+
+-------------------------------------------------------------------------------
+
+solid : Stroke.NubStrokeDescriptor rec
+solid = \factory -> factory.stroke "solid"
+
+dotted : Stroke.NubStrokeDescriptor rec
+dotted = \factory -> factory.stroke "dotted"
+
+dashed : Stroke.NubStrokeDescriptor rec
+dashed = \factory -> factory.stroke "dashed"
+
+double : Stroke.NubStrokeDescriptor rec
+double = \factory -> factory.stroke "double"
+
+wavy : Stroke.NubStrokeDescriptor rec
+wavy = \factory -> factory.stroke "wavy"
+
+groove : Stroke.NubBorderStrokeDescriptor rec
+groove = \factory -> factory.stroke "groove"
+
+ridge : Stroke.NubBorderStrokeDescriptor rec
+ridge = \factory -> factory.stroke "ridge"
+
+inset : Stroke.NubBorderStrokeDescriptor rec
+inset = \factory -> factory.stroke "inset"
+
+outset : Stroke.NubBorderStrokeDescriptor rec
+outset = \factory -> factory.stroke "outset"
+
 -------------------------------------------------------------------------------
 
 rgb : Int -> Int -> Int -> Color.NubColorDescriptor rec

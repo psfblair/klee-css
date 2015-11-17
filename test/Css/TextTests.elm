@@ -3,8 +3,8 @@ module Css.TextTests where
 import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
-import Css.Box exposing (solid)
-import Css.Color exposing (green, currentColor, transparent, rgb)
+import Css.ColorsAndStrokes exposing 
+  (solid, green, currentColor, transparent, rgb)
 import Css.Common exposing (..)
 import Css.Geometry exposing (..)
 import Css.List exposing (disc)
