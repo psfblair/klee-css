@@ -1,7 +1,66 @@
-module Css.Pseudo where
+module Css.Pseudo
+  (
+  -- 6.6.1.1 link pseudo-classes
+  
+  link, visited  
+       
+  -- 6.6.1.2 user action pseudo-classes
+  
+  , hover, active, focus
+  
+  -- 6.6.2 target pseudo-class
+  
+  , target
+  
+  -- 6.6.3 language pseudo-class
+  
+  , lang          
+  
+  -- 6.6.4 UI element states pseudo-classes
+  
+  , enabled, disabled, checked, indeterminate 
+  
+  -- 6.6.5 Structural pseudo-classes
+  
+  , root, nthChild, nthLastChild, nthOfType, nthLastOfType 
+  , firstChild, lastChild, firstOfType, lastOfType
+  , onlyChild, onlyOfType    
+  , empty, notPs         
+  
+  -- More recent pseudo-classes
+  
+  , default_, valid, invalid       
+  , inRange, outOfRange    
+  , required, optional      
+  , readOnly, readWrite     
+  , dir, fullscreen  
+  
+  -- Pseudo-elements
+  
+  , firstLine, firstLetter
+  , after, before     
+  , selection, backdrop   
+  
+  -- * Content.
 
+  , content, contents
+  , attrContent, stringContent, urlContent
+  , openQuote, closeQuote, noOpenQuote, noCloseQuote
+  
+  , counter, styledCounter
+  , counters, styledCounters
+  , counterId
+  , counterIncrement, counterIncrements, withStep
+  , counterReset, counterResets, resetTo
+  
+  ) where
+
+import Css.Internal.Content as Content
+import Css.Internal.List as List
+import Css.Internal.Property as Property
 import Css.Internal.Selector exposing (filterFromString)
 import Css.Internal.SelectorCombinators exposing (func)
+import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
@@ -79,3 +138,111 @@ before          = "::before"        |> filterFromString -- CSS level 2 (with one
 
 selection       = "::selection"     |> filterFromString -- CSS Pseudo-Elements Level 4 (working draft)
 backdrop        = "::backdrop"      |> filterFromString -- Fullscreen API
+
+-------------------------------------------------------------------------------
+
+-- TODO - This property can only be used with pseudo-elements :before and :after
+-- `content` can take
+-- normal|none|initial|inherit
+-- Or a list of the following:
+-- counter|attr|string|open-quote|close-quote|no-open-quote|no-close-quote|url;
+
+content : Content.ContentDescriptor a -> Stylesheet.PropertyRuleAppender
+content descriptor = 
+  let contentVal = descriptor Content.contentFactory |> Content.contentValue
+  in Stylesheet.simpleProperty "content" contentVal
+  
+contents : List Content.ComposableContentDescriptor -> 
+           Stylesheet.PropertyRuleAppender  
+contents descriptors = 
+  let toContent aDescriptor = aDescriptor Content.contentFactory
+      contentValues = List.map toContent descriptors 
+      combinedValues = Property.spaceListValue Content.contentValue contentValues
+  in Stylesheet.simpleProperty "content" combinedValues
+
+attrContent : String -> Content.ComposableContentDescriptor
+attrContent attrName = \factory -> factory.attributeContent attrName
+
+stringContent : String -> Content.ComposableContentDescriptor
+stringContent str = \factory -> factory.stringContent str
+
+urlContent : String -> Content.ComposableContentDescriptor
+urlContent url = \factory -> factory.urlContent url
+
+openQuote : Content.ComposableContentDescriptor
+openQuote = \factory -> factory.openQuote
+
+closeQuote : Content.ComposableContentDescriptor
+closeQuote = \factory -> factory.closeQuote
+
+noOpenQuote : Content.ComposableContentDescriptor
+noOpenQuote = \factory -> factory.noOpenQuote
+
+noCloseQuote : Content.ComposableContentDescriptor
+noCloseQuote = \factory -> factory.noCloseQuote
+
+-------------------------------------------------------------------------------
+
+-- counter() has two forms: 'counter(name)' or 'counter(name, style)'. 
+-- where style is a list style (disc, circle, square, etc.; 'decimal' by default).  
+-- If the name is 'none', 'inherit' or 'initial', the declaration is ignored;
+-- so we won't type check that.
+counter : String -> Content.ComposableContentDescriptor
+counter name = \factory -> factory.counter name Nothing
+    
+styledCounter : String -> 
+                List.ListStyleTypeDescriptor -> 
+                Content.ComposableContentDescriptor
+styledCounter name styleDescriptor =
+  \factory -> factory.counter name (Just styleDescriptor)
+
+-- counters() has two forms: 'counters(name, string)' or 'counters(name, string, style)'.
+-- where `string` is the string to nest between different levels of nested counters. 
+counters : String -> String -> Content.ComposableContentDescriptor
+counters name separator = \factory -> factory.counters name separator Nothing
+    
+styledCounters : String -> 
+                 String -> 
+                 List.ListStyleTypeDescriptor -> 
+                 Content.ComposableContentDescriptor
+styledCounters name separator styleDescriptor factory =
+  factory.counters name separator (Just styleDescriptor)
+
+counterId : String -> Content.CounterControlFactory a b -> a
+counterId theId = \factory -> factory.id_ theId
+  
+-- counter-increment : [<user-ident> <integer>?]+ | none | initial | inherit
+counterIncrement : Content.CounterIncrementDescriptor -> 
+                   Stylesheet.PropertyRuleAppender
+counterIncrement descriptor = 
+  let increment = descriptor Content.counterIncrementFactory
+  in Stylesheet.simpleProperty "counter-increment" increment
+
+counterIncrements : List Content.CounterIncrementDescriptor -> 
+                    Stylesheet.PropertyRuleAppender
+counterIncrements descriptors = 
+  let applyDescriptor desc = desc Content.counterIncrementFactory
+      values = List.map applyDescriptor descriptors 
+      combinedValues = Property.spaceListValue identity values
+  in Stylesheet.simpleProperty "counter-increment" combinedValues
+
+withStep : String -> Int -> Content.CounterIncrementDescriptor
+withStep name step = \factory -> factory.withStep name step
+  
+-- counter-reset : [<user-ident> <integer>?]+ | none | initial | inherit
+counterReset : Content.CounterResetDescriptor -> 
+               Stylesheet.PropertyRuleAppender
+counterReset descriptor = 
+  let resetValue = descriptor Content.counterResetFactory
+  in Stylesheet.simpleProperty "counter-reset" resetValue
+
+counterResets : List Content.CounterResetDescriptor -> 
+                Stylesheet.PropertyRuleAppender
+counterResets descriptors = 
+  let applyDescriptor desc = desc Content.counterResetFactory
+      values = List.map applyDescriptor descriptors 
+      combinedValues = Property.spaceListValue identity values
+  in Stylesheet.simpleProperty "counter-reset" combinedValues
+
+resetTo : String -> Int -> Content.CounterResetDescriptor
+resetTo name initVal = \factory -> factory.withInitialValue name initVal

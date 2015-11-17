@@ -1,16 +1,30 @@
 module Css.ColorsAndStrokes
   (   
-  -- * Stroke. Used for border-style, outline-style, text-decoration-style.
-    
-    solid, dotted, dashed, double, wavy, groove, ridge, inset, outset
+  -- Colors.
 
-  , rgb, rgba, hsl, hsla, hex
+    rgb, rgba, hsl, hsla, hex
   , currentColor, transparent, invert
   , red, orange, yellow, green, blue, purple, brown
   , lightRed, lightOrange, lightYellow, lightGreen, lightBlue, lightPurple, lightBrown
   , darkRed, darkOrange, darkYellow, darkGreen, darkBlue, darkPurple, darkBrown
   , white, lightGrey, lightGray, grey, gray, darkGrey, darkGray
   , lightCharcoal, charcoal, darkCharcoal, black
+
+  -- * Stroke. Used for border-style, outline-style, text-decoration-style.
+    
+  , solid, dotted, dashed, double, wavy, groove, ridge, inset, outset
+
+  -- * List style types. Used for lists, also for counters.
+  
+  , disc, armenian, circleListStyle, cjkIdeographic
+  , decimal, decimalLeadingZero
+  , georgian, hebrew
+  , hiragana, hiraganaIroha
+  , katakana, katakanaIroha
+  , lowerAlpha, lowerGreek, lowerLatin, lowerRoman
+  , square
+  , upperAlpha, upperLatin, upperRoman
+
   ) where
 
 import String 
@@ -19,37 +33,9 @@ import Color exposing (Color)
 import Css.Internal.Utils exposing (toFixed, fromHex)
 
 import Css.Internal.Color as Color
+import Css.Internal.List as List
 import Css.Internal.Property as Property
 import Css.Internal.Stroke as Stroke
-
--------------------------------------------------------------------------------
-
-solid : Stroke.NubStrokeDescriptor rec
-solid = \factory -> factory.stroke "solid"
-
-dotted : Stroke.NubStrokeDescriptor rec
-dotted = \factory -> factory.stroke "dotted"
-
-dashed : Stroke.NubStrokeDescriptor rec
-dashed = \factory -> factory.stroke "dashed"
-
-double : Stroke.NubStrokeDescriptor rec
-double = \factory -> factory.stroke "double"
-
-wavy : Stroke.NubStrokeDescriptor rec
-wavy = \factory -> factory.stroke "wavy"
-
-groove : Stroke.NubBorderStrokeDescriptor rec
-groove = \factory -> factory.stroke "groove"
-
-ridge : Stroke.NubBorderStrokeDescriptor rec
-ridge = \factory -> factory.stroke "ridge"
-
-inset : Stroke.NubBorderStrokeDescriptor rec
-inset = \factory -> factory.stroke "inset"
-
-outset : Stroke.NubBorderStrokeDescriptor rec
-outset = \factory -> factory.stroke "outset"
 
 -------------------------------------------------------------------------------
 
@@ -226,3 +212,94 @@ darkCharcoal = \factory -> Color.darkCharcoal |> factory.rgbaColor
 
 black : Color.NubColorDescriptor rec
 black = \factory -> Color.black |> factory.rgbaColor
+
+-------------------------------------------------------------------------------
+
+solid : Stroke.NubStrokeDescriptor rec
+solid = \factory -> factory.stroke "solid"
+
+dotted : Stroke.NubStrokeDescriptor rec
+dotted = \factory -> factory.stroke "dotted"
+
+dashed : Stroke.NubStrokeDescriptor rec
+dashed = \factory -> factory.stroke "dashed"
+
+double : Stroke.NubStrokeDescriptor rec
+double = \factory -> factory.stroke "double"
+
+wavy : Stroke.NubStrokeDescriptor rec
+wavy = \factory -> factory.stroke "wavy"
+
+groove : Stroke.NubBorderStrokeDescriptor rec
+groove = \factory -> factory.stroke "groove"
+
+ridge : Stroke.NubBorderStrokeDescriptor rec
+ridge = \factory -> factory.stroke "ridge"
+
+inset : Stroke.NubBorderStrokeDescriptor rec
+inset = \factory -> factory.stroke "inset"
+
+outset : Stroke.NubBorderStrokeDescriptor rec
+outset = \factory -> factory.stroke "outset"
+
+-------------------------------------------------------------------------------
+
+disc : List.ListStyleTypeDescriptor
+disc = \factory -> factory.disc
+
+armenian : List.ListStyleTypeDescriptor
+armenian = \factory -> factory.armenian
+
+circleListStyle : List.ListStyleTypeDescriptor
+circleListStyle = \factory -> factory.circleListStyleType
+
+cjkIdeographic : List.ListStyleTypeDescriptor
+cjkIdeographic = \factory -> factory.cjkIdeographic
+
+decimal : List.ListStyleTypeDescriptor
+decimal = \factory -> factory.decimal
+
+decimalLeadingZero : List.ListStyleTypeDescriptor
+decimalLeadingZero = \factory -> factory.decimalLeadingZero
+
+georgian : List.ListStyleTypeDescriptor
+georgian = \factory -> factory.georgian
+
+hebrew : List.ListStyleTypeDescriptor
+hebrew = \factory -> factory.hebrew
+
+hiragana : List.ListStyleTypeDescriptor
+hiragana = \factory -> factory.hiragana
+
+hiraganaIroha : List.ListStyleTypeDescriptor
+hiraganaIroha = \factory -> factory.hiraganaIroha
+
+katakana : List.ListStyleTypeDescriptor
+katakana = \factory -> factory.katakana
+
+katakanaIroha : List.ListStyleTypeDescriptor
+katakanaIroha = \factory -> factory.katakanaIroha
+
+lowerAlpha : List.ListStyleTypeDescriptor
+lowerAlpha = \factory -> factory.lowerAlpha
+
+lowerGreek : List.ListStyleTypeDescriptor
+lowerGreek = \factory -> factory.lowerGreek
+
+lowerLatin : List.ListStyleTypeDescriptor
+lowerLatin = \factory -> factory.lowerLatin
+
+lowerRoman : List.ListStyleTypeDescriptor
+lowerRoman = \factory -> factory.lowerRoman
+
+square : List.ListStyleTypeDescriptor
+square = \factory -> factory.square
+
+upperAlpha : List.ListStyleTypeDescriptor
+upperAlpha = \factory -> factory.upperAlpha
+
+upperLatin : List.ListStyleTypeDescriptor
+upperLatin = \factory -> factory.upperLatin
+
+upperRoman : List.ListStyleTypeDescriptor
+upperRoman = \factory -> factory.upperRoman

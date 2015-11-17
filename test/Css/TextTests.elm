@@ -4,10 +4,9 @@ import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
 import Css.ColorsAndStrokes exposing 
-  (solid, green, currentColor, transparent, rgb)
+  (green, currentColor, transparent, rgb, solid, disc)
 import Css.Common exposing (..)
 import Css.Geometry exposing (..)
-import Css.List exposing (disc)
 import Css.Text exposing (..)
 import Css exposing (renderProperties)
 
@@ -495,133 +494,140 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "text-transform:should not compile"
       ]
     ]
-  , describe "the content function"
-    [ it "should render the various types of content properly"
-      [ renderProperties [ content openQuote ]
-          `shouldEqual` "content:open-quote"
-      , renderProperties [ content (stringContent "prefix") ]
-          `shouldEqual` "content:\"prefix\""
-      , renderProperties [ content (attrContent "href") ]
-          `shouldEqual` "content:attr(href)"
-      , renderProperties [ content (urlContent "http://www.foo.com") ]
-          `shouldEqual` "content:url(http://www.foo.com)"
+  , describe "The list style type function"
+    [ it "should render a named style type properly"
+      [ renderProperties [listStyleType disc]
+          `shouldEqual` "list-style-type:disc"
       ]
-    , it "should render counters properly"
-      [ renderProperties [ content (counter "countername") ]
-          `shouldEqual` "content:counter(countername)"
-      , renderProperties [ content (styledCounter "countername" disc) ]
-          `shouldEqual` "content:counter(countername,disc)"
-      , renderProperties [ content (counters "countername" ".") ]
-          `shouldEqual` "content:counters(countername,\".\")"
-      , renderProperties [ content (styledCounters "countername" "." disc) ]
-          `shouldEqual` "content:counters(countername,\".\",disc)"
-      ]
-    , it "should render generic properties properly"
-      [ renderProperties [ content initial ]
-          `shouldEqual` "content:initial"
-      , renderProperties [ content inherit ]
-          `shouldEqual` "content:inherit"
-      , renderProperties [ content none ]
-          `shouldEqual` "content:none"      
-      , renderProperties [ content normal ]
-          `shouldEqual` "content:normal"
-      , renderProperties [ content unset ]
-          `shouldEqual` "content:unset"
-      , renderProperties [ content (other "foo") ]
-          `shouldEqual` "content:foo"
+    , it "should render generic style types properly"
+      [ renderProperties [listStyleType none]
+          `shouldEqual` "list-style-type:none"
+      , renderProperties [listStyleType inherit]
+          `shouldEqual` "list-style-type:inherit"
+      , renderProperties [listStyleType initial]
+          `shouldEqual` "list-style-type:initial"
+      , renderProperties [listStyleType (other "foo")]
+          `shouldEqual` "list-style-type:foo"
       -- Should not compile:
-      -- , renderProperties [content all]
-      --     `shouldEqual` "content:should not compile"
-      -- , renderProperties [content auto]
-      --     `shouldEqual` "content:should not compile"
-      -- , renderProperties [content baseline]
-      --     `shouldEqual` "content:should not compile"
-      -- , renderProperties [content center]
-      --     `shouldEqual` "content:should not compile"
-      -- , renderProperties [content visible]
-      --     `shouldEqual` "content:should not compile"
-      -- , renderProperties [content hidden]
-      --     `shouldEqual` "content:should not compile"
-      ]
+      -- , renderProperties [listStyleType all]
+      --     `shouldEqual` "list-style-type:should not compile"
+      -- , renderProperties [listStyleType auto]
+      --     `shouldEqual` "list-style-type:should not compile"
+      -- , renderProperties [listStyleType baseline]
+      --     `shouldEqual` "list-style-type:should not compile"
+      -- , renderProperties [listStyleType center]
+      --     `shouldEqual` "list-style-type:should not compile"
+      -- , renderProperties [listStyleType normal]
+      --     `shouldEqual` "list-style-type:should not compile"
+      -- , renderProperties [listStyleType visible]
+      --     `shouldEqual` "list-style-type:should not compile"
+      -- , renderProperties [listStyleType hidden]
+      --     `shouldEqual` "list-style-type:should not compile"
+      -- , renderProperties [listStyleType unset]
+      --     `shouldEqual` "list-style-type:should not compile"
+      ]  
     ]
-  , describe "the counter increment function"
-    [ it "should render a single counter increment"
-      [ renderProperties [ counterIncrement (counterId "fred") ]
-          `shouldEqual` "counter-increment:fred"
-      , renderProperties [ counterIncrement (withStep "fred" -2) ]
-          `shouldEqual` "counter-increment:fred -2"
+  , describe "The list style position function"
+    [ it "should render a named style position properly"
+      [ renderProperties [listStylePosition inside]
+          `shouldEqual` "list-style-position:inside"
       ]
-    , it "should render multiple counter increments"
+    , it "should render generic style positions properly"
+      [  renderProperties [listStylePosition inherit]
+          `shouldEqual` "list-style-position:inherit"
+      , renderProperties [listStylePosition initial]
+          `shouldEqual` "list-style-position:initial"
+      , renderProperties [listStylePosition (other "foo")]
+          `shouldEqual` "list-style-position:foo"
+      -- Should not compile:
+      -- , renderProperties [listStylePosition all]
+      --     `shouldEqual` "list-style-position:should not compile"
+      -- , renderProperties [listStylePosition auto]
+      --     `shouldEqual` "list-style-position:should not compile"
+      -- , renderProperties [listStylePosition baseline]
+      --     `shouldEqual` "list-style-position:should not compile"
+      -- , renderProperties [listStylePosition center]
+      --     `shouldEqual` "list-style-position:should not compile"
+      -- , renderProperties [listStylePosition none]
+      --     `shouldEqual` "list-style-position:should not compile"
+      -- , renderProperties [listStylePosition normal]
+      --     `shouldEqual` "list-style-position:should not compile"
+      -- , renderProperties [listStylePosition visible]
+      --     `shouldEqual` "list-style-position:should not compile"
+      -- , renderProperties [listStylePosition hidden]
+      --     `shouldEqual` "list-style-position:should not compile"
+      -- , renderProperties [listStylePosition unset]
+      --     `shouldEqual` "list-style-position:should not compile"
+      ]  
+    ]
+  , describe "The list style image function"
+    [ it "should render a named style image properly"
+      [ renderProperties [listStyleImage (imageUrl "http://www.foo.com")]
+          `shouldEqual` "list-style-image:url(\"http://www.foo.com\")"
+      ]
+    , it "should render generic style images properly"
+      [  renderProperties [listStyleImage inherit]
+          `shouldEqual` "list-style-image:inherit"
+      , renderProperties [listStyleImage initial]
+          `shouldEqual` "list-style-image:initial"
+      , renderProperties [listStyleImage none]
+          `shouldEqual` "list-style-image:none"
+      , renderProperties [listStyleImage (other "foo")]
+          `shouldEqual` "list-style-image:foo"
+      -- Should not compile:
+      -- , renderProperties [listStyleImage all]
+      --     `shouldEqual` "list-style-image:should not compile"
+      -- , renderProperties [listStyleImage auto]
+      --     `shouldEqual` "list-style-image:should not compile"
+      -- , renderProperties [listStyleImage baseline]
+      --     `shouldEqual` "list-style-image:should not compile"
+      -- , renderProperties [listStyleImage center]
+      --     `shouldEqual` "list-style-image:should not compile"
+      -- , renderProperties [listStyleImage normal]
+      --     `shouldEqual` "list-style-image:should not compile"
+      -- , renderProperties [listStyleImage visible]
+      --     `shouldEqual` "list-style-image:should not compile"
+      -- , renderProperties [listStyleImage hidden]
+      --     `shouldEqual` "list-style-image:should not compile"
+      -- , renderProperties [listStyleImage unset]
+      --     `shouldEqual` "list-style-image:should not compile"
+      ]  
+    ]  
+  , describe "The list style shorthand function"
+    [ it "should render combinations of styles properly"
       [ renderProperties 
-          [ counterIncrements [ (counterId "fred"), (withStep "wilma" -2) ] ]
-            `shouldEqual` "counter-increment:fred wilma -2"
+          [ listStyle (withListImage (imageUrl "http://www.foo.com")) ]
+            `shouldEqual` "list-style:url(\"http://www.foo.com\")"
+      , renderProperties 
+          [ listStyle (withListType disc >> withListPosition inside) ]
+            `shouldEqual` "list-style:disc inside"
       ]
-    , it "should render generic properties properly"
-      [ renderProperties [ counterIncrement initial ]
-          `shouldEqual` "counter-increment:initial"
-      , renderProperties [ counterIncrement inherit ]
-          `shouldEqual` "counter-increment:inherit"
-      , renderProperties [ counterIncrement none ]
-          `shouldEqual` "counter-increment:none"      
-      , renderProperties [ counterIncrement unset ]
-          `shouldEqual` "counter-increment:unset"
-      , renderProperties [ counterIncrement (other "foo") ]
-          `shouldEqual` "counter-increment:foo"
+    , it "should render generic styles properly"
+      [  renderProperties [ listStyle inherit ]
+          `shouldEqual` "list-style:inherit"
+      , renderProperties [ listStyle initial ]
+          `shouldEqual` "list-style:initial"
+      , renderProperties [ listStyle (other "foo") ]
+          `shouldEqual` "list-style:foo"
       -- Should not compile:
-      -- , renderProperties [counterIncrement all]
-      --     `shouldEqual` "counter-increment:should not compile"
-      -- , renderProperties [counterIncrement auto]
-      --     `shouldEqual` "counter-increment:should not compile"
-      -- , renderProperties [counterIncrement baseline]
-      --     `shouldEqual` "counter-increment:should not compile"
-      -- , renderProperties [counterIncrement center]
-      --     `shouldEqual` "counter-increment:should not compile"
-      -- , renderProperties [ counterIncrement normal ]
-      --     `shouldEqual` "counter-increment:should not compile"
-      -- , renderProperties [counterIncrement visible]
-      --     `shouldEqual` "counter-increment:should not compile"
-      -- , renderProperties [counterIncrement hidden]
-      --     `shouldEqual` "counter-increment:should not compile"
-      ]
-    ]
-  , describe "the counter reset functions"
-    [ it "should render a single counter reset"
-      [ renderProperties [ counterReset (counterId "fred") ]
-          `shouldEqual` "counter-reset:fred"
-      , renderProperties [ counterReset (resetTo "fred" -2) ]
-          `shouldEqual` "counter-reset:fred -2"
-      ]
-    , it "should render multiple counter resets"
-      [ renderProperties 
-          [ counterResets [ (counterId "fred"), (resetTo "wilma" -2) ] ]
-            `shouldEqual` "counter-reset:fred wilma -2"
-      ]
-    , it "should render generic properties properly"
-      [ renderProperties [ counterReset initial ]
-          `shouldEqual` "counter-reset:initial"
-      , renderProperties [ counterReset inherit ]
-          `shouldEqual` "counter-reset:inherit"
-      , renderProperties [ counterReset none ]
-          `shouldEqual` "counter-reset:none"      
-      , renderProperties [ counterReset unset ]
-          `shouldEqual` "counter-reset:unset"
-      , renderProperties [ counterReset (other "foo") ]
-          `shouldEqual` "counter-reset:foo"
-      -- Should not compile:
-      -- , renderProperties [counterReset all]
-      --     `shouldEqual` "counter-reset:should not compile"
-      -- , renderProperties [counterReset auto]
-      --     `shouldEqual` "counter-reset:should not compile"
-      -- , renderProperties [counterReset baseline]
-      --     `shouldEqual` "counter-reset:should not compile"
-      -- , renderProperties [counterReset center]
-      --     `shouldEqual` "counter-reset:should not compile"
-      -- , renderProperties [ counterReset normal ]
-      --     `shouldEqual` "counter-reset:should not compile"
-      -- , renderProperties [counterReset visible]
-      --     `shouldEqual` "counter-reset:should not compile"
-      -- , renderProperties [counterReset hidden]
-      --     `shouldEqual` "counter-reset:should not compile"
-      ]
-    ]
+      -- , renderProperties [listStyle all]
+      --     `shouldEqual` "list-style:should not compile"
+      -- , renderProperties [listStyle auto]
+      --     `shouldEqual` "list-style:should not compile"
+      -- , renderProperties [listStyle baseline]
+      --     `shouldEqual` "list-style:should not compile"
+      -- , renderProperties [listStyle center]
+      --     `shouldEqual` "list-style:should not compile"
+      -- , renderProperties [listStyle none]
+      --     `shouldEqual` "list-style:should not compile"
+      -- , renderProperties [listStyle normal]
+      --     `shouldEqual` "list-style:should not compile"
+      -- , renderProperties [listStyle visible]
+      --     `shouldEqual` "list-style:should not compile"
+      -- , renderProperties [listStyle hidden]
+      --     `shouldEqual` "list-style:should not compile"
+      -- , renderProperties [listStyle unset]
+      --     `shouldEqual` "list-style:should not compile"
+      ]  
+    ]  
   ]

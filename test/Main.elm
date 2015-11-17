@@ -13,7 +13,6 @@ import Css.ColorTests
 -- import Css.DisplayTests
 import Css.FontTests
 import Css.GeometryTests
-import Css.ListTests
 import Css.TextTests
 import Css.PseudoTests
 import Css.Internal.PropertyTests
@@ -31,7 +30,6 @@ allTests =
 --    , Css.DisplayTests.suite
     , Css.FontTests.suite
     , Css.GeometryTests.suite
-    , Css.ListTests.suite
     , Css.TextTests.suite
     , Css.PseudoTests.suite
     , Css.Internal.PropertyTests.suite
