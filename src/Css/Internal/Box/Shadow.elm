@@ -79,10 +79,10 @@ boxShadowFactory =
   , withInset innerShadow =
       let newComponents = addInset innerShadow
       in { shadow = BoxShadow newComponents, withComponents = newComponents } 
-  , none_ = { shadow = NoBoxShadow }
-  , initial_ = { shadow = InitialBoxShadow }
-  , inherit_ = { shadow = InheritBoxShadow }
-  , unset_ = { shadow = UnsetBoxShadow }
+  , none_      = { shadow = NoBoxShadow        }
+  , initial_   = { shadow = InitialBoxShadow   }
+  , inherit_   = { shadow = InheritBoxShadow   }
+  , unset_     = { shadow = UnsetBoxShadow     }
   , other_ val = { shadow = OtherBoxShadow val }
   }
 

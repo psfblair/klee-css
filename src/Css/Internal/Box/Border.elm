@@ -31,7 +31,10 @@ borderFactory =
       let compositeDescriptor = 
             Property.spaceTripleValue strokeDescriptor widthDescriptor colorDescriptor
           factory = 
-            (Stroke.nubBorderStyleStrokeFactory, Linear.nubSizeFactory, Color.nubColorFactory)
+            ( Stroke.nubBorderStyleStrokeFactory
+            , Linear.nubSizeFactory
+            , Color.nubColorFactory
+            )
       in compositeDescriptor factory
   in { border = borderValue
      , initial_ = Common.initialValue

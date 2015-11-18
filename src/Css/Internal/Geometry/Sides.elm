@@ -11,6 +11,8 @@ module Css.Internal.Geometry.Sides
 import Css.Internal.Common as Common
 import Css.Internal.Property as Property
 
+-------------------------------------------------------------------------------
+
 type HorizontalSide 
   = LeftSide
   | CenterSide
@@ -26,8 +28,6 @@ type VerticalSide
   | InitialVerticalSide
   | InheritVerticalSide
   | OtherVerticalSide Property.Value
-
--------------------------------------------------------------------------------
 
 sideLeft : HorizontalSide
 sideLeft = LeftSide

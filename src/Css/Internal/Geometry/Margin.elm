@@ -3,6 +3,7 @@ module Css.Internal.Geometry.Margin
 
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Property as Property
+import Css.Internal.Utils as Utils
 
 -------------------------------------------------------------------------------
 
@@ -14,12 +15,9 @@ type alias MarginDescriptor sz =
 marginSizeFactory : Linear.AutoSizableFactory (Linear.Rect Property.Value sz {}) sz
 marginSizeFactory =
   let basicFactory = Linear.autoSizableFactory
-      rectValue topDescriptor rightDescriptor bottomDescriptor leftDescriptor = 
-        let topValue     = topDescriptor     Linear.nubSizeFactory
-            rightValue   = rightDescriptor   Linear.nubSizeFactory
-            bottomValue  = bottomDescriptor  Linear.nubSizeFactory
-            leftValue    = leftDescriptor    Linear.nubSizeFactory
-            valueFactory =
-              Property.spaceQuadrupleValue identity identity identity identity
-        in valueFactory (topValue, rightValue, bottomValue, leftValue)
+      rectValue topDesc rightDesc bottomDesc leftDesc = 
+        let compositeDescriptor = 
+              Property.spaceQuadrupleValue topDesc rightDesc bottomDesc leftDesc
+            quadrupleFactory = Utils.quadrupleOf Linear.nubSizeFactory
+        in compositeDescriptor quadrupleFactory
   in { basicFactory | rect_ = rectValue  }

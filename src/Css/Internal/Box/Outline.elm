@@ -27,7 +27,10 @@ outlineFactory =
       let compositeDescriptor = 
             Property.spaceTripleValue strokeDescriptor widthDescriptor colorDescriptor
           factory = 
-            (Stroke.nubOutlineStrokeFactory, Linear.nubSizeFactory, Color.nubColorFactoryWithInvert)
+            ( Stroke.nubOutlineStrokeFactory
+            , Linear.nubSizeFactory
+            , Color.nubColorFactoryWithInvert
+            )
       in compositeDescriptor factory
   in { outline = outlineValue
      , initial_ = Common.initialValue

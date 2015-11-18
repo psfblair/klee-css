@@ -163,19 +163,19 @@ vmax length =
 
 -- | Angle in degrees.
 deg : Float -> Angle.AngleDescriptor Angle.Deg
-deg amount = \factory -> factory.angle (Property.appendUnits amount "deg")
+deg amount = \factory -> factory.degrees (Property.appendUnits amount "deg")
 
 -- | Angle in radians.
 rad : Float -> Angle.AngleDescriptor Angle.Rad
-rad amount = \factory -> factory.angle (Property.appendUnits amount "rad")
+rad amount = \factory -> factory.radians (Property.appendUnits amount "rad")
 
 -- | Angle in gradians (also knows as gons or grades).
 grad : Float -> Angle.AngleDescriptor Angle.Grad
-grad amount = \factory -> factory.angle (Property.appendUnits amount "grad")
+grad amount = \factory -> factory.gradians (Property.appendUnits amount "grad")
 
 -- | Angle in turns.
 turn : Float -> Angle.AngleDescriptor Angle.Turn
-turn amount = \factory -> factory.angle (Property.appendUnits amount "turn")
+turn amount = \factory -> factory.turns (Property.appendUnits amount "turn")
 
 -------------------------------------------------------------------------------
 -- Positioning

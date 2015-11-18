@@ -14,7 +14,7 @@ type alias BoxTypeDescriptor rec = NubBoxTypeFactory rec -> Property.Value
 type alias NubBoxTypeDescriptor = NubBoxTypeFactory {} -> Property.Value
 
 -------------------------------------------------------------------------------
--- For other modules that use box types in constructing more complex descriptors.
+
 type alias NubBoxTypeFactory rec = 
   { rec | boxType: String -> Property.Value
         , other_ : Property.Value -> Property.Value
@@ -38,5 +38,5 @@ boxTypeFactory : BoxSizingFactory
 boxTypeFactory = 
   let withInherit = { nubBoxTypeFactory | inherit_ = Common.inheritValue }
       withInitial = { withInherit       | initial_ = Common.initialValue }
-      withUnset   = { withInitial       | unset_ = Common.unsetValue }
+      withUnset   = { withInitial       | unset_   = Common.unsetValue   }
   in withUnset

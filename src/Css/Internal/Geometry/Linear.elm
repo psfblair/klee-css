@@ -94,7 +94,7 @@ basicSizeFactory : BasicSizeFactory {} sz
 basicSizeFactory =
   let withInitial = { nubSizeFactory | initial_ = Common.initialValue }
       withInherit = { withInitial    | inherit_ = Common.inheritValue }
-      withUnset =   { withInherit    | unset_ = Common.unsetValue }
+      withUnset =   { withInherit    | unset_   = Common.unsetValue   }
   in withUnset
 
 type alias AutoSizableFactory rec sz =  
