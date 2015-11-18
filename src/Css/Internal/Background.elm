@@ -5,137 +5,149 @@ module Css.Internal.Background
   , BackgroundImageDescriptor, backgroundImageFactory
   , BackgroundAttachmentDescriptor, backgroundAttachmentFactory
   , Background, BackgroundDescriptor, ComposedBackgroundDescriptor
-  , BackgroundComponents (..)
+  , withPositionAndSize, withColor, withImage, withRepeat
+  , withOrigin, withClip, withAttachment
   , initialBackgroundFactory, adjoinComponents, backgroundValue
   ) where
 
 import String
 
-import Css.Internal.Common exposing 
-  (autoValue, initialValue, inheritValue, noneValue, otherValue)
-import Css.Internal.Property exposing 
-  (Value, intersperse, stringValue, spacePairValue, maybeValue, spaceListValue)
-
+import Css.Internal.Common as Common 
+import Css.Internal.Property as Property 
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Geometry.Sides as Sides
 
 -------------------------------------------------------------------------------
 
 type alias BackgroundPositionDescriptor sz1 sz2 = 
-    BackgroundPositionFactory sz1 sz2 -> Value
+    BackgroundPositionFactory sz1 sz2 -> Property.Value
 
 type alias BackgroundPositionFactory sz1 sz2 =
   { sizedPosition : Linear.SizeDescriptor {} sz1 -> 
                     Linear.SizeDescriptor {} sz2 -> 
-                    Value
-  , sidedPosition : Sides.HorizontalSide -> Sides.VerticalSide -> Value
-  , initial_ : Value
-  , inherit_ : Value
-  , other_ : Value -> Value
+                    Property.Value
+  , sidedPosition : Sides.HorizontalSide -> Sides.VerticalSide -> Property.Value
+  , initial_ : Property.Value
+  , inherit_ : Property.Value
+  , unset_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 backgroundPositionFactory : BackgroundPositionFactory sz1 sz2
 backgroundPositionFactory = 
   { sizedPosition horizontalDescriptor verticalDescriptor = 
-      let valueFactory = spacePairValue horizontalDescriptor verticalDescriptor
-      in valueFactory (Linear.nubSizeFactory, Linear.nubSizeFactory)
+      let compositeDescriptor = 
+        Property.spacePairValue horizontalDescriptor verticalDescriptor
+      in compositeDescriptor (Linear.nubSizeFactory, Linear.nubSizeFactory)
   , sidedPosition horizontal vertical = 
-      let sides = (horizontal, vertical)
-          valueFactory = spacePairValue Sides.horizontalSideValue Sides.verticalSideValue
-      in valueFactory sides
-  , initial_ = initialValue
-  , inherit_ = inheritValue
-  , other_ val = otherValue val
+      let valueFactory = 
+        Property.spacePairValue Sides.horizontalSideValue Sides.verticalSideValue
+      in valueFactory (horizontal, vertical)
+  , initial_ = Common.initialValue
+  , inherit_ = Common.inheritValue
+  , unset_ = Common.unsetValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias BackgroundSizeDescriptor sz = BackgroundSizeFactory sz -> Value
+type alias BackgroundSizeDescriptor sz = BackgroundSizeFactory sz -> Property.Value
 
 type alias BackgroundSizeFactory szTyp =
   { backgroundSize : Linear.SizeDescriptor {} szTyp -> 
                      Linear.SizeDescriptor {} szTyp -> 
-                     Value
-  , partial : Linear.SizeDescriptor {} szTyp -> Value
-  , named : String -> Value
-  , auto_ : Value
-  , initial_ : Value
-  , inherit_ : Value
-  , other_ : Value -> Value
+                     Property.Value
+  , partial : Linear.SizeDescriptor {} szTyp -> Property.Value
+  , named : String -> Property.Value
+  , auto_ : Property.Value
+  , initial_ : Property.Value
+  , inherit_ : Property.Value
+  , unset_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 backgroundSizeFactory : BackgroundSizeFactory sz
 backgroundSizeFactory =
   { backgroundSize widthDescriptor heightDescriptor = 
-      let valueFactory = spacePairValue widthDescriptor heightDescriptor
-      in valueFactory (Linear.nubSizeFactory, Linear.nubSizeFactory)
+      let compositeDescriptor = 
+        Property.spacePairValue widthDescriptor heightDescriptor
+      in compositeDescriptor (Linear.nubSizeFactory, Linear.nubSizeFactory)
   , partial widthDescriptor = 
-      let valueFactory = spacePairValue widthDescriptor identity
-      in valueFactory (Linear.nubSizeFactory, autoValue)
-  , named str = stringValue str
-  , auto_ = autoValue
-  , initial_ = initialValue
-  , inherit_ = inheritValue
-  , other_ val = otherValue val
+      let compositeDescriptor = 
+        Property.spacePairValue widthDescriptor identity
+      in compositeDescriptor (Linear.nubSizeFactory, Common.autoValue)
+  , named str = Property.stringValue str
+  , auto_ = Common.autoValue
+  , initial_ = Common.initialValue
+  , inherit_ = Common.inheritValue
+  , unset_ = Common.unsetValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias BackgroundImageDescriptor = BackgroundImageFactory -> Value
+type alias BackgroundImageDescriptor = BackgroundImageFactory -> Property.Value
 
 type alias BackgroundImageFactory =
-  { url : String -> Value 
-  , none_ : Value 
-  , initial_ : Value 
-  , inherit_ : Value 
-  , other_ : Value -> Value 
+  { url : String -> Property.Value 
+  , none_ : Property.Value 
+  , initial_ : Property.Value 
+  , inherit_ : Property.Value 
+  , unset_ : Property.Value
+  , other_ : Property.Value -> Property.Value 
   }  
 
 backgroundImageFactory : BackgroundImageFactory
 backgroundImageFactory =
-  { url imgUrl = stringValue (String.concat ["url(\"", imgUrl ,"\")"])
-  , none_ = noneValue
-  , initial_ = initialValue 
-  , inherit_ = inheritValue 
-  , other_ val = otherValue val
+  { url imgUrl = Property.stringValue (String.concat ["url(\"", imgUrl ,"\")"])
+  , none_ = Common.noneValue
+  , initial_ = Common.initialValue 
+  , inherit_ = Common.inheritValue 
+  , unset_ = Common.unsetValue
+  , other_ val = Common.otherValue val
   }  
 
 -------------------------------------------------------------------------------
 
-type alias BackgroundRepeatDescriptor = BackgroundRepeatFactory -> Value
+type alias BackgroundRepeatDescriptor = BackgroundRepeatFactory -> Property.Value
 
 type alias BackgroundRepeatFactory =
-  { repeat : String -> Value 
-  , initial_ : Value 
-  , inherit_ : Value 
-  , other_ : Value -> Value 
+  { repeat : String -> Property.Value 
+  , initial_ : Property.Value 
+  , inherit_ : Property.Value 
+  , unset_ : Property.Value
+  , other_ : Property.Value -> Property.Value 
   }  
 
 backgroundRepeatFactory : BackgroundRepeatFactory
 backgroundRepeatFactory =
-  { repeat str = stringValue str
-  , initial_ = initialValue 
-  , inherit_ = inheritValue 
-  , other_ val = otherValue val
+  { repeat str = Property.stringValue str
+  , initial_ = Common.initialValue 
+  , inherit_ = Common.inheritValue 
+  , unset_ = Common.unsetValue
+  , other_ val = Common.otherValue val
   }  
 
 -------------------------------------------------------------------------------
 
-type alias BackgroundAttachmentDescriptor = BackgroundAttachmentFactory -> Value
+type alias BackgroundAttachmentDescriptor = 
+  BackgroundAttachmentFactory -> Property.Value
 
 type alias BackgroundAttachmentFactory =
-  { bgAttachment : String -> Value 
-  , initial_ : Value 
-  , inherit_ : Value 
-  , other_ : Value -> Value 
+  { bgAttachment : String -> Property.Value 
+  , initial_ : Property.Value 
+  , inherit_ : Property.Value 
+  , unset_ : Property.Value
+  , other_ : Property.Value -> Property.Value 
   }  
 
 backgroundAttachmentFactory : BackgroundAttachmentFactory
 backgroundAttachmentFactory =
-  { bgAttachment str = stringValue str
-  , initial_ = initialValue 
-  , inherit_ = inheritValue 
-  , other_ val = otherValue val 
+  { bgAttachment str = Property.stringValue str
+  , initial_ = Common.initialValue 
+  , inherit_ = Common.inheritValue 
+  , unset_ = Common.unsetValue
+  , other_ val = Common.otherValue val 
   }  
 
 -------------------------------------------------------------------------------
@@ -147,25 +159,64 @@ type BackgroundAlternative sz1 sz2 sz3
   = CompositeBackground (BackgroundComponents sz1 sz2 sz3)
   | InitialBackground
   | InheritBackground
-  | OtherBackground Value
+  | UnsetBackground
+  | OtherBackground Property.Value
 
 type BackgroundComponents sz1 sz2 sz3
   = NoComponents
-  | WithPositionAndSize Value (Maybe Value) (BackgroundComponents sz1 sz2 sz3)
-  | WithColor Value (BackgroundComponents sz1 sz2 sz3)
-  | WithImage Value (BackgroundComponents sz1 sz2 sz3)
-  | WithRepeat Value (BackgroundComponents sz1 sz2 sz3)
-  | WithOrigin Value (BackgroundComponents sz1 sz2 sz3)
-  | WithClip Value (BackgroundComponents sz1 sz2 sz3)
-  | WithAttachment Value (BackgroundComponents sz1 sz2 sz3)
+  | WithPositionAndSize Property.Value (Maybe Property.Value) (BackgroundComponents sz1 sz2 sz3)
+  | WithColor Property.Value (BackgroundComponents sz1 sz2 sz3)
+  | WithImage Property.Value (BackgroundComponents sz1 sz2 sz3)
+  | WithRepeat Property.Value (BackgroundComponents sz1 sz2 sz3)
+  | WithOrigin Property.Value (BackgroundComponents sz1 sz2 sz3)
+  | WithClip Property.Value (BackgroundComponents sz1 sz2 sz3)
+  | WithAttachment Property.Value (BackgroundComponents sz1 sz2 sz3)
+
+withPositionAndSize : Property.Value -> 
+                      Maybe Property.Value -> 
+                      BackgroundComponents sz1 sz2 sz3 ->
+                      BackgroundComponents sz1 sz2 sz3
+withPositionAndSize position maybeSize innerComponents = 
+  WithPositionAndSize position maybeSize innerComponents
+  
+withColor : Property.Value -> 
+            BackgroundComponents sz1 sz2 sz3 ->
+            BackgroundComponents sz1 sz2 sz3
+withColor colorValue innerComponents = WithColor colorValue innerComponents
+
+withImage : Property.Value -> 
+            BackgroundComponents sz1 sz2 sz3 ->
+            BackgroundComponents sz1 sz2 sz3
+withImage image innerComponents = WithImage image innerComponents
+
+withRepeat : Property.Value -> 
+             BackgroundComponents sz1 sz2 sz3 ->
+             BackgroundComponents sz1 sz2 sz3
+withRepeat repeat innerComponents = WithRepeat repeat innerComponents
+
+withOrigin : Property.Value -> 
+             BackgroundComponents sz1 sz2 sz3 ->
+             BackgroundComponents sz1 sz2 sz3
+withOrigin origin innerComponents = WithOrigin origin innerComponents
+
+withClip : Property.Value -> 
+           BackgroundComponents sz1 sz2 sz3 ->
+           BackgroundComponents sz1 sz2 sz3
+withClip clip innerComponents = WithClip clip innerComponents
+
+withAttachment : Property.Value -> 
+                 BackgroundComponents sz1 sz2 sz3 ->
+                 BackgroundComponents sz1 sz2 sz3
+withAttachment attachment innerComponents = 
+  WithAttachment attachment innerComponents
 
 {- In order to compose descriptors and still include `inherit` and `initial`, we
 do as follows:
 
-The `inherit` and `initial` functions take a factory and produce some type `a`.
-But all the descriptors have to be of the same type in order to be passed to the
-`background` function. This means they all must take a factory and they must all
-return the same type.
+The `inherit` and `initial` generic functions take a factory and produce some 
+type `a`. But all the descriptors have to be of the same type in order to be 
+passed to the `background` function. This means they all must take a factory and 
+they must all return the same type.
 
 Furthermore, to compose, the combinator descriptors (e.g., withClip, withRepeat)
 have to yield the same type that they take as a parameter. Therefore a descriptor 
@@ -202,7 +253,8 @@ type alias BackgroundFactory b sz1 sz2 sz3 =
 type alias GenericBackgroundFactory a b sz1 sz2 sz3 =   
   { a | initial_ : Background b sz1 sz2 sz3 
       , inherit_ : Background b sz1 sz2 sz3 
-      , other_ : Value -> Background b sz1 sz2 sz3
+      , unset_   : Background b sz1 sz2 sz3 
+      , other_   : Property.Value -> Background b sz1 sz2 sz3
   }
 
 type alias WithComponents sz1 sz2 sz3 = 
@@ -213,8 +265,9 @@ initialBackgroundFactory : BackgroundFactory {} sz1 sz2 sz3
 initialBackgroundFactory =
   { background = CompositeBackground NoComponents
   , backgroundComponents = NoComponents
-  , initial_ = { background = InitialBackground }
-  , inherit_ = { background = InheritBackground }
+  , initial_    = { background = InitialBackground   }
+  , inherit_    = { background = InheritBackground   }
+  , unset_      = { background = UnsetBackground     }   
   , other_ val  = { background = OtherBackground val }
   }
 
@@ -224,15 +277,16 @@ adjoinComponents newComponents =
   { initialBackgroundFactory | background <- CompositeBackground newComponents 
                              , backgroundComponents <- newComponents }
 
-backgroundValue : BackgroundAlternative sz1 sz2 sz3 -> Value
+backgroundValue : BackgroundAlternative sz1 sz2 sz3 -> Property.Value
 backgroundValue backgroundAlternative =
   case backgroundAlternative of
-    InitialBackground -> initialValue
-    InheritBackground -> inheritValue
-    OtherBackground val -> otherValue val
+    InitialBackground   -> Common.initialValue
+    InheritBackground   -> Common.inheritValue
+    UnsetBackground     -> Common.unsetValue
+    OtherBackground val -> Common.otherValue val
     CompositeBackground backgroundComponents -> componentsToValue backgroundComponents
 
-componentsToValue : BackgroundComponents sz1 sz2 sz3 -> Value
+componentsToValue : BackgroundComponents sz1 sz2 sz3 -> Property.Value
 componentsToValue bgComponents = 
   let nll = Nothing
   in componentsToValueRecursive bgComponents nll nll nll nll nll nll nll nll
@@ -242,15 +296,15 @@ componentsToValue bgComponents =
 At the least, origin must come before clip.
 -}
 componentsToValueRecursive : BackgroundComponents sz1 sz2 sz3 -> 
-                             Maybe Value ->   -- image
-                             Maybe Value ->   -- position
-                             Maybe Value ->   -- size
-                             Maybe Value ->   -- repeat
-                             Maybe Value ->   -- attachment
-                             Maybe Value ->   -- origin
-                             Maybe Value ->   -- clip
-                             Maybe Value ->   -- color
-                             Value
+                             Maybe Property.Value ->   -- image
+                             Maybe Property.Value ->   -- position
+                             Maybe Property.Value ->   -- size
+                             Maybe Property.Value ->   -- repeat
+                             Maybe Property.Value ->   -- attachment
+                             Maybe Property.Value ->   -- origin
+                             Maybe Property.Value ->   -- clip
+                             Maybe Property.Value ->   -- color
+                             Property.Value
 componentsToValueRecursive 
     components mImg mPos mSiz mRepeat mAttach mOrig mClip mColor =
   case components of
@@ -301,7 +355,7 @@ componentsToValueRecursive
       NoComponents -> 
         let maybePositionAndSize = 
               case (mPos, mSiz) of
-                (Just (pos), Just(siz)) -> intersperse "/" [pos, siz] |> Just
+                (Just (pos), Just(siz)) -> Property.intersperse "/" [pos, siz] |> Just
                 (Just (pos), _) -> Just (pos)
                 _ -> Nothing -- Size without position can't happen and is invalid.
 
@@ -315,4 +369,4 @@ componentsToValueRecursive
               , mColor
               ] |> List.filterMap identity
               
-        in spaceListValue identity allValues
+        in Property.spaceListValue identity allValues

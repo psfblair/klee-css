@@ -48,124 +48,128 @@ module Css.Background
   
   ) where
 
-import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
-
+import Css.Internal.Background as Background
 import Css.Internal.Box.Sizing as BoxSizing
 import Css.Internal.Color as Color
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Geometry.Sides as Sides
-
-import Css.Internal.Background exposing (..)
-
+import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
-backgroundPosition : BackgroundPositionDescriptor sz1 sz2 -> PropertyRuleAppender
+backgroundPosition : Background.BackgroundPositionDescriptor sz1 sz2 -> 
+                     Stylesheet.PropertyRuleAppender
 backgroundPosition descriptor = 
-  let value = descriptor backgroundPositionFactory
-  in simpleProperty "background-position" value
+  let value = descriptor Background.backgroundPositionFactory
+  in Stylesheet.simpleProperty "background-position" value
   
-placed : Sides.HorizontalSide -> Sides.VerticalSide -> BackgroundPositionDescriptor sz1 sz2
-placed horiz vert factory = factory.sidedPosition horiz vert
+placed : Sides.HorizontalSide -> 
+         Sides.VerticalSide -> 
+         Background.BackgroundPositionDescriptor sz1 sz2
+placed horiz vert = \factory -> factory.sidedPosition horiz vert
 
 positioned : Linear.SizeDescriptor {} sz1 -> 
              Linear.SizeDescriptor {} sz2 -> 
-             BackgroundPositionDescriptor sz1 sz2
-positioned horiz vert factory = factory.sizedPosition horiz vert
+             Background.BackgroundPositionDescriptor sz1 sz2
+positioned horiz vert = \factory -> factory.sizedPosition horiz vert
 
 -------------------------------------------------------------------------------
 
-backgroundSize : BackgroundSizeDescriptor sz -> PropertyRuleAppender
+backgroundSize : Background.BackgroundSizeDescriptor sz -> 
+                 Stylesheet.PropertyRuleAppender
 backgroundSize descriptor = 
-  let bgSize = descriptor backgroundSizeFactory
-  in simpleProperty "background-size" bgSize
+  let bgSize = descriptor Background.backgroundSizeFactory
+  in Stylesheet.simpleProperty "background-size" bgSize
 
-contain : BackgroundSizeDescriptor sz
-contain factory = backgroundSizeFactory.named "contain"
+contain : Background.BackgroundSizeDescriptor sz
+contain = \factory -> factory.named "contain"
 
-cover : BackgroundSizeDescriptor sz
-cover factory = backgroundSizeFactory.named "cover"
+cover : Background.BackgroundSizeDescriptor sz
+cover = \factory -> factory.named "cover"
 
 by : Linear.SizeDescriptor {} sz -> 
      Linear.SizeDescriptor {} sz -> 
-     BackgroundSizeDescriptor sz
-by width height factory = backgroundSizeFactory.backgroundSize width height
+     Background.BackgroundSizeDescriptor sz
+by width height = \factory -> factory.backgroundSize width height
 
-bgWidth : Linear.SizeDescriptor {} sz -> BackgroundSizeDescriptor sz
-bgWidth width factory = backgroundSizeFactory.partial width
+bgWidth : Linear.SizeDescriptor {} sz -> Background.BackgroundSizeDescriptor sz
+bgWidth width = \factory -> factory.partial width
 
 -------------------------------------------------------------------------------
 
-backgroundColor : Color.BasicColorDescriptor -> PropertyRuleAppender
+backgroundColor : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
 backgroundColor colorDescriptor = 
   let colorValue = colorDescriptor Color.colorFactory
-  in simpleProperty "background-color" colorValue
+  in Stylesheet.simpleProperty "background-color" colorValue
 
 -------------------------------------------------------------------------------
 
-backgroundImage : BackgroundImageDescriptor -> PropertyRuleAppender
+backgroundImage : Background.BackgroundImageDescriptor -> 
+                  Stylesheet.PropertyRuleAppender
 backgroundImage descriptor = 
-  let bgImage = descriptor backgroundImageFactory
-  in simpleProperty "background-image" bgImage
+  let bgImage = descriptor Background.backgroundImageFactory
+  in Stylesheet.simpleProperty "background-image" bgImage
 
 -- TODO Validate that it's a proper url?
-url : String -> BackgroundImageDescriptor
-url bgImageUrl factory = factory.url bgImageUrl
+url : String -> Background.BackgroundImageDescriptor
+url bgImageUrl = \factory -> factory.url bgImageUrl
 
 -------------------------------------------------------------------------------
 
-backgroundRepeat : BackgroundRepeatDescriptor -> PropertyRuleAppender
+backgroundRepeat : Background.BackgroundRepeatDescriptor -> 
+                   Stylesheet.PropertyRuleAppender
 backgroundRepeat descriptor = 
-  let repeatValue = descriptor backgroundRepeatFactory
-  in simpleProperty "background-repeat" repeatValue
+  let repeatValue = descriptor Background.backgroundRepeatFactory
+  in Stylesheet.simpleProperty "background-repeat" repeatValue
 
-repeat : BackgroundRepeatDescriptor
-repeat factory = backgroundRepeatFactory.repeat "repeat"
+repeat : Background.BackgroundRepeatDescriptor
+repeat = \factory -> factory.repeat "repeat"
 
-space : BackgroundRepeatDescriptor
-space factory = backgroundRepeatFactory.repeat "space"
+space : Background.BackgroundRepeatDescriptor
+space = \factory -> factory.repeat "space"
 
-roundRepeat : BackgroundRepeatDescriptor
-roundRepeat factory = backgroundRepeatFactory.repeat "round"
+roundRepeat : Background.BackgroundRepeatDescriptor
+roundRepeat = \factory -> factory.repeat "round"
 
-noRepeat : BackgroundRepeatDescriptor
-noRepeat factory = backgroundRepeatFactory.repeat "no-repeat"
+noRepeat : Background.BackgroundRepeatDescriptor
+noRepeat = \factory -> factory.repeat "no-repeat"
 
-repeatX : BackgroundRepeatDescriptor
-repeatX factory = backgroundRepeatFactory.repeat "repeat-x"
+repeatX : Background.BackgroundRepeatDescriptor
+repeatX = \factory -> factory.repeat "repeat-x"
 
-repeatY : BackgroundRepeatDescriptor
-repeatY factory = backgroundRepeatFactory.repeat "repeat-y"
+repeatY : Background.BackgroundRepeatDescriptor
+repeatY = \factory -> factory.repeat "repeat-y"
 
 -------------------------------------------------------------------------------
 
-backgroundOrigin : BoxSizing.BoxSizingDescriptor -> PropertyRuleAppender
+backgroundOrigin : BoxSizing.BoxSizingDescriptor -> 
+                   Stylesheet.PropertyRuleAppender
 backgroundOrigin descriptor = 
   let bgOrigin = descriptor BoxSizing.boxTypeFactory  
-  in simpleProperty "background-origin" bgOrigin
+  in Stylesheet.simpleProperty "background-origin" bgOrigin
 
--------------------------------------------------------------------------------
-
-backgroundClip : BoxSizing.BoxSizingDescriptor -> PropertyRuleAppender
+backgroundClip : BoxSizing.BoxSizingDescriptor -> 
+                 Stylesheet.PropertyRuleAppender
 backgroundClip descriptor = 
   let bgClip = descriptor BoxSizing.boxTypeFactory 
-  in simpleProperty "background-clip" bgClip
+  in Stylesheet.simpleProperty "background-clip" bgClip
 
 -------------------------------------------------------------------------------
 
-backgroundAttachment : BackgroundAttachmentDescriptor -> PropertyRuleAppender
+backgroundAttachment : Background.BackgroundAttachmentDescriptor -> 
+                       Stylesheet.PropertyRuleAppender
 backgroundAttachment descriptor = 
-  let bgAttachment = descriptor backgroundAttachmentFactory
-  in simpleProperty "background-attachment" bgAttachment
+  let bgAttachment = descriptor Background.backgroundAttachmentFactory
+  in Stylesheet.simpleProperty "background-attachment" bgAttachment
 
-attachFixed : BackgroundAttachmentDescriptor
-attachFixed factory = factory.bgAttachment "fixed"
+attachFixed : Background.BackgroundAttachmentDescriptor
+attachFixed = \factory -> factory.bgAttachment "fixed"
 
-attachScroll : BackgroundAttachmentDescriptor
-attachScroll factory = factory.bgAttachment "scroll"
+attachScroll : Background.BackgroundAttachmentDescriptor
+attachScroll = \factory -> factory.bgAttachment "scroll"
 
-attachLocal : BackgroundAttachmentDescriptor
-attachLocal factory = factory.bgAttachment "local"
+attachLocal : Background.BackgroundAttachmentDescriptor
+attachLocal = \factory -> factory.bgAttachment "local"
 
 -------------------------------------------------------------------------------
 {-
@@ -177,69 +181,72 @@ declaration:
 If one of the properties in the shorthand declaration is the background size 
 property, a / (slash) must separate it from the background position property.
 -}
-background : BackgroundDescriptor a sz1 sz2 sz3 -> PropertyRuleAppender
+background : Background.BackgroundDescriptor a sz1 sz2 sz3 -> 
+             Stylesheet.PropertyRuleAppender
 background backgroundDescriptor = 
-  let backgroundRecord = backgroundDescriptor initialBackgroundFactory
-      bgValue = backgroundRecord.background |> backgroundValue
-  in simpleProperty "background" bgValue
+  let backgroundRecord = backgroundDescriptor Background.initialBackgroundFactory
+      bgValue = backgroundRecord.background |> Background.backgroundValue
+  in Stylesheet.simpleProperty "background" bgValue
 
-withPosition : BackgroundPositionDescriptor sz1 sz2 -> 
-               Maybe (BackgroundSizeDescriptor sz3) -> 
-               ComposedBackgroundDescriptor a sz1 sz2 sz3
+withPosition : Background.BackgroundPositionDescriptor sz1 sz2 -> 
+               Maybe (Background.BackgroundSizeDescriptor sz3) -> 
+               Background.ComposedBackgroundDescriptor a sz1 sz2 sz3
 withPosition positionDescriptor 
              maybeSizeDescriptor 
              composedDescriptor =
-   let position = positionDescriptor backgroundPositionFactory
+   let position = positionDescriptor Background.backgroundPositionFactory
        maybeSize = 
-         maybeSizeDescriptor |> Maybe.map (\desc -> desc backgroundSizeFactory)
+         maybeSizeDescriptor 
+         |> Maybe.map (\desc -> desc Background.backgroundSizeFactory)
        innerComponents = composedDescriptor.backgroundComponents
-       newComponents = WithPositionAndSize position maybeSize innerComponents
-   in adjoinComponents newComponents
+       newComponents = 
+         Background.withPositionAndSize position maybeSize innerComponents
+   in Background.adjoinComponents newComponents
 
 withBgColor : Color.NubColorDescriptor {} -> 
-              ComposedBackgroundDescriptor a sz1 sz2 sz3 
+              Background.ComposedBackgroundDescriptor a sz1 sz2 sz3 
 withBgColor colorDescriptor composedDescriptor = 
    let colorValue = colorDescriptor Color.nubColorFactory
        innerComponents = composedDescriptor.backgroundComponents
-       newComponents = WithColor colorValue innerComponents
-   in adjoinComponents newComponents
+       newComponents = Background.withColor colorValue innerComponents
+   in Background.adjoinComponents newComponents
 
-withRepeat : BackgroundRepeatDescriptor -> 
-             ComposedBackgroundDescriptor a sz1 sz2 sz3
+withRepeat : Background.BackgroundRepeatDescriptor -> 
+             Background.ComposedBackgroundDescriptor a sz1 sz2 sz3
 withRepeat repeatDescriptor composedDescriptor =
-   let repeat = repeatDescriptor backgroundRepeatFactory
+   let repeat = repeatDescriptor Background.backgroundRepeatFactory
        innerComponents = composedDescriptor.backgroundComponents
-       newComponents = WithRepeat repeat innerComponents
-   in adjoinComponents newComponents
+       newComponents = Background.withRepeat repeat innerComponents
+   in Background.adjoinComponents newComponents
 
-withImage : BackgroundImageDescriptor -> 
-            ComposedBackgroundDescriptor a sz1 sz2 sz3
+withImage : Background.BackgroundImageDescriptor -> 
+            Background.ComposedBackgroundDescriptor a sz1 sz2 sz3
 withImage imageDescriptor composedDescriptor =
-   let image = imageDescriptor backgroundImageFactory
+   let image = imageDescriptor Background.backgroundImageFactory
        innerComponents = composedDescriptor.backgroundComponents
-       newComponents = WithImage image innerComponents
-   in adjoinComponents newComponents
+       newComponents = Background.withImage image innerComponents
+   in Background.adjoinComponents newComponents
 
 withOrigin : BoxSizing.NubBoxTypeDescriptor -> 
-             ComposedBackgroundDescriptor a sz1 sz2 sz3
+             Background.ComposedBackgroundDescriptor a sz1 sz2 sz3
 withOrigin originDescriptor composedDescriptor =
    let origin = originDescriptor BoxSizing.nubBoxTypeFactory 
        innerComponents = composedDescriptor.backgroundComponents
-       newComponents = WithOrigin origin innerComponents
-   in adjoinComponents newComponents
+       newComponents = Background.withOrigin origin innerComponents
+   in Background.adjoinComponents newComponents
   
 withClip : BoxSizing.NubBoxTypeDescriptor -> 
-           ComposedBackgroundDescriptor a sz1 sz2 sz3
+           Background.ComposedBackgroundDescriptor a sz1 sz2 sz3
 withClip clipDescriptor composedDescriptor =
    let clip = clipDescriptor BoxSizing.nubBoxTypeFactory 
        innerComponents = composedDescriptor.backgroundComponents
-       newComponents = WithClip clip innerComponents
-   in adjoinComponents newComponents
+       newComponents = Background.withClip clip innerComponents
+   in Background.adjoinComponents newComponents
 
-withAttachment : BackgroundAttachmentDescriptor -> 
-                 ComposedBackgroundDescriptor a sz1 sz2 sz3
+withAttachment : Background.BackgroundAttachmentDescriptor -> 
+                 Background.ComposedBackgroundDescriptor a sz1 sz2 sz3
 withAttachment attachmentDescriptor composedDescriptor  =
-   let attachment = attachmentDescriptor backgroundAttachmentFactory
+   let attachment = attachmentDescriptor Background.backgroundAttachmentFactory
        innerComponents = composedDescriptor.backgroundComponents
-       newComponents = WithAttachment attachment innerComponents
-   in adjoinComponents newComponents
+       newComponents = Background.withAttachment attachment innerComponents
+   in Background.adjoinComponents newComponents
