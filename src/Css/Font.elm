@@ -49,7 +49,6 @@ module Css.Font
 import Css.Internal.Color as Color
 import Css.Internal.Font as Font
 import Css.Internal.Geometry.Linear as Linear
-import Css.Internal.Property as Property
 import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
@@ -70,24 +69,13 @@ fontColor = color
 fontFamily : List String -> 
              List Font.GenericFontFamilyDescriptor -> 
              Stylesheet.PropertyRuleAppender
-fontFamily customFamilies genericFamilies = 
-  let customFontValues = 
-        customFamilies 
-        |> List.map Property.toLiteral 
-        |> List.map Property.literalValue
-        
-      genericValueFrom genericFamilyDescriptor = 
+fontFamily customFamilies genericFamilyDescriptors = 
+  let genericFamilyFrom genericFamilyDescriptor = 
         genericFamilyDescriptor Font.genericFontFamilyFactory
         
-      genericValues = 
-        genericFamilies
-        |> List.map genericValueFrom 
-        |> List.map Font.genericFontFamilyValue
-        
-      allValues = customFontValues ++ genericValues
-      valueFactory = Property.commaListValue identity
-      
-   in Stylesheet.simpleProperty "font-family" (valueFactory allValues)
+      genericFamilies = List.map genericFamilyFrom genericFamilyDescriptors
+      allFamiliesValue = Font.fontFamiliesValue customFamilies genericFamilies      
+   in Stylesheet.simpleProperty "font-family" allFamiliesValue
 
 sansSerif : Font.GenericFontFamilyDescriptor 
 sansSerif = \factory -> factory.family "sans-serif"
@@ -235,10 +223,10 @@ aFont sizeDescriptor customFonts genericFontDescriptors =
 withLineHeight : Linear.SizeDescriptor {} sz -> 
                  Font.ComposedFontDescriptor sz -> 
                  Font.ComposedFontDescriptor sz
-withLineHeight lineHeightDescriptor compositeDescriptor =
+withLineHeight lineHeightDescriptor innerDescriptor =
   \compositeFactory ->
-    let composedFont = compositeDescriptor compositeFactory
-    in Font.addLineHeight composedFont lineHeightDescriptor
+    let lineHeight = lineHeightDescriptor Linear.nubSizeFactory
+    in Font.addLineHeight lineHeight innerDescriptor compositeFactory
 
 withWeight : Font.FontWeightDescriptor -> 
              Font.ComposedFontDescriptor sz -> 

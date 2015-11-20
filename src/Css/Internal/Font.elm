@@ -1,6 +1,7 @@
 module Css.Internal.Font
   ( GenericFontFamily, GenericFontFamilyDescriptor
   , genericFontFamilyFactory, genericFontFamilyValue
+  , fontFamiliesValue
   , FontSizeDescriptor, fontSizeFactory
   , FontStyleDescriptor, fontStyleFactory
   , FontVariantDescriptor, fontVariantFactory
@@ -46,6 +47,18 @@ genericFontFamilyValue fontFamily =
   case fontFamily of
     GenericFontFamily str -> Property.stringValue str
     OtherGenericFontFamily val -> Common.otherValue val
+
+fontFamiliesValue : List String -> List GenericFontFamily -> Property.Value
+fontFamiliesValue customFamilies genericFamilies =
+  let customFamilyValues = 
+        customFamilies 
+        |> List.map Property.toLiteral 
+        |> List.map Property.literalValue
+      genericFamilyValues = 
+        genericFamilies 
+        |> List.map genericFontFamilyValue
+      fontFamilyValues = customFamilyValues ++ genericFamilyValues
+  in Property.commaListValue identity fontFamilyValues
     
 -------------------------------------------------------------------------------
 
@@ -194,8 +207,7 @@ type FontAlternative sz
 -- Font sizes can be absolute or relative
 type FontComponents sz
   = BaseComponent Property.Value (List String) (List GenericFontFamily)
-  -- Line height case needs to be a second kind of leaf, to ease rendering
-  | WithLineHeight Property.Value Property.Value (List String) (List GenericFontFamily)
+  | WithLineHeight Property.Value (ComposedFont sz)
   | WithWeight Property.Value (ComposedFont sz)
   | WithVariant Property.Value (ComposedFont sz)
   | WithStyle Property.Value (ComposedFont sz)
@@ -241,30 +253,13 @@ fontValue font =
     OtherFont val -> Common.otherValue val
     CompositeFont fontComponents -> componentsToValue fontComponents
 
-addLineHeight : ComposedFont sz -> 
-                Linear.SizeDescriptor {} sz ->
+addLineHeight : Property.Value -> 
+                ComposedFontDescriptor sz -> 
+                FontFactory sz -> 
                 ComposedFont sz
-addLineHeight fontWithComponents lineHeight = 
-  case fontWithComponents.fontComponents of
-  -- If withLineHeight is called twice, the later (outer) one wins, which 
-  -- means that if this leaf has already been created, so don't touch it.
-  WithLineHeight _ _ _ _ as leaf -> fontWithComponents
-  BaseComponent size customFonts genericFonts -> 
-    let components = 
-      WithLineHeight size (lineHeight Linear.nubSizeFactory) customFonts genericFonts
-    in { font = CompositeFont components, fontComponents = components }
-  WithWeight weight innerComposedFont -> 
-    let components = 
-      WithWeight weight (addLineHeight innerComposedFont lineHeight)
-    in { font = CompositeFont components, fontComponents = components }
-  WithVariant variant innerComposedFont ->
-    let components =
-      WithVariant variant (addLineHeight innerComposedFont lineHeight)
-    in { font = CompositeFont components, fontComponents = components }
-  WithStyle style innerComposedFont -> 
-    let components =
-      WithStyle style (addLineHeight innerComposedFont lineHeight)
-    in { font = CompositeFont components, fontComponents = components }
+addLineHeight lineHeight innerDescriptor factory =
+  let innerFont = innerDescriptor factory
+  in factory.composite (WithLineHeight lineHeight) innerFont
 
 addWeight : Property.Value -> 
             ComposedFontDescriptor sz -> 
@@ -289,93 +284,67 @@ addStyle: Property.Value ->
 addStyle style innerDescriptor factory =   
   let innerFont = innerDescriptor factory
   in factory.composite (WithStyle style) innerFont
-  
+
 componentsToValue : FontComponents sz -> Property.Value
 componentsToValue fontComponents = 
-  componentsToValueRecursive fontComponents Nothing Nothing Nothing
+  componentsToValueRecursive fontComponents Nothing Nothing Nothing Nothing
 
 
 componentsToValueRecursive : FontComponents sz -> 
+                             Maybe Property.Value -> -- line height
                              Maybe Property.Value -> -- weight
                              Maybe Property.Value -> -- variant
                              Maybe Property.Value -> -- style
                              Property.Value
-componentsToValueRecursive components maybeWeight maybeVariant maybeStyle =
-  case components of
-      -- If the FontComponents combinators are called more than once,
-      -- the last (outer) one wins. So if it's already set we don't reset it.
-      WithWeight weight innerComposedFont ->
-        let inner = innerComposedFont.fontComponents
-        in case maybeWeight of
-          Just _ -> 
-            componentsToValueRecursive inner maybeWeight maybeVariant maybeStyle
-          Nothing -> 
-            componentsToValueRecursive inner (Just weight) maybeVariant maybeStyle
-      WithVariant variant innerComposedFont ->
-        let inner = innerComposedFont.fontComponents
-        in case maybeVariant of
-          Just _ -> 
-            componentsToValueRecursive inner maybeWeight maybeVariant maybeStyle
-          Nothing -> 
-            componentsToValueRecursive inner maybeWeight (Just variant) maybeStyle
-      WithStyle style innerComposedFont ->
-        let inner = innerComposedFont.fontComponents
-        in case maybeStyle of
-          Just _ -> 
-            componentsToValueRecursive inner maybeWeight maybeVariant maybeStyle
-          Nothing -> 
-            componentsToValueRecursive inner maybeWeight maybeVariant (Just style)
-      BaseComponent fontSize customFamilies genericFamilies -> 
-        -- should go to "italic bold 15px arial, sans-serif"
-        componentsLeafToValue fontSize
-                              customFamilies 
-                              genericFamilies 
-                              maybeWeight 
-                              maybeVariant 
-                              maybeStyle
-      WithLineHeight fontSize lineHeight customFamilies genericFamilies -> 
-        -- should go to "italic bold 12px/30px Georgia, serif"
-        let sizes = Property.intersperse "/" [ fontSize, lineHeight ]
-        in componentsLeafToValue sizes
-                                 customFamilies 
-                                 genericFamilies 
-                                 maybeWeight 
-                                 maybeVariant 
-                                 maybeStyle
+componentsToValueRecursive components maybeHeight maybeWeight maybeVariant maybeStyle =
+  let recurse = componentsToValueRecursive
+  in case components of
+        -- If the FontComponents combinators are called more than once,
+        -- the last (outer) one wins. So if it's already set we don't reset it.
+        WithLineHeight lineHeight innerComposedFont ->
+          let inner = innerComposedFont.fontComponents
+          in case maybeHeight of
+            Just _ -> 
+              recurse inner maybeHeight maybeWeight maybeVariant maybeStyle
+            Nothing -> 
+              recurse inner (Just lineHeight) maybeWeight maybeVariant maybeStyle
+        WithWeight weight innerComposedFont ->
+          let inner = innerComposedFont.fontComponents
+          in case maybeWeight of
+            Just _ -> 
+              recurse inner maybeHeight maybeWeight maybeVariant maybeStyle
+            Nothing -> 
+              recurse inner maybeHeight (Just weight) maybeVariant maybeStyle
+        WithVariant variant innerComposedFont ->
+          let inner = innerComposedFont.fontComponents
+          in case maybeVariant of
+            Just _ -> 
+              recurse inner maybeHeight maybeWeight maybeVariant maybeStyle
+            Nothing -> 
+              recurse inner maybeHeight maybeWeight (Just variant) maybeStyle
+        WithStyle style innerComposedFont ->
+          let inner = innerComposedFont.fontComponents
+          in case maybeStyle of
+            Just _ -> 
+              recurse inner maybeHeight maybeWeight maybeVariant maybeStyle
+            Nothing -> 
+              recurse inner maybeHeight maybeWeight maybeVariant (Just style)
+        BaseComponent fontSize customFamilies genericFamilies -> 
+          let familiesValue = fontFamiliesValue customFamilies genericFamilies
+              sizesValue = 
+                case maybeHeight of
+                  -- should go to "italic bold 12px/30px Georgia, serif"
+                  Just lineHeight -> 
+                    Property.intersperse "/" [ fontSize, lineHeight ]
+                  -- should go to "italic bold 15px arial, sans-serif"
+                  Nothing -> fontSize
 
-{- font-style font-variant font-weight font-size font-family
-or
-   font-style font-variant font-weight font-size/line-height font-family
-where font-family is comma-separated
--}
-componentsLeafToValue : Property.Value -> 
-                        List String ->
-                        List GenericFontFamily ->
-                        Maybe Property.Value -> -- weight
-                        Maybe Property.Value -> -- variant
-                        Maybe Property.Value -> -- style
-                        Property.Value 
-componentsLeafToValue sizeVal
-                      customFamilies 
-                      genericFamilies 
-                      maybeWeight 
-                      maybeVariant 
-                      maybeStyle =
-  let customFamilyValues = 
-        customFamilies 
-        |> List.map Property.toLiteral 
-        |> List.map Property.literalValue
-      genericFamilyValues = 
-        genericFamilies |> List.map genericFontFamilyValue
-      familyValues = customFamilyValues ++ genericFamilyValues
-      familiesValue = Property.commaListValue identity familyValues
-      
-      allValues = 
-        [ maybeStyle
-        , maybeVariant
-        , maybeWeight
-        , Just(sizeVal)
-        , Just(familiesValue)
-        ] |> List.filterMap identity
-        
-  in Property.spaceListValue identity allValues
+              allValues = 
+                [ maybeStyle
+                , maybeVariant
+                , maybeWeight
+                , Just(sizesValue)
+                , Just(familiesValue)
+                ] |> List.filterMap identity
+                
+          in Property.spaceListValue identity allValues
