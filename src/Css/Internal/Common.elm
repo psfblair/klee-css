@@ -25,6 +25,7 @@ module Css.Internal.Common
   , unsetValue 
   , otherValue 
 
+  , addCommonValues
   ) where
   
 import Css.Internal.Property exposing 
@@ -170,3 +171,10 @@ unsetValue = stringValue "unset"
 
 otherValue : Value -> Value
 otherValue val = val
+
+addCommonValues : a -> { a | initial_ : Value, inherit_ : Value, unset_ : Value }
+addCommonValues wrappingFactory = 
+    let withInitial = { wrappingFactory | initial_ = initialValue }
+        withInherit = { withInitial     | inherit_ = inheritValue }
+        withUnset   = { withInherit     | unset_   = unsetValue   }
+    in withUnset

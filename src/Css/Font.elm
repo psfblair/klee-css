@@ -7,7 +7,7 @@ module Css.Font
 
   -- * Font-family.
 
-  , fontFamily
+  , fontFamily, family, families
   , sansSerif, serif, monospace, cursive, fantasy
 
   -- * Font-size.
@@ -63,19 +63,21 @@ fontColor : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
 fontColor = color
 
 -------------------------------------------------------------------------------
--- TODO Can take initial, inherit, unset
--- | The `fontFamily` style rule takes two lists of font families: zero or more
--- custom font-families and preferably one or more generic font families.
-fontFamily : List String -> 
-             List Font.GenericFontFamilyDescriptor -> 
+  
+fontFamily : Font.FontFamilyDescriptor -> 
              Stylesheet.PropertyRuleAppender
-fontFamily customFamilies genericFamilyDescriptors = 
-  let genericFamilyFrom genericFamilyDescriptor = 
-        genericFamilyDescriptor Font.genericFontFamilyFactory
-        
-      genericFamilies = List.map genericFamilyFrom genericFamilyDescriptors
-      allFamiliesValue = Font.fontFamiliesValue customFamilies genericFamilies      
-   in Stylesheet.simpleProperty "font-family" allFamiliesValue
+fontFamily familyDescriptor = 
+  let familiesValue = familyDescriptor Font.fontFamilyFactory
+  in Stylesheet.simpleProperty "font-family" familiesValue
+
+family : String -> Font.FontFamilyDescriptor
+family familyName = \factory -> factory.customFamily familyName
+  
+families : List String -> 
+           List Font.GenericFontFamilyDescriptor -> 
+           Font.FontFamilyDescriptor
+families customFamilyNames genericFamilyDescriptors =
+  \factory -> factory.families customFamilyNames genericFamilyDescriptors      
 
 sansSerif : Font.GenericFontFamilyDescriptor 
 sansSerif = \factory -> factory.family "sans-serif"
@@ -152,11 +154,11 @@ fontStyle styleDescriptor =
   in Stylesheet.simpleProperty "font-style" fontStyleValue
 
 
-italic : Font.FontStyleDescriptor
+italic : Font.NubFontStyleDescriptor rec
 italic = \factory -> factory.style "italic"
 
 
-oblique : Font.FontStyleDescriptor
+oblique : Font.NubFontStyleDescriptor rec
 oblique = \factory -> factory.style "oblique"
 
 
@@ -168,7 +170,7 @@ fontVariant variantDescriptor =
   let fontVariantValue = variantDescriptor Font.fontVariantFactory
   in Stylesheet.simpleProperty "font-variant" fontVariantValue
 
-smallCaps : Font.FontVariantDescriptor
+smallCaps : Font.NubFontVariantDescriptor rec
 smallCaps = \factory -> factory.variant "small-caps"
 
 -- TODO - There are many more of these now.
@@ -181,19 +183,19 @@ fontWeight descriptor =
   in Stylesheet.simpleProperty "font-weight" fontWeightValue
 
 
-bold : Font.FontWeightDescriptor
+bold : Font.NubFontWeightDescriptor rec
 bold = \factory -> factory.weight "bold"
 
 
-bolder : Font.FontWeightDescriptor 
+bolder : Font.NubFontWeightDescriptor rec
 bolder = \factory -> factory.weight "bolder"
 
 
-lighter : Font.FontWeightDescriptor
+lighter : Font.NubFontWeightDescriptor rec
 lighter = \factory -> factory.weight "lighter"
 
 
-weight : Int -> Font.FontWeightDescriptor
+weight : Int -> Font.NubFontWeightDescriptor rec
 weight i = \factory -> factory.weight (toString i)
 
 -------------------------------------------------------------------------------
@@ -228,28 +230,28 @@ withLineHeight lineHeightDescriptor innerDescriptor =
     let lineHeight = lineHeightDescriptor Linear.nubSizeFactory
     in Font.addLineHeight lineHeight innerDescriptor compositeFactory
 
-withWeight : Font.FontWeightDescriptor -> 
+withWeight : Font.NubFontWeightDescriptor {} -> 
              Font.ComposedFontDescriptor sz -> 
              Font.ComposedFontDescriptor sz
 withWeight weightDescriptor innerDescriptor = 
   \compositeFactory ->
-     let weight = weightDescriptor Font.fontWeightFactory 
+     let weight = weightDescriptor Font.nubFontWeightFactory 
      in Font.addWeight weight innerDescriptor compositeFactory
   
-withVariant : Font.FontVariantDescriptor -> 
+withVariant : Font.NubFontVariantDescriptor {} -> 
               Font.ComposedFontDescriptor sz -> 
               Font.ComposedFontDescriptor sz
 withVariant variantDescriptor innerDescriptor = 
   \compositeFactory -> 
-     let variant = variantDescriptor Font.fontVariantFactory
+     let variant = variantDescriptor Font.nubFontVariantFactory
      in Font.addVariant variant innerDescriptor compositeFactory
 
-withStyle : Font.FontStyleDescriptor -> 
+withStyle : Font.NubFontStyleDescriptor {} -> 
             Font.ComposedFontDescriptor sz -> 
             Font.ComposedFontDescriptor sz
 withStyle styleDescriptor innerDescriptor = 
   \compositeFactory ->
-     let style = styleDescriptor Font.fontStyleFactory
+     let style = styleDescriptor Font.nubFontStyleFactory
      in Font.addStyle style innerDescriptor compositeFactory
 
 caption : Font.FontDescriptor {} sz

@@ -11,7 +11,7 @@ import Css.FontFace exposing
   ( FontFaceFormat(..)
   , fontFaceSrc, localFontFaceSrc, urlFontFaceSrc
   )
-import Css.Font exposing (fontFamily)
+import Css.Font exposing (fontFamily, family)
 -------------------------------------------------------------------------------
 
 suite : Spec
@@ -33,7 +33,7 @@ suite = describe "CssTests"
             ]
           fontFaces = 
             [ fontFace 
-              [ fontFamily [ "Bitstream Vera Serif Bold" ] []
+              [ fontFamily (family "Bitstream Vera Serif Bold")
               , fontFaceSrc 
                 [ localFontFaceSrc "VeraBold.woff"
                 , urlFontFaceSrc "http://font.url" (Just TrueType)
@@ -47,7 +47,8 @@ suite = describe "CssTests"
                   [ float floatLeft ] 
                   [ (a `byId` "fred") [ clear both ] [] ]    
               ]
-      in render (append imports stylesheet |> append fontFaces) `shouldEqual` expectedFullStylesheet  
+      in render (append imports stylesheet |> append fontFaces) 
+          `shouldEqual` expectedFullStylesheet  
     ]
   ]
 

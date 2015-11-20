@@ -31,6 +31,10 @@ suite = describe "Css.FontTests"
           `shouldEqual` "color:wild-honey" 
       , renderProperties [color (other "wild-honey")] 
           `shouldEqual` "color:wild-honey" 
+      , renderProperties [fontColor (otherPrefixed [webkit_, moz_] "wild-honey")] 
+          `shouldEqual` "color:-webkit-wild-honey;color:-moz-wild-honey" 
+      , renderProperties [color (otherPrefixed [webkit_, moz_] "wild-honey")] 
+          `shouldEqual` "color:-webkit-wild-honey;color:-moz-wild-honey" 
       -- Should not compile:
       -- , renderProperties [fontColor all]
       --     `shouldEqual` "color:should not compile"
@@ -68,39 +72,40 @@ suite = describe "Css.FontTests"
     ]
   , describe "fontFamily"
     [ it "should render font families properly"
-      [ renderProperties [ fontFamily ["Bingo"] [] ] 
+      [ renderProperties [ fontFamily (family "Bingo") ] 
           `shouldEqual` "font-family:\"Bingo\""
-      , renderProperties [ fontFamily ["Bingo"] [sansSerif] ] 
+      , renderProperties [ fontFamily (families ["Bingo"] [sansSerif]) ] 
           `shouldEqual` "font-family:\"Bingo\",sans-serif"
-      , renderProperties [ fontFamily ["Bingo", "Weyerhauser"] [serif, fantasy] ] 
-          `shouldEqual` "font-family:\"Bingo\",\"Weyerhauser\",serif,fantasy"
+      , renderProperties 
+          [ fontFamily (families ["Bingo", "Weyerhauser"] [serif, fantasy]) ] 
+            `shouldEqual` "font-family:\"Bingo\",\"Weyerhauser\",serif,fantasy"
       ]
--- TODO      
-    -- , it "can accept common properties initial, inherit, unset and other"
-    --   [ renderProperties [fontColor initial] `shouldEqual` "color:initial"
-    --   , renderProperties [fontColor inherit] `shouldEqual` "color:inherit" 
-    --   , renderProperties [fontColor (other "wild-honey")] 
-    --       `shouldEqual` "color:wild-honey" 
+    , it "can accept common properties initial, inherit, unset and other"
+      [ renderProperties [fontFamily initial] `shouldEqual` "font-family:initial"
+      , renderProperties [fontFamily inherit] `shouldEqual` "font-family:inherit" 
+      , renderProperties [fontFamily unset]   `shouldEqual` "font-family:unset"          
+      , renderProperties [fontFamily (other "wild-honey")] 
+          `shouldEqual` "font-family:wild-honey" 
+      , renderProperties [fontFamily (otherPrefixed [webkit_, moz_] "wild-honey")] 
+          `shouldEqual` "font-family:-webkit-wild-honey;font-family:-moz-wild-honey" 
       -- Should not compile:
-      -- , renderProperties [fontColor all]
-      --     `shouldEqual` "color:should not compile"
-      -- , renderProperties [fontColor auto]
-      --     `shouldEqual` "color:should not compile"
-      -- , renderProperties [fontColor baseline]
-      --     `shouldEqual` "color:should not compile"
-      -- , renderProperties [fontColor center]
-      --     `shouldEqual` "color:should not compile"
-      -- , renderProperties [fontColor normal]
-      --     `shouldEqual` "color:should not compile"
-      -- , renderProperties [fontColor none]
-      --     `shouldEqual` "color:should not compile"      
-      -- , renderProperties [fontColor visible]
-      --     `shouldEqual` "color:should not compile"
-      -- , renderProperties [fontColor hidden]
-      --     `shouldEqual` "color:should not compile"
-      -- , renderProperties [fontColor unset]
-      --     `shouldEqual` "color:should not compile"          
-      -- ]
+      -- , renderProperties [fontFamily all]
+      --     `shouldEqual` "font-family:should not compile"
+      -- , renderProperties [fontFamily auto]
+      --     `shouldEqual` "font-family:should not compile"
+      -- , renderProperties [fontFamily baseline]
+      --     `shouldEqual` "font-family:should not compile"
+      -- , renderProperties [fontFamily center]
+      --     `shouldEqual` "font-family:should not compile"
+      -- , renderProperties [fontFamily normal]
+      --     `shouldEqual` "font-family:should not compile"
+      -- , renderProperties [fontFamily none]
+      --     `shouldEqual` "font-family:should not compile"      
+      -- , renderProperties [fontFamily visible]
+      --     `shouldEqual` "font-family:should not compile"
+      -- , renderProperties [fontFamily hidden]
+      --     `shouldEqual` "font-family:should not compile"
+      ]
     ]
   , describe "fontSize"
     [ it "should render named font sizes properly"
@@ -117,6 +122,8 @@ suite = describe "Css.FontTests"
       , renderProperties [fontSize inherit] `shouldEqual` "font-size:inherit" 
       , renderProperties [fontSize unset] `shouldEqual` "font-size:unset" 
       , renderProperties [fontSize (other "foo")] `shouldEqual` "font-size:foo" 
+      , renderProperties [fontSize (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "font-size:-webkit-foo;font-size:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [fontSize all]
       --     `shouldEqual` "font-size:should not compile"
@@ -134,8 +141,6 @@ suite = describe "Css.FontTests"
       --     `shouldEqual` "font-size:should not compile"
       -- , renderProperties [fontSize hidden]
       --     `shouldEqual` "font-size:should not compile"
-      -- , renderProperties [fontSize unset]
-      --     `shouldEqual` "font-size:should not compile"          
       ]
     ]
   , describe "fontStyle"
@@ -149,6 +154,8 @@ suite = describe "Css.FontTests"
       , renderProperties [fontStyle normal] `shouldEqual` "font-style:normal" 
       , renderProperties [fontStyle unset] `shouldEqual` "font-style:unset" 
       , renderProperties [fontStyle (other "foo")] `shouldEqual` "font-style:foo" 
+      , renderProperties [fontStyle (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "font-style:-webkit-foo;font-style:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [fontStyle all]
       --     `shouldEqual` "font-style:should not compile"
@@ -164,8 +171,6 @@ suite = describe "Css.FontTests"
       --     `shouldEqual` "font-style:should not compile"
       -- , renderProperties [fontStyle hidden]
       --     `shouldEqual` "font-style:should not compile"
-      -- , renderProperties [fontStyle unset]
-      --     `shouldEqual` "font-style:should not compile"          
       ]
     ]
   , describe "fontVariant"
@@ -179,6 +184,8 @@ suite = describe "Css.FontTests"
       , renderProperties [fontVariant normal] `shouldEqual` "font-variant:normal" 
       , renderProperties [fontVariant unset] `shouldEqual` "font-variant:unset" 
       , renderProperties [fontVariant (other "foo")] `shouldEqual` "font-variant:foo" 
+      , renderProperties [fontVariant (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "font-variant:-webkit-foo;font-variant:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [fontVariant all]
       --     `shouldEqual` "font-variant:should not compile"
@@ -194,8 +201,6 @@ suite = describe "Css.FontTests"
       --     `shouldEqual` "font-variant:should not compile"
       -- , renderProperties [fontVariant hidden]
       --     `shouldEqual` "font-variant:should not compile"
-      -- , renderProperties [fontVariant unset]
-      --     `shouldEqual` "font-variant:should not compile"          
       ]
     ]
   , describe "fontWeight"
@@ -213,6 +218,8 @@ suite = describe "Css.FontTests"
       , renderProperties [fontWeight normal] `shouldEqual` "font-weight:normal" 
       , renderProperties [fontWeight unset] `shouldEqual` "font-weight:unset" 
       , renderProperties [fontWeight (other "foo")] `shouldEqual` "font-weight:foo" 
+      , renderProperties [fontWeight (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "font-weight:-webkit-foo;font-weight:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [fontWeight all]
       --     `shouldEqual` "font-weight:should not compile"
@@ -228,8 +235,6 @@ suite = describe "Css.FontTests"
       --     `shouldEqual` "font-weight:should not compile"
       -- , renderProperties [fontWeight hidden]
       --     `shouldEqual` "font-weight:should not compile"
-      -- , renderProperties [fontWeight unset]
-      --     `shouldEqual` "font-weight:should not compile"          
       ]
     ]
   , describe "lineHeight"
@@ -239,14 +244,14 @@ suite = describe "Css.FontTests"
       , renderProperties [lineHeight (px 20)] 
         `shouldEqual` "line-height:20px" 
       ]
--- TODO
-{-
     , it "can accept common properties normal, initial, inherit, unset and other"
       [ renderProperties [lineHeight initial] `shouldEqual` "line-height:initial"
       , renderProperties [lineHeight inherit] `shouldEqual` "line-height:inherit" 
       , renderProperties [lineHeight normal] `shouldEqual` "line-height:normal" 
       , renderProperties [lineHeight unset] `shouldEqual` "line-height:unset" 
       , renderProperties [lineHeight (other "foo")] `shouldEqual` "line-height:foo" 
+      , renderProperties [lineHeight (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "line-height:-webkit-foo;line-height:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [lineHeight all]
       --     `shouldEqual` "line-height:should not compile"
@@ -262,10 +267,7 @@ suite = describe "Css.FontTests"
       --     `shouldEqual` "line-height:should not compile"
       -- , renderProperties [lineHeight hidden]
       --     `shouldEqual` "line-height:should not compile"
-      -- , renderProperties [lineHeight unset]
-      --     `shouldEqual` "line-height:should not compile"          
       ]
--}
     ]
   , describe "font"
     [ it "will accept a named font"
@@ -280,12 +282,37 @@ suite = describe "Css.FontTests"
                 |> withVariant smallCaps
                 |> withStyle italic)] 
             `shouldEqual` "font:italic small-caps bold 20px \"Hobo\""
+      -- These should not compile:
+      -- , renderProperties [font (aFont initial ["Lubalin Graph Medium"] [fantasy])] 
+      --     `shouldEqual` "should not compile"
+      -- , renderProperties [font (aFont (px 20) [initial] [fantasy])] 
+      --     `shouldEqual` "should not compile"
+      -- , renderProperties [font (aFont (px 20) initial [fantasy])] 
+      --     `shouldEqual` "should not compile"
+      -- , renderProperties [font (aFont (px 20) ["Lubalin Graph Medium"] [initial])] 
+      --     `shouldEqual` "should not compile"
+      -- , renderProperties [font (aFont (px 20) ["Lubalin Graph Medium"] initial)] 
+      --     `shouldEqual` "should not compile"
+      -- , renderProperties [font (aFont (px 20) ["Hobo"] [] |> withWeight initial)]
+      --       `shouldEqual`  "should not compile"
+      -- , renderProperties [font (aFont (px 20) ["Hobo"] [] |> withWeight normal)]
+      --       `shouldEqual`  "should not compile"
+      -- , renderProperties [font (aFont (px 20) ["Hobo"] [] |> withVariant initial)]
+      --       `shouldEqual`  "should not compile"
+      -- , renderProperties [font (aFont (px 20) ["Hobo"] [] |> withVariant normal)]
+      --       `shouldEqual`  "should not compile"
+      -- , renderProperties [font (aFont (px 20) ["Hobo"] [] |> withStyle initial)]
+      --       `shouldEqual`  "should not compile"
+      -- , renderProperties [font (aFont (px 20) ["Hobo"] [] |> withStyle normal)]
+      --       `shouldEqual`  "should not compile"
       ]      
-    , it "will accept common properties initial, inherit and other"
+    , it "will accept common properties initial, inherit, unset and other"
       [ renderProperties [font initial] `shouldEqual` "font:initial"
       , renderProperties [font inherit] `shouldEqual` "font:inherit" 
       , renderProperties [font unset] `shouldEqual` "font:unset"          
       , renderProperties [font (other "hbs")] `shouldEqual` "font:hbs" 
+      , renderProperties [font (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "font:-webkit-foo;font:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [font all]
       --     `shouldEqual` "font:should not compile"

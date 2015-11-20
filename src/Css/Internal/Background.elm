@@ -247,18 +247,18 @@ type alias ComposedBackgroundDescriptor a sz1 sz2 sz3 =
         backgroundComponents : BackgroundComponents sz1 sz2 sz3} ->
   BackgroundFactory {} sz1 sz2 sz3
 
-type alias BackgroundFactory b sz1 sz2 sz3 = 
-  Background (GenericBackgroundFactory (WithComponents sz1 sz2 sz3) b sz1 sz2 sz3) sz1 sz2 sz3
+type alias BackgroundFactory rec sz1 sz2 sz3 = 
+  Background
+    (WithComponents
+      (Common.Initial (Background {} sz1 sz2 sz3)
+        (Common.Inherit (Background {} sz1 sz2 sz3)
+          (Common.Unset (Background {} sz1 sz2 sz3)
+            (Common.Other (Background {} sz1 sz2 sz3) rec)))) 
+      sz1 sz2 sz3) 
+    sz1 sz2 sz3
 
-type alias GenericBackgroundFactory a b sz1 sz2 sz3 =   
-  { a | initial_ : Background b sz1 sz2 sz3 
-      , inherit_ : Background b sz1 sz2 sz3 
-      , unset_   : Background b sz1 sz2 sz3 
-      , other_   : Property.Value -> Background b sz1 sz2 sz3
-  }
-
-type alias WithComponents sz1 sz2 sz3 = 
-  { backgroundComponents : BackgroundComponents sz1 sz2 sz3
+type alias WithComponents rec sz1 sz2 sz3 =
+  { rec | backgroundComponents : BackgroundComponents sz1 sz2 sz3
   }
                  
 initialBackgroundFactory : BackgroundFactory {} sz1 sz2 sz3

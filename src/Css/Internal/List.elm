@@ -7,8 +7,7 @@ module Css.Internal.List
   , ListStyleComponents (..), adjoinListStyle 
   ) where
 
-import Css.Internal.Common exposing 
-  (initialValue, inheritValue, noneValue, otherValue)
+import Css.Internal.Common as Common
 import Css.Internal.Property exposing 
   ( Value, Literal, toLiteral, concatenateValues
   , literalValue, stringValue, spaceListValue
@@ -40,6 +39,7 @@ type alias ListStyleTypeFactory =
   , upperRoman : Value
   , initial_ : Value
   , inherit_ : Value
+  , unset_   : Value
   , none_ : Value
   , other_ : Value -> Value
   }
@@ -66,10 +66,11 @@ listStyleTypeFactory =
   , upperAlpha = stringValue "upper-alpha"
   , upperLatin = stringValue "upper-latin"
   , upperRoman = stringValue "upper-roman"
-  , initial_ = initialValue
-  , inherit_ = inheritValue
-  , none_ = noneValue
-  , other_ val = otherValue val
+  , initial_ = Common.initialValue
+  , inherit_ = Common.inheritValue
+  , unset_   = Common.unsetValue
+  , none_    = Common.noneValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
@@ -81,6 +82,7 @@ type alias ListStylePositionFactory =
   , outside : Value
   , initial_ : Value
   , inherit_ : Value
+  , unset_ : Value
   , other_ : Value -> Value
   }
 
@@ -88,9 +90,10 @@ listStylePositionFactory : ListStylePositionFactory
 listStylePositionFactory =
   { inside = stringValue "inside"
   , outside = stringValue "outside"
-  , initial_ = initialValue
-  , inherit_ = inheritValue
-  , other_ val = otherValue val
+  , initial_ = Common.initialValue
+  , inherit_ = Common.inheritValue
+  , unset_   = Common.unsetValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
@@ -102,6 +105,7 @@ type alias ListStyleImageFactory =
   , initial_ : Value
   , inherit_ : Value
   , none_ : Value
+  , unset_ : Value
   , other_ : Value -> Value
   }
 
@@ -110,21 +114,23 @@ listStyleImageFactory =
   { url urlString =
       let urlValue = toLiteral urlString |> literalValue
       in [ stringValue "url(", urlValue, stringValue ")" ] |> concatenateValues
-  , initial_ = initialValue
-  , inherit_ = inheritValue
-  , none_ = noneValue
-  , other_ val = otherValue val
+  , initial_ = Common.initialValue
+  , inherit_ = Common.inheritValue
+  , none_ = Common.noneValue
+  , unset_ = Common.unsetValue
+  , other_ val = Common.otherValue val
   }
 
 -------------------------------------------------------------------------------
 
-type alias ListStyle a = 
-  { a | listStyle : ListStyleAlternative  }
+type alias ListStyle rec = 
+  { rec | listStyle : ListStyleAlternative  }
 
 type ListStyleAlternative
   = CompositeListStyle ListStyleComponents
   | InitialListStyle
   | InheritListStyle
+  | UnsetListStyle
   | OtherListStyle Value
 
 type ListStyleComponents
@@ -133,30 +139,31 @@ type ListStyleComponents
   | WithStylePosition Value ListStyleComponents
   | WithStyleImage Value ListStyleComponents
 
-type alias ListStyleDescriptor a = ListStyleFactory {} -> ListStyle a
+type alias ListStyleDescriptor rec = ListStyleFactory {} -> ListStyle rec
   
-type alias ComposedListStyleDescriptor a = 
-  { a | listStyle : ListStyleAlternative
-      , styleComponents : ListStyleComponents } ->
+type alias ComposedListStyleDescriptor rec = 
+  { rec | listStyle : ListStyleAlternative
+        , styleComponents : ListStyleComponents } ->
   ListStyleFactory {}
 
-type alias ListStyleFactory a =
-  ListStyle (GenericListStyleFactory WithListStyleComponents a)
+type alias ListStyleFactory rec =
+  ListStyle 
+    (WithListStyleComponents
+      (Common.Initial (ListStyle {})
+        (Common.Inherit (ListStyle {})
+          (Common.Unset (ListStyle {})
+            (Common.Other (ListStyle {}) rec)))))
 
-type alias GenericListStyleFactory a b =   
-  { a | initial_ : ListStyle b
-      , inherit_ : ListStyle b
-      , other_ : Value -> ListStyle b
-  }
-
-type alias WithListStyleComponents = { styleComponents : ListStyleComponents }
+type alias WithListStyleComponents rec = 
+  { rec | styleComponents : ListStyleComponents }
 
 initialListStyleFactory : ListStyleFactory {}
 initialListStyleFactory =
-  { listStyle = CompositeListStyle NoListStyleComponents
+  { listStyle       = CompositeListStyle NoListStyleComponents
   , styleComponents = NoListStyleComponents
-  , initial_ = { listStyle = InitialListStyle }
-  , inherit_ = { listStyle = InheritListStyle }
+  , initial_    = { listStyle = InitialListStyle   }
+  , inherit_    = { listStyle = InheritListStyle   }
+  , unset_      = { listStyle = UnsetListStyle     }
   , other_ val  = { listStyle = OtherListStyle val }
   }
 
@@ -168,9 +175,10 @@ adjoinListStyle newComponents =
 listStyleValue : ListStyleAlternative -> Value
 listStyleValue style =
   case style of
-    InitialListStyle -> initialValue
-    InheritListStyle -> inheritValue
-    OtherListStyle val -> otherValue val
+    InitialListStyle   -> Common.initialValue
+    InheritListStyle   -> Common.inheritValue
+    UnsetListStyle     -> Common.unsetValue
+    OtherListStyle val -> Common.otherValue val
     CompositeListStyle components -> componentsToValue components
 
 componentsToValue : ListStyleComponents -> Value

@@ -26,13 +26,12 @@ nubBoxTypeFactory =
   , other_ val = Common.otherValue val
   }
 
-type alias WithCommonProperties rec =
-  { rec | inherit_ : Property.Value
-        , initial_ : Property.Value
-        , unset_ : Property.Value
-  }
-  
-type alias BoxSizingFactory = NubBoxTypeFactory (WithCommonProperties {})
+type alias BoxSizingFactory =
+   NubBoxTypeFactory
+     (Common.Initial Property.Value
+       (Common.Inherit Property.Value
+         (Common.Unset Property.Value {})))
+
 
 boxTypeFactory : BoxSizingFactory
 boxTypeFactory = 

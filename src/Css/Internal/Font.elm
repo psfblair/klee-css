@@ -1,10 +1,14 @@
 module Css.Internal.Font
   ( GenericFontFamily, GenericFontFamilyDescriptor
   , genericFontFamilyFactory, genericFontFamilyValue
+  , FontFamilyDescriptor, fontFamilyFactory
   , fontFamiliesValue
   , FontSizeDescriptor, fontSizeFactory
+  , NubFontStyleDescriptor, nubFontStyleFactory
   , FontStyleDescriptor, fontStyleFactory
+  , NubFontVariantDescriptor, nubFontVariantFactory
   , FontVariantDescriptor, fontVariantFactory
+  , NubFontWeightDescriptor, nubFontWeightFactory
   , FontWeightDescriptor, fontWeightFactory
   , FontDescriptor, ComposedFontDescriptor
   , fontFactory, fontValue
@@ -28,19 +32,15 @@ type GenericFontFamily
   | OtherGenericFontFamily Property.Value
 
 type alias GenericFontFamilyFactory =
-  {
-    family: String -> GenericFontFamily
+  { family: String -> GenericFontFamily
   , other_: Property.Value -> GenericFontFamily
   }
 
-
 genericFontFamilyFactory : GenericFontFamilyFactory
 genericFontFamilyFactory =
-  {
-    family str = GenericFontFamily str
+  { family str = GenericFontFamily str
   , other_ val = OtherGenericFontFamily val
   }
-
 
 genericFontFamilyValue : GenericFontFamily -> Property.Value 
 genericFontFamilyValue fontFamily =
@@ -48,10 +48,36 @@ genericFontFamilyValue fontFamily =
     GenericFontFamily str -> Property.stringValue str
     OtherGenericFontFamily val -> Common.otherValue val
 
+-------------------------------------------------------------------------------
+
+type alias NubFontFamilyDescriptor rec = 
+  NubFontFamilyFactory rec -> Property.Value
+
+type alias FontFamilyDescriptor = FontFamilyFactory -> Property.Value
+
+type alias NubFontFamilyFactory rec =
+  { rec | customFamily: String -> Property.Value
+        , families: List String -> 
+                    List GenericFontFamilyDescriptor ->
+                    Property.Value
+        , other_: Property.Value -> Property.Value
+  }
+
+nubFontFamilyFactory : NubFontFamilyFactory {}
+nubFontFamilyFactory = 
+  { customFamily familyName = 
+      familyName |> Property.toLiteral |> Property.literalValue
+  , families customFamilyNames genericFamilyDescriptors = 
+      let genericFamilyFrom descriptor = descriptor genericFontFamilyFactory
+          genericFamilies = List.map genericFamilyFrom genericFamilyDescriptors
+      in fontFamiliesValue customFamilyNames genericFamilies
+  , other_ val = Common.otherValue val
+  }
+  
 fontFamiliesValue : List String -> List GenericFontFamily -> Property.Value
-fontFamiliesValue customFamilies genericFamilies =
+fontFamiliesValue customFamilyNames genericFamilies =
   let customFamilyValues = 
-        customFamilies 
+        customFamilyNames 
         |> List.map Property.toLiteral 
         |> List.map Property.literalValue
       genericFamilyValues = 
@@ -59,25 +85,31 @@ fontFamiliesValue customFamilies genericFamilies =
         |> List.map genericFontFamilyValue
       fontFamilyValues = customFamilyValues ++ genericFamilyValues
   in Property.commaListValue identity fontFamilyValues
+
+type alias FontFamilyFactory = 
+  NubFontFamilyFactory 
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value {})))
+  
+fontFamilyFactory : FontFamilyFactory
+fontFamilyFactory = Common.addCommonValues nubFontFamilyFactory
     
 -------------------------------------------------------------------------------
 
 type alias FontSizeDescriptor = FontSizeFactory -> Property.Value
 
 type alias FontSizeFactory =
-  {
-    size: String -> Property.Value
+  { size: String -> Property.Value
   , initial_ : Property.Value
   , inherit_ : Property.Value
   , unset_ : Property.Value
   , other_ : Property.Value -> Property.Value
   }
-
 
 fontSizeFactory : FontSizeFactory
 fontSizeFactory =
-  {
-    size str = Property.stringValue str
+  { size str = Property.stringValue str
   , initial_ = Common.initialValue
   , inherit_ = Common.inheritValue
   , unset_ = Common.unsetValue
@@ -85,80 +117,91 @@ fontSizeFactory =
   }
 
 -------------------------------------------------------------------------------
+type alias NubFontStyleDescriptor rec = 
+  NubFontStyleFactory rec -> Property.Value
 
 type alias FontStyleDescriptor = FontStyleFactory -> Property.Value
 
-type alias FontStyleFactory =
-  {
-    style: String -> Property.Value
-  , initial_ : Property.Value
-  , inherit_ : Property.Value
-  , normal_ : Property.Value
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value
+type alias NubFontStyleFactory rec =
+  { rec | style: String -> Property.Value
+        , other_ : Property.Value -> Property.Value
   }
 
-fontStyleFactory : FontStyleFactory
-fontStyleFactory =
-  {
-    style str = Property.stringValue str
-  , initial_ = Common.initialValue
-  , inherit_ = Common.inheritValue
-  , normal_ = Common.normalValue
-  , unset_ = Common.unsetValue
+nubFontStyleFactory : NubFontStyleFactory {}
+nubFontStyleFactory =
+  { style str = Property.stringValue str
   , other_ val = Common.otherValue val
   }
+  
+type alias FontStyleFactory = 
+  NubFontStyleFactory 
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value 
+          (Common.Normal Property.Value {}))))
+  
+fontStyleFactory : FontStyleFactory
+fontStyleFactory = 
+  let withCommon = Common.addCommonValues nubFontStyleFactory
+  in { withCommon | normal_ = Common.normalValue }
 
 -------------------------------------------------------------------------------
+type alias NubFontVariantDescriptor rec = 
+  NubFontVariantFactory rec -> Property.Value
 
 type alias FontVariantDescriptor = FontVariantFactory -> Property.Value
 
-type alias FontVariantFactory =
-  {
-    variant: String -> Property.Value
-  , normal_ : Property.Value
-  , initial_ : Property.Value
-  , inherit_ : Property.Value
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value
+type alias NubFontVariantFactory rec =
+  { rec | variant: String -> Property.Value
+        , other_ : Property.Value -> Property.Value
   }
 
-fontVariantFactory : FontVariantFactory
-fontVariantFactory =
-  {
-    variant str = Property.stringValue str
-  , normal_ = Common.normalValue
-  , initial_ = Common.initialValue
-  , inherit_ = Common.inheritValue
-  , unset_ = Common.unsetValue
+nubFontVariantFactory : NubFontVariantFactory {}
+nubFontVariantFactory =
+  { variant str = Property.stringValue str
   , other_ val = Common.otherValue val
   }
+  
+type alias FontVariantFactory = 
+  NubFontVariantFactory 
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value 
+          (Common.Normal Property.Value {}))))
+  
+fontVariantFactory : FontVariantFactory
+fontVariantFactory = 
+  let withCommon = Common.addCommonValues nubFontVariantFactory
+  in { withCommon | normal_ = Common.normalValue }
 
 -------------------------------------------------------------------------------
+type alias NubFontWeightDescriptor rec = 
+  NubFontWeightFactory rec -> Property.Value
+
+type alias NubFontWeightFactory rec =
+  { rec | weight: String -> Property.Value
+        , other_ : Property.Value -> Property.Value
+  }
+  
+nubFontWeightFactory : NubFontWeightFactory {}
+nubFontWeightFactory =
+  { weight str = Property.stringValue str
+  , other_ val = Common.otherValue val
+  }
 
 type alias FontWeightDescriptor = FontWeightFactory -> Property.Value
 
 type alias FontWeightFactory =
-  {
-    weight: String -> Property.Value
-  , normal_ : Property.Value
-  , initial_ : Property.Value
-  , inherit_ : Property.Value
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value
-  }
-
-
+  NubFontWeightFactory 
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value 
+          (Common.Normal Property.Value {}))))
+  
 fontWeightFactory : FontWeightFactory
-fontWeightFactory =
-  {
-    weight str = Property.stringValue str
-  , normal_ = Common.normalValue
-  , initial_ = Common.initialValue
-  , inherit_ = Common.inheritValue
-  , unset_ = Common.unsetValue
-  , other_ val = Common.otherValue val
-  }
+fontWeightFactory = 
+  let withCommon = Common.addCommonValues nubFontWeightFactory
+  in { withCommon | normal_ = Common.normalValue }
 
 -------------------------------------------------------------------------------
 
