@@ -46,269 +46,238 @@ module Css.Font
   
   ) where
 
-import Css.Internal.Property exposing (toLiteral, literalValue, commaListValue)
-import Css.Internal.Stylesheet exposing (simpleProperty, PropertyRuleAppender)
-
-import Css.Internal.Font exposing (..)  
-
 import Css.Internal.Color as Color
+import Css.Internal.Font as Font
 import Css.Internal.Geometry.Linear as Linear
+import Css.Internal.Property as Property
+import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
-color : Color.BasicColorDescriptor -> PropertyRuleAppender
+color : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
 color colorDescriptor = 
   let theColor = colorDescriptor Color.colorFactory
-  in simpleProperty "color" theColor
+  in Stylesheet.simpleProperty "color" theColor
 
 -- | An alias for `color`.
-fontColor : Color.BasicColorDescriptor -> PropertyRuleAppender
+fontColor : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
 fontColor = color
 
 -------------------------------------------------------------------------------
 -- TODO Can take initial, inherit, unset
 -- | The `fontFamily` style rule takes two lists of font families: zero or more
 -- custom font-families and preferably one or more generic font families.
-fontFamily : List String -> List GenericFontFamilyDescriptor -> PropertyRuleAppender
+fontFamily : List String -> 
+             List Font.GenericFontFamilyDescriptor -> 
+             Stylesheet.PropertyRuleAppender
 fontFamily customFamilies genericFamilies = 
-  let customLiteralValues = 
-        customFamilies |> List.map toLiteral |> List.map literalValue
+  let customFontValues = 
+        customFamilies 
+        |> List.map Property.toLiteral 
+        |> List.map Property.literalValue
+        
+      genericValueFrom genericFamilyDescriptor = 
+        genericFamilyDescriptor Font.genericFontFamilyFactory
+        
       genericValues = 
-        List.map (\descriptor -> descriptor genericFontFamilyFactory) genericFamilies
-        |> List.map genericFontFamilyValue
-      valueFactory = commaListValue identity
-   in simpleProperty "font-family" (valueFactory (customLiteralValues ++ genericValues))
+        genericFamilies
+        |> List.map genericValueFrom 
+        |> List.map Font.genericFontFamilyValue
+        
+      allValues = customFontValues ++ genericValues
+      valueFactory = Property.commaListValue identity
+      
+   in Stylesheet.simpleProperty "font-family" (valueFactory allValues)
 
-sansSerif : GenericFontFamilyDescriptor 
-sansSerif factory = factory.family "sans-serif"
-
-
-serif : GenericFontFamilyDescriptor 
-serif factory = factory.family "serif"
-
-
-monospace : GenericFontFamilyDescriptor 
-monospace factory = factory.family "monospace"
+sansSerif : Font.GenericFontFamilyDescriptor 
+sansSerif = \factory -> factory.family "sans-serif"
 
 
-cursive : GenericFontFamilyDescriptor 
-cursive factory = factory.family "cursive"
+serif : Font.GenericFontFamilyDescriptor 
+serif = \factory -> factory.family "serif"
 
 
-fantasy : GenericFontFamilyDescriptor
-fantasy factory = factory.family "fantasy"
+monospace : Font.GenericFontFamilyDescriptor 
+monospace = \factory -> factory.family "monospace"
+
+
+cursive : Font.GenericFontFamilyDescriptor 
+cursive = \factory -> factory.family "cursive"
+
+
+fantasy : Font.GenericFontFamilyDescriptor
+fantasy = \factory -> factory.family "fantasy"
 
 
 -------------------------------------------------------------------------------
 
 
 -- TODO Test that we can pass size descriptors here too.
-fontSize : FontSizeDescriptor -> PropertyRuleAppender
+fontSize : Font.FontSizeDescriptor -> Stylesheet.PropertyRuleAppender
 fontSize sizeDescriptor = 
-  let fontSizeValue = sizeDescriptor fontSizeFactory
-  in simpleProperty "font-size" fontSizeValue
+  let fontSizeValue = sizeDescriptor Font.fontSizeFactory
+  in Stylesheet.simpleProperty "font-size" fontSizeValue
 
 
-xxSmall : FontSizeDescriptor
-xxSmall factory = factory.size "xx-small"
+xxSmall : Font.FontSizeDescriptor
+xxSmall = \factory -> factory.size "xx-small"
 
 
-xSmall : FontSizeDescriptor 
-xSmall factory = factory.size "x-small"
+xSmall : Font.FontSizeDescriptor 
+xSmall = \factory -> factory.size "x-small"
 
 
-small : FontSizeDescriptor 
-small factory = factory.size "small"
+small : Font.FontSizeDescriptor 
+small = \factory -> factory.size "small"
 
 
-medium : FontSizeDescriptor
-medium factory = factory.size "medium"
+medium : Font.FontSizeDescriptor
+medium = \factory -> factory.size "medium"
 
 
-large : FontSizeDescriptor 
-large factory = factory.size "large"
+large : Font.FontSizeDescriptor 
+large = \factory -> factory.size "large"
 
 
-xLarge : FontSizeDescriptor 
-xLarge factory = factory.size "x-large"
+xLarge : Font.FontSizeDescriptor 
+xLarge = \factory -> factory.size "x-large"
 
 
-xxLarge : FontSizeDescriptor
-xxLarge factory = factory.size "xx-large"
+xxLarge : Font.FontSizeDescriptor
+xxLarge = \factory -> factory.size "xx-large"
 
 
-smaller : FontSizeDescriptor 
-smaller factory = factory.size "smaller"
+smaller : Font.FontSizeDescriptor 
+smaller = \factory -> factory.size "smaller"
 
 
-larger : FontSizeDescriptor
-larger factory = factory.size "larger"
+larger : Font.FontSizeDescriptor
+larger = \factory -> factory.size "larger"
 
 
 -------------------------------------------------------------------------------
 
 
-fontStyle : FontStyleDescriptor -> PropertyRuleAppender
+fontStyle : Font.FontStyleDescriptor -> Stylesheet.PropertyRuleAppender
 fontStyle styleDescriptor = 
-  let fontStyleValue = styleDescriptor fontStyleFactory
-  in simpleProperty "font-style" fontStyleValue
+  let fontStyleValue = styleDescriptor Font.fontStyleFactory
+  in Stylesheet.simpleProperty "font-style" fontStyleValue
 
 
-italic : FontStyleDescriptor
-italic factory = factory.style "italic"
+italic : Font.FontStyleDescriptor
+italic = \factory -> factory.style "italic"
 
 
-oblique : FontStyleDescriptor
-oblique factory = factory.style "oblique"
+oblique : Font.FontStyleDescriptor
+oblique = \factory -> factory.style "oblique"
 
 
 -------------------------------------------------------------------------------
 
 -- TODO - Need a second version to take a list of variants
-fontVariant : FontVariantDescriptor -> PropertyRuleAppender
+fontVariant : Font.FontVariantDescriptor -> Stylesheet.PropertyRuleAppender
 fontVariant variantDescriptor = 
-  let fontVariantValue = variantDescriptor fontVariantFactory
-  in simpleProperty "font-variant" fontVariantValue
+  let fontVariantValue = variantDescriptor Font.fontVariantFactory
+  in Stylesheet.simpleProperty "font-variant" fontVariantValue
 
-smallCaps : FontVariantDescriptor
-smallCaps factory = factory.variant "small-caps"
+smallCaps : Font.FontVariantDescriptor
+smallCaps = \factory -> factory.variant "small-caps"
 
--- TODO - There are many more of these now. See https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant
+-- TODO - There are many more of these now.
+-- See https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant
 -------------------------------------------------------------------------------
 
-fontWeight : FontWeightDescriptor -> PropertyRuleAppender
+fontWeight : Font.FontWeightDescriptor -> Stylesheet.PropertyRuleAppender
 fontWeight descriptor = 
-  let fontWeightValue = descriptor fontWeightFactory
-  in simpleProperty "font-weight" fontWeightValue
+  let fontWeightValue = descriptor Font.fontWeightFactory
+  in Stylesheet.simpleProperty "font-weight" fontWeightValue
 
 
-bold : FontWeightDescriptor
-bold factory = factory.weight "bold"
+bold : Font.FontWeightDescriptor
+bold = \factory -> factory.weight "bold"
 
 
-bolder : FontWeightDescriptor 
-bolder factory = factory.weight "bolder"
+bolder : Font.FontWeightDescriptor 
+bolder = \factory -> factory.weight "bolder"
 
 
-lighter : FontWeightDescriptor
-lighter factory = factory.weight "lighter"
+lighter : Font.FontWeightDescriptor
+lighter = \factory -> factory.weight "lighter"
 
 
-weight : Int -> FontWeightDescriptor
-weight i factory = factory.weight (toString i)
+weight : Int -> Font.FontWeightDescriptor
+weight i = \factory -> factory.weight (toString i)
 
 -------------------------------------------------------------------------------
 
-lineHeight : Linear.SizeDescriptorWithNormal sz -> PropertyRuleAppender
+lineHeight : Linear.SizeDescriptorWithNormal sz -> Stylesheet.PropertyRuleAppender
 lineHeight descriptor = 
-  simpleProperty "line-height" (descriptor Linear.sizeFactoryWithNormal) 
+  let lineHeightValue = descriptor Linear.sizeFactoryWithNormal
+  in Stylesheet.simpleProperty "line-height" lineHeightValue
 
 -------------------------------------------------------------------------------
 
-font : FontDescriptor a sz -> PropertyRuleAppender
+font : Font.FontDescriptor a sz -> Stylesheet.PropertyRuleAppender
 font fontDescriptor = 
-  simpleProperty "font" (fontDescriptor fontFactory |> fontValue)
+  let value = fontDescriptor Font.fontFactory |> Font.fontValue
+  in Stylesheet.simpleProperty "font" value
 
-{- Equivalent to
-aFont : Linear.SizeDescriptor (Linear.Size sz) sz -> 
-           List String -> 
-           List GenericFontFamily -> 
-           FontFactory sz -> 
-           ComposedFont sz
--}  
 aFont : Linear.SizeDescriptor {} sz -> 
            List String -> 
-           List GenericFontFamilyDescriptor -> 
-           ComposedFontDescriptor sz
-aFont sizeDescriptor customFonts genericFontDescriptors compositeFactory =
-  let genericFontFrom familyDescriptor = familyDescriptor genericFontFamilyFactory
-      genericFonts = List.map genericFontFrom genericFontDescriptors
-  in compositeFactory.leaf sizeDescriptor customFonts genericFonts
+           List Font.GenericFontFamilyDescriptor -> 
+           Font.ComposedFontDescriptor sz
+aFont sizeDescriptor customFonts genericFontDescriptors =
+  \compositeFactory -> 
+    let genericFontFrom descriptor = descriptor Font.genericFontFamilyFactory
+        genericFonts = List.map genericFontFrom genericFontDescriptors
+    in compositeFactory.leaf sizeDescriptor customFonts genericFonts
 
-{- Equivalent to
-withLineHeight :  Linear.SizeDescriptor (Linear.Size sz) sz -> 
-                  (FontFactory sz -> ComposedFont sz)
-                  FontFactory sz -> 
-                  ComposedFont sz
--}
 withLineHeight : Linear.SizeDescriptor {} sz -> 
-                 ComposedFontDescriptor sz -> 
-                 ComposedFontDescriptor sz
-withLineHeight lineHeightDescriptor compositeDescriptor compositeFactory =
-   let composedFont = compositeDescriptor compositeFactory
-       rewrapWithLineHeight fontWithComponents lineHeight = 
-         case fontWithComponents.fontComponents of
-           -- If withLineHeight is called twice, the later (outer) one wins, which 
-           -- means that if this leaf has already been created, so don't touch it.
-           WithLineHeight _ _ _ _ as leaf -> fontWithComponents
-           BaseComponent size customFonts genericFonts -> 
-             let components = 
-               WithLineHeight size (lineHeight Linear.nubSizeFactory) customFonts genericFonts
-             in { font = CompositeFont components, fontComponents = components }
-           WithWeight weight innerComposedFont -> 
-            let components = 
-              WithWeight weight (rewrapWithLineHeight innerComposedFont lineHeight)
-             in { font = CompositeFont components, fontComponents = components }
-           WithVariant variant innerComposedFont ->
-             let components =
-               WithVariant variant (rewrapWithLineHeight innerComposedFont lineHeight)
-             in { font = CompositeFont components, fontComponents = components }
-           WithStyle style innerComposedFont -> 
-             let components =
-               WithStyle style (rewrapWithLineHeight innerComposedFont lineHeight)
-             in { font = CompositeFont components, fontComponents = components }
-   in rewrapWithLineHeight composedFont lineHeightDescriptor
+                 Font.ComposedFontDescriptor sz -> 
+                 Font.ComposedFontDescriptor sz
+withLineHeight lineHeightDescriptor compositeDescriptor =
+  \compositeFactory ->
+    let composedFont = compositeDescriptor compositeFactory
+    in Font.addLineHeight composedFont lineHeightDescriptor
 
-{- Equivalent to 
-withWeight : FontWeight -> 
-             (FontFactory sz -> ComposedFont sz)
-             FontFactory sz -> 
-             ComposedFont sz
--}
-withWeight : FontWeightDescriptor -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
-withWeight weightDescriptor innerDescriptor compositeFactory =
-   let weight = weightDescriptor fontWeightFactory 
-       innerFont = innerDescriptor compositeFactory
-   in compositeFactory.composite (WithWeight weight) innerFont
+withWeight : Font.FontWeightDescriptor -> 
+             Font.ComposedFontDescriptor sz -> 
+             Font.ComposedFontDescriptor sz
+withWeight weightDescriptor innerDescriptor = 
+  \compositeFactory ->
+     let weight = weightDescriptor Font.fontWeightFactory 
+     in Font.addWeight weight innerDescriptor compositeFactory
   
-{- Equivalent to 
-withVariant : FontVariant -> 
-              (FontFactory sz -> ComposedFont sz)
-              FontFactory sz -> 
-              ComposedFont sz
--}
-withVariant : FontVariantDescriptor -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
-withVariant variantDescriptor innerDescriptor compositeFactory =
-   let variant = variantDescriptor fontVariantFactory
-       innerFont = innerDescriptor compositeFactory
-   in compositeFactory.composite (WithVariant variant) innerFont
+withVariant : Font.FontVariantDescriptor -> 
+              Font.ComposedFontDescriptor sz -> 
+              Font.ComposedFontDescriptor sz
+withVariant variantDescriptor innerDescriptor = 
+  \compositeFactory -> 
+     let variant = variantDescriptor Font.fontVariantFactory
+     in Font.addVariant variant innerDescriptor compositeFactory
 
-{- Equivalent to 
-withStyle : FontStyle -> 
-            (FontFactory sz -> ComposedFont sz)
-            FontFactory sz -> 
-            ComposedFont sz
--}
-withStyle : FontStyleDescriptor -> ComposedFontDescriptor sz -> ComposedFontDescriptor sz
-withStyle styleDescriptor innerDescriptor compositeFactory =
-   let style = styleDescriptor fontStyleFactory
-       innerFont = innerDescriptor compositeFactory
-   in compositeFactory.composite (WithStyle style) innerFont
+withStyle : Font.FontStyleDescriptor -> 
+            Font.ComposedFontDescriptor sz -> 
+            Font.ComposedFontDescriptor sz
+withStyle styleDescriptor innerDescriptor = 
+  \compositeFactory ->
+     let style = styleDescriptor Font.fontStyleFactory
+     in Font.addStyle style innerDescriptor compositeFactory
 
-caption : FontDescriptor {} sz
-caption factory = factory.named "caption"
+caption : Font.FontDescriptor {} sz
+caption = \factory -> factory.named "caption"
 
-icon : FontDescriptor {} sz
-icon factory = factory.named "icon"
+icon : Font.FontDescriptor {} sz
+icon = \factory -> factory.named "icon"
 
-menu : FontDescriptor {} sz
-menu factory = factory.named "menu"
+menu : Font.FontDescriptor {} sz
+menu = \factory -> factory.named "menu"
 
-messageBox : FontDescriptor {} sz
-messageBox factory = factory.named "message-box"
+messageBox : Font.FontDescriptor {} sz
+messageBox = \factory -> factory.named "message-box"
 
-smallCaption : FontDescriptor {} sz
-smallCaption factory = factory.named "small-caption"
+smallCaption : Font.FontDescriptor {} sz
+smallCaption = \factory -> factory.named "small-caption"
 
-statusBar : FontDescriptor {} sz
-statusBar factory = factory.named "status-bar"
+statusBar : Font.FontDescriptor {} sz
+statusBar = \factory -> factory.named "status-bar"
