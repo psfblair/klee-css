@@ -63,7 +63,6 @@ module Css.Display (
 import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
 import Css.Internal.Display exposing (..) 
 
-import Css.Internal.Geometry.Linear as Linear
 -------------------------------------------------------------------------------
 
 float : FloatStyleDescriptor -> PropertyRuleAppender
@@ -272,30 +271,30 @@ allEvents factory = factory.pointerEvents "all"
 
 -------------------------------------------------------------------------------
 
-verticalAlign : VerticalAlignDescriptor -> PropertyRuleAppender
+verticalAlign : VerticalAlignDescriptor {} -> PropertyRuleAppender
 verticalAlign descriptor =
   let verticalAlignValue = descriptor verticalAlignFactory
   in simpleProperty "vertical-align" verticalAlignValue
 
-middle : VerticalAlignDescriptor
+middle : VerticalAlignDescriptor sz
 middle factory = factory.vAlign "middle"
 
-vAlignSub : VerticalAlignDescriptor
+vAlignSub : VerticalAlignDescriptor sz
 vAlignSub factory = factory.vAlign  "sub"
 
-vAlignSuper : VerticalAlignDescriptor
+vAlignSuper : VerticalAlignDescriptor sz
 vAlignSuper factory = factory.vAlign  "super"
 
-textTop : VerticalAlignDescriptor
+textTop : VerticalAlignDescriptor sz
 textTop factory = factory.vAlign  "text-top"
 
-textBottom : VerticalAlignDescriptor
+textBottom : VerticalAlignDescriptor sz
 textBottom factory = factory.vAlign  "text-bottom"
 
-vAlignTop : VerticalAlignDescriptor
+vAlignTop : VerticalAlignDescriptor sz
 vAlignTop factory = factory.vAlign  "top"
 
-vAlignBottom : VerticalAlignDescriptor
+vAlignBottom : VerticalAlignDescriptor sz
 vAlignBottom factory = factory.vAlign  "bottom"
 
 -------------------------------------------------------------------------------
