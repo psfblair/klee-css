@@ -53,11 +53,7 @@ type alias ColorFactory rec =
         (Common.Unset Property.Value rec)))
 
 colorFactory : ColorFactory {}
-colorFactory =
-  let withInitial = { nubColorFactory | initial_ = Common.initialValue }
-      withInherit = { withInitial     | inherit_ = Common.inheritValue }
-      withUnset   = { withInherit     | unset_   = Common.unsetValue }
-  in withUnset
+colorFactory = Common.addCommonValues nubColorFactory
 
 type alias WithInvert rec = { rec | invert: Property.Value }
 
