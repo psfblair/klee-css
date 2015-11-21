@@ -97,24 +97,16 @@ fontFamilyFactory = Common.addCommonValues nubFontFamilyFactory
     
 -------------------------------------------------------------------------------
 
-type alias FontSizeDescriptor = FontSizeFactory -> Property.Value
+type alias FontSizeDescriptor sz = FontSizeFactory sz -> Property.Value
 
-type alias FontSizeFactory =
-  { size: String -> Property.Value
-  , initial_ : Property.Value
-  , inherit_ : Property.Value
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value
-  }
+type alias WithFontSize = { fontSize: String -> Property.Value }
+  
+type alias FontSizeFactory sz = Linear.BasicSizeFactory WithFontSize sz
 
-fontSizeFactory : FontSizeFactory
-fontSizeFactory =
-  { size str = Property.stringValue str
-  , initial_ = Common.initialValue
-  , inherit_ = Common.inheritValue
-  , unset_ = Common.unsetValue
-  , other_ val = Common.otherValue val
-  }
+fontSizeFactory : FontSizeFactory sz
+fontSizeFactory = 
+  let basicSizeFactory = Linear.basicSizeFactory
+  in { basicSizeFactory | fontSize = \str -> Property.stringValue str }
 
 -------------------------------------------------------------------------------
 type alias NubFontStyleDescriptor rec = 
@@ -256,7 +248,7 @@ type FontComponents sz
   | WithStyle Property.Value (ComposedFont sz)
 
 type alias FontFactory sz =
-  { leaf : Linear.SizeDescriptor {} sz -> 
+  { leaf : Linear.NubSizeDescriptor {} sz -> 
            List String -> 
            List GenericFontFamily -> 
            ComposedFont sz

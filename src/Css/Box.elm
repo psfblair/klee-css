@@ -85,8 +85,8 @@ boxShadow shadowDescriptor =
 
 -- * Composable shadow descriptors.
 
-shadow : Linear.SizeDescriptor {} xSzTyp ->
-         Linear.SizeDescriptor {} ySzTyp ->
+shadow : Linear.NubSizeDescriptor {} xSzTyp ->
+         Linear.NubSizeDescriptor {} ySzTyp ->
          BoxShadow.CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp
 shadow xOffsetDescriptor yOffsetDescriptor shadowFactory =
   shadowFactory.sizedShadow xOffsetDescriptor yOffsetDescriptor
@@ -107,8 +107,8 @@ boxColor colorDescriptor innerDescriptor shadowFactory =
   in shadowFactory.withColor colorDescriptor innerShadow
 
 
-boxBlur : Linear.SizeDescriptor {} blurSzTyp ->
-          Linear.SizeDescriptor {} spreadSzTyp ->
+boxBlur : Linear.NubSizeDescriptor {} blurSzTyp ->
+          Linear.NubSizeDescriptor {} spreadSzTyp ->
           BoxShadow.CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp ->
           BoxShadow.CompositeShadowDescriptor xSzTyp ySzTyp blurSzTyp spreadSzTyp
 boxBlur blurDescriptor spreadDescriptor innerDescriptor shadowFactory =
@@ -118,7 +118,7 @@ boxBlur blurDescriptor spreadDescriptor innerDescriptor shadowFactory =
 -------------------------------------------------------------------------------
 
 aBorderWith : Stroke.NubBorderStyleDescriptor {} -> 
-              Linear.SizeDescriptor {} Linear.Abs -> 
+              Linear.NubSizeDescriptor {} Linear.Abs -> 
               Color.NubColorDescriptor {} ->
               Border.BorderDescriptor
 aBorderWith strokeDescriptor widthDescriptor colorDescriptor =
@@ -291,10 +291,10 @@ borderRadius radiusDescriptor =
   let radiusValue = radiusDescriptor Linear.basicSizeFactory
   in Stylesheet.simpleProperty "border-radius" radiusValue
 
-borderRadius4 : Linear.SizeDescriptor {} szTopL ->
-                Linear.SizeDescriptor {} szTopR ->
-                Linear.SizeDescriptor {} szBotL ->
-                Linear.SizeDescriptor {} szBotR ->
+borderRadius4 : Linear.NubSizeDescriptor {} szTopL ->
+                Linear.NubSizeDescriptor {} szTopR ->
+                Linear.NubSizeDescriptor {} szBotL ->
+                Linear.NubSizeDescriptor {} szBotR ->
                 Stylesheet.PropertyRuleAppender
 borderRadius4 topLRadius topRRadius bottomRRadius bottomLRadius =
   let topLValue = topLRadius Linear.nubSizeFactory
@@ -312,8 +312,8 @@ borderTopLeftRadius radiusDescriptor =
   let radiusValue = radiusDescriptor Linear.basicSizeFactory
   in Stylesheet.simpleProperty "border-top-left-radius" radiusValue
 
-borderTopLeftRadius2 : Linear.SizeDescriptor {} szH ->
-                       Linear.SizeDescriptor {} szV ->
+borderTopLeftRadius2 : Linear.NubSizeDescriptor {} szH ->
+                       Linear.NubSizeDescriptor {} szV ->
                        Stylesheet.PropertyRuleAppender
 borderTopLeftRadius2 horizontal vertical =
   let compositeDescriptor = Property.spacePairValue horizontal vertical 
@@ -326,8 +326,8 @@ borderTopRightRadius radiusDescriptor =
   let radiusValue = radiusDescriptor Linear.basicSizeFactory
   in Stylesheet.simpleProperty "border-top-right-radius" radiusValue
 
-borderTopRightRadius2 : Linear.SizeDescriptor {} szH ->
-                        Linear.SizeDescriptor {} szV ->
+borderTopRightRadius2 : Linear.NubSizeDescriptor {} szH ->
+                        Linear.NubSizeDescriptor {} szV ->
                         Stylesheet.PropertyRuleAppender
 borderTopRightRadius2 horizontal vertical =
   let compositeDescriptor = Property.spacePairValue horizontal vertical 
@@ -340,8 +340,8 @@ borderBottomLeftRadius radiusDescriptor =
   let radiusValue = radiusDescriptor Linear.basicSizeFactory
   in Stylesheet.simpleProperty "border-bottom-left-radius" radiusValue
 
-borderBottomLeftRadius2 : Linear.SizeDescriptor {} a ->
-                          Linear.SizeDescriptor {} b ->
+borderBottomLeftRadius2 : Linear.NubSizeDescriptor {} a ->
+                          Linear.NubSizeDescriptor {} b ->
                           Stylesheet.PropertyRuleAppender
 borderBottomLeftRadius2 horizontal vertical =
   let compositeDescriptor = Property.spacePairValue horizontal vertical 
@@ -354,8 +354,8 @@ borderBottomRightRadius radiusDescriptor =
   let radiusValue = radiusDescriptor Linear.basicSizeFactory
   in Stylesheet.simpleProperty "border-bottom-right-radius" radiusValue
 
-borderBottomRightRadius2 : Linear.SizeDescriptor {} a ->
-                           Linear.SizeDescriptor {} b ->
+borderBottomRightRadius2 : Linear.NubSizeDescriptor {} a ->
+                           Linear.NubSizeDescriptor {} b ->
                            Stylesheet.PropertyRuleAppender
 borderBottomRightRadius2 horizontal vertical =
   let compositeDescriptor = Property.spacePairValue horizontal vertical 
@@ -370,8 +370,8 @@ borderSpacing lengthDescriptor =
   let spacingValue = lengthDescriptor Linear.basicSizeFactory
   in Stylesheet.simpleProperty "border-spacing" spacingValue
 
-borderSpacing2 : Linear.SizeDescriptor {} a ->
-                 Linear.SizeDescriptor {} b ->
+borderSpacing2 : Linear.NubSizeDescriptor {} a ->
+                 Linear.NubSizeDescriptor {} b ->
                  Stylesheet.PropertyRuleAppender
 borderSpacing2 horizontal vertical =
   let compositeDescriptor = Property.spacePairValue horizontal vertical 
@@ -387,7 +387,7 @@ borderCollapse visibilityDescriptor =
 -------------------------------------------------------------------------------
 
 anOutlineWith : Stroke.NubOutlineStrokeDescriptor {} -> 
-                Linear.SizeDescriptor {} Linear.Abs -> 
+                Linear.NubSizeDescriptor {} Linear.Abs -> 
                 Color.NubColorDescriptorWithInvert {} ->
                 Outline.OutlineDescriptor
 anOutlineWith strokeDescriptor widthDescriptor colorDescriptor =

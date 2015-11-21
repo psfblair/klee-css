@@ -12,7 +12,7 @@ type alias OutlineDescriptor = OutlineFactory -> Property.Value
 
 type alias OutlineFactory =
   { outline : Stroke.NubOutlineStrokeDescriptor {} -> 
-              Linear.SizeDescriptor {} Linear.Abs -> 
+              Linear.NubSizeDescriptor {} Linear.Abs -> 
               Color.NubColorDescriptorWithInvert {} -> 
               Property.Value
   , initial_ : Property.Value

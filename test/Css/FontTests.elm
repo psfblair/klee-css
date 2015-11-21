@@ -112,11 +112,10 @@ suite = describe "Css.FontTests"
       [ renderProperties [ fontSize xxSmall ] 
           `shouldEqual` "font-size:xx-small"
       ]
---TODO      
-    -- , it "should render numeric font sizes properly"
-    --   [ renderProperties [ fontSize (px 20) ] 
-    --       `shouldEqual` "font-size:20px"
-    --   ]
+    , it "should render numeric font sizes properly"
+      [ renderProperties [ fontSize (px 20) ] 
+          `shouldEqual` "font-size:20px"
+      ]
     , it "can accept common properties initial, inherit, unset and other"
       [ renderProperties [fontSize initial] `shouldEqual` "font-size:initial"
       , renderProperties [fontSize inherit] `shouldEqual` "font-size:inherit" 
@@ -238,7 +237,7 @@ suite = describe "Css.FontTests"
       ]
     ]
   , describe "lineHeight"
-    [ it "should render dimensioned line heights properly"
+    [ it "should render quantitative line heights properly"
       [ renderProperties [ lineHeight (unitless 3.5) ] 
           `shouldEqual` "line-height:3.5"
       , renderProperties [lineHeight (px 20)] 

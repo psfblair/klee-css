@@ -53,50 +53,50 @@ import Css.Internal.Stylesheet as Stylesheet
 -------------------------------------------------------------------------------
 
 -- | Unitless size (as recommended for line-height).
-unitless : Float -> Linear.SizeDescriptor rec {}
+unitless : Float -> Linear.NubSizeDescriptor rec {}
 unitless length = \factory -> factory.size (Linear.unitlessSize length)
 
 -------------------------------------------------------------------------------
 -- Absolute sizes
 
 -- | Zero absolute size.
-abs0 : Linear.SizeDescriptor rec Linear.Abs
+abs0 : Linear.NubSizeDescriptor rec Linear.Abs
 abs0 = 
   let zeroSize = Property.stringValue "0"
   in \factory -> factory.size (Linear.absolute zeroSize)
 
 -- | Size in centimeters.
-cm : Float -> Linear.SizeDescriptor a Linear.Abs
+cm : Float -> Linear.NubSizeDescriptor a Linear.Abs
 cm length = 
   let lengthValue = Property.appendUnits length "cm"
   in \factory -> factory.size (Linear.absolute lengthValue)
 
 -- | Size in millimeters.
-mm : Float -> Linear.SizeDescriptor a Linear.Abs
+mm : Float -> Linear.NubSizeDescriptor a Linear.Abs
 mm length = 
   let lengthValue = Property.appendUnits length "mm"
   in \factory -> factory.size (Linear.absolute lengthValue)
 
 -- | Size in inches (1in = 2.54 cm).
-inches : Float -> Linear.SizeDescriptor a Linear.Abs
+inches : Float -> Linear.NubSizeDescriptor a Linear.Abs
 inches length = 
   let lengthValue = Property.appendUnits length "in"
   in \factory -> factory.size (Linear.absolute lengthValue)
 
 -- | Size in pixels.
-px : Float -> Linear.SizeDescriptor a Linear.Abs
+px : Float -> Linear.NubSizeDescriptor a Linear.Abs
 px length = 
   let lengthValue = Property.appendUnits length "px"
   in \factory -> factory.size (Linear.absolute lengthValue)
 
 -- | Size in points (1pt = 1/72 of 1in).
-pt : Float -> Linear.SizeDescriptor a Linear.Abs
+pt : Float -> Linear.NubSizeDescriptor a Linear.Abs
 pt length = 
   let lengthValue = Property.appendUnits length "pt"
   in \factory -> factory.size (Linear.absolute lengthValue)
 
 -- | Size in picas (1pc = 12pt).
-pc : Float -> Linear.SizeDescriptor a Linear.Abs
+pc : Float -> Linear.NubSizeDescriptor a Linear.Abs
 pc length = 
   let lengthValue = Property.appendUnits length "pc"
   in \factory -> factory.size (Linear.absolute lengthValue)
@@ -105,56 +105,56 @@ pc length =
 -- Relative sizes
 
 -- | Zero relative size.
-rel0 : Linear.SizeDescriptor rec Linear.Rel
+rel0 : Linear.NubSizeDescriptor rec Linear.Rel
 rel0 = 
   let zeroSize = Property.stringValue "0"
   in \factory -> factory.size (Linear.relative zeroSize)
 
 -- | Size in percents.
-pct : Float -> Linear.SizeDescriptor a Linear.Rel
+pct : Float -> Linear.NubSizeDescriptor a Linear.Rel
 pct length = 
   let lengthValue = Property.appendUnits length "%"
   in \factory -> factory.size (Linear.relative lengthValue)
 
 -- | Size in em's (computed value of the font-size).
-em : Float -> Linear.SizeDescriptor a Linear.Rel
+em : Float -> Linear.NubSizeDescriptor a Linear.Rel
 em length =  
   let lengthValue = Property.appendUnits length "em"
   in \factory -> factory.size (Linear.relative lengthValue)
 
 -- | Size in rem's (em's, but always relative to the root element).
 -- named rems in order not to collide with Basics.rem
-rems : Float -> Linear.SizeDescriptor a Linear.Rel
+rems : Float -> Linear.NubSizeDescriptor a Linear.Rel
 rems length =  
   let lengthValue = Property.appendUnits length "rem"
   in \factory -> factory.size (Linear.relative lengthValue)
 
 -- Double -> Size Rel| Size in ex'es (x-height of the first avaliable font).
-ex : Float -> Linear.SizeDescriptor a Linear.Rel
+ex : Float -> Linear.NubSizeDescriptor a Linear.Rel
 ex length =  
   let lengthValue = Property.appendUnits length "ex"
   in \factory -> factory.size (Linear.relative lengthValue)
 
 -- | Size in vw's (1vw = 1% of viewport width).
-vw : Float -> Linear.SizeDescriptor a Linear.Rel
+vw : Float -> Linear.NubSizeDescriptor a Linear.Rel
 vw length =  
   let lengthValue = Property.appendUnits length "vw"
   in \factory -> factory.size (Linear.relative lengthValue)
 
 -- | Size in vh's (1vh = 1% of viewport height).
-vh : Float -> Linear.SizeDescriptor a Linear.Rel
+vh : Float -> Linear.NubSizeDescriptor a Linear.Rel
 vh length =  
   let lengthValue = Property.appendUnits length "vh"
   in \factory -> factory.size (Linear.relative lengthValue)
 
 -- | Size in vmin's (the smaller of vw or vh).
-vmin : Float -> Linear.SizeDescriptor a Linear.Rel
+vmin : Float -> Linear.NubSizeDescriptor a Linear.Rel
 vmin length =  
   let lengthValue = Property.appendUnits length "vmin"
   in \factory -> factory.size (Linear.relative lengthValue)
 
 -- | Size in vmax's (the larger of vw or vh).
-vmax : Float -> Linear.SizeDescriptor a Linear.Rel
+vmax : Float -> Linear.NubSizeDescriptor a Linear.Rel
 vmax length =  
   let lengthValue = Property.appendUnits length "vmax"
   in \factory -> factory.size (Linear.relative lengthValue)
@@ -254,10 +254,10 @@ maxHeight sizeDescriptor =
 
 -------------------------------------------------------------------------------
 
-rect : Linear.SizeDescriptor {} sz ->
-       Linear.SizeDescriptor {} sz ->
-       Linear.SizeDescriptor {} sz ->
-       Linear.SizeDescriptor {} sz ->
+rect : Linear.NubSizeDescriptor {} sz ->
+       Linear.NubSizeDescriptor {} sz ->
+       Linear.NubSizeDescriptor {} sz ->
+       Linear.NubSizeDescriptor {} sz ->
        Linear.Rect a sz rec ->
        a
 rect topLength rightLength bottomLength leftLength = 

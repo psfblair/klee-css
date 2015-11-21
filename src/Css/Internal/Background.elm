@@ -23,8 +23,8 @@ type alias BackgroundPositionDescriptor sz1 sz2 =
     BackgroundPositionFactory sz1 sz2 -> Property.Value
 
 type alias BackgroundPositionFactory sz1 sz2 =
-  { sizedPosition : Linear.SizeDescriptor {} sz1 -> 
-                    Linear.SizeDescriptor {} sz2 -> 
+  { sizedPosition : Linear.NubSizeDescriptor {} sz1 -> 
+                    Linear.NubSizeDescriptor {} sz2 -> 
                     Property.Value
   , sidedPosition : Sides.HorizontalSide -> Sides.VerticalSide -> Property.Value
   , initial_ : Property.Value
@@ -54,10 +54,10 @@ backgroundPositionFactory =
 type alias BackgroundSizeDescriptor sz = BackgroundSizeFactory sz -> Property.Value
 
 type alias BackgroundSizeFactory szTyp =
-  { backgroundSize : Linear.SizeDescriptor {} szTyp -> 
-                     Linear.SizeDescriptor {} szTyp -> 
+  { backgroundSize : Linear.NubSizeDescriptor {} szTyp -> 
+                     Linear.NubSizeDescriptor {} szTyp -> 
                      Property.Value
-  , partial : Linear.SizeDescriptor {} szTyp -> Property.Value
+  , partial : Linear.NubSizeDescriptor {} szTyp -> Property.Value
   , named : String -> Property.Value
   , auto_ : Property.Value
   , initial_ : Property.Value

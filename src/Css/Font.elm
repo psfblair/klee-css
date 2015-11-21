@@ -102,47 +102,46 @@ fantasy = \factory -> factory.family "fantasy"
 -------------------------------------------------------------------------------
 
 
--- TODO Test that we can pass size descriptors here too.
-fontSize : Font.FontSizeDescriptor -> Stylesheet.PropertyRuleAppender
+fontSize : Font.FontSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
 fontSize sizeDescriptor = 
   let fontSizeValue = sizeDescriptor Font.fontSizeFactory
   in Stylesheet.simpleProperty "font-size" fontSizeValue
 
 
-xxSmall : Font.FontSizeDescriptor
-xxSmall = \factory -> factory.size "xx-small"
+xxSmall : Font.FontSizeDescriptor sz 
+xxSmall = \factory -> factory.fontSize "xx-small"
 
 
-xSmall : Font.FontSizeDescriptor 
-xSmall = \factory -> factory.size "x-small"
+xSmall : Font.FontSizeDescriptor sz  
+xSmall = \factory -> factory.fontSize "x-small"
 
 
-small : Font.FontSizeDescriptor 
-small = \factory -> factory.size "small"
+small : Font.FontSizeDescriptor sz 
+small = \factory -> factory.fontSize "small"
 
 
-medium : Font.FontSizeDescriptor
-medium = \factory -> factory.size "medium"
+medium : Font.FontSizeDescriptor sz
+medium = \factory -> factory.fontSize "medium"
 
 
-large : Font.FontSizeDescriptor 
-large = \factory -> factory.size "large"
+large : Font.FontSizeDescriptor sz
+large = \factory -> factory.fontSize "large"
 
 
-xLarge : Font.FontSizeDescriptor 
-xLarge = \factory -> factory.size "x-large"
+xLarge : Font.FontSizeDescriptor sz 
+xLarge = \factory -> factory.fontSize "x-large"
 
 
-xxLarge : Font.FontSizeDescriptor
-xxLarge = \factory -> factory.size "xx-large"
+xxLarge : Font.FontSizeDescriptor sz
+xxLarge = \factory -> factory.fontSize "xx-large"
 
 
-smaller : Font.FontSizeDescriptor 
-smaller = \factory -> factory.size "smaller"
+smaller : Font.FontSizeDescriptor sz 
+smaller = \factory -> factory.fontSize "smaller"
 
 
-larger : Font.FontSizeDescriptor
-larger = \factory -> factory.size "larger"
+larger : Font.FontSizeDescriptor sz
+larger = \factory -> factory.fontSize "larger"
 
 
 -------------------------------------------------------------------------------
@@ -212,17 +211,17 @@ font fontDescriptor =
   let value = fontDescriptor Font.fontFactory |> Font.fontValue
   in Stylesheet.simpleProperty "font" value
 
-aFont : Linear.SizeDescriptor {} sz -> 
-           List String -> 
-           List Font.GenericFontFamilyDescriptor -> 
-           Font.ComposedFontDescriptor sz
+aFont : Linear.NubSizeDescriptor {} sz -> 
+        List String -> 
+        List Font.GenericFontFamilyDescriptor -> 
+        Font.ComposedFontDescriptor sz
 aFont sizeDescriptor customFonts genericFontDescriptors =
   \compositeFactory -> 
     let genericFontFrom descriptor = descriptor Font.genericFontFamilyFactory
         genericFonts = List.map genericFontFrom genericFontDescriptors
     in compositeFactory.leaf sizeDescriptor customFonts genericFonts
 
-withLineHeight : Linear.SizeDescriptor {} sz -> 
+withLineHeight : Linear.NubSizeDescriptor {} sz -> 
                  Font.ComposedFontDescriptor sz -> 
                  Font.ComposedFontDescriptor sz
 withLineHeight lineHeightDescriptor innerDescriptor =

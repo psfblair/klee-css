@@ -98,10 +98,10 @@ type TextShadowComponent
   | OtherTextShadow Value
 
 type alias TextShadowFactory hSz vSz blrSz =
-  { baseShadow : Linear.SizeDescriptor {} hSz -> 
-                 Linear.SizeDescriptor {} vSz -> 
+  { baseShadow : Linear.NubSizeDescriptor {} hSz -> 
+                 Linear.NubSizeDescriptor {} vSz -> 
                  CompositeTextShadow
-  , withBlurRadius : Linear.SizeDescriptor {} blrSz -> 
+  , withBlurRadius : Linear.NubSizeDescriptor {} blrSz -> 
                      TextShadowComponent -> 
                      CompositeTextShadow
   , withColor : Color.NubColorDescriptor {} -> 
@@ -195,7 +195,7 @@ type TextIndent
   | OtherTextIndent Value
   
 type alias TextIndentFactory sz =
-  { textIndent : Linear.SizeDescriptor {} sz -> TextIndent
+  { textIndent : Linear.NubSizeDescriptor {} sz -> TextIndent
   , indentEachLine : TextIndent
   , hangingIndent : TextIndent
   , initial_ : TextIndent

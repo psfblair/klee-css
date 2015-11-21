@@ -127,13 +127,13 @@ textShadows descriptors =
       valueFactory = commaListValue textShadowValue
   in Stylesheet.simpleProperty "text-shadow" (valueFactory values)
   
-aShadow : Linear.SizeDescriptor {} hSz -> 
-          Linear.SizeDescriptor {} vSz -> 
+aShadow : Linear.NubSizeDescriptor {} hSz -> 
+          Linear.NubSizeDescriptor {} vSz -> 
           CompositeTextShadowDescriptor hSz vSz blrSz
 aShadow horizontalDescriptor verticalDescriptor factory =
   factory.baseShadow horizontalDescriptor verticalDescriptor
 
-shadowBlur : Linear.SizeDescriptor {} blrSz ->
+shadowBlur : Linear.NubSizeDescriptor {} blrSz ->
              CompositeTextShadowDescriptor hSz vSz blrSz -> 
              CompositeTextShadowDescriptor hSz vSz blrSz
 shadowBlur blurDescriptor innerDescriptor factory =
@@ -160,7 +160,7 @@ eachLine = \factory -> factory.indentEachLine
 hanging : TextIndentDescriptor a
 hanging = \factory -> factory.hangingIndent
 
-indent : Linear.SizeDescriptor {} a -> TextIndentDescriptor a
+indent : Linear.NubSizeDescriptor {} a -> TextIndentDescriptor a
 indent sizeDescriptor = \factory -> factory.textIndent sizeDescriptor
 
 -------------------------------------------------------------------------------

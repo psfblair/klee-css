@@ -180,10 +180,10 @@ extendedVisibilityFactory =
 type alias ClipDescriptor a b c d = ClipFactory a b c d -> Property.Value
 
 type alias ClipFactory a b c d =
-  { rect_ : Linear.SizeDescriptor {} a -> 
-            Linear.SizeDescriptor {} b -> 
-            Linear.SizeDescriptor {} c -> 
-            Linear.SizeDescriptor {} d -> 
+  { rect_ : Linear.NubSizeDescriptor {} a -> 
+            Linear.NubSizeDescriptor {} b -> 
+            Linear.NubSizeDescriptor {} c -> 
+            Linear.NubSizeDescriptor {} d -> 
             Property.Value
   , auto_ : Property.Value
   , inherit_ : Property.Value
@@ -279,11 +279,11 @@ pointerEventsFactory =
 
 type alias VerticalAlignDescriptor = VerticalAlignFactory -> Property.Value
 
--- Since SizeDescriptor is parameterized by a generic type `a` rather than
+-- Since NubSizeDescriptor is parameterized by a generic type `a` rather than
 -- simply by `Size a`, that means that for dimensioned sizes it just calls
 -- whatever `size` function is passed to it in the record -- that function
--- doesn't need to return a `Size`. So we can pass this factory to a SizeDescriptor
--- and get a `VerticalAlignValue` out instead of a `Size`.
+-- doesn't need to return a `Size`. So we can pass this factory to a 
+-- NubSizeDescriptor and get a `VerticalAlignValue` out instead of a `Size`.
 type alias VerticalAlignFactory =
   { size : Property.Value -> Property.Value
   , vAlign : String -> Property.Value

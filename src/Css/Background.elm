@@ -68,8 +68,8 @@ placed : Sides.HorizontalSide ->
          Background.BackgroundPositionDescriptor sz1 sz2
 placed horiz vert = \factory -> factory.sidedPosition horiz vert
 
-positioned : Linear.SizeDescriptor {} sz1 -> 
-             Linear.SizeDescriptor {} sz2 -> 
+positioned : Linear.NubSizeDescriptor {} sz1 -> 
+             Linear.NubSizeDescriptor {} sz2 -> 
              Background.BackgroundPositionDescriptor sz1 sz2
 positioned horiz vert = \factory -> factory.sizedPosition horiz vert
 
@@ -87,12 +87,12 @@ contain = \factory -> factory.named "contain"
 cover : Background.BackgroundSizeDescriptor sz
 cover = \factory -> factory.named "cover"
 
-by : Linear.SizeDescriptor {} sz -> 
-     Linear.SizeDescriptor {} sz -> 
+by : Linear.NubSizeDescriptor {} sz -> 
+     Linear.NubSizeDescriptor {} sz -> 
      Background.BackgroundSizeDescriptor sz
 by width height = \factory -> factory.backgroundSize width height
 
-bgWidth : Linear.SizeDescriptor {} sz -> Background.BackgroundSizeDescriptor sz
+bgWidth : Linear.NubSizeDescriptor {} sz -> Background.BackgroundSizeDescriptor sz
 bgWidth width = \factory -> factory.partial width
 
 -------------------------------------------------------------------------------

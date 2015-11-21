@@ -44,11 +44,11 @@ type alias WithComponents = { withComponents : ShadowComponents }
 -------------------------------------------------------------------------------
 
 type alias BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp =
-  { sizedShadow : Linear.SizeDescriptor {} xSzTyp -> 
-                  Linear.SizeDescriptor {} ySzTyp ->
+  { sizedShadow : Linear.NubSizeDescriptor {} xSzTyp -> 
+                  Linear.NubSizeDescriptor {} ySzTyp ->
                   CompositeShadow
-  , withBlur : Linear.SizeDescriptor {} blurSzTyp -> 
-               Linear.SizeDescriptor {} spreadSzTyp ->
+  , withBlur : Linear.NubSizeDescriptor {} blurSzTyp -> 
+               Linear.NubSizeDescriptor {} spreadSzTyp ->
                CompositeShadow ->
                CompositeShadow 
   , withColor : Color.NubColorDescriptor {} -> 
@@ -86,8 +86,8 @@ boxShadowFactory =
   , other_ val = { shadow = OtherBoxShadow val }
   }
 
-addBlur : Linear.SizeDescriptor {} blurSzTyp -> 
-          Linear.SizeDescriptor {} spreadSzTyp ->
+addBlur : Linear.NubSizeDescriptor {} blurSzTyp -> 
+          Linear.NubSizeDescriptor {} spreadSzTyp ->
           CompositeShadow ->
           ShadowComponents
 addBlur blurDescriptor spreadDescriptor innerShadow = 

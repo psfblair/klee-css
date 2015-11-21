@@ -1,5 +1,6 @@
 module Css.Internal.Geometry.Linear 
-  ( Size, SizeDescriptor, SizeFactory, toSize, nubSizeFactory
+  ( Size, toSize
+  , NubSizeDescriptor, NubSizeFactory, nubSizeFactory
   , BasicSizeDescriptor, BasicSizeFactory, basicSizeFactory
   , AutoSizableDescriptor, AutoSizableFactory, autoSizableFactory
   , SizeDescriptorWithNone, SizeFactoryWithNone, sizeFactoryWithNone
@@ -26,7 +27,7 @@ If you want to keep the descriptor from allowing any generic properties
 besides `other`, e.g., if the descriptor is used in constructing a more
 complex descriptor, use `SizeDescriptor {}` 
 -}
-type alias SizeDescriptor rec sz = SizeFactory rec sz -> Property.Value
+type alias NubSizeDescriptor rec sz = NubSizeFactory rec sz -> Property.Value
 
 -- has initial, inherit, unset
 type alias BasicSizeDescriptor sz = BasicSizeFactory {} sz -> Property.Value 
@@ -64,28 +65,28 @@ relative lengthValue = toSize Rel lengthValue
 -------------------------------------------------------------------------------
 
 type alias Rect a sz rec = 
-  { rec | rect_ : SizeDescriptor {} sz ->
-                  SizeDescriptor {} sz ->
-                  SizeDescriptor {} sz ->
-                  SizeDescriptor {} sz ->
+  { rec | rect_ : NubSizeDescriptor {} sz ->
+                  NubSizeDescriptor {} sz ->
+                  NubSizeDescriptor {} sz ->
+                  NubSizeDescriptor {} sz ->
                   a 
   }
 
 -------------------------------------------------------------------------------
 
-type alias SizeFactory rec sz =
+type alias NubSizeFactory rec sz =
   { rec | size : Size sz -> Property.Value
         , other_ : Property.Value -> Property.Value
   }
 
-nubSizeFactory : SizeFactory {} sz 
+nubSizeFactory : NubSizeFactory {} sz 
 nubSizeFactory =
   { size (Size constraint value) = value
   , other_ val = Common.otherValue val
   }
 
 type alias BasicSizeFactory rec sz = 
-  SizeFactory 
+  NubSizeFactory 
     (Common.Initial Property.Value 
       (Common.Inherit Property.Value 
         (Common.Unset Property.Value rec))) sz
