@@ -43,29 +43,32 @@ type alias WithComponents = { withComponents : ShadowComponents }
 
 -------------------------------------------------------------------------------
 
-type alias BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp =
-  { sizedShadow : Linear.NubSizeDescriptor {} xSzTyp -> 
-                  Linear.NubSizeDescriptor {} ySzTyp ->
-                  CompositeShadow
-  , withBlur : Linear.NubSizeDescriptor {} blurSzTyp -> 
-               Linear.NubSizeDescriptor {} spreadSzTyp ->
-               CompositeShadow ->
-               CompositeShadow 
-  , withColor : Color.NubColorDescriptor {} -> 
-                CompositeShadow ->
-                CompositeShadow 
-  , withInset : CompositeShadow ->
-                CompositeShadow 
-  , none_ : Shadow {}
-  , initial_ : Shadow {}
-  , inherit_ : Shadow {}
-  , unset_ : Shadow {}
-  , other_ : Property.Value -> Shadow {}
+type alias NubBoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp rec =
+  { rec | sizedShadow : Linear.NubSizeDescriptor {} xSzTyp -> 
+                        Linear.NubSizeDescriptor {} ySzTyp ->
+                        CompositeShadow
+        , withBlur : Linear.NubSizeDescriptor {} blurSzTyp -> 
+                     Linear.NubSizeDescriptor {} spreadSzTyp ->
+                     CompositeShadow ->
+                     CompositeShadow 
+        , withColor : Color.NubColorDescriptor {} -> 
+                      CompositeShadow ->
+                      CompositeShadow 
+        , withInset : CompositeShadow ->
+                      CompositeShadow 
+        , other_ : Property.Value -> Shadow {}
   }
 
+type alias BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp =
+  NubBoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp 
+    (Common.Initial (Shadow {})
+      (Common.Inherit (Shadow {})
+        (Common.Unset (Shadow {})
+          (Common.None (Shadow {}) {}))))
+  
 boxShadowFactory : BoxShadowFactory xSzTyp ySzTyp blurSzTyp spreadSzTyp
 boxShadowFactory =
-  { sizedShadow xOffsetDescriptor yOffsetDescriptor = 
+  { sizedShadow xOffsetDescriptor yOffsetDescriptor =
       let xSize = xOffsetDescriptor Linear.nubSizeFactory 
           ySize = yOffsetDescriptor Linear.nubSizeFactory
           components = ShadowComponents (xSize, ySize) Nothing NoBlur NoInset

@@ -10,19 +10,22 @@ import Css.Internal.Stroke as Stroke
 
 type alias OutlineDescriptor = OutlineFactory -> Property.Value
 
-type alias OutlineFactory =
-  { outline : Stroke.NubOutlineStrokeDescriptor {} -> 
-              Linear.NubSizeDescriptor {} Linear.Abs -> 
-              Color.NubColorDescriptorWithInvert {} -> 
-              Property.Value
-  , initial_ : Property.Value
-  , inherit_ : Property.Value
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value
+type alias NubOutlineFactory rec =
+  { rec | outline : Stroke.NubOutlineStrokeDescriptor {} -> 
+                    Linear.NubSizeDescriptor {} Linear.Abs -> 
+                    Color.NubColorDescriptorWithInvert {} -> 
+                    Property.Value
+        , other_ : Property.Value -> Property.Value
   }
+  
+type alias OutlineFactory =
+  NubOutlineFactory 
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value {})))
 
-outlineFactory : OutlineFactory
-outlineFactory = 
+nubOutlineFactory : NubOutlineFactory {}
+nubOutlineFactory = 
   let outlineValue strokeDescriptor widthDescriptor colorDescriptor =
       let compositeDescriptor = 
             Property.spaceTripleValue strokeDescriptor widthDescriptor colorDescriptor
@@ -33,8 +36,9 @@ outlineFactory =
             )
       in compositeDescriptor factory
   in { outline = outlineValue
-     , initial_ = Common.initialValue
-     , inherit_ = Common.inheritValue
-     , unset_ = Common.unsetValue
      , other_ val = Common.otherValue val
      }
+     
+outlineFactory : OutlineFactory
+outlineFactory = Common.addCommonValues nubOutlineFactory
+  

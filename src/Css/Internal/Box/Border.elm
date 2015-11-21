@@ -14,19 +14,22 @@ import Css.Internal.Stroke as Stroke
 
 type alias BorderDescriptor = BorderFactory -> Property.Value
 
-type alias BorderFactory =
-  { border : Stroke.NubBorderStyleDescriptor {} -> 
-             Linear.NubSizeDescriptor {} Linear.Abs -> 
-             Color.NubColorDescriptor {} -> 
-             Property.Value
-  , initial_ : Property.Value
-  , inherit_ : Property.Value
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value
+type alias NubBorderFactory rec = 
+  { rec | border : Stroke.NubBorderStyleDescriptor {} -> 
+                   Linear.NubSizeDescriptor {} Linear.Abs -> 
+                   Color.NubColorDescriptor {} -> 
+                   Property.Value
+        , other_ : Property.Value -> Property.Value
   }
 
-borderFactory : BorderFactory
-borderFactory = 
+type alias BorderFactory = 
+  NubBorderFactory 
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value {})))
+
+nubBorderFactory : NubBorderFactory {}
+nubBorderFactory = 
   let borderValue strokeDescriptor widthDescriptor colorDescriptor =
       let compositeDescriptor = 
             Property.spaceTripleValue strokeDescriptor widthDescriptor colorDescriptor
@@ -37,11 +40,11 @@ borderFactory =
             )
       in compositeDescriptor factory
   in { border = borderValue
-     , initial_ = Common.initialValue
-     , inherit_ = Common.inheritValue
-     , unset_ = Common.unsetValue
      , other_ val = Common.otherValue val
      }
+  
+borderFactory : BorderFactory
+borderFactory = Common.addCommonValues nubBorderFactory
 
 -------------------------------------------------------------------------------
 

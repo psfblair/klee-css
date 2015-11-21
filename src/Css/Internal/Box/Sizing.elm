@@ -32,10 +32,5 @@ type alias BoxSizingFactory =
        (Common.Inherit Property.Value
          (Common.Unset Property.Value {})))
 
-
 boxTypeFactory : BoxSizingFactory
-boxTypeFactory = 
-  let withInherit = { nubBoxTypeFactory | inherit_ = Common.inheritValue }
-      withInitial = { withInherit       | initial_ = Common.initialValue }
-      withUnset   = { withInitial       | unset_   = Common.unsetValue   }
-  in withUnset
+boxTypeFactory = Common.addCommonValues nubBoxTypeFactory
