@@ -53,13 +53,13 @@ import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
-color : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
+color : Color.ColorDescriptor -> Stylesheet.PropertyRuleAppender
 color colorDescriptor = 
   let theColor = colorDescriptor Color.colorFactory
   in Stylesheet.simpleProperty "color" theColor
 
 -- | An alias for `color`.
-fontColor : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
+fontColor : Color.ColorDescriptor -> Stylesheet.PropertyRuleAppender
 fontColor = color
 
 -------------------------------------------------------------------------------

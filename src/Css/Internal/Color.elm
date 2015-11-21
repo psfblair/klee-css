@@ -1,6 +1,6 @@
 module Css.Internal.Color
   ( NubColorDescriptor, nubColorFactory
-  , BasicColorDescriptor, colorFactory
+  , ColorDescriptor, colorFactory
   , NubColorDescriptorWithInvert, nubColorFactoryWithInvert
   , ColorDescriptorWithInvert, colorFactoryWithInvert
   , rgbaString, hslaString, invalidRgb, invalidHsl
@@ -18,7 +18,7 @@ import Css.Internal.Utils as Utils
 
 type alias NubColorDescriptor rec = NubColorFactory rec -> Property.Value
 
-type alias BasicColorDescriptor = ColorFactory {} -> Property.Value
+type alias ColorDescriptor = ColorFactory {} -> Property.Value
 
 type alias NubColorDescriptorWithInvert rec =
   NubColorFactory (WithInvert rec) -> Property.Value

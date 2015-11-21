@@ -246,7 +246,7 @@ blink = \factory -> factory.blink
 
 -------------------------------------------------------------------------------
 
-textDecorationColor : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
+textDecorationColor : Color.ColorDescriptor -> Stylesheet.PropertyRuleAppender
 textDecorationColor descriptor = 
   let colorVal = descriptor Color.colorFactory
   in Stylesheet.simpleProperty "text-decoration-color" colorVal

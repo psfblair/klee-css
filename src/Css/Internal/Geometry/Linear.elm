@@ -1,7 +1,7 @@
 module Css.Internal.Geometry.Linear 
   ( Size, toSize
   , NubSizeDescriptor, NubSizeFactory, nubSizeFactory
-  , BasicSizeDescriptor, BasicSizeFactory, basicSizeFactory
+  , SizeDescriptor, SizeFactory, basicSizeFactory
   , AutoSizableDescriptor, AutoSizableFactory, autoSizableFactory
   , SizeDescriptorWithNone, SizeFactoryWithNone, sizeFactoryWithNone
   , SizeDescriptorWithNormal, sizeFactoryWithNormal
@@ -30,7 +30,7 @@ complex descriptor, use `SizeDescriptor {}`
 type alias NubSizeDescriptor rec sz = NubSizeFactory rec sz -> Property.Value
 
 -- has initial, inherit, unset
-type alias BasicSizeDescriptor sz = BasicSizeFactory {} sz -> Property.Value 
+type alias SizeDescriptor sz = SizeFactory {} sz -> Property.Value 
 
 -- adds auto to initial, inherit, unset
 type alias AutoSizableDescriptor sz = AutoSizableFactory {} sz -> Property.Value
@@ -85,13 +85,13 @@ nubSizeFactory =
   , other_ val = Common.otherValue val
   }
 
-type alias BasicSizeFactory rec sz = 
+type alias SizeFactory rec sz = 
   NubSizeFactory 
     (Common.Initial Property.Value 
       (Common.Inherit Property.Value 
         (Common.Unset Property.Value rec))) sz
 
-basicSizeFactory : BasicSizeFactory {} sz
+basicSizeFactory : SizeFactory {} sz
 basicSizeFactory =
   let withInitial = { nubSizeFactory | initial_ = Common.initialValue }
       withInherit = { withInitial    | inherit_ = Common.inheritValue }
@@ -99,19 +99,19 @@ basicSizeFactory =
   in withUnset
 
 type alias AutoSizableFactory rec sz =  
-  BasicSizeFactory (Common.Auto Property.Value rec) sz
+  SizeFactory (Common.Auto Property.Value rec) sz
 
 autoSizableFactory : AutoSizableFactory {} sz
 autoSizableFactory = { basicSizeFactory | auto_ = Common.autoValue }
 
 type alias SizeFactoryWithNone rec sz =  
-  BasicSizeFactory (Common.None Property.Value rec) sz
+  SizeFactory (Common.None Property.Value rec) sz
 
 sizeFactoryWithNone : SizeFactoryWithNone {} sz
 sizeFactoryWithNone = { basicSizeFactory | none_ = Common.noneValue }
 
 type alias SizeFactoryWithNormal rec sz =  
-  BasicSizeFactory (Common.Normal Property.Value rec) sz
+  SizeFactory (Common.Normal Property.Value rec) sz
 
 sizeFactoryWithNormal : SizeFactoryWithNormal {} sz
 sizeFactoryWithNormal = { basicSizeFactory | normal_ = Common.normalValue }

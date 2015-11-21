@@ -97,7 +97,7 @@ bgWidth width = \factory -> factory.partial width
 
 -------------------------------------------------------------------------------
 
-backgroundColor : Color.BasicColorDescriptor -> Stylesheet.PropertyRuleAppender
+backgroundColor : Color.ColorDescriptor -> Stylesheet.PropertyRuleAppender
 backgroundColor colorDescriptor = 
   let colorValue = colorDescriptor Color.colorFactory
   in Stylesheet.simpleProperty "background-color" colorValue

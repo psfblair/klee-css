@@ -8,9 +8,9 @@ import Css.Internal.Utils as Utils
 -------------------------------------------------------------------------------
 
 type alias PaddingDescriptor sz =
-  Linear.BasicSizeFactory (Linear.Rect Property.Value sz {}) sz -> Property.Value
+  Linear.SizeFactory (Linear.Rect Property.Value sz {}) sz -> Property.Value
 
-paddingSizeFactory : Linear.BasicSizeFactory (Linear.Rect Property.Value sz {}) sz
+paddingSizeFactory : Linear.SizeFactory (Linear.Rect Property.Value sz {}) sz
 paddingSizeFactory = 
   let basicFactory = Linear.basicSizeFactory
       rectValue topDesc rightDesc bottomDesc leftDesc = 

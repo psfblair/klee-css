@@ -232,12 +232,12 @@ height sizeDescriptor =
 
 -------------------------------------------------------------------------------
 
-minWidth : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
+minWidth : Linear.SizeDescriptor sz -> Stylesheet.PropertyRuleAppender
 minWidth sizeDescriptor = 
   let sizeValue = sizeDescriptor Linear.basicSizeFactory 
   in Stylesheet.simpleProperty "min-width" sizeValue
 
-minHeight : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
+minHeight : Linear.SizeDescriptor sz -> Stylesheet.PropertyRuleAppender
 minHeight sizeDescriptor = 
   let sizeValue = sizeDescriptor Linear.basicSizeFactory 
   in Stylesheet.simpleProperty "min-height" sizeValue
@@ -269,22 +269,22 @@ padding : Padding.PaddingDescriptor sz -> Stylesheet.PropertyRuleAppender
 padding paddingDescriptor =
   Stylesheet.simpleProperty "padding" (paddingDescriptor Padding.paddingSizeFactory)
 
-paddingTop : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
+paddingTop : Linear.SizeDescriptor sz -> Stylesheet.PropertyRuleAppender
 paddingTop sizeDescriptor =
   let sizeValue = sizeDescriptor Linear.basicSizeFactory
   in Stylesheet.simpleProperty "padding-top" sizeValue
 
-paddingLeft : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
+paddingLeft : Linear.SizeDescriptor sz -> Stylesheet.PropertyRuleAppender
 paddingLeft sizeDescriptor =
   let sizeValue = sizeDescriptor Linear.basicSizeFactory
   in Stylesheet.simpleProperty "padding-left" sizeValue
 
-paddingRight : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
+paddingRight : Linear.SizeDescriptor sz -> Stylesheet.PropertyRuleAppender
 paddingRight sizeDescriptor =
   let sizeValue = sizeDescriptor Linear.basicSizeFactory
   in Stylesheet.simpleProperty "padding-right" sizeValue
 
-paddingBottom : Linear.BasicSizeDescriptor sz -> Stylesheet.PropertyRuleAppender
+paddingBottom : Linear.SizeDescriptor sz -> Stylesheet.PropertyRuleAppender
 paddingBottom sizeDescriptor =
   let sizeValue = sizeDescriptor Linear.basicSizeFactory
   in Stylesheet.simpleProperty "padding-bottom" sizeValue

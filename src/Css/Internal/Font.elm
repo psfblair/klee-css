@@ -101,7 +101,7 @@ type alias FontSizeDescriptor sz = FontSizeFactory sz -> Property.Value
 
 type alias WithFontSize = { fontSize: String -> Property.Value }
   
-type alias FontSizeFactory sz = Linear.BasicSizeFactory WithFontSize sz
+type alias FontSizeFactory sz = Linear.SizeFactory WithFontSize sz
 
 fontSizeFactory : FontSizeFactory sz
 fontSizeFactory = 

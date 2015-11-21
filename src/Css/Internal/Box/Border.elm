@@ -1,7 +1,7 @@
 module Css.Internal.Box.Border 
   ( BorderDescriptor, borderFactory
-  , BorderWidthDescriptor, nubBorderWidthFactory
-  , BasicBorderWidthDescriptor, borderWidthFactory
+  , NubBorderWidthDescriptor, nubBorderWidthFactory
+  , BorderWidthDescriptor, borderWidthFactory
   ) where
 
 import Css.Internal.Color as Color
@@ -45,10 +45,11 @@ borderFactory =
 
 -------------------------------------------------------------------------------
 
-type alias BorderWidthDescriptor rec = BorderWidthFactory rec -> Property.Value
+type alias NubBorderWidthDescriptor rec = 
+  NubBorderWidthFactory rec -> Property.Value
 
-type alias BasicBorderWidthDescriptor rec = 
-  BasicBorderWidthFactory rec -> Property.Value
+type alias BorderWidthDescriptor rec = 
+  BorderWidthFactory rec -> Property.Value
 
 type alias WithBorderWidths rec = 
   { rec | medium : Property.Value
@@ -56,10 +57,10 @@ type alias WithBorderWidths rec =
         , thick : Property.Value
   }  
 
-type alias BorderWidthFactory rec =
+type alias NubBorderWidthFactory rec =
   Linear.NubSizeFactory (WithBorderWidths rec) Linear.Abs
 
-nubBorderWidthFactory : BorderWidthFactory {}
+nubBorderWidthFactory : NubBorderWidthFactory {}
 nubBorderWidthFactory = 
   let sizeFactory = Linear.nubSizeFactory
       withMedium = { sizeFactory | medium = Property.stringValue "medium" }
@@ -67,10 +68,10 @@ nubBorderWidthFactory =
       withThick  = { withThin    | thick  = Property.stringValue "thick"  }
   in withThick
 
-type alias BasicBorderWidthFactory rec =
-  Linear.BasicSizeFactory (WithBorderWidths rec) Linear.Abs
+type alias BorderWidthFactory rec =
+  Linear.SizeFactory (WithBorderWidths rec) Linear.Abs
 
-borderWidthFactory : BasicBorderWidthFactory {}
+borderWidthFactory : BorderWidthFactory {}
 borderWidthFactory = 
   let sizeFactory = Linear.basicSizeFactory
       withMedium = { sizeFactory | medium = Property.stringValue "medium" }
