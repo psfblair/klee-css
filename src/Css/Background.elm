@@ -181,7 +181,7 @@ declaration:
 If one of the properties in the shorthand declaration is the background size 
 property, a / (slash) must separate it from the background position property.
 -}
-background : Background.BackgroundDescriptor rec sz1 sz2 sz3 -> 
+background : Background.BackgroundDescriptor sz1 sz2 sz3 rec -> 
              Stylesheet.PropertyRuleAppender
 background backgroundDescriptor = 
   let backgroundRecord = backgroundDescriptor Background.initialBackgroundFactory
@@ -190,7 +190,7 @@ background backgroundDescriptor =
 
 withPosition : Background.BackgroundPositionDescriptor sz1 sz2 -> 
                Maybe (Background.BackgroundSizeDescriptor sz3) -> 
-               Background.ComposedBackgroundDescriptor rec sz1 sz2 sz3
+               Background.ComposedBackgroundDescriptor sz1 sz2 sz3 rec
 withPosition positionDescriptor 
              maybeSizeDescriptor 
              composedDescriptor =
@@ -204,7 +204,7 @@ withPosition positionDescriptor
    in Background.adjoinComponents newComponents
 
 withBgColor : Color.NubColorDescriptor {} -> 
-              Background.ComposedBackgroundDescriptor rec sz1 sz2 sz3 
+              Background.ComposedBackgroundDescriptor sz1 sz2 sz3 rec 
 withBgColor colorDescriptor composedDescriptor = 
    let colorValue = colorDescriptor Color.nubColorFactory
        innerComponents = composedDescriptor.backgroundComponents

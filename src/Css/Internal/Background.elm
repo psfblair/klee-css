@@ -22,19 +22,22 @@ import Css.Internal.Geometry.Sides as Sides
 type alias BackgroundPositionDescriptor sz1 sz2 = 
     BackgroundPositionFactory sz1 sz2 -> Property.Value
 
-type alias BackgroundPositionFactory sz1 sz2 =
-  { sizedPosition : Linear.NubSizeDescriptor {} sz1 -> 
-                    Linear.NubSizeDescriptor {} sz2 -> 
-                    Property.Value
-  , sidedPosition : Sides.HorizontalSide -> Sides.VerticalSide -> Property.Value
-  , initial_ : Property.Value
-  , inherit_ : Property.Value
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value
+type alias NubBackgroundPositionFactory sz1 sz2 rec =
+  { rec | sizedPosition : Linear.NubSizeDescriptor {} sz1 -> 
+                          Linear.NubSizeDescriptor {} sz2 -> 
+                          Property.Value
+        , sidedPosition : Sides.HorizontalSide -> Sides.VerticalSide -> Property.Value
+        , other_ : Property.Value -> Property.Value
   }
 
-backgroundPositionFactory : BackgroundPositionFactory sz1 sz2
-backgroundPositionFactory = 
+type alias BackgroundPositionFactory sz1 sz2 =
+  NubBackgroundPositionFactory sz1 sz2
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value {})))
+
+nubBackgroundPositionFactory : NubBackgroundPositionFactory sz1 sz2 {}
+nubBackgroundPositionFactory = 
   { sizedPosition horizontalDescriptor verticalDescriptor = 
       let compositeDescriptor = 
         Property.spacePairValue horizontalDescriptor verticalDescriptor
@@ -43,31 +46,35 @@ backgroundPositionFactory =
       let valueFactory = 
         Property.spacePairValue Sides.horizontalSideValue Sides.verticalSideValue
       in valueFactory (horizontal, vertical)
-  , initial_ = Common.initialValue
-  , inherit_ = Common.inheritValue
-  , unset_ = Common.unsetValue
   , other_ val = Common.otherValue val
   }
 
+backgroundPositionFactory : BackgroundPositionFactory sz1 sz2
+backgroundPositionFactory = Common.addCommonValues nubBackgroundPositionFactory
+
 -------------------------------------------------------------------------------
 
-type alias BackgroundSizeDescriptor sz = BackgroundSizeFactory sz -> Property.Value
+type alias BackgroundSizeDescriptor sz = 
+  BackgroundSizeFactory sz -> Property.Value
 
-type alias BackgroundSizeFactory szTyp =
-  { backgroundSize : Linear.NubSizeDescriptor {} szTyp -> 
+type alias NubBackgroundSizeFactory szTyp rec =
+  { rec | backgroundSize : Linear.NubSizeDescriptor {} szTyp -> 
                      Linear.NubSizeDescriptor {} szTyp -> 
                      Property.Value
-  , partial : Linear.NubSizeDescriptor {} szTyp -> Property.Value
-  , named : String -> Property.Value
-  , auto_ : Property.Value
-  , initial_ : Property.Value
-  , inherit_ : Property.Value
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value
+        , partial : Linear.NubSizeDescriptor {} szTyp -> Property.Value
+        , named : String -> Property.Value
+        , other_ : Property.Value -> Property.Value
   }
 
-backgroundSizeFactory : BackgroundSizeFactory sz
-backgroundSizeFactory =
+type alias BackgroundSizeFactory szTyp =
+  NubBackgroundSizeFactory szTyp
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value 
+          (Common.Auto Property.Value {}))))
+
+nubBackgroundSizeFactory : NubBackgroundSizeFactory szTyp {}
+nubBackgroundSizeFactory =
   { backgroundSize widthDescriptor heightDescriptor = 
       let compositeDescriptor = 
         Property.spacePairValue widthDescriptor heightDescriptor
@@ -77,82 +84,94 @@ backgroundSizeFactory =
         Property.spacePairValue widthDescriptor identity
       in compositeDescriptor (Linear.nubSizeFactory, Common.autoValue)
   , named str = Property.stringValue str
-  , auto_ = Common.autoValue
-  , initial_ = Common.initialValue
-  , inherit_ = Common.inheritValue
-  , unset_ = Common.unsetValue
   , other_ val = Common.otherValue val
   }
+          
+backgroundSizeFactory : BackgroundSizeFactory szTyp
+backgroundSizeFactory =
+  let withAuto = { nubBackgroundSizeFactory | auto_ = Common.autoValue }
+  in Common.addCommonValues withAuto
 
 -------------------------------------------------------------------------------
 
 type alias BackgroundImageDescriptor = BackgroundImageFactory -> Property.Value
 
+type alias NubBackgroundImageFactory rec =
+  { rec | url : String -> Property.Value 
+        , other_ : Property.Value -> Property.Value 
+  }  
+
 type alias BackgroundImageFactory =
-  { url : String -> Property.Value 
-  , none_ : Property.Value 
-  , initial_ : Property.Value 
-  , inherit_ : Property.Value 
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value 
+  NubBackgroundImageFactory
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value 
+          (Common.None Property.Value {}))))
+
+nubBackgroundImageFactory : NubBackgroundImageFactory {}
+nubBackgroundImageFactory =
+  { url imgUrl = Property.stringValue (String.concat ["url(\"", imgUrl ,"\")"])
+  , other_ val = Common.otherValue val
   }  
 
 backgroundImageFactory : BackgroundImageFactory
 backgroundImageFactory =
-  { url imgUrl = Property.stringValue (String.concat ["url(\"", imgUrl ,"\")"])
-  , none_ = Common.noneValue
-  , initial_ = Common.initialValue 
-  , inherit_ = Common.inheritValue 
-  , unset_ = Common.unsetValue
-  , other_ val = Common.otherValue val
-  }  
+  let withNone = { nubBackgroundImageFactory | none_ = Common.noneValue }
+  in Common.addCommonValues withNone
 
 -------------------------------------------------------------------------------
 
 type alias BackgroundRepeatDescriptor = BackgroundRepeatFactory -> Property.Value
 
+type alias NubBackgroundRepeatFactory rec =
+  { rec | repeat : String -> Property.Value 
+        , other_ : Property.Value -> Property.Value 
+  }  
+
 type alias BackgroundRepeatFactory =
-  { repeat : String -> Property.Value 
-  , initial_ : Property.Value 
-  , inherit_ : Property.Value 
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value 
+  NubBackgroundRepeatFactory
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value {})))
+
+nubBackgroundRepeatFactory : NubBackgroundRepeatFactory {}
+nubBackgroundRepeatFactory =
+  { repeat str = Property.stringValue str
+  , other_ val = Common.otherValue val
   }  
 
 backgroundRepeatFactory : BackgroundRepeatFactory
-backgroundRepeatFactory =
-  { repeat str = Property.stringValue str
-  , initial_ = Common.initialValue 
-  , inherit_ = Common.inheritValue 
-  , unset_ = Common.unsetValue
-  , other_ val = Common.otherValue val
-  }  
+backgroundRepeatFactory = Common.addCommonValues nubBackgroundRepeatFactory
 
 -------------------------------------------------------------------------------
 
 type alias BackgroundAttachmentDescriptor = 
   BackgroundAttachmentFactory -> Property.Value
 
-type alias BackgroundAttachmentFactory =
-  { bgAttachment : String -> Property.Value 
-  , initial_ : Property.Value 
-  , inherit_ : Property.Value 
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value 
+type alias NubBackgroundAttachmentFactory rec =
+  { rec | bgAttachment : String -> Property.Value 
+        , other_ : Property.Value -> Property.Value 
   }  
 
-backgroundAttachmentFactory : BackgroundAttachmentFactory
-backgroundAttachmentFactory =
+type alias BackgroundAttachmentFactory =
+  NubBackgroundAttachmentFactory
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value {})))
+
+nubBackgroundAttachmentFactory : NubBackgroundAttachmentFactory {}
+nubBackgroundAttachmentFactory =
   { bgAttachment str = Property.stringValue str
-  , initial_ = Common.initialValue 
-  , inherit_ = Common.inheritValue 
-  , unset_ = Common.unsetValue
   , other_ val = Common.otherValue val 
   }  
+  
+backgroundAttachmentFactory : BackgroundAttachmentFactory
+backgroundAttachmentFactory = 
+  Common.addCommonValues nubBackgroundAttachmentFactory
 
 -------------------------------------------------------------------------------
 
-type alias Background rec sz1 sz2 sz3 = 
+type alias Background sz1 sz2 sz3 rec = 
   { rec | background : BackgroundAlternative sz1 sz2 sz3 }
 
 type BackgroundAlternative sz1 sz2 sz3
@@ -239,40 +258,38 @@ composed with the other combinators. (There is one hole: `inherit` and `initial`
 can stand at the end of a chain of combinators. There doesn't really seem to be
 any obvious way around this.)
 -}
-type alias BackgroundDescriptor rec sz1 sz2 sz3 = 
-  BackgroundFactory {} sz1 sz2 sz3 -> Background rec sz1 sz2 sz3
+type alias BackgroundDescriptor sz1 sz2 sz3 rec = 
+  BackgroundFactory sz1 sz2 sz3 {} -> Background sz1 sz2 sz3 rec
   
-type alias ComposedBackgroundDescriptor rec sz1 sz2 sz3 = 
+type alias ComposedBackgroundDescriptor sz1 sz2 sz3 rec = 
   { rec | background : BackgroundAlternative sz1 sz2 sz3,
         backgroundComponents : BackgroundComponents sz1 sz2 sz3} ->
-  BackgroundFactory {} sz1 sz2 sz3
+  BackgroundFactory sz1 sz2 sz3 {}
 
-type alias BackgroundFactory rec sz1 sz2 sz3 = 
-  Background
-    (WithComponents
-      (Common.Initial (Background {} sz1 sz2 sz3)
-        (Common.Inherit (Background {} sz1 sz2 sz3)
-          (Common.Unset (Background {} sz1 sz2 sz3)
-            (Common.Other (Background {} sz1 sz2 sz3) rec)))) 
-      sz1 sz2 sz3) 
-    sz1 sz2 sz3
-
-type alias WithComponents rec sz1 sz2 sz3 =
+type alias WithComponents sz1 sz2 sz3 rec =
   { rec | backgroundComponents : BackgroundComponents sz1 sz2 sz3
   }
-                 
-initialBackgroundFactory : BackgroundFactory {} sz1 sz2 sz3
+
+type alias BackgroundFactory sz1 sz2 sz3 rec = 
+  Background sz1 sz2 sz3
+    (WithComponents sz1 sz2 sz3
+      (Common.Initial (Background sz1 sz2 sz3 {})
+        (Common.Inherit (Background sz1 sz2 sz3 {})
+          (Common.Unset (Background sz1 sz2 sz3 {})
+            (Common.Other (Background sz1 sz2 sz3 {}) rec)))))
+
+initialBackgroundFactory : BackgroundFactory sz1 sz2 sz3 {}
 initialBackgroundFactory =
   { background = CompositeBackground NoComponents
   , backgroundComponents = NoComponents
   , initial_    = { background = InitialBackground   }
   , inherit_    = { background = InheritBackground   }
-  , unset_      = { background = UnsetBackground     }   
+  , unset_      = { background = UnsetBackground     }
   , other_ val  = { background = OtherBackground val }
   }
 
 adjoinComponents : BackgroundComponents sz1 sz2 sz3 ->
-                   BackgroundFactory {} sz1 sz2 sz3
+                   BackgroundFactory sz1 sz2 sz3 {}
 adjoinComponents newComponents = 
   { initialBackgroundFactory | background <- CompositeBackground newComponents 
                              , backgroundComponents <- newComponents }
