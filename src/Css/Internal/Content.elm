@@ -40,23 +40,31 @@ type Content
   | UnsetContent
   | OtherContent Property.Value
 
-type alias ContentFactory =
-  { attributeContent : String -> ComposableContent
-  , stringContent : String -> ComposableContent
-  , urlContent : String -> ComposableContent
-  , counter : String -> Maybe List.ListStyleTypeDescriptor -> ComposableContent
-  , counters : String -> String -> Maybe List.ListStyleTypeDescriptor -> ComposableContent
-  , openQuote : ComposableContent
-  , closeQuote : ComposableContent
-  , noOpenQuote : ComposableContent
-  , noCloseQuote : ComposableContent
-  , none_ : BareContent {}
-  , normal_ : BareContent {}
-  , initial_ : BareContent {}
-  , inherit_ : BareContent {}
-  , unset_ : BareContent {}
-  , other_ : Property.Value -> ComposableContent
+type alias NubContentFactory rec =
+  { rec | attributeContent : String -> ComposableContent
+        , stringContent : String -> ComposableContent
+        , urlContent : String -> ComposableContent
+        , counter : String -> 
+                    Maybe List.ListStyleTypeDescriptor -> 
+                    ComposableContent
+        , counters : String -> 
+                     String -> 
+                     Maybe List.ListStyleTypeDescriptor -> 
+                     ComposableContent
+        , openQuote : ComposableContent
+        , closeQuote : ComposableContent
+        , noOpenQuote : ComposableContent
+        , noCloseQuote : ComposableContent
+        , other_ : Property.Value -> ComposableContent
   }
+
+type alias ContentFactory =
+  NubContentFactory
+    (Common.Initial (BareContent {})
+      (Common.Inherit (BareContent {})
+        (Common.Unset (BareContent {})
+          (Common.None (BareContent {})
+            (Common.Normal (BareContent {}) {})))))
 
 contentFactory : ContentFactory
 contentFactory =
@@ -137,52 +145,59 @@ type alias CounterControlFactory a rec =  { rec | id_ : String -> a }
 
 -------------------------------------------------------------------------------
 type alias CounterIncrementDescriptor = CounterIncrementFactory -> Property.Value
-  
-type alias CounterIncrementFactory =
-  { withStep : String -> Int -> Property.Value
-  , id_ : String -> Property.Value
-  , initial_ : Property.Value
-  , inherit_ : Property.Value
-  , none_ : Property.Value
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value
+
+type alias NubCounterIncrementFactory rec =
+  { rec | withStep : String -> Int -> Property.Value
+        , id_ : String -> Property.Value
+        , other_ : Property.Value -> Property.Value
   }  
 
-counterIncrementFactory : CounterIncrementFactory
-counterIncrementFactory =
+type alias CounterIncrementFactory =
+  NubCounterIncrementFactory
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value 
+          (Common.None Property.Value {}))))
+
+nubCounterIncrementFactory : NubCounterIncrementFactory {}
+nubCounterIncrementFactory =
   { withStep str step = 
       Property.spacePairValue Property.stringValue Property.intValue (str, step)
   , id_ str = Property.stringValue str
-  , initial_ = Common.initialValue
-  , inherit_ = Common.inheritValue
-  , none_ = Common.noneValue
-  , unset_ = Common.unsetValue
   , other_ val = Common.otherValue val
   }  
+  
+counterIncrementFactory : CounterIncrementFactory
+counterIncrementFactory = 
+  let withNone = { nubCounterIncrementFactory | none_ = Common.noneValue }
+  in Common.addCommonValues withNone
 
 -------------------------------------------------------------------------------
 
 type alias CounterResetDescriptor = CounterResetFactory -> Property.Value
   
-type alias CounterResetFactory =
-  { withInitialValue : String -> Int -> Property.Value
-  , id_ : String -> Property.Value
-  , initial_ : Property.Value
-  , inherit_ : Property.Value
-  , none_ : Property.Value
-  , unset_ : Property.Value
-  , other_ : Property.Value -> Property.Value
+type alias NubCounterResetFactory rec =
+  { rec | withInitialValue : String -> Int -> Property.Value
+        , id_ : String -> Property.Value
+        , other_ : Property.Value -> Property.Value
   }  
 
-counterResetFactory : CounterResetFactory
-counterResetFactory =
+type alias CounterResetFactory =
+  NubCounterResetFactory
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value 
+          (Common.None Property.Value {}))))
+
+nubCounterResetFactory : NubCounterResetFactory {}
+nubCounterResetFactory =
   { withInitialValue str initVal = 
       Property.spacePairValue Property.stringValue Property.intValue (str, initVal)
   , id_ str = Property.stringValue str
-  , initial_ = Common.initialValue
-  , inherit_ = Common.inheritValue
-  , none_ = Common.noneValue
-  , unset_ = Common.unsetValue
   , other_ val = Common.otherValue val
   }  
   
+counterResetFactory : CounterResetFactory
+counterResetFactory =
+  let withNone = { nubCounterResetFactory | none_ = Common.noneValue }
+  in Common.addCommonValues withNone
