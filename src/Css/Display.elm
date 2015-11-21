@@ -216,7 +216,7 @@ collapse : VisibilityDescriptor rec
 collapse = \factory -> factory.visibility "collapse"
 
 -------------------------------------------------------------------------------
-
+--TODO Remove; use clip-path instead
 clip : ClipDescriptor a b c d -> PropertyRuleAppender
 clip descriptor =
   let clipValue = descriptor clipFactory

@@ -13,7 +13,7 @@ import Css.Internal.Selector exposing
   ( SelectorData (..), Refinement (..), Path (..), Predicate (..)
   , emptySelectorData, sortPredicate
   )
-import Css.Internal.Utils exposing (Either (..), mapPairwise)
+import Css.Internal.Utils exposing (mapPairwise)
 -------------------------------------------------------------------------------
 
 type alias Config =

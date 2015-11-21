@@ -11,13 +11,13 @@ import Css.Internal.Property as Property
 
 -------------------------------------------------------------------------------
 
-type alias ContentDescriptor a =
-  ContentFactory -> BareContent a
+type alias ContentDescriptor rec =
+  ContentFactory -> BareContent rec
 
 type alias ComposableContentDescriptor =
   ContentFactory -> ComposableContent
   
-type alias BareContent a = { a | content: Content }
+type alias BareContent rec = { rec | content: Content }
 
 type alias ThatIsComposable = { composable: () }
   
@@ -87,7 +87,7 @@ toComposableContent theContent =
   , composable = ()
   }
 
-contentValue : BareContent a -> Property.Value 
+contentValue : BareContent rec -> Property.Value 
 contentValue theContent =
   let styleTypeValue maybeDescriptor =
     case maybeDescriptor of

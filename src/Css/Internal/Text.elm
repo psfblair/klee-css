@@ -75,13 +75,13 @@ textRenderingValue textRendering =
 
 -------------------------------------------------------------------------------
 
-type alias TextShadowDescriptor a hSz vSz blrSz = 
-  TextShadowFactory hSz vSz blrSz -> TextShadow a
+type alias TextShadowDescriptor rec hSz vSz blrSz = 
+  TextShadowFactory hSz vSz blrSz -> TextShadow rec
 
 type alias CompositeTextShadowDescriptor hSz vSz blrSz = 
   TextShadowFactory hSz vSz blrSz -> CompositeTextShadow
 
-type alias TextShadow a = { a | textShadow : TextShadowComponent }
+type alias TextShadow rec = { rec | textShadow : TextShadowComponent }
 
 type alias WithComponents = { withComponents : () }
 
@@ -142,7 +142,7 @@ toCompositeShadow component =
   , withComponents = ()
   }
 
-textShadowValue : TextShadow a -> Value 
+textShadowValue : TextShadow rec -> Value 
 textShadowValue textShadow =
   case textShadow.textShadow of
     InitialTextShadow -> initialValue

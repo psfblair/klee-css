@@ -152,8 +152,8 @@ backgroundAttachmentFactory =
 
 -------------------------------------------------------------------------------
 
-type alias Background a sz1 sz2 sz3 = 
-  { a | background : BackgroundAlternative sz1 sz2 sz3 }
+type alias Background rec sz1 sz2 sz3 = 
+  { rec | background : BackgroundAlternative sz1 sz2 sz3 }
 
 type BackgroundAlternative sz1 sz2 sz3
   = CompositeBackground (BackgroundComponents sz1 sz2 sz3)
@@ -239,11 +239,11 @@ composed with the other combinators. (There is one hole: `inherit` and `initial`
 can stand at the end of a chain of combinators. There doesn't really seem to be
 any obvious way around this.)
 -}
-type alias BackgroundDescriptor b sz1 sz2 sz3 = 
-  BackgroundFactory {} sz1 sz2 sz3 -> Background b sz1 sz2 sz3
+type alias BackgroundDescriptor rec sz1 sz2 sz3 = 
+  BackgroundFactory {} sz1 sz2 sz3 -> Background rec sz1 sz2 sz3
   
-type alias ComposedBackgroundDescriptor a sz1 sz2 sz3 = 
-  { a | background : BackgroundAlternative sz1 sz2 sz3,
+type alias ComposedBackgroundDescriptor rec sz1 sz2 sz3 = 
+  { rec | background : BackgroundAlternative sz1 sz2 sz3,
         backgroundComponents : BackgroundComponents sz1 sz2 sz3} ->
   BackgroundFactory {} sz1 sz2 sz3
 

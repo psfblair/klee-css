@@ -224,10 +224,10 @@ or:
     font initial 
         => font: initial;
 -}
-type alias FontDescriptor a sz = FontFactory sz -> Font a sz
+type alias FontDescriptor rec sz = FontFactory sz -> Font rec sz
 type alias ComposedFontDescriptor sz = FontFactory sz -> ComposedFont sz
 
-type alias Font a sz = { a | font : FontAlternative sz }
+type alias Font rec sz = { rec | font : FontAlternative sz }
 type alias WithComponents sz = { fontComponents : FontComponents sz }
 type alias ComposedFont sz = Font (WithComponents sz) sz
 
@@ -278,7 +278,7 @@ fontFactory =
   , other_  val = { font = OtherFont val }
   }
 
-fontValue : Font a sz -> Property.Value
+fontValue : Font rec sz -> Property.Value
 fontValue font =
   case font.font of
     NamedFont str -> Property.stringValue str

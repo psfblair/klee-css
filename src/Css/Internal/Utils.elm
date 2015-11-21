@@ -6,8 +6,6 @@ import String
 -------------------------------------------------------------------------------
 -- TODO These need to go into a library of their own
 
-type Either a b = Left a | Right b
-
 compose : List (a -> a) -> a -> a
 compose = List.foldl (>>) identity
 

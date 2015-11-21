@@ -181,7 +181,7 @@ declaration:
 If one of the properties in the shorthand declaration is the background size 
 property, a / (slash) must separate it from the background position property.
 -}
-background : Background.BackgroundDescriptor a sz1 sz2 sz3 -> 
+background : Background.BackgroundDescriptor rec sz1 sz2 sz3 -> 
              Stylesheet.PropertyRuleAppender
 background backgroundDescriptor = 
   let backgroundRecord = backgroundDescriptor Background.initialBackgroundFactory
@@ -190,7 +190,7 @@ background backgroundDescriptor =
 
 withPosition : Background.BackgroundPositionDescriptor sz1 sz2 -> 
                Maybe (Background.BackgroundSizeDescriptor sz3) -> 
-               Background.ComposedBackgroundDescriptor a sz1 sz2 sz3
+               Background.ComposedBackgroundDescriptor rec sz1 sz2 sz3
 withPosition positionDescriptor 
              maybeSizeDescriptor 
              composedDescriptor =
@@ -204,7 +204,7 @@ withPosition positionDescriptor
    in Background.adjoinComponents newComponents
 
 withBgColor : Color.NubColorDescriptor {} -> 
-              Background.ComposedBackgroundDescriptor a sz1 sz2 sz3 
+              Background.ComposedBackgroundDescriptor rec sz1 sz2 sz3 
 withBgColor colorDescriptor composedDescriptor = 
    let colorValue = colorDescriptor Color.nubColorFactory
        innerComponents = composedDescriptor.backgroundComponents
@@ -212,7 +212,7 @@ withBgColor colorDescriptor composedDescriptor =
    in Background.adjoinComponents newComponents
 
 withRepeat : Background.BackgroundRepeatDescriptor -> 
-             Background.ComposedBackgroundDescriptor a sz1 sz2 sz3
+             Background.ComposedBackgroundDescriptor rec sz1 sz2 sz3
 withRepeat repeatDescriptor composedDescriptor =
    let repeat = repeatDescriptor Background.backgroundRepeatFactory
        innerComponents = composedDescriptor.backgroundComponents
@@ -220,7 +220,7 @@ withRepeat repeatDescriptor composedDescriptor =
    in Background.adjoinComponents newComponents
 
 withImage : Background.BackgroundImageDescriptor -> 
-            Background.ComposedBackgroundDescriptor a sz1 sz2 sz3
+            Background.ComposedBackgroundDescriptor rec sz1 sz2 sz3
 withImage imageDescriptor composedDescriptor =
    let image = imageDescriptor Background.backgroundImageFactory
        innerComponents = composedDescriptor.backgroundComponents
@@ -228,7 +228,7 @@ withImage imageDescriptor composedDescriptor =
    in Background.adjoinComponents newComponents
 
 withOrigin : BoxSizing.NubBoxTypeDescriptor -> 
-             Background.ComposedBackgroundDescriptor a sz1 sz2 sz3
+             Background.ComposedBackgroundDescriptor rec sz1 sz2 sz3
 withOrigin originDescriptor composedDescriptor =
    let origin = originDescriptor BoxSizing.nubBoxTypeFactory 
        innerComponents = composedDescriptor.backgroundComponents
@@ -236,7 +236,7 @@ withOrigin originDescriptor composedDescriptor =
    in Background.adjoinComponents newComponents
   
 withClip : BoxSizing.NubBoxTypeDescriptor -> 
-           Background.ComposedBackgroundDescriptor a sz1 sz2 sz3
+           Background.ComposedBackgroundDescriptor rec sz1 sz2 sz3
 withClip clipDescriptor composedDescriptor =
    let clip = clipDescriptor BoxSizing.nubBoxTypeFactory 
        innerComponents = composedDescriptor.backgroundComponents
@@ -244,7 +244,7 @@ withClip clipDescriptor composedDescriptor =
    in Background.adjoinComponents newComponents
 
 withAttachment : Background.BackgroundAttachmentDescriptor -> 
-                 Background.ComposedBackgroundDescriptor a sz1 sz2 sz3
+                 Background.ComposedBackgroundDescriptor rec sz1 sz2 sz3
 withAttachment attachmentDescriptor composedDescriptor  =
    let attachment = attachmentDescriptor Background.backgroundAttachmentFactory
        innerComponents = composedDescriptor.backgroundComponents

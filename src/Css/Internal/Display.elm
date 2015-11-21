@@ -176,7 +176,7 @@ extendedVisibilityFactory =
   in withHidden
 
 -------------------------------------------------------------------------------
-
+--TODO Remove; use clip-path instead
 type alias ClipDescriptor a b c d = ClipFactory a b c d -> Property.Value
 
 type alias ClipFactory a b c d =

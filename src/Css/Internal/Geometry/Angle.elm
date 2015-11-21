@@ -6,10 +6,10 @@ import Css.Internal.Property as Property
 
 -------------------------------------------------------------------------------
 
-type alias AngleDescriptor a = AngleFactory a -> Angle a
+type alias AngleDescriptor ang = AngleFactory ang -> Angle ang
 
-type Angle a -- The type parameter is for Deg, Rad, etc..
-  = Angle a Property.Value
+type Angle ang -- The type parameter is for Deg, Rad, etc..
+  = Angle ang Property.Value
   | OtherAngle Property.Value
 
 type Deg = Deg
@@ -19,15 +19,15 @@ type Turn = Turn
 
 -------------------------------------------------------------------------------
 
-type alias AngleFactory a =
+type alias AngleFactory ang =
   { degrees: Property.Value -> Angle Deg
   , radians: Property.Value -> Angle Rad
   , gradians: Property.Value -> Angle Grad
   , turns: Property.Value -> Angle Turn
-  , other: Property.Value -> Angle a
+  , other: Property.Value -> Angle ang
   }
 
-angleFactory : AngleFactory a
+angleFactory : AngleFactory ang
 angleFactory =
   { degrees value = Angle Deg value
   , radians value = Angle Rad value
@@ -36,7 +36,7 @@ angleFactory =
   , other val = OtherAngle val
   }
 
-angleValue : Angle a -> Property.Value 
+angleValue : Angle ang -> Property.Value 
 angleValue angle =
   case angle of
     Angle unit val -> val
