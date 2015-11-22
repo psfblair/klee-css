@@ -1,77 +1,51 @@
 module Css.Internal.Text
-  ( TextRenderingDescriptor, textRenderingFactory, textRenderingValue
+  ( TextRenderingDescriptor, textRenderingFactory
   , TextShadowDescriptor, CompositeTextShadowDescriptor
   , textShadowFactory, textShadowValue
-  , TextIndentDescriptor, textIndentFactory, textIndentValue
-  , TextDirectionDescriptor, textDirectionFactory, textDirectionValue
-  , TextAlignDescriptor, textAlignFactory, textAlignValue
-  , WhiteSpaceDescriptor, whiteSpaceFactory, whiteSpaceValue
-  , TextDecorationDescriptor, textDecorationFactory, textDecorationValue
-  , TextTransformDescriptor, textTransformFactory, textTransformValue
+  , TextIndentDescriptor, textIndentFactory
+  , TextDirectionDescriptor, textDirectionFactory
+  , TextAlignDescriptor, textAlignFactory
+  , WhiteSpaceDescriptor, whiteSpaceFactory
+  , TextDecorationDescriptor, textDecorationFactory
+  , TextTransformDescriptor, textTransformFactory
   ) where
 
-import Css.Internal.Common exposing 
-  ( initialValue, inheritValue, autoValue
-  , noneValue, normalValue, unsetValue, otherValue)
-import Css.Internal.Property exposing 
-  ( Value, Literal, toLiteral
-  , concatenateValues, emptyValue, stringValue, literalValue, intValue
-  , spacePairValue, spaceListValue
-  )
-
 import Css.Internal.Color as Color
+import Css.Internal.Common as Common
 import Css.Internal.Geometry.Linear as Linear
+import Css.Internal.Property as Property
 import Css.Internal.Geometry.Sides as Sides
 
 -------------------------------------------------------------------------------
 
-type alias TextRenderingDescriptor =
-  TextRenderingFactory -> TextRendering
+type alias TextRenderingDescriptor = TextRenderingFactory -> Property.Value
   
-type TextRendering 
-  = OptimizeSpeed 
-  | OptimizeLegibility
-  | GeometricPrecision
-  | InitialTextRendering
-  | InheritTextRendering
-  | AutoTextRendering
-  | UnsetTextRendering
-  | OtherTextRendering Value
+type alias NubTextRenderingFactory rec =
+  { rec | speedOptimize : Property.Value
+        , legibilityOptimize : Property.Value
+        , preciseGeometry : Property.Value
+        , other_ : Property.Value -> Property.Value
+  }
+
+nubTextRenderingFactory : NubTextRenderingFactory {}
+nubTextRenderingFactory =
+  { speedOptimize = Property.stringValue "optimizeSpeed"
+  , legibilityOptimize = Property.stringValue "optimizeLegibility"
+  , preciseGeometry = Property.stringValue "geometricPrecision"
+  , other_ val = Common.otherValue val
+  }
 
 type alias TextRenderingFactory =
-  { speedOptimize : TextRendering
-  , legibilityOptimize : TextRendering
-  , preciseGeometry : TextRendering
-  , initial_ : TextRendering
-  , inherit_ : TextRendering
-  , auto_ : TextRendering
-  , unset_ : TextRendering
-  , other_ : Value -> TextRendering
-  }
-
+  NubTextRenderingFactory
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value 
+          (Common.Auto Property.Value {}))))
+  
 textRenderingFactory : TextRenderingFactory
 textRenderingFactory =
-  { speedOptimize = OptimizeSpeed
-  , legibilityOptimize = OptimizeLegibility
-  , preciseGeometry = GeometricPrecision
-  , initial_ = InitialTextRendering
-  , inherit_ = InheritTextRendering
-  , auto_ = AutoTextRendering
-  , unset_ = UnsetTextRendering
-  , other_ val = OtherTextRendering val
-  }
-
-textRenderingValue : TextRendering -> Value 
-textRenderingValue textRendering =
-  case textRendering of
-    OptimizeSpeed -> stringValue "optimizeSpeed"
-    OptimizeLegibility -> stringValue "optimizeLegibility"
-    GeometricPrecision -> stringValue "geometricPrecision"
-    InitialTextRendering -> initialValue
-    InheritTextRendering -> inheritValue
-    AutoTextRendering -> autoValue
-    UnsetTextRendering -> unsetValue
-    OtherTextRendering val -> otherValue val
+  let withAuto = { nubTextRenderingFactory | auto_ = Common.autoValue }
+  in Common.addCommonValues withAuto
 
 -------------------------------------------------------------------------------
 
@@ -88,32 +62,35 @@ type alias WithComponents = { withComponents : () }
 type alias CompositeTextShadow = TextShadow WithComponents
 
 type TextShadowComponent
-  = BaseShadow Value Value
-  | WithBlurRadius Value TextShadowComponent
-  | WithColor Value TextShadowComponent
+  = BaseShadow Property.Value Property.Value
+  | WithBlurRadius Property.Value TextShadowComponent
+  | WithColor Property.Value TextShadowComponent
   | InitialTextShadow
   | InheritTextShadow
   | NoTextShadow
   | UnsetTextShadow
-  | OtherTextShadow Value
+  | OtherTextShadow Property.Value
+
+type alias NubTextShadowFactory hSz vSz blrSz rec =
+  { rec | baseShadow : Linear.NubSizeDescriptor {} hSz -> 
+                       Linear.NubSizeDescriptor {} vSz -> 
+                       CompositeTextShadow
+        , withBlurRadius : Linear.NubSizeDescriptor {} blrSz -> 
+                           TextShadowComponent -> 
+                           CompositeTextShadow
+        , withColor : Color.NubColorDescriptor {} -> 
+                      TextShadowComponent -> 
+                      CompositeTextShadow
+        , other_ : Property.Value -> CompositeTextShadow
+  }
 
 type alias TextShadowFactory hSz vSz blrSz =
-  { baseShadow : Linear.NubSizeDescriptor {} hSz -> 
-                 Linear.NubSizeDescriptor {} vSz -> 
-                 CompositeTextShadow
-  , withBlurRadius : Linear.NubSizeDescriptor {} blrSz -> 
-                     TextShadowComponent -> 
-                     CompositeTextShadow
-  , withColor : Color.NubColorDescriptor {} -> 
-                TextShadowComponent -> 
-                CompositeTextShadow
-  , initial_ : TextShadow {}
-  , inherit_ : TextShadow {}
-  , none_ : TextShadow {}
-  , unset_ : TextShadow {}
-  , other_ : Value -> CompositeTextShadow
-  }
-  
+  NubTextShadowFactory hSz vSz blrSz
+    (Common.Initial (TextShadow {})
+      (Common.Inherit (TextShadow {})
+        (Common.Unset (TextShadow {})
+          (Common.None (TextShadow {}) {}))))
+
 textShadowFactory : TextShadowFactory hSz vSz blrSz
 textShadowFactory =
   { baseShadow horizontalDescriptor verticalDescriptor = 
@@ -142,20 +119,20 @@ toCompositeShadow component =
   , withComponents = ()
   }
 
-textShadowValue : TextShadow rec -> Value 
+textShadowValue : TextShadow rec -> Property.Value 
 textShadowValue textShadow =
   case textShadow.textShadow of
-    InitialTextShadow -> initialValue
-    InheritTextShadow -> inheritValue
-    NoTextShadow -> noneValue
-    UnsetTextShadow -> unsetValue
-    OtherTextShadow val -> otherValue val
+    InitialTextShadow -> Common.initialValue
+    InheritTextShadow -> Common.inheritValue
+    NoTextShadow -> Common.noneValue
+    UnsetTextShadow -> Common.unsetValue
+    OtherTextShadow val -> Common.otherValue val
     somethingElse -> textShadowValueRecursive somethingElse Nothing Nothing
 
 textShadowValueRecursive : TextShadowComponent -> 
-                           Maybe Value -> 
-                           Maybe Value -> 
-                           Value
+                           Maybe Property.Value -> 
+                           Maybe Property.Value -> 
+                           Property.Value
 textShadowValueRecursive component maybeRadius maybeColor =
   -- If the TextShadowComponent combinators are called more than once,
   -- the last (outer) one wins. So if it's already set we don't reset it.
@@ -180,310 +157,193 @@ textShadowValueRecursive component maybeRadius maybeColor =
             , maybeColor
             ] |> List.filterMap identity
             
-      in spaceListValue identity allValues
+      in Property.spaceListValue identity allValues
 -------------------------------------------------------------------------------
 
-type alias TextIndentDescriptor sz = TextIndentFactory sz -> TextIndent
-  
-type TextIndent
-  = TextIndent Value
-  | IndentEachLine 
-  | HangingIndent
-  | InitialTextIndent
-  | InheritTextIndent
-  | UnsetTextIndent
-  | OtherTextIndent Value
-  
-type alias TextIndentFactory sz =
-  { textIndent : Linear.NubSizeDescriptor {} sz -> TextIndent
-  , indentEachLine : TextIndent
-  , hangingIndent : TextIndent
-  , initial_ : TextIndent
-  , inherit_ : TextIndent
-  , unset_ : TextIndent
-  , other_ : Value -> TextIndent
+type alias TextIndentDescriptor sz = TextIndentFactory sz -> Property.Value
+
+type alias NubTextIndentFactory sz rec =
+  { rec | textIndent : Linear.NubSizeDescriptor {} sz -> Property.Value
+        , indentEachLine : Property.Value
+        , hangingIndent : Property.Value
+        , other_ : Property.Value -> Property.Value
   } 
   
-textIndentFactory : TextIndentFactory sz
-textIndentFactory =
-  { textIndent sizeDescriptor = sizeDescriptor Linear.nubSizeFactory |> TextIndent
-  , indentEachLine = IndentEachLine
-  , hangingIndent = HangingIndent
-  , initial_ = InitialTextIndent
-  , inherit_ = InheritTextIndent
-  , unset_ = UnsetTextIndent
-  , other_ val = OtherTextIndent val
+nubTextIndentFactory : NubTextIndentFactory sz {}
+nubTextIndentFactory =
+  { textIndent sizeDescriptor = sizeDescriptor Linear.nubSizeFactory
+  , indentEachLine = Property.stringValue "each-line"
+  , hangingIndent = Property.stringValue "hanging"
+  , other_ val = Common.otherValue val
   }
 
-textIndentValue : TextIndent -> Value 
-textIndentValue textIndent =
-  case textIndent of
-    TextIndent sizeValue -> sizeValue
-    IndentEachLine -> stringValue "each-line"
-    HangingIndent -> stringValue "hanging"
-    InitialTextIndent -> initialValue
-    InheritTextIndent -> inheritValue
-    UnsetTextIndent -> unsetValue
-    OtherTextIndent val -> otherValue val
+type alias TextIndentFactory sz =
+  NubTextIndentFactory sz
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value {})))
+
+textIndentFactory : TextIndentFactory sz
+textIndentFactory =
+  Common.addCommonValues nubTextIndentFactory
 
 -------------------------------------------------------------------------------
 
-type alias TextDirectionDescriptor =
-  TextDirectionFactory -> TextDirection
+type alias TextDirectionDescriptor = TextDirectionFactory -> Property.Value
 
-type TextDirection 
-    = RightToLeft
-    | LeftToRight
-    | InitialTextDirection
-    | InheritTextDirection
-    | UnsetTextDirection
-    | OtherTextDirection Value
+type alias NubTextDirectionFactory rec =
+  { rec | rightToLeft : Property.Value
+        , leftToRight : Property.Value
+        , other_ : Property.Value -> Property.Value
+  } 
+  
+nubTextDirectionFactory : NubTextDirectionFactory {}
+nubTextDirectionFactory =
+  { rightToLeft = Property.stringValue "rtl"
+  , leftToRight = Property.stringValue "ltr"
+  , other_ val = Common.otherValue val
+  }
 
 type alias TextDirectionFactory =
-  { rightToLeft : TextDirection
-  , leftToRight : TextDirection
-  , initial_ : TextDirection
-  , inherit_ : TextDirection
-  , unset_ : TextDirection
-  , other_ : Value -> TextDirection
-  } 
+  NubTextDirectionFactory
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value {})))
 
 textDirectionFactory : TextDirectionFactory 
 textDirectionFactory =
-  { rightToLeft = RightToLeft
-  , leftToRight = LeftToRight
-  , initial_ = InitialTextDirection
-  , inherit_ = InheritTextDirection
-  , unset_ = UnsetTextDirection
-  , other_ val = OtherTextDirection val
-  }
-
-textDirectionValue : TextDirection -> Value 
-textDirectionValue textDirection =
-  case textDirection of
-    RightToLeft -> stringValue "rtl"
-    LeftToRight -> stringValue "ltr"
-    InitialTextDirection -> initialValue
-    InheritTextDirection -> inheritValue
-    UnsetTextDirection -> unsetValue
-    OtherTextDirection val -> otherValue val
+  Common.addCommonValues nubTextDirectionFactory
 
 -------------------------------------------------------------------------------
 
-type alias TextAlignDescriptor =
-  TextAlignFactory -> TextAlign
-  
-type TextAlign
-  = SideTextAlign Sides.HorizontalSide
-  | JustifyTextAlign
-  | JustifyAllTextAlign
-  | MatchParentTextAlign
-  | StartTextAlign
-  | EndTextAlign
-  | InitialTextAlign
-  | InheritTextAlign
-  | UnsetTextAlign
-  | OtherTextAlign Value
+type alias TextAlignDescriptor = TextAlignFactory -> Property.Value
+
+type alias NubTextAlignFactory rec =
+  { rec | alignWithSide : Sides.HorizontalSide -> Property.Value
+        , justify : Property.Value
+        , justifyAll : Property.Value
+        , matchParent : Property.Value
+        , start : Property.Value
+        , end : Property.Value
+        , other_ : Property.Value -> Property.Value
+  }
+
+nubTextAlignFactory : NubTextAlignFactory {}
+nubTextAlignFactory =
+  { alignWithSide side = Sides.horizontalSideValue side
+  , justify = Property.stringValue "justify"
+  , justifyAll = Property.stringValue "justify-all"
+  , matchParent = Property.stringValue "match-parent"
+  , start = Property.stringValue "start"
+  , end = Property.stringValue "end"
+  , other_ val = Common.otherValue val
+  }
 
 type alias TextAlignFactory =
-  { alignWithSide : Sides.HorizontalSide -> TextAlign
-  , justify : TextAlign
-  , justifyAll : TextAlign
-  , matchParent : TextAlign
-  , start : TextAlign
-  , end : TextAlign
-  , initial_ : TextAlign
-  , inherit_ : TextAlign
-  , unset_ : TextAlign
-  , other_ : Value -> TextAlign
-  }
+  NubTextAlignFactory
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value {})))
 
 textAlignFactory : TextAlignFactory
 textAlignFactory =
-  { alignWithSide side = SideTextAlign side
-  , justify = JustifyTextAlign
-  , justifyAll = JustifyAllTextAlign
-  , matchParent = MatchParentTextAlign
-  , start = StartTextAlign
-  , end = EndTextAlign
-  , initial_ = InitialTextAlign
-  , inherit_ = InheritTextAlign
-  , unset_ = UnsetTextAlign
-  , other_ val = OtherTextAlign val
-  }
-
-textAlignValue : TextAlign -> Value 
-textAlignValue alignment =
-  case alignment of
-    SideTextAlign side -> Sides.horizontalSideValue side
-    JustifyTextAlign -> stringValue "justify"
-    JustifyAllTextAlign -> stringValue "justify-all"
-    MatchParentTextAlign -> stringValue "match-parent"
-    StartTextAlign -> stringValue "start"
-    EndTextAlign -> stringValue "end"
-    InitialTextAlign -> initialValue
-    InheritTextAlign -> inheritValue
-    UnsetTextAlign -> unsetValue
-    OtherTextAlign val -> otherValue val
-    
+  Common.addCommonValues nubTextAlignFactory
+  
 -------------------------------------------------------------------------------
 
-type alias WhiteSpaceDescriptor =
-  WhiteSpaceFactory -> WhiteSpace
+type alias WhiteSpaceDescriptor = WhiteSpaceFactory -> Property.Value
   
-type WhiteSpace
-  = NoWrapWhiteSpace
-  | PreWhiteSpace
-  | PreWrapWhiteSpace
-  | PreLineWhiteSpace
-  | InitialWhiteSpace
-  | InheritWhiteSpace
-  | NormalWhiteSpace
-  | UnsetWhiteSpace
-  | OtherWhiteSpace Value
+type alias NubWhiteSpaceFactory rec =
+  { rec | noWrap : Property.Value
+        , pre : Property.Value
+        , preWrap : Property.Value
+        , preLine : Property.Value
+        , other_ : Property.Value -> Property.Value
+  }
+
+nubWhiteSpaceFactory : NubWhiteSpaceFactory {}
+nubWhiteSpaceFactory =
+  { noWrap = Property.stringValue "nowrap"
+  , pre = Property.stringValue "pre"
+  , preWrap = Property.stringValue "pre-wrap"
+  , preLine = Property.stringValue "pre-line"
+  , other_ val = Common.otherValue val
+  }
 
 type alias WhiteSpaceFactory =
-  { noWrap : WhiteSpace
-  , pre : WhiteSpace
-  , preWrap : WhiteSpace
-  , preLine : WhiteSpace
-  , initial_ : WhiteSpace
-  , inherit_ : WhiteSpace
-  , normal_ : WhiteSpace
-  , unset_ : WhiteSpace
-  , other_ : Value -> WhiteSpace
-  }
+  NubWhiteSpaceFactory
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value 
+          (Common.Normal Property.Value {}))))
 
 whiteSpaceFactory : WhiteSpaceFactory
 whiteSpaceFactory =
-  { noWrap = NoWrapWhiteSpace
-  , pre = PreWhiteSpace
-  , preWrap = PreWrapWhiteSpace
-  , preLine = PreLineWhiteSpace
-  , initial_ = InitialWhiteSpace
-  , inherit_ = InheritWhiteSpace
-  , normal_ = NormalWhiteSpace
-  , unset_ = UnsetWhiteSpace
-  , other_ val = OtherWhiteSpace val
-  }
-
-whiteSpaceValue : WhiteSpace -> Value 
-whiteSpaceValue theWhiteSpace =
-  case theWhiteSpace of
-    NoWrapWhiteSpace -> stringValue "nowrap"
-    PreWhiteSpace -> stringValue "pre"
-    PreWrapWhiteSpace -> stringValue "pre-wrap"
-    PreLineWhiteSpace -> stringValue "pre-line"
-    InitialWhiteSpace -> initialValue
-    InheritWhiteSpace -> inheritValue
-    NormalWhiteSpace -> normalValue
-    UnsetWhiteSpace -> unsetValue
-    OtherWhiteSpace val -> otherValue val
+  let withNormal = { nubWhiteSpaceFactory | normal_ = Common.normalValue }
+  in Common.addCommonValues withNormal
 
 -------------------------------------------------------------------------------
 
-type alias TextDecorationDescriptor =
-  TextDecorationFactory -> TextDecoration
-  
-type TextDecoration
-  = UnderlineTextDecoration
-  | OverlineTextDecoration
-  | LineThroughTextDecoration
-  | BlinkTextDecoration
-  | NoTextDecoration
-  | InitialTextDecoration
-  | InheritTextDecoration
-  | UnsetTextDecoration
-  | OtherTextDecoration Value
+type alias TextDecorationDescriptor = TextDecorationFactory -> Property.Value
+
+type alias NubTextDecorationFactory rec =
+  { rec | underline : Property.Value
+        , overline : Property.Value
+        , lineThrough : Property.Value
+        , blink : Property.Value
+        , other_ : Property.Value -> Property.Value
+  }
+
+nubTextDecorationFactory : NubTextDecorationFactory {}
+nubTextDecorationFactory =
+  { underline = Property.stringValue "underline"
+  , overline = Property.stringValue "overline"
+  , lineThrough = Property.stringValue "line-through"
+  , blink = Property.stringValue "blink"
+  , other_ val = Common.otherValue val
+  }
 
 type alias TextDecorationFactory =
-  { underline : TextDecoration
-  , overline : TextDecoration
-  , lineThrough : TextDecoration
-  , blink : TextDecoration
-  , none_ : TextDecoration
-  , initial_ : TextDecoration
-  , inherit_ : TextDecoration
-  , unset_ : TextDecoration
-  , other_ : Value -> TextDecoration
-  }
-
+  NubTextDecorationFactory
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value 
+          (Common.None Property.Value {}))))
+  
 textDecorationFactory : TextDecorationFactory
 textDecorationFactory =
-  { underline = UnderlineTextDecoration
-  , overline = OverlineTextDecoration
-  , lineThrough = LineThroughTextDecoration
-  , blink = BlinkTextDecoration
-  , none_ = NoTextDecoration
-  , initial_ = InitialTextDecoration
-  , inherit_ = InheritTextDecoration
-  , unset_ = UnsetTextDecoration
-  , other_ val = OtherTextDecoration val
-  }
-
-textDecorationValue : TextDecoration -> Value 
-textDecorationValue theTextDecoration =
-  case theTextDecoration of
-    UnderlineTextDecoration -> stringValue "underline"
-    OverlineTextDecoration -> stringValue "overline"
-    LineThroughTextDecoration -> stringValue "line-through"
-    BlinkTextDecoration -> stringValue "blink"
-    NoTextDecoration -> noneValue
-    InitialTextDecoration -> initialValue
-    InheritTextDecoration -> inheritValue
-    UnsetTextDecoration -> unsetValue
-    OtherTextDecoration val -> otherValue val
+  let withNone = { nubTextDecorationFactory | none_ = Common.noneValue }
+  in Common.addCommonValues withNone
 
 -------------------------------------------------------------------------------
 
-type alias TextTransformDescriptor =
-  TextTransformFactory -> TextTransform
-  
-type TextTransform
-  = CapitalizeTextTransform
-  | UppercaseTextTransform
-  | LowercaseTextTransform
-  | FullWidthTextTransform
-  | NoTextTransform
-  | InitialTextTransform
-  | InheritTextTransform
-  | UnsetTextTransform
-  | OtherTextTransform Value
+type alias TextTransformDescriptor = TextTransformFactory -> Property.Value
+
+type alias NubTextTransformFactory rec =
+  { rec | capitalize : Property.Value
+        , uppercase : Property.Value
+        , lowercase : Property.Value
+        , fullWidth : Property.Value
+        , other_ : Property.Value -> Property.Value
+  }
 
 type alias TextTransformFactory =
-  { capitalize : TextTransform
-  , uppercase : TextTransform
-  , lowercase : TextTransform
-  , fullWidth : TextTransform
-  , none_ : TextTransform
-  , initial_ : TextTransform
-  , inherit_ : TextTransform
-  , unset_ : TextTransform
-  , other_ : Value -> TextTransform
+  NubTextTransformFactory
+    (Common.Initial Property.Value
+      (Common.Inherit Property.Value
+        (Common.Unset Property.Value 
+          (Common.None Property.Value {}))))
+
+nubTextTransformFactory : NubTextTransformFactory {}
+nubTextTransformFactory =
+  { capitalize = Property.stringValue "capitalize"
+  , uppercase = Property.stringValue "uppercase"
+  , lowercase = Property.stringValue "lowercase"
+  , fullWidth = Property.stringValue "full-width"
+  , other_ val = Common.otherValue val
   }
 
 textTransformFactory : TextTransformFactory
 textTransformFactory =
-  { capitalize = CapitalizeTextTransform
-  , uppercase = UppercaseTextTransform
-  , lowercase = LowercaseTextTransform
-  , fullWidth = FullWidthTextTransform
-  , none_ = NoTextTransform
-  , initial_ = InitialTextTransform
-  , inherit_ = InheritTextTransform
-  , unset_ = UnsetTextTransform
-  , other_ val = OtherTextTransform val
-  }
-
-textTransformValue : TextTransform -> Value 
-textTransformValue theTextTransform =
-  case theTextTransform of
-    CapitalizeTextTransform -> stringValue "capitalize"
-    UppercaseTextTransform -> stringValue "uppercase"
-    LowercaseTextTransform -> stringValue "lowercase"
-    FullWidthTextTransform -> stringValue "full-width"
-    NoTextTransform -> noneValue
-    InitialTextTransform -> initialValue
-    InheritTextTransform -> inheritValue
-    UnsetTextTransform -> unsetValue
-    OtherTextTransform val -> otherValue val
+  let withNone = { nubTextTransformFactory | none_ = Common.noneValue }
+  in Common.addCommonValues withNone

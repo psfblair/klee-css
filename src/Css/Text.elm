@@ -94,7 +94,7 @@ wordSpacing sizeDescriptor =
 
 textRendering : TextRenderingDescriptor -> Stylesheet.PropertyRuleAppender
 textRendering descriptor =
-  let renderValue = descriptor textRenderingFactory |> textRenderingValue
+  let renderValue = descriptor textRenderingFactory
   in Stylesheet.simpleProperty "text-rendering" renderValue
 
 optimizeSpeed : TextRenderingDescriptor
@@ -151,7 +151,7 @@ shadowColor colorDescriptor innerDescriptor factory =
 
 textIndent : TextIndentDescriptor a -> Stylesheet.PropertyRuleAppender
 textIndent descriptor = 
-  let indentValue = descriptor textIndentFactory |> textIndentValue
+  let indentValue = descriptor textIndentFactory
   in Stylesheet.simpleProperty "text-indent" indentValue
 
 eachLine: TextIndentDescriptor a
@@ -167,7 +167,7 @@ indent sizeDescriptor = \factory -> factory.textIndent sizeDescriptor
 
 direction : TextDirectionDescriptor -> Stylesheet.PropertyRuleAppender
 direction descriptor = 
-  let directionValue = descriptor textDirectionFactory |> textDirectionValue
+  let directionValue = descriptor textDirectionFactory
   in Stylesheet.simpleProperty "direction" directionValue
 
 rtl : TextDirectionDescriptor
@@ -180,7 +180,7 @@ ltr = \factory -> factory.leftToRight
 
 textAlign : TextAlignDescriptor -> Stylesheet.PropertyRuleAppender
 textAlign descriptor  = 
-  let alignmentValue = descriptor textAlignFactory |> textAlignValue
+  let alignmentValue = descriptor textAlignFactory
   in Stylesheet.simpleProperty "text-align" alignmentValue
 
 start : TextAlignDescriptor
@@ -205,7 +205,7 @@ alignSide side = \factory -> factory.alignWithSide side
 
 whiteSpace : WhiteSpaceDescriptor -> Stylesheet.PropertyRuleAppender
 whiteSpace descriptor = 
-  let whiteSpaceVal = descriptor whiteSpaceFactory |> whiteSpaceValue
+  let whiteSpaceVal = descriptor whiteSpaceFactory
   in Stylesheet.simpleProperty "white-space" whiteSpaceVal
 
 nowrap : WhiteSpaceDescriptor
@@ -224,12 +224,12 @@ preLine = \factory -> factory.preLine
 
 textDecoration : TextDecorationDescriptor -> Stylesheet.PropertyRuleAppender
 textDecoration descriptor = 
-  let decorationValue = descriptor textDecorationFactory |> textDecorationValue
+  let decorationValue = descriptor textDecorationFactory
   in Stylesheet.simpleProperty "text-decoration" decorationValue
 
 textDecorationLine : TextDecorationDescriptor -> Stylesheet.PropertyRuleAppender
 textDecorationLine descriptor = 
-  let decorationValue = descriptor textDecorationFactory |> textDecorationValue
+  let decorationValue = descriptor textDecorationFactory
   in Stylesheet.simpleProperty "text-decoration-line" decorationValue
 
 underline : TextDecorationDescriptor
@@ -260,7 +260,7 @@ textDecorationStyle descriptor =
 
 textTransform : TextTransformDescriptor -> Stylesheet.PropertyRuleAppender
 textTransform descriptor = 
-  let transformValue = descriptor textTransformFactory |> textTransformValue
+  let transformValue = descriptor textTransformFactory
   in Stylesheet.simpleProperty "text-transform" transformValue
 
 capitalize : TextTransformDescriptor
