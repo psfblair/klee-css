@@ -27,15 +27,15 @@ module Css.ColorsAndStrokes
 
   ) where
 
-import String 
 
-import Color exposing (Color)
-import Css.Internal.Utils exposing (toFixed, fromHex)
+import Color as ElmColor
+import String as String
 
 import Css.Internal.Color as Color
 import Css.Internal.List as List
 import Css.Internal.Property as Property
 import Css.Internal.Stroke as Stroke
+import Css.Internal.Utils as Utils
 
 -------------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ rgb r g b =
     if Color.invalidRgb r g b
     then factory.invalid_ 
           ("INVALID COLOR: " ++ Color.join [toString r, toString g, toString b])
-    else Color.rgb r g b |> factory.rgbaColor
+    else ElmColor.rgb r g b |> factory.rgbaColor
 
 rgba : Int -> Int -> Int -> Float -> Color.NubColorDescriptor rec
 rgba r g b a = 
@@ -54,7 +54,7 @@ rgba r g b a =
     then factory.invalid_ 
           ("INVALID COLOR: " ++ 
             Color.join [toString r, toString g, toString b, toString a])
-    else Color.rgba r g b a |> factory.rgbaColor
+    else ElmColor.rgba r g b a |> factory.rgbaColor
 
 hsl : Int -> Float -> Float -> Color.NubColorDescriptor rec
 hsl h s l = 
@@ -62,7 +62,7 @@ hsl h s l =
     if Color.invalidHsl h s l
     then factory.invalid_ 
           ("INVALID COLOR: " ++ Color.join [toString h, toString s, toString l])
-    else Color.hsl (toFloat h |> degrees) s l |> factory.hslaColor
+    else ElmColor.hsl (toFloat h |> degrees) s l |> factory.hslaColor
 
 hsla : Int -> Float -> Float -> Float -> Color.NubColorDescriptor rec
 hsla h s l a = 
@@ -71,17 +71,17 @@ hsla h s l a =
     then factory.invalid_ 
           ("INVALID COLOR: " ++ 
             Color.join [toString h, toString s, toString l, toString a])
-    else Color.hsla (toFloat h |> degrees) s l a |> factory.hslaColor
+    else ElmColor.hsla (toFloat h |> degrees) s l a |> factory.hslaColor
 
 hex : String -> Color.NubColorDescriptor rec
 hex str = 
   \factory ->
-    let unhex digit1 digit2 = fromHex <| String.fromList [digit1, digit2]
+    let unhex digit1 digit2 = Utils.fromHex <| String.fromList [digit1, digit2]
         toAlpha digit1 digit2 = 
           unhex digit1 digit2 
             |> Result.map toFloat 
             |> Result.map (\f -> f / 255.0)
-            |> Result.map (\f -> toFixed 2 f)
+            |> Result.map (\f -> Utils.toFixed 2 f)
         digits =
           case String.uncons str of
             Just ('#', cs) -> cs
@@ -90,13 +90,13 @@ hex str =
           case String.toList digits of
             -- Hex alpha is in CSS 4
             [a, b, c, d, e, f, g, h] -> 
-              Result.map4 Color.rgba (unhex a b) (unhex c d) (unhex e f) (toAlpha g h)
+              Result.map4 ElmColor.rgba (unhex a b) (unhex c d) (unhex e f) (toAlpha g h)
             [a, b, c, d, e, f      ] -> 
-              Result.map3 Color.rgb  (unhex a b) (unhex c d) (unhex e f)
+              Result.map3 ElmColor.rgb  (unhex a b) (unhex c d) (unhex e f)
             [a, b, c, d            ] -> 
-              Result.map4 Color.rgba (unhex a a) (unhex b b) (unhex c c) (toAlpha d d)  
+              Result.map4 ElmColor.rgba (unhex a a) (unhex b b) (unhex c c) (toAlpha d d)  
             [a, b, c               ] -> 
-              Result.map3 Color.rgb  (unhex a a) (unhex b b) (unhex c c)
+              Result.map3 ElmColor.rgb  (unhex a a) (unhex b b) (unhex c c)
             other                    -> Err ("INVALID COLOR STRING: " ++ str)
     in case result of
       Ok color -> factory.rgbaColor color
@@ -112,106 +112,106 @@ invert : Color.NubColorDescriptorWithInvert rec
 invert = \factory -> factory.invert
 
 red : Color.NubColorDescriptor rec
-red = \factory -> Color.red |> factory.rgbaColor
+red = \factory -> ElmColor.red |> factory.rgbaColor
 
 orange : Color.NubColorDescriptor rec
-orange = \factory -> Color.orange |> factory.rgbaColor
+orange = \factory -> ElmColor.orange |> factory.rgbaColor
 
 yellow : Color.NubColorDescriptor rec
-yellow = \factory -> Color.yellow |> factory.rgbaColor
+yellow = \factory -> ElmColor.yellow |> factory.rgbaColor
 
 green : Color.NubColorDescriptor rec
-green = \factory -> Color.green |> factory.rgbaColor
+green = \factory -> ElmColor.green |> factory.rgbaColor
 
 blue : Color.NubColorDescriptor rec
-blue = \factory -> Color.blue |> factory.rgbaColor
+blue = \factory -> ElmColor.blue |> factory.rgbaColor
 
 purple : Color.NubColorDescriptor rec
-purple = \factory -> Color.purple |> factory.rgbaColor
+purple = \factory -> ElmColor.purple |> factory.rgbaColor
 
 brown : Color.NubColorDescriptor rec
-brown = \factory -> Color.brown |> factory.rgbaColor
+brown = \factory -> ElmColor.brown |> factory.rgbaColor
 
 
 
 lightRed : Color.NubColorDescriptor rec
-lightRed = \factory -> Color.lightRed |> factory.rgbaColor
+lightRed = \factory -> ElmColor.lightRed |> factory.rgbaColor
 
 lightOrange : Color.NubColorDescriptor rec
-lightOrange = \factory -> Color.lightOrange |> factory.rgbaColor
+lightOrange = \factory -> ElmColor.lightOrange |> factory.rgbaColor
 
 lightYellow : Color.NubColorDescriptor rec
-lightYellow = \factory -> Color.lightYellow |> factory.rgbaColor
+lightYellow = \factory -> ElmColor.lightYellow |> factory.rgbaColor
 
 lightGreen : Color.NubColorDescriptor rec
-lightGreen = \factory -> Color.lightGreen |> factory.rgbaColor
+lightGreen = \factory -> ElmColor.lightGreen |> factory.rgbaColor
 
 lightBlue : Color.NubColorDescriptor rec
-lightBlue = \factory -> Color.lightBlue |> factory.rgbaColor
+lightBlue = \factory -> ElmColor.lightBlue |> factory.rgbaColor
 
 lightPurple : Color.NubColorDescriptor rec
-lightPurple = \factory -> Color.lightPurple |> factory.rgbaColor
+lightPurple = \factory -> ElmColor.lightPurple |> factory.rgbaColor
 
 lightBrown : Color.NubColorDescriptor rec
-lightBrown = \factory -> Color.lightBrown |> factory.rgbaColor
+lightBrown = \factory -> ElmColor.lightBrown |> factory.rgbaColor
 
 
 
 darkRed : Color.NubColorDescriptor rec
-darkRed = \factory -> Color.darkRed |> factory.rgbaColor
+darkRed = \factory -> ElmColor.darkRed |> factory.rgbaColor
 
 darkOrange : Color.NubColorDescriptor rec
-darkOrange = \factory -> Color.darkOrange |> factory.rgbaColor
+darkOrange = \factory -> ElmColor.darkOrange |> factory.rgbaColor
 
 darkYellow : Color.NubColorDescriptor rec
-darkYellow = \factory -> Color.darkYellow |> factory.rgbaColor
+darkYellow = \factory -> ElmColor.darkYellow |> factory.rgbaColor
 
 darkGreen : Color.NubColorDescriptor rec
-darkGreen = \factory -> Color.darkGreen |> factory.rgbaColor
+darkGreen = \factory -> ElmColor.darkGreen |> factory.rgbaColor
 
 darkBlue : Color.NubColorDescriptor rec
-darkBlue = \factory -> Color.darkBlue |> factory.rgbaColor
+darkBlue = \factory -> ElmColor.darkBlue |> factory.rgbaColor
 
 darkPurple : Color.NubColorDescriptor rec
-darkPurple = \factory -> Color.darkPurple |> factory.rgbaColor
+darkPurple = \factory -> ElmColor.darkPurple |> factory.rgbaColor
 
 darkBrown : Color.NubColorDescriptor rec
-darkBrown = \factory -> Color.darkBrown |> factory.rgbaColor
+darkBrown = \factory -> ElmColor.darkBrown |> factory.rgbaColor
 
 
 
 white : Color.NubColorDescriptor rec
-white = \factory -> Color.white |> factory.rgbaColor
+white = \factory -> ElmColor.white |> factory.rgbaColor
 
 lightGrey : Color.NubColorDescriptor rec
-lightGrey = \factory -> Color.lightGrey |> factory.rgbaColor
+lightGrey = \factory -> ElmColor.lightGrey |> factory.rgbaColor
 
 lightGray : Color.NubColorDescriptor rec
-lightGray = \factory -> Color.lightGray |> factory.rgbaColor
+lightGray = \factory -> ElmColor.lightGray |> factory.rgbaColor
 
 grey : Color.NubColorDescriptor rec
-grey = \factory -> Color.grey |> factory.rgbaColor
+grey = \factory -> ElmColor.grey |> factory.rgbaColor
 
 gray : Color.NubColorDescriptor rec
-gray = \factory -> Color.gray |> factory.rgbaColor
+gray = \factory -> ElmColor.gray |> factory.rgbaColor
 
 darkGrey : Color.NubColorDescriptor rec
-darkGrey = \factory -> Color.darkGrey |> factory.rgbaColor
+darkGrey = \factory -> ElmColor.darkGrey |> factory.rgbaColor
 
 darkGray : Color.NubColorDescriptor rec
-darkGray = \factory -> Color.darkGray |> factory.rgbaColor
+darkGray = \factory -> ElmColor.darkGray |> factory.rgbaColor
 
 lightCharcoal : Color.NubColorDescriptor rec 
-lightCharcoal = \factory -> Color.lightCharcoal |> factory.rgbaColor
+lightCharcoal = \factory -> ElmColor.lightCharcoal |> factory.rgbaColor
 
 charcoal : Color.NubColorDescriptor rec
-charcoal = \factory -> Color.charcoal |> factory.rgbaColor
+charcoal = \factory -> ElmColor.charcoal |> factory.rgbaColor
 
 darkCharcoal : Color.NubColorDescriptor rec
-darkCharcoal = \factory -> Color.darkCharcoal |> factory.rgbaColor
+darkCharcoal = \factory -> ElmColor.darkCharcoal |> factory.rgbaColor
 
 black : Color.NubColorDescriptor rec
-black = \factory -> Color.black |> factory.rgbaColor
+black = \factory -> ElmColor.black |> factory.rgbaColor
 
 -------------------------------------------------------------------------------
 

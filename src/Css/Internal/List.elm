@@ -8,64 +8,61 @@ module Css.Internal.List
   ) where
 
 import Css.Internal.Common as Common
-import Css.Internal.Property exposing 
-  ( Value, Literal, toLiteral, concatenateValues
-  , literalValue, stringValue, spaceListValue
-  )
+import Css.Internal.Property as Property
 -------------------------------------------------------------------------------
 
-type alias ListStyleTypeDescriptor = ListStyleTypeFactory -> Value
+type alias ListStyleTypeDescriptor = ListStyleTypeFactory -> Property.Value
   
 type alias ListStyleTypeFactory =
-  { disc : Value
-  , armenian : Value
-  , circleListStyleType : Value
-  , cjkIdeographic : Value
-  , decimal : Value
-  , decimalLeadingZero : Value
-  , georgian : Value
-  , hebrew : Value
-  , hiragana : Value
-  , hiraganaIroha : Value
-  , katakana : Value
-  , katakanaIroha : Value
-  , lowerAlpha : Value
-  , lowerGreek : Value
-  , lowerLatin : Value
-  , lowerRoman : Value
-  , square : Value
-  , upperAlpha : Value
-  , upperLatin : Value
-  , upperRoman : Value
-  , initial_ : Value
-  , inherit_ : Value
-  , unset_   : Value
-  , none_ : Value
-  , other_ : Value -> Value
+  { disc : Property.Value
+  , armenian : Property.Value
+  , circleListStyleType : Property.Value
+  , cjkIdeographic : Property.Value
+  , decimal : Property.Value
+  , decimalLeadingZero : Property.Value
+  , georgian : Property.Value
+  , hebrew : Property.Value
+  , hiragana : Property.Value
+  , hiraganaIroha : Property.Value
+  , katakana : Property.Value
+  , katakanaIroha : Property.Value
+  , lowerAlpha : Property.Value
+  , lowerGreek : Property.Value
+  , lowerLatin : Property.Value
+  , lowerRoman : Property.Value
+  , square : Property.Value
+  , upperAlpha : Property.Value
+  , upperLatin : Property.Value
+  , upperRoman : Property.Value
+  , initial_ : Property.Value
+  , inherit_ : Property.Value
+  , unset_   : Property.Value
+  , none_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 listStyleTypeFactory : ListStyleTypeFactory
 listStyleTypeFactory =
-  { disc = stringValue "disc"
-  , armenian = stringValue "armenian"
-  , circleListStyleType = stringValue "circle"
-  , cjkIdeographic = stringValue "cjk-ideographic"
-  , decimal = stringValue "decimal"
-  , decimalLeadingZero = stringValue "decimal-leading-zero"
-  , georgian = stringValue "georgian"
-  , hebrew = stringValue "hebrew"
-  , hiragana = stringValue "hiragana"
-  , hiraganaIroha = stringValue "hiragana-iroha"
-  , katakana = stringValue "katakana"
-  , katakanaIroha = stringValue "katakana-iroha"
-  , lowerAlpha = stringValue "lower-alpha"
-  , lowerGreek = stringValue "lower-greek"
-  , lowerLatin = stringValue "lower-latin"
-  , lowerRoman = stringValue "lower-roman"
-  , square = stringValue "square"
-  , upperAlpha = stringValue "upper-alpha"
-  , upperLatin = stringValue "upper-latin"
-  , upperRoman = stringValue "upper-roman"
+  { disc = Property.stringValue "disc"
+  , armenian = Property.stringValue "armenian"
+  , circleListStyleType = Property.stringValue "circle"
+  , cjkIdeographic = Property.stringValue "cjk-ideographic"
+  , decimal = Property.stringValue "decimal"
+  , decimalLeadingZero = Property.stringValue "decimal-leading-zero"
+  , georgian = Property.stringValue "georgian"
+  , hebrew = Property.stringValue "hebrew"
+  , hiragana = Property.stringValue "hiragana"
+  , hiraganaIroha = Property.stringValue "hiragana-iroha"
+  , katakana = Property.stringValue "katakana"
+  , katakanaIroha = Property.stringValue "katakana-iroha"
+  , lowerAlpha = Property.stringValue "lower-alpha"
+  , lowerGreek = Property.stringValue "lower-greek"
+  , lowerLatin = Property.stringValue "lower-latin"
+  , lowerRoman = Property.stringValue "lower-roman"
+  , square = Property.stringValue "square"
+  , upperAlpha = Property.stringValue "upper-alpha"
+  , upperLatin = Property.stringValue "upper-latin"
+  , upperRoman = Property.stringValue "upper-roman"
   , initial_ = Common.initialValue
   , inherit_ = Common.inheritValue
   , unset_   = Common.unsetValue
@@ -75,21 +72,22 @@ listStyleTypeFactory =
 
 -------------------------------------------------------------------------------
 
-type alias ListStylePositionDescriptor = ListStylePositionFactory -> Value
+type alias ListStylePositionDescriptor = 
+  ListStylePositionFactory -> Property.Value
   
 type alias ListStylePositionFactory =
-  { inside : Value
-  , outside : Value
-  , initial_ : Value
-  , inherit_ : Value
-  , unset_ : Value
-  , other_ : Value -> Value
+  { inside : Property.Value
+  , outside : Property.Value
+  , initial_ : Property.Value
+  , inherit_ : Property.Value
+  , unset_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 listStylePositionFactory : ListStylePositionFactory
 listStylePositionFactory =
-  { inside = stringValue "inside"
-  , outside = stringValue "outside"
+  { inside = Property.stringValue "inside"
+  , outside = Property.stringValue "outside"
   , initial_ = Common.initialValue
   , inherit_ = Common.inheritValue
   , unset_   = Common.unsetValue
@@ -98,22 +96,25 @@ listStylePositionFactory =
 
 -------------------------------------------------------------------------------
 
-type alias ListStyleImageDescriptor = ListStyleImageFactory -> Value
+type alias ListStyleImageDescriptor = ListStyleImageFactory -> Property.Value
   
 type alias ListStyleImageFactory =
-  { url : String -> Value
-  , initial_ : Value
-  , inherit_ : Value
-  , none_ : Value
-  , unset_ : Value
-  , other_ : Value -> Value
+  { url : String -> Property.Value
+  , initial_ : Property.Value
+  , inherit_ : Property.Value
+  , none_ : Property.Value
+  , unset_ : Property.Value
+  , other_ : Property.Value -> Property.Value
   }
 
 listStyleImageFactory : ListStyleImageFactory
 listStyleImageFactory =
   { url urlString =
-      let urlValue = toLiteral urlString |> literalValue
-      in [ stringValue "url(", urlValue, stringValue ")" ] |> concatenateValues
+      let urlValue = Property.toLiteral urlString |> Property.literalValue
+      in  [ Property.stringValue "url("
+          , urlValue
+          , Property.stringValue ")" 
+          ] |> Property.concatenateValues
   , initial_ = Common.initialValue
   , inherit_ = Common.inheritValue
   , none_ = Common.noneValue
@@ -131,13 +132,13 @@ type ListStyleAlternative
   | InitialListStyle
   | InheritListStyle
   | UnsetListStyle
-  | OtherListStyle Value
+  | OtherListStyle Property.Value
 
 type ListStyleComponents
   = NoListStyleComponents
-  | WithStyleType Value ListStyleComponents
-  | WithStylePosition Value ListStyleComponents
-  | WithStyleImage Value ListStyleComponents
+  | WithStyleType Property.Value ListStyleComponents
+  | WithStylePosition Property.Value ListStyleComponents
+  | WithStyleImage Property.Value ListStyleComponents
 
 type alias ListStyleDescriptor rec = ListStyleFactory {} -> ListStyle rec
   
@@ -172,7 +173,7 @@ adjoinListStyle newComponents =
   { initialListStyleFactory | listStyle <- CompositeListStyle newComponents
                             , styleComponents <- newComponents }
 
-listStyleValue : ListStyleAlternative -> Value
+listStyleValue : ListStyleAlternative -> Property.Value
 listStyleValue style =
   case style of
     InitialListStyle   -> Common.initialValue
@@ -181,37 +182,38 @@ listStyleValue style =
     OtherListStyle val -> Common.otherValue val
     CompositeListStyle components -> componentsToValue components
 
-componentsToValue : ListStyleComponents -> Value
+componentsToValue : ListStyleComponents -> Property.Value
 componentsToValue components = 
   componentsToValueRecursive components Nothing Nothing Nothing
   
 componentsToValueRecursive : ListStyleComponents -> 
-                             Maybe Value -> -- style type
-                             Maybe Value -> -- position
-                             Maybe Value -> -- image
-                             Value
+                             Maybe Property.Value -> -- style type
+                             Maybe Property.Value -> -- position
+                             Maybe Property.Value -> -- image
+                             Property.Value
 componentsToValueRecursive components maybeType maybePosition maybeImage =
-  case components of
+  let recurse = componentsToValueRecursive
+  in case components of
       -- If the ListStyleComponents combinators are called more than once,
       -- the last (outer) one wins. So if it's already set we don't reset it.
     WithStyleType styleType inner ->
       case maybeType of
         Just _ -> 
-          componentsToValueRecursive inner maybeType maybePosition maybeImage
+          recurse inner maybeType maybePosition maybeImage
         Nothing -> 
-          componentsToValueRecursive inner (Just styleType) maybePosition maybeImage
+          recurse inner (Just styleType) maybePosition maybeImage
     WithStylePosition stylePosition inner ->
       case maybePosition of
         Just _ -> 
-          componentsToValueRecursive inner maybeType maybePosition maybeImage
+          recurse inner maybeType maybePosition maybeImage
         Nothing -> 
-          componentsToValueRecursive inner maybeType (Just stylePosition) maybeImage
+          recurse inner maybeType (Just stylePosition) maybeImage
     WithStyleImage styleImage inner ->
       case maybeImage of
         Just _ -> 
-          componentsToValueRecursive inner maybeType maybePosition maybeImage
+          recurse inner maybeType maybePosition maybeImage
         Nothing -> 
-          componentsToValueRecursive inner maybeType maybePosition (Just styleImage)
+          recurse inner maybeType maybePosition (Just styleImage)
     NoListStyleComponents ->
       let allValues = 
             [ maybeType
@@ -219,4 +221,4 @@ componentsToValueRecursive components maybeType maybePosition maybeImage =
             , maybeImage
             ] |> List.filterMap identity
           
-      in spaceListValue identity allValues
+      in Property.spaceListValue identity allValues

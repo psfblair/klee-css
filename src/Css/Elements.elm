@@ -1,7 +1,7 @@
 module Css.Elements where
 
-import Css.Internal.Selector exposing (SelectorData, star, selectorDataFromString)
-import Css.Internal.SelectorCombinators exposing (Selector, createSelector)
+import Css.Internal.Selector as Selector
+import Css.Internal.SelectorCombinators as Combinators
 
 -------------------------------------------------------------------------------
 
@@ -9,350 +9,350 @@ import Css.Internal.SelectorCombinators exposing (Selector, createSelector)
 
 {-| The star selector applies to all elements. Maps to @*@ in CSS.
 -}
-star : Selector
-star = Css.Internal.Selector.star |> createSelector
+star : Combinators.Selector
+star = Selector.star |> Combinators.createSelector
 
 {-| Special cases, these items occur both as an HTML tag and an HTML
 attribute. These will need qualified imports. -}
-abbr : Selector
-abbr = "abbr" |> selectorDataFromString |> createSelector
+abbr : Combinators.Selector
+abbr = "abbr" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-cite : Selector
-cite = "cite" |> selectorDataFromString |> createSelector
+cite : Combinators.Selector
+cite = "cite" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-command : Selector
-command = "command" |> selectorDataFromString |> createSelector
+command : Combinators.Selector
+command = "command" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-data_ : Selector
-data_ = "data" |> selectorDataFromString |> createSelector
+data_ : Combinators.Selector
+data_ = "data" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-form : Selector
-form = "form" |> selectorDataFromString |> createSelector
+form : Combinators.Selector
+form = "form" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-label : Selector
-label = "label" |> selectorDataFromString |> createSelector
+label : Combinators.Selector
+label = "label" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-span : Selector
-span = "span" |> selectorDataFromString |> createSelector
+span : Combinators.Selector
+span = "span" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-style : Selector
-style = "style" |> selectorDataFromString |> createSelector
+style : Combinators.Selector
+style = "style" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-title : Selector
-title = "title" |> selectorDataFromString |> createSelector
+title : Combinators.Selector
+title = "title" |> Selector.selectorDataFromString |> Combinators.createSelector
 
 
-a : Selector
-a = "a" |> selectorDataFromString |> createSelector
+a : Combinators.Selector
+a = "a" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-address : Selector
-address = "address" |> selectorDataFromString |> createSelector
+address : Combinators.Selector
+address = "address" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-area : Selector
-area = "area" |> selectorDataFromString |> createSelector
+area : Combinators.Selector
+area = "area" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-article : Selector
-article = "article" |> selectorDataFromString |> createSelector
+article : Combinators.Selector
+article = "article" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-aside : Selector
-aside = "aside" |> selectorDataFromString |> createSelector
+aside : Combinators.Selector
+aside = "aside" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-audio : Selector
-audio = "audio" |> selectorDataFromString |> createSelector
+audio : Combinators.Selector
+audio = "audio" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-b : Selector
-b = "b" |> selectorDataFromString |> createSelector
+b : Combinators.Selector
+b = "b" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-base : Selector
-base = "base" |> selectorDataFromString |> createSelector
+base : Combinators.Selector
+base = "base" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-bdi : Selector
-bdi = "bdi" |> selectorDataFromString |> createSelector
+bdi : Combinators.Selector
+bdi = "bdi" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-bdo : Selector
-bdo = "bdo" |> selectorDataFromString |> createSelector
+bdo : Combinators.Selector
+bdo = "bdo" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-blockquote : Selector
-blockquote = "blockquote" |> selectorDataFromString |> createSelector
+blockquote : Combinators.Selector
+blockquote = "blockquote" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-body : Selector
-body = "body" |> selectorDataFromString |> createSelector
+body : Combinators.Selector
+body = "body" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-br : Selector
-br = "br" |> selectorDataFromString |> createSelector
+br : Combinators.Selector
+br = "br" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-button : Selector
-button = "button" |> selectorDataFromString |> createSelector
+button : Combinators.Selector
+button = "button" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-canvas : Selector
-canvas = "canvas" |> selectorDataFromString |> createSelector
+canvas : Combinators.Selector
+canvas = "canvas" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-caption : Selector
-caption = "caption" |> selectorDataFromString |> createSelector
+caption : Combinators.Selector
+caption = "caption" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-code : Selector
-code = "code" |> selectorDataFromString |> createSelector
+code : Combinators.Selector
+code = "code" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-col : Selector
-col = "col" |> selectorDataFromString |> createSelector
+col : Combinators.Selector
+col = "col" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-colgroup : Selector
-colgroup = "colgroup" |> selectorDataFromString |> createSelector
+colgroup : Combinators.Selector
+colgroup = "colgroup" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-datalist : Selector
-datalist = "datalist" |> selectorDataFromString |> createSelector
+datalist : Combinators.Selector
+datalist = "datalist" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-dd : Selector
-dd = "dd" |> selectorDataFromString |> createSelector
+dd : Combinators.Selector
+dd = "dd" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-del : Selector
-del = "del" |> selectorDataFromString |> createSelector
+del : Combinators.Selector
+del = "del" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-details : Selector
-details = "details" |> selectorDataFromString |> createSelector
+details : Combinators.Selector
+details = "details" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-dfn : Selector
-dfn = "dfn" |> selectorDataFromString |> createSelector
+dfn : Combinators.Selector
+dfn = "dfn" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-dialog : Selector
-dialog = "dialog" |> selectorDataFromString |> createSelector
+dialog : Combinators.Selector
+dialog = "dialog" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-div : Selector
-div = "div" |> selectorDataFromString |> createSelector
+div : Combinators.Selector
+div = "div" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-dl : Selector
-dl = "dl" |> selectorDataFromString |> createSelector
+dl : Combinators.Selector
+dl = "dl" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-dt : Selector
-dt = "dt" |> selectorDataFromString |> createSelector
+dt : Combinators.Selector
+dt = "dt" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-em : Selector
-em = "em" |> selectorDataFromString |> createSelector
+em : Combinators.Selector
+em = "em" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-embed : Selector
-embed = "embed" |> selectorDataFromString |> createSelector
+embed : Combinators.Selector
+embed = "embed" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-fieldset : Selector
-fieldset = "fieldset" |> selectorDataFromString |> createSelector
+fieldset : Combinators.Selector
+fieldset = "fieldset" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-figcaption : Selector
-figcaption = "figcaption" |> selectorDataFromString |> createSelector
+figcaption : Combinators.Selector
+figcaption = "figcaption" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-figure : Selector
-figure = "figure" |> selectorDataFromString |> createSelector
+figure : Combinators.Selector
+figure = "figure" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-footer : Selector
-footer = "footer" |> selectorDataFromString |> createSelector
+footer : Combinators.Selector
+footer = "footer" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-h1 : Selector
-h1 = "h1" |> selectorDataFromString |> createSelector
+h1 : Combinators.Selector
+h1 = "h1" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-h2 : Selector
-h2 = "h2" |> selectorDataFromString |> createSelector
+h2 : Combinators.Selector
+h2 = "h2" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-h3 : Selector
-h3 = "h3" |> selectorDataFromString |> createSelector
+h3 : Combinators.Selector
+h3 = "h3" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-h4 : Selector
-h4 = "h4" |> selectorDataFromString |> createSelector
+h4 : Combinators.Selector
+h4 = "h4" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-h5 : Selector
-h5 = "h5" |> selectorDataFromString |> createSelector
+h5 : Combinators.Selector
+h5 = "h5" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-h6 : Selector
-h6 = "h6" |> selectorDataFromString |> createSelector
+h6 : Combinators.Selector
+h6 = "h6" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-head : Selector
-head = "head" |> selectorDataFromString |> createSelector
+head : Combinators.Selector
+head = "head" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-header : Selector
-header = "header" |> selectorDataFromString |> createSelector
+header : Combinators.Selector
+header = "header" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-hgroup : Selector
-hgroup = "hgroup" |> selectorDataFromString |> createSelector
+hgroup : Combinators.Selector
+hgroup = "hgroup" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-hr : Selector
-hr = "hr" |> selectorDataFromString |> createSelector
+hr : Combinators.Selector
+hr = "hr" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-html : Selector
-html = "html" |> selectorDataFromString |> createSelector
+html : Combinators.Selector
+html = "html" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-i : Selector
-i = "i" |> selectorDataFromString |> createSelector
+i : Combinators.Selector
+i = "i" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-iframe : Selector
-iframe = "iframe" |> selectorDataFromString |> createSelector
+iframe : Combinators.Selector
+iframe = "iframe" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-img : Selector
-img = "img" |> selectorDataFromString |> createSelector
+img : Combinators.Selector
+img = "img" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-input : Selector
-input = "input" |> selectorDataFromString |> createSelector
+input : Combinators.Selector
+input = "input" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-ins : Selector
-ins = "ins" |> selectorDataFromString |> createSelector
+ins : Combinators.Selector
+ins = "ins" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-kbd : Selector
-kbd = "kbd" |> selectorDataFromString |> createSelector
+kbd : Combinators.Selector
+kbd = "kbd" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-keygen : Selector
-keygen = "keygen" |> selectorDataFromString |> createSelector
+keygen : Combinators.Selector
+keygen = "keygen" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-legend : Selector
-legend = "legend" |> selectorDataFromString |> createSelector
+legend : Combinators.Selector
+legend = "legend" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-li : Selector
-li = "li" |> selectorDataFromString |> createSelector
+li : Combinators.Selector
+li = "li" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-link : Selector
-link = "link" |> selectorDataFromString |> createSelector
+link : Combinators.Selector
+link = "link" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-main_ : Selector
-main_ = "main" |> selectorDataFromString |> createSelector
+main_ : Combinators.Selector
+main_ = "main" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-map : Selector
-map = "map" |> selectorDataFromString |> createSelector
+map : Combinators.Selector
+map = "map" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-mark : Selector
-mark = "mark" |> selectorDataFromString |> createSelector
+mark : Combinators.Selector
+mark = "mark" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-menu : Selector
-menu = "menu" |> selectorDataFromString |> createSelector
+menu : Combinators.Selector
+menu = "menu" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-meta : Selector
-meta = "meta" |> selectorDataFromString |> createSelector
+meta : Combinators.Selector
+meta = "meta" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-meter : Selector
-meter = "meter" |> selectorDataFromString |> createSelector
+meter : Combinators.Selector
+meter = "meter" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-math : Selector
-math = "math" |> selectorDataFromString |> createSelector
+math : Combinators.Selector
+math = "math" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-nav : Selector
-nav = "nav" |> selectorDataFromString |> createSelector
+nav : Combinators.Selector
+nav = "nav" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-noscript : Selector
-noscript = "noscript" |> selectorDataFromString |> createSelector
+noscript : Combinators.Selector
+noscript = "noscript" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-object : Selector
-object = "object" |> selectorDataFromString |> createSelector
+object : Combinators.Selector
+object = "object" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-ol : Selector
-ol = "ol" |> selectorDataFromString |> createSelector
+ol : Combinators.Selector
+ol = "ol" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-optgroup : Selector
-optgroup = "optgroup" |> selectorDataFromString |> createSelector
+optgroup : Combinators.Selector
+optgroup = "optgroup" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-option : Selector
-option = "option" |> selectorDataFromString |> createSelector
+option : Combinators.Selector
+option = "option" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-output : Selector
-output = "output" |> selectorDataFromString |> createSelector
+output : Combinators.Selector
+output = "output" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-p : Selector
-p = "p" |> selectorDataFromString |> createSelector
+p : Combinators.Selector
+p = "p" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-param : Selector
-param = "param" |> selectorDataFromString |> createSelector
+param : Combinators.Selector
+param = "param" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-pre : Selector
-pre = "pre" |> selectorDataFromString |> createSelector
+pre : Combinators.Selector
+pre = "pre" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-progress : Selector
-progress = "progress" |> selectorDataFromString |> createSelector
+progress : Combinators.Selector
+progress = "progress" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-q : Selector
-q = "q" |> selectorDataFromString |> createSelector
+q : Combinators.Selector
+q = "q" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-rp : Selector
-rp = "rp" |> selectorDataFromString |> createSelector
+rp : Combinators.Selector
+rp = "rp" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-rt : Selector
-rt = "rt" |> selectorDataFromString |> createSelector
+rt : Combinators.Selector
+rt = "rt" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-ruby : Selector
-ruby = "ruby" |> selectorDataFromString |> createSelector
+ruby : Combinators.Selector
+ruby = "ruby" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-s : Selector
-s = "s" |> selectorDataFromString |> createSelector
+s : Combinators.Selector
+s = "s" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-samp : Selector
-samp = "samp" |> selectorDataFromString |> createSelector
+samp : Combinators.Selector
+samp = "samp" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-script : Selector
-script = "script" |> selectorDataFromString |> createSelector
+script : Combinators.Selector
+script = "script" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-section : Selector
-section = "section" |> selectorDataFromString |> createSelector
+section : Combinators.Selector
+section = "section" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-select : Selector
-select = "select" |> selectorDataFromString |> createSelector
+select : Combinators.Selector
+select = "select" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-small : Selector
-small = "small" |> selectorDataFromString |> createSelector
+small : Combinators.Selector
+small = "small" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-source : Selector
-source = "source" |> selectorDataFromString |> createSelector
+source : Combinators.Selector
+source = "source" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-strong : Selector
-strong = "strong" |> selectorDataFromString |> createSelector
+strong : Combinators.Selector
+strong = "strong" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-sub : Selector
-sub = "sub" |> selectorDataFromString |> createSelector
+sub : Combinators.Selector
+sub = "sub" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-summary : Selector
-summary = "summary" |> selectorDataFromString |> createSelector
+summary : Combinators.Selector
+summary = "summary" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-sup : Selector
-sup = "sup" |> selectorDataFromString |> createSelector
+sup : Combinators.Selector
+sup = "sup" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-svg : Selector
-svg = "svg" |> selectorDataFromString |> createSelector
+svg : Combinators.Selector
+svg = "svg" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-table : Selector
-table = "table" |> selectorDataFromString |> createSelector
+table : Combinators.Selector
+table = "table" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-tbody : Selector
-tbody = "tbody" |> selectorDataFromString |> createSelector
+tbody : Combinators.Selector
+tbody = "tbody" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-td : Selector
-td = "td" |> selectorDataFromString |> createSelector
+td : Combinators.Selector
+td = "td" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-template : Selector
-template = "template" |> selectorDataFromString |> createSelector
+template : Combinators.Selector
+template = "template" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-textarea : Selector
-textarea = "textarea" |> selectorDataFromString |> createSelector
+textarea : Combinators.Selector
+textarea = "textarea" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-tfoot : Selector
-tfoot = "tfoot" |> selectorDataFromString |> createSelector
+tfoot : Combinators.Selector
+tfoot = "tfoot" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-th : Selector
-th = "th" |> selectorDataFromString |> createSelector
+th : Combinators.Selector
+th = "th" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-thead : Selector
-thead = "thead" |> selectorDataFromString |> createSelector
+thead : Combinators.Selector
+thead = "thead" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-time : Selector
-time = "time" |> selectorDataFromString |> createSelector
+time : Combinators.Selector
+time = "time" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-tr : Selector
-tr = "tr" |> selectorDataFromString |> createSelector
+tr : Combinators.Selector
+tr = "tr" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-track : Selector
-track = "track" |> selectorDataFromString |> createSelector
+track : Combinators.Selector
+track = "track" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-u : Selector
-u = "u" |> selectorDataFromString |> createSelector
+u : Combinators.Selector
+u = "u" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-ul : Selector
-ul = "ul" |> selectorDataFromString |> createSelector
+ul : Combinators.Selector
+ul = "ul" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-var : Selector
-var = "var" |> selectorDataFromString |> createSelector
+var : Combinators.Selector
+var = "var" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-video : Selector
-video = "video" |> selectorDataFromString |> createSelector
+video : Combinators.Selector
+video = "video" |> Selector.selectorDataFromString |> Combinators.createSelector
 
-wbr : Selector
-wbr = "wbr" |> selectorDataFromString |> createSelector
+wbr : Combinators.Selector
+wbr = "wbr" |> Selector.selectorDataFromString |> Combinators.createSelector

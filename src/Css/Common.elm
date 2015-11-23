@@ -25,12 +25,9 @@ module Css.Common (
   ) where
 
 import Css.Internal.Browser as Browser
-import Css.Internal.Property exposing 
-  ( Value, Prefixed
-  , toPrefixed, appendToPrefixedRoot, prefixedValue, stringValue
-  )
-import Css.Internal.Stylesheet exposing (CssAppender)
-import Css.Internal.Common exposing (..)
+import Css.Internal.Common as Common
+import Css.Internal.Property as Property
+import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
@@ -38,16 +35,16 @@ import Css.Internal.Common exposing (..)
 different browsers. -}
 type alias BrowserPrefix = Browser.BrowserPrefix
 
-browsers : Prefixed
+browsers : Property.Prefixed
 browsers = toPrefixes [ webkit_, moz_, ms_, o_, emptyPrefix ]
 
 toPrefix : String -> BrowserPrefix
 toPrefix = Browser.toPrefix
 
-toPrefixes : List BrowserPrefix -> Prefixed
+toPrefixes : List BrowserPrefix -> Property.Prefixed
 toPrefixes browserPrefixes =
   let toPair prefix = (prefix, "")
-  in browserPrefixes |> List.map toPair |> toPrefixed
+  in browserPrefixes |> List.map toPair |> Property.toPrefixed
     
 webkit_ : BrowserPrefix
 webkit_ = Browser.toPrefix "-webkit-"
@@ -75,15 +72,18 @@ call fn arg = fn ++ "(" ++ arg ++ ")"
 
 {- Shorthands for properties that can be applied separately to multiple sides of a box. -}
 
-sym : (a -> a -> a -> a -> (CssAppender b)) -> a -> (CssAppender b)
+sym : (a -> a -> a -> a -> (Stylesheet.CssAppender b)) -> 
+      a -> (Stylesheet.CssAppender b)
 sym fourSidedFunction value = 
   fourSidedFunction value value value value
 
-sym3 : (a -> a -> a -> a -> (CssAppender b)) -> a -> a -> a -> (CssAppender b)
+sym3 : (a -> a -> a -> a -> (Stylesheet.CssAppender b)) -> 
+       a -> a -> a -> (Stylesheet.CssAppender b)
 sym3 fourSidedFunction topBottom left right = 
   fourSidedFunction topBottom left topBottom right
 
-sym2 : (a -> a -> a -> a -> (CssAppender b)) -> a -> a -> (CssAppender b)
+sym2 : (a -> a -> a -> a -> (Stylesheet.CssAppender b)) -> 
+        a -> a -> (Stylesheet.CssAppender b)
 sym2 fourSidedFunction topBottom leftRight = 
   fourSidedFunction topBottom leftRight topBottom leftRight
 
@@ -93,37 +93,37 @@ sym2 fourSidedFunction topBottom leftRight =
  `auto`, `inherit`, `none`, `normal` and several more. These are generic and can be passed to
   property descriptors that take many different type; e.g., borderStyle, borderWidth, etc.
 -}
-all : All a rec -> a
+all : Common.All a rec -> a
 all = \factory -> factory.all_
 
-auto : Auto a rec -> a
+auto : Common.Auto a rec -> a
 auto = \factory -> factory.auto_
 
-baseline : Baseline a rec -> a
+baseline : Common.Baseline a rec -> a
 baseline = \factory -> factory.baseline_
 
-center : Center a rec -> a
+center : Common.Center a rec -> a
 center = \factory -> factory.center_
 
-inherit : Inherit a rec -> a
+inherit : Common.Inherit a rec -> a
 inherit = \factory -> factory.inherit_
 
-normal : Normal a rec -> a
+normal : Common.Normal a rec -> a
 normal = \factory -> factory.normal_
 
-none : None a rec -> a
+none : Common.None a rec -> a
 none = \factory -> factory.none_
 
-visible : Visible a rec -> a
+visible : Common.Visible a rec -> a
 visible = \factory -> factory.visible_
 
-hidden : Hidden a rec -> a
+hidden : Common.Hidden a rec -> a
 hidden = \factory -> factory.hidden_
 
-initial : Initial a rec -> a
+initial : Common.Initial a rec -> a
 initial = \factory -> factory.initial_
 
-unset : Unset a rec -> a
+unset : Common.Unset a rec -> a
 unset = \factory -> factory.unset_
 
 {- The generic `other` and `otherPrefixed` value descriptors are used to escape 
@@ -132,11 +132,12 @@ These functions allow you to extract a specific value type out of any string
 (or list of prefixes with a string) and use it as the value for any property 
 that accepts `Other.`
 -}
-other : String -> Other a rec -> a
-other str = \factory -> str |> stringValue |> factory.other_ 
+other : String -> Common.Other a rec -> a
+other str = \factory -> str |> Property.stringValue |> factory.other_ 
 
-otherPrefixed : List BrowserPrefix -> String -> Other a rec -> a
+otherPrefixed : List BrowserPrefix -> String -> Common.Other a rec -> a
 otherPrefixed browserPrefixes val = 
   \factory ->
-    let prefixed = toPrefixes browserPrefixes 
-    in appendToPrefixedRoot prefixed val |> prefixedValue |> factory.other_ 
+    Property.appendToPrefixedRoot (toPrefixes browserPrefixes) val 
+    |> Property.prefixedValue 
+    |> factory.other_

@@ -1,6 +1,6 @@
 module Css.Internal.Property
   ( Prefixed, Key, Value, Literal
-  , toLiteral, toPrefixed, unPrefixed, quote
+  , toLiteral, toPrefixed, unPrefixed
   , stringKey, prefixedKey, appendToPrefixedRoot, prependToPrefixedRoot
   , emptyValue, appendValues, concatenateValues, appendUnits, intersperse
   , stringValue, prefixedValue, literalValue, intValue, floatValue
@@ -10,11 +10,10 @@ module Css.Internal.Property
   , managePrefixes
   ) where
   
-import Dict
-import Regex exposing (regex, replace)
+import Dict as Dict
 
-import Css.Internal.Browser exposing (BrowserPrefix, stringPrefix)
-import Css.Internal.Utils exposing (toFixed)
+import Css.Internal.Browser as Browser
+import Css.Internal.Utils as Utils
 
 -------------------------------------------------------------------------------
 
@@ -26,27 +25,20 @@ toLiteral str = Literal str
 -------------------------------------------------------------------------------
 {- `Prefixed` is for properties with browser prefixes.
 -}
-type Prefixed = Prefixed (List (BrowserPrefix, String))
+type Prefixed = Prefixed (List (Browser.BrowserPrefix, String))
 
-toPrefixed : List (BrowserPrefix, String) -> Prefixed
+toPrefixed : List (Browser.BrowserPrefix, String) -> Prefixed
 toPrefixed items = Prefixed items
 
 {- Unwrap a Prefixed. -}
 unPrefixed : Prefixed -> List (String, String)
 unPrefixed (Prefixed items) = 
-  let toStringPair (prefix, root) = (stringPrefix prefix, root)
+  let toStringPair (prefix, root) = (Browser.stringPrefix prefix, root)
   in List.map toStringPair items
 
 type Element
      = SimpleElement String
      | PrefixedElement Prefixed
-
--- TODO Move to utils
-{- Escape quotes in a string. -}
-quote : String -> String
-quote str =
-   let escaped = str |> replace Regex.All (regex "\"") (\_ -> "\\\"")
-   in "\"" ++ escaped ++ "\""
 
 {- Combine a string with a Prefixed containing browser prefixes. -}
 appendToPrefixedRoot : Prefixed -> String -> Prefixed
@@ -61,12 +53,14 @@ mergePrefixed : Prefixed -> Prefixed -> Prefixed
 mergePrefixed (Prefixed xs) (Prefixed ys) =
   let kxs = List.map fst xs
       kys = List.map fst ys
+      -- need to make BrowserPrefix into a Comparable (string) for sorting.
+      byPrefixThenProperty = \(pfx, prop) -> (Browser.stringPrefix pfx, prop)
       xsWithKeysInKys = xs |> List.partition (fst >> (\x -> List.member x kys)) 
                            |> fst
-                           |> List.sortBy (\(pfx, prop) -> (stringPrefix pfx, prop))
+                           |> List.sortBy byPrefixThenProperty
       ysWithKeysInKxs = ys |> List.partition (fst >> (\y -> List.member y kxs)) 
                            |> fst
-                           |> List.sortBy (\(pfx, prop) -> (stringPrefix pfx, prop))  
+                           |> List.sortBy byPrefixThenProperty
   in List.map2 (\(p, a) (_, b) -> 
       (p, a ++ b)) xsWithKeysInKys ysWithKeysInKxs |> Prefixed
   
@@ -139,7 +133,7 @@ prefixedValue : Prefixed -> Value
 prefixedValue prefixed = PrefixedElement prefixed |> Value
 
 literalValue : Literal -> Value 
-literalValue (Literal x) = quote x |> SimpleElement |> Value 
+literalValue (Literal x) = Utils.quote x |> SimpleElement |> Value 
 
 
 intValue : Int -> Value 
@@ -147,7 +141,7 @@ intValue num = toString num |> SimpleElement |> Value
 
 
 floatValue : Float -> Value 
-floatValue num = toFixed 5 num |> toString |> SimpleElement |> Value 
+floatValue num = Utils.toFixed 5 num |> toString |> SimpleElement |> Value 
 
 
 maybeValue : (a -> Value) -> Maybe a -> Value

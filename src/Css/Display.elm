@@ -54,359 +54,362 @@ module Css.Display (
   -- * Cursor
 
   , aliasCursor, allScroll, cell, contextMenu, colResize, copy, crosshair
-  , defaultCursor, eResize, ewResize, grab, grabbing, help, move, nResize, neResize
-  , neswResize, nsResize, nwResize, nwseResize, noDrop, notAllowed, pointer, progress
-  , rowResize, sResize, seResize, swResize, textCursor, cursorUrl, vTextCursor
-  , wResize, wait, zoomIn, zoomOut
+  , defaultCursor, eResize, ewResize, grab, grabbing, help, move, nResize
+  , neResize, neswResize, nsResize, nwResize, nwseResize, noDrop, notAllowed
+  , pointer, progress, rowResize, sResize, seResize, swResize, textCursor
+  , cursorUrl, vTextCursor, wResize, wait, zoomIn, zoomOut
   ) where
 
-import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
-import Css.Internal.Display exposing (..) 
+import Css.Internal.Display as Display
+import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
-float : FloatStyleDescriptor -> PropertyRuleAppender
+float : Display.FloatStyleDescriptor -> Stylesheet.PropertyRuleAppender
 float descriptor =
-  let floatStyle = descriptor floatStyleFactory
-  in simpleProperty "float" floatStyle
+  let floatStyle = descriptor Display.floatStyleFactory
+  in Stylesheet.simpleProperty "float" floatStyle
 
-floatLeft : FloatStyleDescriptor
+floatLeft : Display.FloatStyleDescriptor
 floatLeft factory = factory.floatStyle "left"
 
-floatRight : FloatStyleDescriptor
+floatRight : Display.FloatStyleDescriptor
 floatRight factory = factory.floatStyle "right"
 
 -------------------------------------------------------------------------------
 
-clear : ClearDescriptor -> PropertyRuleAppender
+clear : Display.ClearDescriptor -> Stylesheet.PropertyRuleAppender
 clear descriptor =
-  let clearValue = descriptor clearFactory
-  in simpleProperty "clear" clearValue
+  let clearValue = descriptor Display.clearFactory
+  in Stylesheet.simpleProperty "clear" clearValue
 
-both : ClearDescriptor
+both : Display.ClearDescriptor
 both factory = factory.clear "both"
 
-clearLeft : ClearDescriptor
+clearLeft : Display.ClearDescriptor
 clearLeft factory = factory.clear "left"
 
-clearRight : ClearDescriptor
+clearRight : Display.ClearDescriptor
 clearRight factory = factory.clear "right"
 
 -------------------------------------------------------------------------------
 
-position : PositionDescriptor -> PropertyRuleAppender
+position : Display.PositionDescriptor -> Stylesheet.PropertyRuleAppender
 position descriptor =
-  let positionValue = descriptor positionFactory
-  in simpleProperty "position" positionValue
+  let positionValue = descriptor Display.positionFactory
+  in Stylesheet.simpleProperty "position" positionValue
 
-static : PositionDescriptor
+static : Display.PositionDescriptor
 static factory = factory.position "static"
 
-absolute : PositionDescriptor
+absolute : Display.PositionDescriptor
 absolute factory = factory.position "absolute"
 
-fixed : PositionDescriptor
+fixed : Display.PositionDescriptor
 fixed factory = factory.position "fixed"
 
-relative : PositionDescriptor
+relative : Display.PositionDescriptor
 relative factory = factory.position "relative"
 
 -------------------------------------------------------------------------------
 
-display : DisplayDescriptor -> PropertyRuleAppender
+display : Display.DisplayDescriptor -> Stylesheet.PropertyRuleAppender
 display descriptor =
-  let displayValue = descriptor displayFactory
-  in simpleProperty "display" displayValue
+  let displayValue = descriptor Display.displayFactory
+  in Stylesheet.simpleProperty "display" displayValue
 
-inline : DisplayDescriptor
+inline : Display.DisplayDescriptor
 inline factory = factory.display "inline"
 
-block : DisplayDescriptor
+block : Display.DisplayDescriptor
 block factory = factory.display "block"
 
-listItem : DisplayDescriptor
+listItem : Display.DisplayDescriptor
 listItem factory = factory.display "list-item"
 
-runIn : DisplayDescriptor
+runIn : Display.DisplayDescriptor
 runIn factory = factory.display "runIn"
 
-inlineBlock : DisplayDescriptor
+inlineBlock : Display.DisplayDescriptor
 inlineBlock factory = factory.display "inline-block"
 
-table : DisplayDescriptor
+table : Display.DisplayDescriptor
 table factory = factory.display "table"
 
-inlineTable : DisplayDescriptor
+inlineTable : Display.DisplayDescriptor
 inlineTable factory = factory.display "inline-table"
 
-tableRowGroup : DisplayDescriptor
+tableRowGroup : Display.DisplayDescriptor
 tableRowGroup factory = factory.display "table-row-Group"
 
-tableHeaderGroup : DisplayDescriptor
+tableHeaderGroup : Display.DisplayDescriptor
 tableHeaderGroup factory = factory.display "table-header-group"
 
-tableFooterGroup : DisplayDescriptor
+tableFooterGroup : Display.DisplayDescriptor
 tableFooterGroup factory = factory.display "table-footer-group"
 
-tableRow : DisplayDescriptor
+tableRow : Display.DisplayDescriptor
 tableRow factory = factory.display "table-row"
 
-tableColumnGroup : DisplayDescriptor
+tableColumnGroup : Display.DisplayDescriptor
 tableColumnGroup factory = factory.display "table-column-group"
 
-tableColumn : DisplayDescriptor
+tableColumn : Display.DisplayDescriptor
 tableColumn factory = factory.display "table-column"
 
-tableCell : DisplayDescriptor
+tableCell : Display.DisplayDescriptor
 tableCell factory = factory.display "table-cell"
 
-tableCaption : DisplayDescriptor
+tableCaption : Display.DisplayDescriptor
 tableCaption factory = factory.display "table-caption"
 
-displayNone : DisplayDescriptor
+displayNone : Display.DisplayDescriptor
 displayNone factory = factory.display "none"
 
-displayInherit : DisplayDescriptor
+displayInherit : Display.DisplayDescriptor
 displayInherit factory = factory.display "inherit"
 
-flex : DisplayDescriptor
+flex : Display.DisplayDescriptor
 flex factory = factory.display "flex"
 
-inlineFlex : DisplayDescriptor
+inlineFlex : Display.DisplayDescriptor
 inlineFlex factory = factory.display "inline-flex"
 
-grid : DisplayDescriptor
+grid : Display.DisplayDescriptor
 grid factory = factory.display "grid"
 
-inlineGrid : DisplayDescriptor
+inlineGrid : Display.DisplayDescriptor
 inlineGrid factory = factory.display "inline-grid"
 
 -------------------------------------------------------------------------------
 
-overflow : OverflowDescriptor -> PropertyRuleAppender
+overflow : Display.OverflowDescriptor -> Stylesheet.PropertyRuleAppender
 overflow descriptor =
-  let overflowValue = descriptor overflowFactory
-  in simpleProperty "overflow" overflowValue
+  let overflowValue = descriptor Display.overflowFactory
+  in Stylesheet.simpleProperty "overflow" overflowValue
 
-overflowX : OverflowDescriptor -> PropertyRuleAppender
+overflowX : Display.OverflowDescriptor -> Stylesheet.PropertyRuleAppender
 overflowX descriptor =
-  let overflowValue = descriptor overflowFactory
-  in simpleProperty "overflow-x" overflowValue
+  let overflowValue = descriptor Display.overflowFactory
+  in Stylesheet.simpleProperty "overflow-x" overflowValue
 
-overflowY : OverflowDescriptor -> PropertyRuleAppender
+overflowY : Display.OverflowDescriptor -> Stylesheet.PropertyRuleAppender
 overflowY descriptor =
-  let overflowValue = descriptor overflowFactory
-  in simpleProperty "overflow-y" overflowValue
+  let overflowValue = descriptor Display.overflowFactory
+  in Stylesheet.simpleProperty "overflow-y" overflowValue
 
-scroll : OverflowDescriptor
+scroll : Display.OverflowDescriptor
 scroll factory = factory.overflow "scroll"
 
 -------------------------------------------------------------------------------
 
-visibility : ExtendedVisibilityDescriptor {} -> PropertyRuleAppender
+visibility : Display.ExtendedVisibilityDescriptor {} -> 
+             Stylesheet.PropertyRuleAppender
 visibility descriptor =
-  let visibilityValue = descriptor extendedVisibilityFactory
-  in simpleProperty "visibility" visibilityValue
+  let visibilityValue = descriptor Display.extendedVisibilityFactory
+  in Stylesheet.simpleProperty "visibility" visibilityValue
 
-separate : VisibilityDescriptor rec
+separate : Display.VisibilityDescriptor rec
 separate = \factory -> factory.visibility "separate"
 
-collapse : VisibilityDescriptor rec
+collapse : Display.VisibilityDescriptor rec
 collapse = \factory -> factory.visibility "collapse"
 
 -------------------------------------------------------------------------------
 --TODO Remove; use clip-path instead
-clip : ClipDescriptor a b c d -> PropertyRuleAppender
+clip : Display.ClipDescriptor a b c d -> Stylesheet.PropertyRuleAppender
 clip descriptor =
-  let clipValue = descriptor clipFactory
-  in simpleProperty "clip" clipValue
+  let clipValue = descriptor Display.clipFactory
+  in Stylesheet.simpleProperty "clip" clipValue
 
 -------------------------------------------------------------------------------
 
-opacity : OpacityDescriptor -> PropertyRuleAppender
+opacity : Display.OpacityDescriptor -> Stylesheet.PropertyRuleAppender
 opacity descriptor =
-  let opacityValue = descriptor opacityFactory
-  in simpleProperty "opacity" opacityValue
+  let opacityValue = descriptor Display.opacityFactory
+  in Stylesheet.simpleProperty "opacity" opacityValue
 
-pctOpacity : Float -> OpacityDescriptor
+pctOpacity : Float -> Display.OpacityDescriptor
 pctOpacity level factory = factory.opacity level
 
 -------------------------------------------------------------------------------
 
-zIndex : ZIndexDescriptor -> PropertyRuleAppender
+zIndex : Display.ZIndexDescriptor -> Stylesheet.PropertyRuleAppender
 zIndex descriptor =
-  let zIndexValue = descriptor zIndexFactory
-  in simpleProperty "z-index" zIndexValue
+  let zIndexValue = descriptor Display.zIndexFactory
+  in Stylesheet.simpleProperty "z-index" zIndexValue
 
-zLevel : Int -> ZIndexDescriptor
+zLevel : Int -> Display.ZIndexDescriptor
 zLevel num factory = factory.zIndex num
 
 -------------------------------------------------------------------------------
 
-pointerEvents : PointerEventsDescriptor -> PropertyRuleAppender
+pointerEvents : Display.PointerEventsDescriptor -> 
+                Stylesheet.PropertyRuleAppender
 pointerEvents descriptor =
-  let pointerEventsValue = descriptor pointerEventsFactory
-  in simpleProperty "pointer-events" pointerEventsValue
+  let pointerEventsValue = descriptor Display.pointerEventsFactory
+  in Stylesheet.simpleProperty "pointer-events" pointerEventsValue
 
-visiblePainted : PointerEventsDescriptor
+visiblePainted : Display.PointerEventsDescriptor
 visiblePainted factory = factory.pointerEvents "visiblePainted"
 
-visibleFill : PointerEventsDescriptor
+visibleFill : Display.PointerEventsDescriptor
 visibleFill factory = factory.pointerEvents "visibleFill"
 
-visibleStroke : PointerEventsDescriptor
+visibleStroke : Display.PointerEventsDescriptor
 visibleStroke factory = factory.pointerEvents "visibleStroke"
 
-painted : PointerEventsDescriptor
+painted : Display.PointerEventsDescriptor
 painted factory = factory.pointerEvents "painted"
 
-fillEvents : PointerEventsDescriptor
+fillEvents : Display.PointerEventsDescriptor
 fillEvents factory = factory.pointerEvents "fill"
 
-strokeEvents : PointerEventsDescriptor
+strokeEvents : Display.PointerEventsDescriptor
 strokeEvents factory = factory.pointerEvents "stroke"
 
-allEvents : PointerEventsDescriptor
+allEvents : Display.PointerEventsDescriptor
 allEvents factory = factory.pointerEvents "all"
 
 -------------------------------------------------------------------------------
 
-verticalAlign : VerticalAlignDescriptor {} -> PropertyRuleAppender
+verticalAlign : Display.VerticalAlignDescriptor {} -> 
+                Stylesheet.PropertyRuleAppender
 verticalAlign descriptor =
-  let verticalAlignValue = descriptor verticalAlignFactory
-  in simpleProperty "vertical-align" verticalAlignValue
+  let verticalAlignValue = descriptor Display.verticalAlignFactory
+  in Stylesheet.simpleProperty "vertical-align" verticalAlignValue
 
-middle : VerticalAlignDescriptor sz
+middle : Display.VerticalAlignDescriptor sz
 middle factory = factory.vAlign "middle"
 
-vAlignSub : VerticalAlignDescriptor sz
+vAlignSub : Display.VerticalAlignDescriptor sz
 vAlignSub factory = factory.vAlign  "sub"
 
-vAlignSuper : VerticalAlignDescriptor sz
+vAlignSuper : Display.VerticalAlignDescriptor sz
 vAlignSuper factory = factory.vAlign  "super"
 
-textTop : VerticalAlignDescriptor sz
+textTop : Display.VerticalAlignDescriptor sz
 textTop factory = factory.vAlign  "text-top"
 
-textBottom : VerticalAlignDescriptor sz
+textBottom : Display.VerticalAlignDescriptor sz
 textBottom factory = factory.vAlign  "text-bottom"
 
-vAlignTop : VerticalAlignDescriptor sz
+vAlignTop : Display.VerticalAlignDescriptor sz
 vAlignTop factory = factory.vAlign  "top"
 
-vAlignBottom : VerticalAlignDescriptor sz
+vAlignBottom : Display.VerticalAlignDescriptor sz
 vAlignBottom factory = factory.vAlign  "bottom"
 
 -------------------------------------------------------------------------------
 
-cursor : CursorDescriptor -> PropertyRuleAppender
+cursor : Display.CursorDescriptor -> Stylesheet.PropertyRuleAppender
 cursor descriptor =
-  let cursorValue = descriptor cursorFactory
-  in simpleProperty "cursor" cursorValue
+  let cursorValue = descriptor Display.cursorFactory
+  in Stylesheet.simpleProperty "cursor" cursorValue
 
-aliasCursor : CursorDescriptor
+aliasCursor : Display.CursorDescriptor
 aliasCursor factory = factory.cursor "alias"
 
-allScroll : CursorDescriptor
+allScroll : Display.CursorDescriptor
 allScroll factory = factory.cursor "all-scroll"
 
-cell : CursorDescriptor
+cell : Display.CursorDescriptor
 cell factory = factory.cursor "cell"
 
-contextMenu : CursorDescriptor
+contextMenu : Display.CursorDescriptor
 contextMenu factory = factory.cursor "context-menu"
 
-colResize : CursorDescriptor
+colResize : Display.CursorDescriptor
 colResize factory = factory.cursor "col-resize"
 
-copy : CursorDescriptor
+copy : Display.CursorDescriptor
 copy factory = factory.cursor "copy"
 
-crosshair : CursorDescriptor
+crosshair : Display.CursorDescriptor
 crosshair factory = factory.cursor "crosshair"
 
-defaultCursor : CursorDescriptor
+defaultCursor : Display.CursorDescriptor
 defaultCursor factory = factory.cursor "default"
 
-eResize : CursorDescriptor
+eResize : Display.CursorDescriptor
 eResize factory = factory.cursor "e-resize"
 
-ewResize : CursorDescriptor
+ewResize : Display.CursorDescriptor
 ewResize factory = factory.cursor "ew-resize"
 
-grab : CursorDescriptor
+grab : Display.CursorDescriptor
 grab factory = factory.cursor "grab"
 
-grabbing : CursorDescriptor
+grabbing : Display.CursorDescriptor
 grabbing factory = factory.cursor "grabbing"
 
-help : CursorDescriptor
+help : Display.CursorDescriptor
 help factory = factory.cursor "help"
 
-move : CursorDescriptor
+move : Display.CursorDescriptor
 move factory = factory.cursor "move"
 
-nResize : CursorDescriptor
+nResize : Display.CursorDescriptor
 nResize factory = factory.cursor "n-resize"
 
-neResize : CursorDescriptor
+neResize : Display.CursorDescriptor
 neResize factory = factory.cursor "ne-resize"
 
-neswResize : CursorDescriptor
+neswResize : Display.CursorDescriptor
 neswResize factory = factory.cursor "nesw-resize"
 
-nsResize : CursorDescriptor
+nsResize : Display.CursorDescriptor
 nsResize factory = factory.cursor "ns-resize"
 
-nwResize : CursorDescriptor
+nwResize : Display.CursorDescriptor
 nwResize factory = factory.cursor "nw-resize"
 
-nwseResize : CursorDescriptor
+nwseResize : Display.CursorDescriptor
 nwseResize factory = factory.cursor "nwse-resize"
 
-noDrop : CursorDescriptor
+noDrop : Display.CursorDescriptor
 noDrop factory = factory.cursor "no-drop"
 
-notAllowed : CursorDescriptor
+notAllowed : Display.CursorDescriptor
 notAllowed factory = factory.cursor "not-allowed"
 
-pointer : CursorDescriptor
+pointer : Display.CursorDescriptor
 pointer factory = factory.cursor "pointer"
 
-progress : CursorDescriptor
+progress : Display.CursorDescriptor
 progress factory = factory.cursor "progress"
 
-rowResize : CursorDescriptor
+rowResize : Display.CursorDescriptor
 rowResize factory = factory.cursor "row-resize"
 
-sResize : CursorDescriptor
+sResize : Display.CursorDescriptor
 sResize factory = factory.cursor "sResize"
 
-seResize : CursorDescriptor
+seResize : Display.CursorDescriptor
 seResize factory = factory.cursor "se-resize"
 
-swResize : CursorDescriptor
+swResize : Display.CursorDescriptor
 swResize factory = factory.cursor "sw-resize"
 
-textCursor : CursorDescriptor
+textCursor : Display.CursorDescriptor
 textCursor factory = factory.cursor "text"
 
-cursorUrl : String -> CursorDescriptor
+cursorUrl : String -> Display.CursorDescriptor
 cursorUrl url factory =
   let urlexpr =  "url(\"" ++ url  ++ "\")"
   in factory.cursor urlexpr
 
-vTextCursor : CursorDescriptor
+vTextCursor : Display.CursorDescriptor
 vTextCursor factory = factory.cursor "vertical-text"
 
-wResize : CursorDescriptor
+wResize : Display.CursorDescriptor
 wResize factory = factory.cursor "sResize"
 
-wait : CursorDescriptor
+wait : Display.CursorDescriptor
 wait factory = factory.cursor "wait"
 
-zoomIn : CursorDescriptor
+zoomIn : Display.CursorDescriptor
 zoomIn factory = factory.cursor "zoom-in"
 
-zoomOut : CursorDescriptor
+zoomOut : Display.CursorDescriptor
 zoomOut factory = factory.cursor "zoom-out"

@@ -1,10 +1,18 @@
 module Css.Internal.Utils where
 
-import Char
-import String
+import Char as Char
+import String as String
+import Regex as Regex
 
 -------------------------------------------------------------------------------
 -- TODO These need to go into a library of their own
+
+{- Escape quotes in a string. -}
+quote : String -> String
+quote str =
+   let pattern = Regex.regex "\""
+       escaped = str |> Regex.replace Regex.All pattern (\_ -> "\\\"")
+   in "\"" ++ escaped ++ "\""
 
 compose : List (a -> a) -> a -> a
 compose = List.foldl (>>) identity

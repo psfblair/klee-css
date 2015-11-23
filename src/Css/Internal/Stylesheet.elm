@@ -9,13 +9,9 @@ module Css.Internal.Stylesheet
   , Keyframes (..), keyframes, keyframesFromTo, fontFace, importUrl
   ) where
 
-import Css.Internal.Property exposing
-  ( Key, Value, Prefixed
-  , stringKey, stringValue
-  , toPrefixed, prefixedKey, prefixedValue
-  )
-import Css.Internal.Selector exposing (SelectorData, Refinement)
-import Css.Internal.Utils exposing (compose)
+import Css.Internal.Property as Property
+import Css.Internal.Selector as Selector
+import Css.Internal.Utils as Utils
 
 -------------------------------------------------------------------------------
 
@@ -39,7 +35,7 @@ type alias PropertyRuleAppender = CssAppender (WithPropertyRule {})
 type alias WithPropertyRule a = { a | propertyRule: RuleData }
 
 type alias SelectorRuleAppender = CssAppender (WithSelector (WithPropertyRule {}))
-type alias WithSelector a = { a | selector : SelectorData }
+type alias WithSelector a = { a | selector : Selector.SelectorData }
 
 type alias MediaQueryRuleAppender =  CssAppender (WithMediaQueryRule {})
 type alias WithMediaQueryRule a = { a | mediaQueryRule: RuleData }
@@ -54,8 +50,8 @@ type alias ImportRuleAppender = CssAppender (WithImportRule {})
 type alias WithImportRule a = { a | importRule: RuleData }
 
 type RuleData
-  = Property Key Value
-  | Nested   SelectorData (List RuleData)
+  = Property Property.Key Property.Value
+  | Nested   Selector.SelectorData (List RuleData)
   | Query    MediaQuery (List RuleData)
   | Face     (List RuleData)
   | Keyframe Keyframes
@@ -63,11 +59,12 @@ type RuleData
 
 addRule : RuleData -> Css -> Css
 addRule ruleDataToAdd rules = 
-  -- We prepend because the compose function called in extractRules reverses the list.
+  -- We prepend because `compose` (called in extractRules) reverses the list.
   ruleDataToAdd :: rules 
 
-{-| Types for the @media rule: @media not|only mediatype and (media feature) { rules }
-    The MediaQuery type does not contain the media rules themselves.
+{-| Types for the @media rule: 
+      @media not|only mediatype and (media feature) { rules }
+The MediaQuery type does not contain the media rules themselves.
 -}
 type MediaQuery = MediaQuery (Maybe NotOrOnly) MediaType (List Feature)
 type MediaType = MediaType String
@@ -84,26 +81,27 @@ type Keyframes = Keyframes String (List (Float, (List RuleData)))
 {- Add a new style property to the stylesheet with the string as key and and 
 the given value.
 -}
-simpleProperty : String -> Value -> PropertyRuleAppender
-simpleProperty keyName val = addProperty (stringKey keyName) val
+simpleProperty : String -> Property.Value -> PropertyRuleAppender
+simpleProperty keyName val = addProperty (Property.stringKey keyName) val
   
 {- Add a new style property to the stylesheet with the specified `Key` and value
-the same way `simpleProperty` does, but uses a `Prefixed` key. In general this
+the same way `simpleProperty` does, but uses a `Property.Prefixed` key. In general this
 will mean the `browsers` key from `Css.Common`. You can also make a custom
 browser list and custom browser-specific values using the functions in 
 `Css.Common`.
 -}
-prefixed : Prefixed -> Value -> PropertyRuleAppender
-prefixed keyWithPrefix val = addProperty (prefixedKey keyWithPrefix) val
+prefixed : Property.Prefixed -> Property.Value -> PropertyRuleAppender
+prefixed keyWithPrefix val = addProperty (Property.prefixedKey keyWithPrefix) val
 
 {-| The `custom` function can be used to create property-value style rules for
 which there is no typed version available. Both the key and the value
 are plain text values and rendered as is to the output CSS.
 -}
 custom : String -> String -> PropertyRuleAppender
-custom keyName val = addProperty (stringKey keyName) (stringValue val)
+custom keyName val = 
+  addProperty (Property.stringKey keyName) (Property.stringValue val)
 
-addProperty : Key -> Value -> PropertyRuleAppender
+addProperty : Property.Key -> Property.Value -> PropertyRuleAppender
 addProperty key val =
   let ruleData = Property key val
   in { addCss = addRule ruleData
@@ -212,4 +210,4 @@ createMediaQueryRuleAppender mediaType mediaFeatures maybeNotOrOnly mediaRules =
 extractRuleData : List (CssAppender a) -> List RuleData
 extractRuleData cssAppenders =
   let wrappedFunctions = cssAppenders |> List.map (\appender -> appender.addCss)
-  in compose wrappedFunctions <| emptyCss
+  in Utils.compose wrappedFunctions <| emptyCss

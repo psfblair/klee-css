@@ -3,11 +3,10 @@ module Css.FontFace
   , fontFaceSrc, localFontFaceSrc, urlFontFaceSrc
   ) where
 
-import Css.Internal.Property exposing
-  (Value, quote, stringValue, listValue)
-import Css.Internal.Stylesheet exposing (PropertyRuleAppender, simpleProperty)
-
-import Css.Common exposing (call)
+import Css.Common as Common
+import Css.Internal.Property as Property
+import Css.Internal.Stylesheet as Stylesheet
+import Css.Internal.Utils as Utils
 
 -------------------------------------------------------------------------------
 {- Example:
@@ -23,9 +22,10 @@ import Css.Common exposing (call)
 -}
 type FontFaceFormat = WOFF | TrueType | OpenType | EmbeddedOpenType | SVG
 
-fontFaceSrc : List FontFaceSrc -> PropertyRuleAppender
+fontFaceSrc : List FontFaceSrc -> Stylesheet.PropertyRuleAppender
 fontFaceSrc fontFaceSrcList =
-  simpleProperty "src" (listValue ",\n      " fontFaceValue fontFaceSrcList)
+  let srcListValue = Property.listValue ",\n      " fontFaceValue fontFaceSrcList
+  in Stylesheet.simpleProperty "src" srcListValue
 
 urlFontFaceSrc : String -> Maybe FontFaceFormat -> FontFaceSrc
 urlFontFaceSrc url maybeFormat = FontFaceSrcUrl url maybeFormat
@@ -40,17 +40,17 @@ type FontFaceSrc
   = FontFaceSrcLocal String
   | FontFaceSrcUrl String (Maybe FontFaceFormat)
 
-fontFaceValue : FontFaceSrc -> Value 
+fontFaceValue : FontFaceSrc -> Property.Value 
 fontFaceValue fontFaceSrc =
   let srcString = case fontFaceSrc of
-    FontFaceSrcLocal name -> call "local" (quote name)
+    FontFaceSrcLocal name -> Common.call "local" (Utils.quote name)
     FontFaceSrcUrl url maybeFormat ->
-      let toFormatString format = formatName format |> quote |> call "format"
+      let toFormatString format = formatName format |> Utils.quote |> Common.call "format"
           formatString =
             maybeFormat |> Maybe.map toFormatString |> Maybe.withDefault ""
-          urlString = call "url" (quote url)
+          urlString = Common.call "url" (Utils.quote url)
       in urlString ++ " " ++ formatString
-  in stringValue srcString
+  in Property.stringValue srcString
 
 -- | name of format according to CSS specification
 formatName : FontFaceFormat -> String

@@ -3,7 +3,7 @@ module Css.Internal.Selector (
   , selectorDataFromString, emptySelectorData, star, sortPredicate, filterFromString
   ) where
 
-import String exposing (uncons)
+import String as String
 
 type SelectorData = SelectorData Refinement Path
 

@@ -2,18 +2,14 @@ module Css.Internal.Render where
 
 import String
 
-import Css.Internal.Stylesheet exposing
-  ( Css, CssAppender, RuleData (..)
-  , MediaQuery (..), MediaType (..), NotOrOnly (..), Feature (..)
-  , Keyframes (..), emptyCss, extractRuleData
-  )
-import Css.Common exposing (browsers)
-import Css.Internal.Property exposing (Key, Value, unPrefixed, managePrefixes)
-import Css.Internal.Selector exposing
-  ( SelectorData (..), Refinement (..), Path (..), Predicate (..)
-  , emptySelectorData, sortPredicate
-  )
-import Css.Internal.Utils exposing (mapPairwise)
+import Css.Common as Common
+import Css.Internal.Property as Property
+-- TODO Remove calls to constructors in Selector
+import Css.Internal.Selector as Selector
+-- TODO Remove calls to constructors in Stylesheet
+import Css.Internal.Stylesheet as Stylesheet 
+import Css.Internal.Utils as Utils
+
 -------------------------------------------------------------------------------
 
 type alias Config =
@@ -52,13 +48,13 @@ compact =
   , banner         = False
   }
 
-{- Render a stylesheet with a custom configuration. The `CssAppender` argument
-is a stylesheet, represented as a function of `Css -> Css`, which `renderWith`
-will supply with an empty `Css` as an accumulator.
+{- Render a stylesheet with a custom configuration. The `Stylesheet.CssAppender` 
+argument is a stylesheet, represented as a function of `Css -> Css`, which 
+`renderWith` will supply with an empty `Css` as an accumulator.
 -}
-renderWith : Config -> List (CssAppender a) -> String
+renderWith : Config -> List (Stylesheet.CssAppender a) -> String
 renderWith cfg stylesheets
-  = extractRuleData stylesheets
+  = Stylesheet.extractRuleData stylesheets
   |> renderRules cfg []
   |> renderBanner cfg
 
@@ -75,27 +71,30 @@ renderBanner cfg =
 by a listing of Scope objects that specifies how the scope is composed of
 its various nested levels.
 -}
-renderRules : Config -> (List SelectorData) -> (List RuleData) -> String
+renderRules : Config -> 
+              List Selector.SelectorData -> 
+              List Stylesheet.RuleData -> 
+              String
 renderRules cfg selectors ruleList =
   let nested n =
         case n of
-          (Nested selectorData nestedRules) -> Just (selectorData, nestedRules)
+          (Stylesheet.Nested selectorData nestedRules) -> Just (selectorData, nestedRules)
           _  -> Nothing
       queries qs =
         case qs of
-          (Query q nestedRules) -> Just (q, nestedRules)
+          (Stylesheet.Query q nestedRules) -> Just (q, nestedRules)
           _ -> Nothing
       kframes kfs =
         case kfs of
-          (Keyframe nestedRules) -> Just nestedRules
+          (Stylesheet.Keyframe nestedRules) -> Just nestedRules
           _ -> Nothing
       faces fcs =
         case fcs of
-          (Face nestedRules) -> Just nestedRules
+          (Stylesheet.Face nestedRules) -> Just nestedRules
           _ -> Nothing
       imports imp =
         case imp of
-          (Import i    ) -> Just i
+          (Stylesheet.Import i    ) -> Just i
           _ -> Nothing
   in concat
       [ renderRule cfg selectors (ruleProperties ruleList)
@@ -113,11 +112,11 @@ renderRules cfg selectors ruleList =
             |> concat
       ]
 
-ruleProperties : List RuleData -> List (Key, Value)
+ruleProperties : List Stylesheet.RuleData -> List (Property.Key, Property.Value)
 ruleProperties ruleList =
   let property prop =
       case prop of
-        (Property k v) -> Just (k, v)
+        (Stylesheet.Property k v) -> Just (k, v)
         _  -> Nothing
   in List.filterMap property ruleList
 
@@ -125,7 +124,10 @@ ruleProperties ruleList =
 property/value rules do not include nested rules or rules for media, keyframes,
 font-face, or imports.
 -}
-renderRule : Config -> List SelectorData -> List (Key, Value) -> String
+renderRule : Config -> 
+             List Selector.SelectorData ->
+             List (Property.Key, Property.Value) -> 
+             String
 renderRule cfg selectorDatas propertyRules =
   case propertyRules of
     [] -> ""
@@ -148,37 +150,37 @@ Note that the way renderRules constructs the list of selector data, the outer
 scopes are added to the list before the inner ones. So we traverse the list
 from the left, with the innermost scopes first.
 -}
-merge : List SelectorData -> SelectorData
+merge : List Selector.SelectorData -> Selector.SelectorData
 merge selectorDatas =
   let combineSelectorData selector1Data selector2Data =
-        SelectorData (Refinement []) (Descendant selector1Data selector2Data)
-  in List.foldl combineSelectorData emptySelectorData selectorDatas
+        Selector.SelectorData (Selector.Refinement []) (Selector.Descendant selector1Data selector2Data)
+  in List.foldl combineSelectorData Selector.emptySelectorData selectorDatas
 
 {- Render a selector to a string, given a `Config` for specifying the
 newline behavior. -}
-renderSelectorWithConfig : Config -> SelectorData -> String
+renderSelectorWithConfig : Config -> Selector.SelectorData -> String
 renderSelectorWithConfig cfg =
-  let expandSelectorIntoStringList (SelectorData (Refinement preds) selectorPath) =
+  let expandSelectorIntoStringList (Selector.SelectorData (Selector.Refinement preds) selectorPath) =
         let insertSeparator separator str1 str2 = str1 ++ separator ++ str2
-            predString = List.sortWith sortPredicate preds |> List.map renderPredicate |> concat
+            predString = List.sortWith Selector.sortPredicate preds |> List.map renderPredicate |> concat
             appendPredStringToPathComponent predStr component = component ++ predStr
             pathComponents =
               case selectorPath of
-                Star           -> if List.isEmpty preds then ["*"] else [""]
-                Elem t         -> [t]
-                Css.Internal.Selector.Child sel1 sel2 ->
-                  mapPairwise (insertSeparator " > ")
+                Selector.Star -> if List.isEmpty preds then ["*"] else [""]
+                Selector.Elem t -> [t]
+                Selector.Child sel1 sel2 ->
+                  Utils.mapPairwise (insertSeparator " > ")
                               (expandSelectorIntoStringList sel1)
                               (expandSelectorIntoStringList sel2)
-                Descendant sel1 sel2 ->
-                  mapPairwise (insertSeparator " ")
+                Selector.Descendant sel1 sel2 ->
+                  Utils.mapPairwise (insertSeparator " ")
                               (expandSelectorIntoStringList sel1)
                               (expandSelectorIntoStringList sel2)
-                Adjacent sel1 sel2 ->
-                  mapPairwise (insertSeparator " + ")
+                Selector.Adjacent sel1 sel2 ->
+                  Utils.mapPairwise (insertSeparator " + ")
                               (expandSelectorIntoStringList sel1)
                               (expandSelectorIntoStringList sel2)
-                Combined sel1 sel2 ->
+                Selector.Combined sel1 sel2 ->
                   expandSelectorIntoStringList sel1 ++
                     expandSelectorIntoStringList sel2
         in List.map (appendPredStringToPathComponent predString) pathComponents
@@ -187,27 +189,27 @@ renderSelectorWithConfig cfg =
 
 {- Render to a string a predicate that refines a selector.
 -}
-renderPredicate : Predicate -> String
+renderPredicate : Selector.Predicate -> String
 renderPredicate pred =
   case pred of
-    Id           a   -> "#" ++ a
-    Class        a   -> "." ++ a
-    Attr         a   -> "[" ++ a ++                "]"
-    AttrVal      a v -> "[" ++ a ++  "='" ++ v ++ "']"
-    AttrBegins   a v -> "[" ++ a ++ "^='" ++ v ++ "']"
-    AttrEnds     a v -> "[" ++ a ++ "$='" ++ v ++ "']"
-    AttrContains a v -> "[" ++ a ++ "*='" ++ v ++ "']"
-    AttrSpace    a v -> "[" ++ a ++ "~='" ++ v ++ "']"
-    AttrHyph     a v -> "[" ++ a ++ "|='" ++ v ++ "']"
-    Pseudo       a   -> ":" ++ a
-    PseudoFunc   a args -> ":" ++ a ++ "(" ++ (String.join "," args) ++ ")"
+    Selector.Id           a   -> "#" ++ a
+    Selector.Class        a   -> "." ++ a
+    Selector.Attr         a   -> "[" ++ a ++                "]"
+    Selector.AttrVal      a v -> "[" ++ a ++  "='" ++ v ++ "']"
+    Selector.AttrBegins   a v -> "[" ++ a ++ "^='" ++ v ++ "']"
+    Selector.AttrEnds     a v -> "[" ++ a ++ "$='" ++ v ++ "']"
+    Selector.AttrContains a v -> "[" ++ a ++ "*='" ++ v ++ "']"
+    Selector.AttrSpace    a v -> "[" ++ a ++ "~='" ++ v ++ "']"
+    Selector.AttrHyph     a v -> "[" ++ a ++ "|='" ++ v ++ "']"
+    Selector.Pseudo       a   -> ":" ++ a
+    Selector.PseudoFunc   a args -> ":" ++ a ++ "(" ++ (String.join "," args) ++ ")"
 
 {- Render a list of key-value mappings.
 -}
-renderProperties : Config -> List (Key, Value) -> String
+renderProperties : Config -> List (Property.Key, Property.Value) -> String
 renderProperties cfg propertyRules =
   propertyRules
-    |> List.concatMap managePrefixes -- each of the rules generates a `List Result`
+    |> List.concatMap Property.managePrefixes -- each of the rules generates a `List Result`
     |> renderProperty cfg
 
 {-  Takes a key-value property for a rule in the form of either a pair of
@@ -243,9 +245,9 @@ renderProperty cfg results =
 
 {- Render a CSS @keyframes rule.
 -}
-renderKeyframes : Config -> Keyframes -> String
-renderKeyframes cfg (Keyframes animationName listOfFrames) =
-  unPrefixed browsers
+renderKeyframes : Config -> Stylesheet.Keyframes -> String
+renderKeyframes cfg (Stylesheet.Keyframes animationName listOfFrames) =
+  Property.unPrefixed Common.browsers
     |> List.map
       ( \(browser, _) ->
         concat [ "@" ++ browser ++ "keyframes "
@@ -263,7 +265,7 @@ renderKeyframes cfg (Keyframes animationName listOfFrames) =
 
 {- Render one frame in a CSS @keyframes rule.
 -}
-renderKeyframe : Config -> (Float, (List RuleData)) -> String
+renderKeyframe : Config -> (Float, (List Stylesheet.RuleData)) -> String
 renderKeyframe cfg (percentage, keyframeRules) =
   concat
     [ percentage |> toString
@@ -273,7 +275,11 @@ renderKeyframe cfg (percentage, keyframeRules) =
 
 {- Render a CSS @media rule.
 -}
-renderMedia : Config -> MediaQuery -> (List SelectorData) -> (List RuleData) -> String
+renderMedia : Config -> 
+              Stylesheet.MediaQuery -> 
+              List Selector.SelectorData -> 
+              List Stylesheet.RuleData -> 
+              String
 renderMedia cfg query sel mediaRules =
   concat
     [ renderMediaQuery query
@@ -287,14 +293,14 @@ renderMedia cfg query sel mediaRules =
 
 {- Render the media query part of a CSS @media rule.
 -}
-renderMediaQuery : MediaQuery -> String
-renderMediaQuery (MediaQuery notOrOnly typeOfMedia mediaFeatures) =
+renderMediaQuery : Stylesheet.MediaQuery -> String
+renderMediaQuery (Stylesheet.MediaQuery notOrOnly typeOfMedia mediaFeatures) =
   concat
     [ "@media "
     , case notOrOnly of
         Nothing   -> ""
-        Just Not  -> "not "
-        Just Only -> "only "
+        Just (Stylesheet.Not)  -> "not "
+        Just (Stylesheet.Only) -> "only "
     , renderMediaType typeOfMedia
     , mediaFeatures
         |> List.map renderMediaFeature
@@ -304,13 +310,13 @@ renderMediaQuery (MediaQuery notOrOnly typeOfMedia mediaFeatures) =
 
 {- Render the media type in the media query part of a CSS @media rule.
 -}
-renderMediaType : MediaType -> String
-renderMediaType (MediaType str) = str
+renderMediaType : Stylesheet.MediaType -> String
+renderMediaType (Stylesheet.MediaType str) = str
 
 {- Render a media feature in the media query part of a CSS @media rule.
 -}
-renderMediaFeature : Feature -> String
-renderMediaFeature (Feature featureName maybeFeatureValue) =
+renderMediaFeature : Stylesheet.Feature -> String
+renderMediaFeature (Stylesheet.Feature featureName maybeFeatureValue) =
   case maybeFeatureValue of
     Nothing        -> featureName
     Just str ->
@@ -318,7 +324,7 @@ renderMediaFeature (Feature featureName maybeFeatureValue) =
 
 {- Render a CSS @font-face rule.
 -}
-renderFontFace : Config -> (List RuleData) -> String
+renderFontFace : Config -> List Stylesheet.RuleData -> String
 renderFontFace cfg faceRules =
   concat
     [ "@font-face"

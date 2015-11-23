@@ -28,9 +28,7 @@ module Css.Internal.Common
   , addCommonValues
   ) where
   
-import Css.Internal.Property exposing 
-  ( Value, stringValue
-  )  
+import Css.Internal.Property as Property
 
 {- The following are types that represent records of functions for implementing
 common values shared between multiple CSS properties, like `auto`, `inherit`,
@@ -130,49 +128,51 @@ type alias Hidden   a rec = { rec | hidden_   : a }
 type alias Initial  a rec = { rec | initial_  : a }
 type alias Unset    a rec = { rec | unset_    : a }
 {- Other takes a Value so that it can be either a SimpleValue or PrefixedValue. -}
-type alias Other    a rec = { rec | other_    : Value -> a }
+type alias Other    a rec = { rec | other_    : Property.Value -> a }
 
 {- Implementations of the function records for implementing the creation of generic
 property values such as `all`, `none`, etc. . Again, these are used internally by
 css-elm in other modules and not intended to be used as part of the public Css DSL.
 -}
-allValue : Value
-allValue = stringValue "all"
+allValue : Property.Value
+allValue = Property.stringValue "all"
 
-autoValue : Value
-autoValue = stringValue "auto" 
+autoValue : Property.Value
+autoValue = Property.stringValue "auto" 
 
-baselineValue : Value
-baselineValue = stringValue "baseline" 
+baselineValue : Property.Value
+baselineValue = Property.stringValue "baseline" 
 
-centerValue : Value
-centerValue = stringValue "center" 
+centerValue : Property.Value
+centerValue = Property.stringValue "center" 
 
-inheritValue : Value
-inheritValue = stringValue "inherit" 
+inheritValue : Property.Value
+inheritValue = Property.stringValue "inherit" 
 
-normalValue : Value
-normalValue = stringValue "normal" 
+normalValue : Property.Value
+normalValue = Property.stringValue "normal" 
 
-noneValue : Value
-noneValue = stringValue "none" 
+noneValue : Property.Value
+noneValue = Property.stringValue "none" 
 
-visibleValue : Value
-visibleValue = stringValue "visible" 
+visibleValue : Property.Value
+visibleValue = Property.stringValue "visible" 
 
-hiddenValue : Value
-hiddenValue = stringValue "hidden" 
+hiddenValue : Property.Value
+hiddenValue = Property.stringValue "hidden" 
 
-initialValue : Value
-initialValue = stringValue "initial" 
+initialValue : Property.Value
+initialValue = Property.stringValue "initial" 
 
-unsetValue : Value
-unsetValue = stringValue "unset" 
+unsetValue : Property.Value
+unsetValue = Property.stringValue "unset" 
 
-otherValue : Value -> Value
+otherValue : Property.Value -> Property.Value
 otherValue val = val
 
-addCommonValues : a -> { a | initial_ : Value, inherit_ : Value, unset_ : Value }
+addCommonValues : a -> { a | initial_ : Property.Value
+                           , inherit_ : Property.Value
+                           , unset_   : Property.Value }
 addCommonValues wrappingFactory = 
     let withInitial = { wrappingFactory | initial_ = initialValue }
         withInherit = { withInitial     | inherit_ = inheritValue }
