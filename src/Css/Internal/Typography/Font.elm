@@ -1,199 +1,13 @@
-module Css.Internal.Font
-  ( GenericFontFamily, GenericFontFamilyDescriptor
-  , genericFontFamilyFactory, genericFontFamilyValue
-  , FontFamilyDescriptor, fontFamilyFactory
-  , fontFamiliesValue
-  , FontSizeDescriptor, fontSizeFactory
-  , NubFontStyleDescriptor, nubFontStyleFactory
-  , FontStyleDescriptor, fontStyleFactory
-  , NubFontVariantDescriptor, nubFontVariantFactory
-  , FontVariantDescriptor, fontVariantFactory
-  , NubFontWeightDescriptor, nubFontWeightFactory
-  , FontWeightDescriptor, fontWeightFactory
-  , FontDescriptor, ComposedFontDescriptor
+module Css.Internal.Typography.Font
+  ( FontDescriptor, ComposedFontDescriptor
   , fontFactory, fontValue
   , addLineHeight, addWeight, addVariant, addStyle
   ) where
 
 import Css.Internal.Common as Common
-import Css.Internal.Property as Property
 import Css.Internal.Geometry.Linear as Linear
-
--------------------------------------------------------------------------------
-
--- The five generic font families.
--- <http://www.w3.org/TR/css3-fonts/#generic-font-families>.
-
-type alias GenericFontFamilyDescriptor = 
-  GenericFontFamilyFactory -> GenericFontFamily
-
-type GenericFontFamily 
-  = GenericFontFamily String
-  | OtherGenericFontFamily Property.Value
-
-type alias GenericFontFamilyFactory =
-  { family: String -> GenericFontFamily
-  , other_: Property.Value -> GenericFontFamily
-  }
-
-genericFontFamilyFactory : GenericFontFamilyFactory
-genericFontFamilyFactory =
-  { family str = GenericFontFamily str
-  , other_ val = OtherGenericFontFamily val
-  }
-
-genericFontFamilyValue : GenericFontFamily -> Property.Value 
-genericFontFamilyValue fontFamily =
-  case fontFamily of
-    GenericFontFamily str -> Property.stringValue str
-    OtherGenericFontFamily val -> Common.otherValue val
-
--------------------------------------------------------------------------------
-
-type alias NubFontFamilyDescriptor rec = 
-  NubFontFamilyFactory rec -> Property.Value
-
-type alias FontFamilyDescriptor = FontFamilyFactory -> Property.Value
-
-type alias NubFontFamilyFactory rec =
-  { rec | customFamily: String -> Property.Value
-        , families: List String -> 
-                    List GenericFontFamilyDescriptor ->
-                    Property.Value
-        , other_: Property.Value -> Property.Value
-  }
-
-nubFontFamilyFactory : NubFontFamilyFactory {}
-nubFontFamilyFactory = 
-  { customFamily familyName = 
-      familyName |> Property.toLiteral |> Property.literalValue
-  , families customFamilyNames genericFamilyDescriptors = 
-      let genericFamilyFrom descriptor = descriptor genericFontFamilyFactory
-          genericFamilies = List.map genericFamilyFrom genericFamilyDescriptors
-      in fontFamiliesValue customFamilyNames genericFamilies
-  , other_ val = Common.otherValue val
-  }
-  
-fontFamiliesValue : List String -> List GenericFontFamily -> Property.Value
-fontFamiliesValue customFamilyNames genericFamilies =
-  let customFamilyValues = 
-        customFamilyNames 
-        |> List.map Property.toLiteral 
-        |> List.map Property.literalValue
-      genericFamilyValues = 
-        genericFamilies 
-        |> List.map genericFontFamilyValue
-      fontFamilyValues = customFamilyValues ++ genericFamilyValues
-  in Property.commaListValue identity fontFamilyValues
-
-type alias FontFamilyFactory = 
-  NubFontFamilyFactory 
-    (Common.Initial Property.Value
-      (Common.Inherit Property.Value
-        (Common.Unset Property.Value {})))
-  
-fontFamilyFactory : FontFamilyFactory
-fontFamilyFactory = Common.addCommonValues nubFontFamilyFactory
-    
--------------------------------------------------------------------------------
-
-type alias FontSizeDescriptor sz = FontSizeFactory sz -> Property.Value
-
-type alias WithFontSize = { fontSize: String -> Property.Value }
-  
-type alias FontSizeFactory sz = Linear.SizeFactory WithFontSize sz
-
-fontSizeFactory : FontSizeFactory sz
-fontSizeFactory = 
-  let basicSizeFactory = Linear.basicSizeFactory
-  in { basicSizeFactory | fontSize = \str -> Property.stringValue str }
-
--------------------------------------------------------------------------------
-type alias NubFontStyleDescriptor rec = 
-  NubFontStyleFactory rec -> Property.Value
-
-type alias FontStyleDescriptor = FontStyleFactory -> Property.Value
-
-type alias NubFontStyleFactory rec =
-  { rec | style: String -> Property.Value
-        , other_ : Property.Value -> Property.Value
-  }
-
-nubFontStyleFactory : NubFontStyleFactory {}
-nubFontStyleFactory =
-  { style str = Property.stringValue str
-  , other_ val = Common.otherValue val
-  }
-  
-type alias FontStyleFactory = 
-  NubFontStyleFactory 
-    (Common.Initial Property.Value
-      (Common.Inherit Property.Value
-        (Common.Unset Property.Value 
-          (Common.Normal Property.Value {}))))
-  
-fontStyleFactory : FontStyleFactory
-fontStyleFactory = 
-  let withCommon = Common.addCommonValues nubFontStyleFactory
-  in { withCommon | normal_ = Common.normalValue }
-
--------------------------------------------------------------------------------
-type alias NubFontVariantDescriptor rec = 
-  NubFontVariantFactory rec -> Property.Value
-
-type alias FontVariantDescriptor = FontVariantFactory -> Property.Value
-
-type alias NubFontVariantFactory rec =
-  { rec | variant: String -> Property.Value
-        , other_ : Property.Value -> Property.Value
-  }
-
-nubFontVariantFactory : NubFontVariantFactory {}
-nubFontVariantFactory =
-  { variant str = Property.stringValue str
-  , other_ val = Common.otherValue val
-  }
-  
-type alias FontVariantFactory = 
-  NubFontVariantFactory 
-    (Common.Initial Property.Value
-      (Common.Inherit Property.Value
-        (Common.Unset Property.Value 
-          (Common.Normal Property.Value {}))))
-  
-fontVariantFactory : FontVariantFactory
-fontVariantFactory = 
-  let withCommon = Common.addCommonValues nubFontVariantFactory
-  in { withCommon | normal_ = Common.normalValue }
-
--------------------------------------------------------------------------------
-type alias NubFontWeightDescriptor rec = 
-  NubFontWeightFactory rec -> Property.Value
-
-type alias NubFontWeightFactory rec =
-  { rec | weight: String -> Property.Value
-        , other_ : Property.Value -> Property.Value
-  }
-  
-nubFontWeightFactory : NubFontWeightFactory {}
-nubFontWeightFactory =
-  { weight str = Property.stringValue str
-  , other_ val = Common.otherValue val
-  }
-
-type alias FontWeightDescriptor = FontWeightFactory -> Property.Value
-
-type alias FontWeightFactory =
-  NubFontWeightFactory 
-    (Common.Initial Property.Value
-      (Common.Inherit Property.Value
-        (Common.Unset Property.Value 
-          (Common.Normal Property.Value {}))))
-  
-fontWeightFactory : FontWeightFactory
-fontWeightFactory = 
-  let withCommon = Common.addCommonValues nubFontWeightFactory
-  in { withCommon | normal_ = Common.normalValue }
+import Css.Internal.Property as Property
+import Css.Internal.Typography.Font.Family as Family
 
 -------------------------------------------------------------------------------
 
@@ -241,7 +55,7 @@ type FontAlternative sz
 
 -- Font sizes can be absolute or relative
 type FontComponents sz
-  = BaseComponent Property.Value (List String) (List GenericFontFamily)
+  = BaseComponent Property.Value (List String) (List Family.GenericFontFamily)
   | WithLineHeight Property.Value (ComposedFont sz)
   | WithWeight Property.Value (ComposedFont sz)
   | WithVariant Property.Value (ComposedFont sz)
@@ -250,7 +64,7 @@ type FontComponents sz
 type alias FontFactory sz =
   { leaf : Linear.NubSizeDescriptor {} sz -> 
            List String -> 
-           List GenericFontFamily -> 
+           List Family.GenericFontFamily -> 
            ComposedFont sz
   , composite : (ComposedFont sz -> FontComponents sz) -> 
                 ComposedFont sz -> 
@@ -365,7 +179,8 @@ componentsToValueRecursive components maybeHeight maybeWeight maybeVariant maybe
             Nothing -> 
               recurse inner maybeHeight maybeWeight maybeVariant (Just style)
         BaseComponent fontSize customFamilies genericFamilies -> 
-          let familiesValue = fontFamiliesValue customFamilies genericFamilies
+          let familiesValue = 
+                Family.fontFamiliesValue customFamilies genericFamilies
               sizesValue = 
                 case maybeHeight of
                   -- should go to "italic bold 12px/30px Georgia, serif"
