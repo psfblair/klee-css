@@ -72,7 +72,14 @@ import Css.Internal.List as List
 import Css.Internal.Property as Property
 import Css.Internal.Stroke as Stroke
 import Css.Internal.Stylesheet as Stylesheet
-import Css.Internal.Text as Text
+import Css.Internal.Typography.Text.Align as Align
+import Css.Internal.Typography.Text.Decoration as Decoration
+import Css.Internal.Typography.Text.Direction as Direction
+import Css.Internal.Typography.Text.Indent as Indent
+import Css.Internal.Typography.Text.Rendering as Rendering
+import Css.Internal.Typography.Text.Shadow as Shadow
+import Css.Internal.Typography.Text.Transform as Transform
+import Css.Internal.Typography.Text.Whitespace as Whitespace
 
 -------------------------------------------------------------------------------
 
@@ -90,18 +97,18 @@ wordSpacing sizeDescriptor =
 
 -------------------------------------------------------------------------------
 
-textRendering : Text.TextRenderingDescriptor -> Stylesheet.PropertyRuleAppender
+textRendering : Rendering.TextRenderingDescriptor -> Stylesheet.PropertyRuleAppender
 textRendering descriptor =
-  let renderValue = descriptor Text.textRenderingFactory
+  let renderValue = descriptor Rendering.textRenderingFactory
   in Stylesheet.simpleProperty "text-rendering" renderValue
 
-optimizeSpeed : Text.TextRenderingDescriptor
+optimizeSpeed : Rendering.TextRenderingDescriptor
 optimizeSpeed = \factory -> factory.speedOptimize
 
-optimizeLegibility : Text.TextRenderingDescriptor
+optimizeLegibility : Rendering.TextRenderingDescriptor
 optimizeLegibility = \factory -> factory.legibilityOptimize
 
-geometricPrecision : Text.TextRenderingDescriptor
+geometricPrecision : Rendering.TextRenderingDescriptor
 geometricPrecision = \factory -> factory.preciseGeometry
 
 -------------------------------------------------------------------------------
@@ -109,139 +116,139 @@ geometricPrecision = \factory -> factory.preciseGeometry
 -- blur-radius and color are optional
 -- More than one shadow can be added; e.g.:
 --   text-shadow: 0 0 3px #FF0000, 0 0 5px #0000FF;
-textShadow : Text.TextShadowDescriptor a hSz vSz blrSz -> 
+textShadow : Shadow.TextShadowDescriptor a hSz vSz blrSz -> 
              Stylesheet.PropertyRuleAppender
 textShadow descriptor  =
-  let shadowValue = descriptor Text.textShadowFactory |> Text.textShadowValue
+  let shadowValue = descriptor Shadow.textShadowFactory |> Shadow.textShadowValue
   in Stylesheet.simpleProperty "text-shadow" shadowValue
 
 -- This is still over-constrained in that each element of the list has to have the
 -- same combination of absolute and relative positions.
-textShadows : List (Text.TextShadowDescriptor a hSz vSz blrSz) -> 
+textShadows : List (Shadow.TextShadowDescriptor a hSz vSz blrSz) -> 
               Stylesheet.PropertyRuleAppender
 textShadows descriptors =
-  let applyDescriptor desc = desc Text.textShadowFactory 
+  let applyDescriptor desc = desc Shadow.textShadowFactory 
       values = List.map applyDescriptor descriptors
-      valueFactory = Property.commaListValue Text.textShadowValue
+      valueFactory = Property.commaListValue Shadow.textShadowValue
   in Stylesheet.simpleProperty "text-shadow" (valueFactory values)
   
 aShadow : Linear.NubSizeDescriptor {} hSz -> 
           Linear.NubSizeDescriptor {} vSz -> 
-          Text.CompositeTextShadowDescriptor hSz vSz blrSz
+          Shadow.CompositeTextShadowDescriptor hSz vSz blrSz
 aShadow horizontalDescriptor verticalDescriptor factory =
   factory.baseShadow horizontalDescriptor verticalDescriptor
 
 shadowBlur : Linear.NubSizeDescriptor {} blrSz ->
-             Text.CompositeTextShadowDescriptor hSz vSz blrSz -> 
-             Text.CompositeTextShadowDescriptor hSz vSz blrSz
+             Shadow.CompositeTextShadowDescriptor hSz vSz blrSz -> 
+             Shadow.CompositeTextShadowDescriptor hSz vSz blrSz
 shadowBlur blurDescriptor innerDescriptor factory =
   let innerCompositeShadow = innerDescriptor factory
   in factory.withBlurRadius blurDescriptor innerCompositeShadow.textShadow
 
 shadowColor : Color.NubColorDescriptor {} ->
-              Text.CompositeTextShadowDescriptor hSz vSz blrSz -> 
-              Text.CompositeTextShadowDescriptor hSz vSz blrSz
+              Shadow.CompositeTextShadowDescriptor hSz vSz blrSz -> 
+              Shadow.CompositeTextShadowDescriptor hSz vSz blrSz
 shadowColor colorDescriptor innerDescriptor factory =
   let innerCompositeShadow = innerDescriptor factory
   in factory.withColor colorDescriptor innerCompositeShadow.textShadow
   
 -------------------------------------------------------------------------------
 
-textIndent : Text.TextIndentDescriptor a -> Stylesheet.PropertyRuleAppender
+textIndent : Indent.TextIndentDescriptor a -> Stylesheet.PropertyRuleAppender
 textIndent descriptor = 
-  let indentValue = descriptor Text.textIndentFactory
+  let indentValue = descriptor Indent.textIndentFactory
   in Stylesheet.simpleProperty "text-indent" indentValue
 
-eachLine: Text.TextIndentDescriptor a
+eachLine: Indent.TextIndentDescriptor a
 eachLine = \factory -> factory.indentEachLine
 
-hanging : Text.TextIndentDescriptor a
+hanging : Indent.TextIndentDescriptor a
 hanging = \factory -> factory.hangingIndent
 
-indent : Linear.NubSizeDescriptor {} a -> Text.TextIndentDescriptor a
+indent : Linear.NubSizeDescriptor {} a -> Indent.TextIndentDescriptor a
 indent sizeDescriptor = \factory -> factory.textIndent sizeDescriptor
 
 -------------------------------------------------------------------------------
 
-direction : Text.TextDirectionDescriptor -> Stylesheet.PropertyRuleAppender
+direction : Direction.TextDirectionDescriptor -> Stylesheet.PropertyRuleAppender
 direction descriptor = 
-  let directionValue = descriptor Text.textDirectionFactory
+  let directionValue = descriptor Direction.textDirectionFactory
   in Stylesheet.simpleProperty "direction" directionValue
 
-rtl : Text.TextDirectionDescriptor
+rtl : Direction.TextDirectionDescriptor
 rtl = \factory -> factory.rightToLeft
 
-ltr : Text.TextDirectionDescriptor
+ltr : Direction.TextDirectionDescriptor
 ltr = \factory -> factory.leftToRight
 
 -------------------------------------------------------------------------------
 
-textAlign : Text.TextAlignDescriptor -> Stylesheet.PropertyRuleAppender
+textAlign : Align.TextAlignDescriptor -> Stylesheet.PropertyRuleAppender
 textAlign descriptor  = 
-  let alignmentValue = descriptor Text.textAlignFactory
+  let alignmentValue = descriptor Align.textAlignFactory
   in Stylesheet.simpleProperty "text-align" alignmentValue
 
-start : Text.TextAlignDescriptor
+start : Align.TextAlignDescriptor
 start = \factory -> factory.start
 
-end : Text.TextAlignDescriptor
+end : Align.TextAlignDescriptor
 end = \factory -> factory.end
 
-justify : Text.TextAlignDescriptor
+justify : Align.TextAlignDescriptor
 justify = \factory -> factory.justify
 
-justifyAll : Text.TextAlignDescriptor
+justifyAll : Align.TextAlignDescriptor
 justifyAll = \factory -> factory.justifyAll
 
-matchParent : Text.TextAlignDescriptor
+matchParent : Align.TextAlignDescriptor
 matchParent = \factory -> factory.matchParent
 
-alignSide : Sides.HorizontalSide -> Text.TextAlignDescriptor
+alignSide : Sides.HorizontalSide -> Align.TextAlignDescriptor
 alignSide side = \factory -> factory.alignWithSide side
 
 -------------------------------------------------------------------------------
 
-whiteSpace : Text.WhiteSpaceDescriptor -> Stylesheet.PropertyRuleAppender
+whiteSpace : Whitespace.WhiteSpaceDescriptor -> Stylesheet.PropertyRuleAppender
 whiteSpace descriptor = 
-  let whiteSpaceVal = descriptor Text.whiteSpaceFactory
+  let whiteSpaceVal = descriptor Whitespace.whiteSpaceFactory
   in Stylesheet.simpleProperty "white-space" whiteSpaceVal
 
-nowrap : Text.WhiteSpaceDescriptor
+nowrap : Whitespace.WhiteSpaceDescriptor
 nowrap = \factory -> factory.noWrap
 
-pre : Text.WhiteSpaceDescriptor
+pre : Whitespace.WhiteSpaceDescriptor
 pre = \factory -> factory.pre
 
-preWrap : Text.WhiteSpaceDescriptor
+preWrap : Whitespace.WhiteSpaceDescriptor
 preWrap = \factory -> factory.preWrap
 
-preLine : Text.WhiteSpaceDescriptor
+preLine : Whitespace.WhiteSpaceDescriptor
 preLine = \factory -> factory.preLine
 
 -------------------------------------------------------------------------------
 
-textDecoration : Text.TextDecorationDescriptor -> 
+textDecoration : Decoration.TextDecorationDescriptor -> 
                  Stylesheet.PropertyRuleAppender
 textDecoration descriptor = 
-  let decorationValue = descriptor Text.textDecorationFactory
+  let decorationValue = descriptor Decoration.textDecorationFactory
   in Stylesheet.simpleProperty "text-decoration" decorationValue
 
-textDecorationLine : Text.TextDecorationDescriptor -> 
+textDecorationLine : Decoration.TextDecorationDescriptor -> 
                      Stylesheet.PropertyRuleAppender
 textDecorationLine descriptor = 
-  let decorationValue = descriptor Text.textDecorationFactory
+  let decorationValue = descriptor Decoration.textDecorationFactory
   in Stylesheet.simpleProperty "text-decoration-line" decorationValue
 
-underline : Text.TextDecorationDescriptor
+underline : Decoration.TextDecorationDescriptor
 underline = \factory -> factory.underline
 
-overline : Text.TextDecorationDescriptor
+overline : Decoration.TextDecorationDescriptor
 overline = \factory -> factory.overline
 
-lineThrough : Text.TextDecorationDescriptor
+lineThrough : Decoration.TextDecorationDescriptor
 lineThrough = \factory -> factory.lineThrough
 
-blink : Text.TextDecorationDescriptor
+blink : Decoration.TextDecorationDescriptor
 blink = \factory -> factory.blink
 
 -------------------------------------------------------------------------------
@@ -259,21 +266,22 @@ textDecorationStyle descriptor =
 
 -------------------------------------------------------------------------------
 
-textTransform : Text.TextTransformDescriptor -> Stylesheet.PropertyRuleAppender
+textTransform : Transform.TextTransformDescriptor -> 
+                Stylesheet.PropertyRuleAppender
 textTransform descriptor = 
-  let transformValue = descriptor Text.textTransformFactory
+  let transformValue = descriptor Transform.textTransformFactory
   in Stylesheet.simpleProperty "text-transform" transformValue
 
-capitalize : Text.TextTransformDescriptor
+capitalize : Transform.TextTransformDescriptor
 capitalize = \factory -> factory.capitalize
 
-uppercase : Text.TextTransformDescriptor
+uppercase : Transform.TextTransformDescriptor
 uppercase = \factory -> factory.uppercase
 
-lowercase : Text.TextTransformDescriptor
+lowercase : Transform.TextTransformDescriptor
 lowercase = \factory -> factory.lowercase
 
-fullWidth : Text.TextTransformDescriptor
+fullWidth : Transform.TextTransformDescriptor
 fullWidth = \factory -> factory.fullWidth
 
 -------------------------------------------------------------------------------
