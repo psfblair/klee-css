@@ -86,7 +86,7 @@ module Css.Typography
 
   , textDecoration
   , textDecorationLine
-  , underline, overline, lineThrough, blink
+  , underline, overline, lineThrough
   , textDecorationColor
   , textDecorationStyle
 
@@ -519,9 +519,6 @@ overline = \factory -> factory.overline
 
 lineThrough : Decoration.TextDecorationDescriptor
 lineThrough = \factory -> factory.lineThrough
-
-blink : Decoration.TextDecorationDescriptor
-blink = \factory -> factory.blink
 
 -------------------------------------------------------------------------------
 

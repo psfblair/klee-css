@@ -650,12 +650,24 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "white-space:should not compile"
       ]
     ]
--- TODO text-decoration can have neither, only solid double dotted dashed wavy
--- cannot have the rest of the strokes used in borders        
   , describe "the text decoration function"
     [ it "should render preset values properly"
       [ renderProperties [ textDecoration underline ]
           `shouldEqual` "text-decoration:underline"
+      , renderProperties [ textDecoration overline ]
+          `shouldEqual` "text-decoration:underline"
+      , renderProperties [ textDecoration overline ]
+          `shouldEqual` "text-decoration:line-through"
+      -- , renderProperties [ textDecoration solid ]
+      --     `shouldEqual` "text-decoration:should not compile"
+      -- , renderProperties [ textDecoration double ]
+      --     `shouldEqual` "text-decoration:should not compile"
+      -- , renderProperties [ textDecoration dotted ]
+      --     `shouldEqual` "text-decoration:should not compile"
+      -- , renderProperties [ textDecoration dashed ]
+      --     `shouldEqual` "text-decoration:should not compile"
+      -- , renderProperties [ textDecoration wavy ]
+      --     `shouldEqual` "text-decoration:should not compile"
       ]
     , it "should render generic properties properly"
       [ renderProperties [textDecoration initial]
@@ -691,6 +703,20 @@ suite = describe "Css.TextTests"
     [ it "should render preset values properly"
       [ renderProperties [ textDecorationLine underline ]
           `shouldEqual` "text-decoration-line:underline"
+      ,renderProperties [ textDecorationLine overline ]
+          `shouldEqual` "text-decoration-line:overline"
+      ,renderProperties [ textDecorationLine lineThrough ]
+          `shouldEqual` "text-decoration-line:line-through"
+      -- , renderProperties [ textDecorationLine solid ]
+      --     `shouldEqual` "text-decoration-line:should not compile"
+      -- , renderProperties [ textDecorationLine double ]
+      --     `shouldEqual` "text-decoration-line:should not compile"
+      -- , renderProperties [ textDecorationLine dotted ]
+      --     `shouldEqual` "text-decoration-line:should not compile"
+      -- , renderProperties [ textDecorationLine dashed ]
+      --     `shouldEqual` "text-decoration-line:should not compile"
+      -- , renderProperties [ textDecorationLine wavy ]
+      --     `shouldEqual` "text-decoration-line:should not compile"
       ]
     , it "should render generic properties properly"
       [ renderProperties [textDecorationLine initial]
