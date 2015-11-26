@@ -5,8 +5,11 @@ import Css.TestUtils exposing (it)
 
 import Css.ColorsAndStrokes exposing 
   (green, currentColor, transparent, rgb, solid, disc)
-import Css.Common exposing (..)
-import Css.Geometry exposing (..)
+import Css.Common exposing 
+  ( initial, inherit, unset, other, auto, normal, none, otherPrefixed
+  , webkit_, moz_
+  )
+import Css.Geometry exposing (unitless, px, pct, em, sideLeft)
 import Css exposing (renderProperties)
 
 import Css.Typography exposing (..)
