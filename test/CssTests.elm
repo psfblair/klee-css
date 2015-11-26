@@ -11,7 +11,7 @@ import Css.FontFace exposing
   ( FontFaceFormat(..)
   , fontFaceSrc, localFontFaceSrc, urlFontFaceSrc
   )
-import Css.Font exposing (fontFamily, family)
+import Css.Typography exposing (fontFamily, family)
 -------------------------------------------------------------------------------
 
 suite : Spec
