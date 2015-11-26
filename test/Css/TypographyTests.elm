@@ -120,6 +120,8 @@ suite = describe "Css.TextTests"
     , it "should render numeric font sizes properly"
       [ renderProperties [ fontSize (px 20) ] 
           `shouldEqual` "font-size:20px"
+      , renderProperties [ fontSize (em 0.8) ] 
+          `shouldEqual` "font-size:0.8em" 
       ]
     , it "can accept common properties initial, inherit, unset and other"
       [ renderProperties [fontSize initial] `shouldEqual` "font-size:initial"
@@ -186,6 +188,7 @@ suite = describe "Css.TextTests"
       [ renderProperties [fontVariant initial] `shouldEqual` "font-variant:initial"
       , renderProperties [fontVariant inherit] `shouldEqual` "font-variant:inherit" 
       , renderProperties [fontVariant normal] `shouldEqual` "font-variant:normal" 
+      , renderProperties [fontVariant none] `shouldEqual` "font-variant:none"      
       , renderProperties [fontVariant unset] `shouldEqual` "font-variant:unset" 
       , renderProperties [fontVariant (other "foo")] `shouldEqual` "font-variant:foo" 
       , renderProperties [fontVariant (otherPrefixed [webkit_, moz_] "foo")] 
@@ -199,8 +202,6 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "font-variant:should not compile"
       -- , renderProperties [fontVariant center]
       --     `shouldEqual` "font-variant:should not compile"
-      -- , renderProperties [fontVariant none]
-      --     `shouldEqual` "font-variant:should not compile"      
       -- , renderProperties [fontVariant visible]
       --     `shouldEqual` "font-variant:should not compile"
       -- , renderProperties [fontVariant hidden]
@@ -211,6 +212,8 @@ suite = describe "Css.TextTests"
     [ it "should render named font weights properly"
       [ renderProperties [ fontWeight bold ] 
           `shouldEqual` "font-weight:bold"
+      , renderProperties [ fontWeight lighter ] 
+          `shouldEqual` "font-weight:lighter"
       ]    
     , it "should render numeric font weights properly"
       [ renderProperties [ fontWeight (weight 100) ] 
@@ -247,6 +250,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "line-height:3.5"
       , renderProperties [lineHeight (px 20)] 
         `shouldEqual` "line-height:20px" 
+      , renderProperties [lineHeight (pct 20)] 
+        `shouldEqual` "line-height:20%" 
       ]
     , it "can accept common properties normal, initial, inherit, unset and other"
       [ renderProperties [lineHeight initial] `shouldEqual` "line-height:initial"
@@ -283,9 +288,10 @@ suite = describe "Css.TextTests"
       , renderProperties 
           [font (aFont (px 20) ["Hobo"] [] 
                 |> withWeight bold 
+                |> withLineHeight (unitless 3)
                 |> withVariant smallCaps
                 |> withStyle italic)] 
-            `shouldEqual` "font:italic small-caps bold 20px \"Hobo\""
+            `shouldEqual` "font:italic small-caps bold 20px/3 \"Hobo\""
       -- These should not compile:
       -- , renderProperties [font (aFont initial ["Lubalin Graph Medium"] [fantasy])] 
       --     `shouldEqual` "should not compile"
@@ -655,8 +661,8 @@ suite = describe "Css.TextTests"
       [ renderProperties [ textDecoration underline ]
           `shouldEqual` "text-decoration:underline"
       , renderProperties [ textDecoration overline ]
-          `shouldEqual` "text-decoration:underline"
-      , renderProperties [ textDecoration overline ]
+          `shouldEqual` "text-decoration:overline"
+      , renderProperties [ textDecoration lineThrough ]
           `shouldEqual` "text-decoration:line-through"
       -- , renderProperties [ textDecoration solid ]
       --     `shouldEqual` "text-decoration:should not compile"

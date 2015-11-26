@@ -5,7 +5,6 @@ module Css.Internal.Typography.Font
   ) where
 
 import Css.Internal.Common as Common
-import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Property as Property
 import Css.Internal.Typography.Font.Family as Family
 
@@ -38,49 +37,47 @@ or:
     font initial 
         => font: initial;
 -}
-type alias FontDescriptor rec sz = FontFactory sz -> Font rec sz
-type alias ComposedFontDescriptor sz = FontFactory sz -> ComposedFont sz
+type alias FontDescriptor rec = FontFactory -> Font rec
+type alias ComposedFontDescriptor = FontFactory -> ComposedFont
 
-type alias Font rec sz = { rec | font : FontAlternative sz }
-type alias WithComponents sz = { fontComponents : FontComponents sz }
-type alias ComposedFont sz = Font (WithComponents sz) sz
+type alias Font rec = { rec | font : FontAlternative }
+type alias WithComponents = { fontComponents : FontComponents }
+type alias ComposedFont = Font WithComponents
 
-type FontAlternative sz
+type FontAlternative 
   = NamedFont String
-  | CompositeFont (FontComponents sz)
+  | CompositeFont FontComponents
   | InitialFont
   | InheritFont
   | UnsetFont
   | OtherFont Property.Value
 
--- Font sizes can be absolute or relative
-type FontComponents sz
+type FontComponents
   = BaseComponent Property.Value (List String) (List Family.GenericFontFamily)
-  | WithLineHeight Property.Value (ComposedFont sz)
-  | WithWeight Property.Value (ComposedFont sz)
-  | WithVariant Property.Value (ComposedFont sz)
-  | WithStyle Property.Value (ComposedFont sz)
+  | WithLineHeight Property.Value ComposedFont
+  | WithWeight Property.Value ComposedFont
+  | WithVariant Property.Value ComposedFont
+  | WithStyle Property.Value ComposedFont
 
-type alias FontFactory sz =
-  { leaf : Linear.NubSizeDescriptor {} sz -> 
+type alias FontFactory =
+  { leaf : Property.Value -> 
            List String -> 
            List Family.GenericFontFamily -> 
-           ComposedFont sz
-  , composite : (ComposedFont sz -> FontComponents sz) -> 
-                ComposedFont sz -> 
-                ComposedFont sz 
-  , named : String -> Font {} sz
-  , initial_ : Font {} sz
-  , inherit_ : Font {} sz
-  , unset_  : Font {} sz
-  , other_ : Property.Value -> Font {} sz
+           ComposedFont
+  , composite : (ComposedFont -> FontComponents) -> 
+                ComposedFont -> 
+                ComposedFont
+  , named : String -> Font {}
+  , initial_ : Font {}
+  , inherit_ : Font {}
+  , unset_  : Font {}
+  , other_ : Property.Value -> Font {}
   }
 
-fontFactory : FontFactory sz
+fontFactory : FontFactory
 fontFactory =
-  { leaf sizeDescriptor customFonts genericFonts = 
-      let sizeVal = sizeDescriptor Linear.nubSizeFactory 
-          baseComponent = BaseComponent sizeVal customFonts genericFonts 
+  { leaf sizeVal customFonts genericFonts = 
+      let baseComponent = BaseComponent sizeVal customFonts genericFonts 
       in { font = CompositeFont baseComponent, fontComponents = baseComponent }
   , composite composer innerComposedFont =
       let newComponents = composer innerComposedFont
@@ -92,7 +89,7 @@ fontFactory =
   , other_  val = { font = OtherFont val }
   }
 
-fontValue : Font rec sz -> Property.Value
+fontValue : Font rec -> Property.Value
 fontValue font =
   case font.font of
     NamedFont str -> Property.stringValue str
@@ -103,43 +100,43 @@ fontValue font =
     CompositeFont fontComponents -> componentsToValue fontComponents
 
 addLineHeight : Property.Value -> 
-                ComposedFontDescriptor sz -> 
-                FontFactory sz -> 
-                ComposedFont sz
+                ComposedFontDescriptor -> 
+                FontFactory -> 
+                ComposedFont
 addLineHeight lineHeight innerDescriptor factory =
   let innerFont = innerDescriptor factory
   in factory.composite (WithLineHeight lineHeight) innerFont
 
 addWeight : Property.Value -> 
-            ComposedFontDescriptor sz -> 
-            FontFactory sz -> 
-            ComposedFont sz
+            ComposedFontDescriptor -> 
+            FontFactory -> 
+            ComposedFont
 addWeight weight innerDescriptor factory =
   let innerFont = innerDescriptor factory
   in factory.composite (WithWeight weight) innerFont
 
 addVariant: Property.Value -> 
-            ComposedFontDescriptor sz -> 
-            FontFactory sz -> 
-            ComposedFont sz
+            ComposedFontDescriptor -> 
+            FontFactory -> 
+            ComposedFont
 addVariant variant innerDescriptor factory =
   let innerFont = innerDescriptor factory
   in factory.composite (WithVariant variant) innerFont
 
 addStyle: Property.Value -> 
-              ComposedFontDescriptor sz -> 
-              FontFactory sz -> 
-              ComposedFont sz
+              ComposedFontDescriptor -> 
+              FontFactory -> 
+              ComposedFont
 addStyle style innerDescriptor factory =   
   let innerFont = innerDescriptor factory
   in factory.composite (WithStyle style) innerFont
 
-componentsToValue : FontComponents sz -> Property.Value
+componentsToValue : FontComponents -> Property.Value
 componentsToValue fontComponents = 
   componentsToValueRecursive fontComponents Nothing Nothing Nothing Nothing
 
 
-componentsToValueRecursive : FontComponents sz -> 
+componentsToValueRecursive : FontComponents -> 
                              Maybe Property.Value -> -- line height
                              Maybe Property.Value -> -- weight
                              Maybe Property.Value -> -- variant

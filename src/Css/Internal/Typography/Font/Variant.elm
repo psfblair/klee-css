@@ -28,9 +28,12 @@ type alias FontVariantFactory =
     (Common.Initial Property.Value
       (Common.Inherit Property.Value
         (Common.Unset Property.Value 
-          (Common.Normal Property.Value {}))))
+          (Common.Normal Property.Value 
+            (Common.None Property.Value {})))))
   
 fontVariantFactory : FontVariantFactory
 fontVariantFactory = 
   let withCommon = Common.addCommonValues nubFontVariantFactory
-  in { withCommon | normal_ = Common.normalValue }
+      withNormal = { withCommon | normal_ = Common.normalValue }
+      withNone   = { withNormal | none_   = Common.noneValue   }
+  in withNone

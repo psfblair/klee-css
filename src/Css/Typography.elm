@@ -287,69 +287,70 @@ lineHeight descriptor =
 
 -------------------------------------------------------------------------------
 
-font : Font.FontDescriptor a sz -> Stylesheet.PropertyRuleAppender
+font : Font.FontDescriptor a -> Stylesheet.PropertyRuleAppender
 font fontDescriptor = 
   let value = fontDescriptor Font.fontFactory |> Font.fontValue
   in Stylesheet.simpleProperty "font" value
 
-aFont : Linear.NubSizeDescriptor {} sz -> 
+aFont : Linear.NubSizeDescriptor {} szFont -> 
         List String -> 
         List Family.GenericFontFamilyDescriptor -> 
-        Font.ComposedFontDescriptor sz
+        Font.ComposedFontDescriptor
 aFont sizeDescriptor customFonts genericFontDescriptors =
   \compositeFactory -> 
-    let genericFontFrom descriptor = descriptor Family.genericFontFamilyFactory
+    let sizeVal = sizeDescriptor Linear.nubSizeFactory
+        genericFontFrom descriptor = descriptor Family.genericFontFamilyFactory
         genericFonts = List.map genericFontFrom genericFontDescriptors
-    in compositeFactory.leaf sizeDescriptor customFonts genericFonts
+    in compositeFactory.leaf sizeVal customFonts genericFonts
 
-withLineHeight : Linear.NubSizeDescriptor {} sz -> 
-                 Font.ComposedFontDescriptor sz -> 
-                 Font.ComposedFontDescriptor sz
+withLineHeight : Linear.NubSizeDescriptor {} szLinHeight -> 
+                 Font.ComposedFontDescriptor -> 
+                 Font.ComposedFontDescriptor
 withLineHeight lineHeightDescriptor innerDescriptor =
-  \compositeFactory ->
-    let lineHeight = lineHeightDescriptor Linear.nubSizeFactory
-    in Font.addLineHeight lineHeight innerDescriptor compositeFactory
+  \compositeFactory -> 
+    let lineHeightVal = lineHeightDescriptor Linear.nubSizeFactory
+    in Font.addLineHeight lineHeightVal innerDescriptor compositeFactory
 
 withWeight : Weight.NubFontWeightDescriptor {} -> 
-             Font.ComposedFontDescriptor sz -> 
-             Font.ComposedFontDescriptor sz
+             Font.ComposedFontDescriptor -> 
+             Font.ComposedFontDescriptor
 withWeight weightDescriptor innerDescriptor = 
   \compositeFactory ->
      let weight = weightDescriptor Weight.nubFontWeightFactory 
      in Font.addWeight weight innerDescriptor compositeFactory
   
 withVariant : Variant.NubFontVariantDescriptor {} -> 
-              Font.ComposedFontDescriptor sz -> 
-              Font.ComposedFontDescriptor sz
+              Font.ComposedFontDescriptor -> 
+              Font.ComposedFontDescriptor
 withVariant variantDescriptor innerDescriptor = 
   \compositeFactory -> 
      let variant = variantDescriptor Variant.nubFontVariantFactory
      in Font.addVariant variant innerDescriptor compositeFactory
 
 withStyle : FontStyle.NubFontStyleDescriptor {} -> 
-            Font.ComposedFontDescriptor sz -> 
-            Font.ComposedFontDescriptor sz
+            Font.ComposedFontDescriptor -> 
+            Font.ComposedFontDescriptor
 withStyle styleDescriptor innerDescriptor = 
   \compositeFactory ->
      let style = styleDescriptor FontStyle.nubFontStyleFactory
      in Font.addStyle style innerDescriptor compositeFactory
 
-caption : Font.FontDescriptor {} sz
+caption : Font.FontDescriptor {}
 caption = \factory -> factory.named "caption"
 
-icon : Font.FontDescriptor {} sz
+icon : Font.FontDescriptor {}
 icon = \factory -> factory.named "icon"
 
-menu : Font.FontDescriptor {} sz
+menu : Font.FontDescriptor {}
 menu = \factory -> factory.named "menu"
 
-messageBox : Font.FontDescriptor {} sz
+messageBox : Font.FontDescriptor {}
 messageBox = \factory -> factory.named "message-box"
 
-smallCaption : Font.FontDescriptor {} sz
+smallCaption : Font.FontDescriptor {}
 smallCaption = \factory -> factory.named "small-caption"
 
-statusBar : Font.FontDescriptor {} sz
+statusBar : Font.FontDescriptor {}
 statusBar = \factory -> factory.named "status-bar"
 
 
