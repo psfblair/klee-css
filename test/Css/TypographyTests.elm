@@ -338,8 +338,6 @@ suite = describe "Css.TextTests"
       [ renderProperties [ letterSpacing (px 20)]
           `shouldEqual` "letter-spacing:20px"
       ]
--- TODO
-{-
     , it "should render generic properties properly"
       [ renderProperties [letterSpacing initial]
           `shouldEqual` "letter-spacing:initial"
@@ -351,6 +349,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "letter-spacing:unset"
       , renderProperties [letterSpacing (other "foo")]
           `shouldEqual` "letter-spacing:foo"
+      , renderProperties [letterSpacing (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "letter-spacing:-webkit-foo;letter-spacing:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [letterSpacing auto]
       --     `shouldEqual` "letter-spacing:should not compile"
@@ -367,15 +367,12 @@ suite = describe "Css.TextTests"
       -- , renderProperties [letterSpacing hidden]
       --     `shouldEqual` "letter-spacing:should not compile"
       ]
--}
     ]
   , describe "the word spacing functions"
     [ it "should render a numeric spacing properly"
       [ renderProperties [ wordSpacing (pct 20)]
           `shouldEqual` "word-spacing:20%"
       ]
--- TODO 
-{-
     , it "should render generic properties properly"
       [ renderProperties [wordSpacing initial]
           `shouldEqual` "word-spacing:initial"
@@ -387,6 +384,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "word-spacing:unset"
       , renderProperties [wordSpacing (other "foo")]
           `shouldEqual` "word-spacing:foo"
+      , renderProperties [wordSpacing (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "word-spacing:-webkit-foo;word-spacing:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [wordSpacing auto]
       --     `shouldEqual` "word-spacing:should not compile"
@@ -403,7 +402,6 @@ suite = describe "Css.TextTests"
       -- , renderProperties [wordSpacing hidden]
       --     `shouldEqual` "word-spacing:should not compile"
       ] 
--}
     ]
   , describe "the text rendering function"
     [ it "should render properly"
@@ -421,6 +419,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "text-rendering:unset"
       , renderProperties [textRendering (other "foo")]
           `shouldEqual` "text-rendering:foo"
+      , renderProperties [textRendering (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "text-rendering:-webkit-foo;text-rendering:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [textRendering all]
       --     `shouldEqual` "text-rendering:should not compile"
@@ -468,6 +468,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "text-shadow:unset"
       , renderProperties [textShadow (other "foo")]
           `shouldEqual` "text-shadow:foo"
+      , renderProperties [textShadow (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "text-shadow:-webkit-foo;text-shadow:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [textShadow auto]
       --     `shouldEqual` "text-shadow:should not compile"
@@ -515,6 +517,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "text-indent:unset"
       , renderProperties [textIndent (other "foo")]
           `shouldEqual` "text-indent:foo"
+      , renderProperties [textIndent (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "text-indent:-webkit-foo;text-indent:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [textIndent all]
       --     `shouldEqual` "text-indent:should not compile"
@@ -548,6 +552,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "direction:unset"
       , renderProperties [direction (other "foo")]
           `shouldEqual` "direction:foo"
+      , renderProperties [direction (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "direction:-webkit-foo;direction:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [direction all]
       --     `shouldEqual` "direction:should not compile"
@@ -585,6 +591,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "text-align:unset"
       , renderProperties [textAlign (other "foo")]
           `shouldEqual` "text-align:foo"
+      , renderProperties [textAlign (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "text-align:-webkit-foo;text-align:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [textAlign all]
       --     `shouldEqual` "text-align:should not compile"
@@ -620,6 +628,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "white-space:unset"
       , renderProperties [whiteSpace (other "foo")]
           `shouldEqual` "white-space:foo"
+      , renderProperties [whiteSpace (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "white-space:-webkit-foo;white-space:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [whiteSpace all]
       --     `shouldEqual` "white-space:should not compile"
@@ -655,6 +665,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "text-decoration:unset"
       , renderProperties [textDecoration (other "foo")]
           `shouldEqual` "text-decoration:foo"
+      , renderProperties [textDecoration (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "text-decoration:-webkit-foo;text-decoration:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [textDecoration all]
       --     `shouldEqual` "text-decoration-line:should not compile"
@@ -688,6 +700,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "text-decoration-line:unset"
       , renderProperties [textDecorationLine (other "foo")]
           `shouldEqual` "text-decoration-line:foo"
+      , renderProperties [textDecorationLine (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "text-decoration-line:-webkit-foo;text-decoration-line:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [textDecorationLine all]
       --     `shouldEqual` "text-decoration-line:should not compile"
@@ -725,6 +739,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "text-decoration-color:unset"
       , renderProperties [textDecorationColor (other "foo")]
           `shouldEqual` "text-decoration-color:foo"
+      , renderProperties [textDecorationColor (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "text-decoration-color:-webkit-foo;text-decoration-color:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [textDecorationColor all]
       --     `shouldEqual` "text-decoration-color:should not compile"
@@ -749,17 +765,17 @@ suite = describe "Css.TextTests"
       [ renderProperties [ textDecorationStyle solid ]
           `shouldEqual` "text-decoration-style:solid"
       ]
--- TODO
-{-
     , it "should render generic properties properly"
       [ renderProperties [textDecorationStyle initial]
           `shouldEqual` "text-decoration-style:initial"
       , renderProperties [textDecorationStyle inherit]
           `shouldEqual` "text-decoration-style:inherit"
-      -- , renderProperties [textDecorationStyle unset]
-      --     `shouldEqual` "text-decoration-style:unset"
+      , renderProperties [textDecorationStyle unset]
+          `shouldEqual` "text-decoration-style:unset"
       , renderProperties [textDecorationStyle (other "foo")]
           `shouldEqual` "text-decoration-style:foo"
+      , renderProperties [textDecorationStyle (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "text-decoration-style:-webkit-foo;text-decoration-style:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [textDecorationStyle all]
       --     `shouldEqual` "text-decoration-style:should not compile"
@@ -778,7 +794,6 @@ suite = describe "Css.TextTests"
       -- , renderProperties [textDecorationStyle hidden]
       --     `shouldEqual` "text-decoration-style:should not compile"
       ]
--}
     ]
   , describe "the text transform function"
     [ it "should render preset properties properly"
@@ -796,6 +811,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "text-transform:unset"
       , renderProperties [textTransform (other "foo")]
           `shouldEqual` "text-transform:foo"
+      , renderProperties [textTransform (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "text-transform:-webkit-foo;text-transform:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [textTransform all]
       --     `shouldEqual` "text-transform:should not compile"
@@ -827,6 +844,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "list-style-type:initial"
       , renderProperties [listStyleType (other "foo")]
           `shouldEqual` "list-style-type:foo"
+      , renderProperties [listStyleType (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "list-style-type:-webkit-foo;list-style-type:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [listStyleType all]
       --     `shouldEqual` "list-style-type:should not compile"
@@ -858,6 +877,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "list-style-position:initial"
       , renderProperties [listStylePosition (other "foo")]
           `shouldEqual` "list-style-position:foo"
+      , renderProperties [listStylePosition (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "list-style-position:-webkit-foo;list-style-position:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [listStylePosition all]
       --     `shouldEqual` "list-style-position:should not compile"
@@ -893,6 +914,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "list-style-image:none"
       , renderProperties [listStyleImage (other "foo")]
           `shouldEqual` "list-style-image:foo"
+      , renderProperties [listStyleImage (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "list-style-image:-webkit-foo;list-style-image:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [listStyleImage all]
       --     `shouldEqual` "list-style-image:should not compile"
@@ -928,6 +951,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "list-style:initial"
       , renderProperties [ listStyle (other "foo") ]
           `shouldEqual` "list-style:foo"
+      , renderProperties [listStyle (otherPrefixed [webkit_, moz_] "foo")] 
+          `shouldEqual` "list-style:-webkit-foo;list-style:-moz-foo" 
       -- Should not compile:
       -- , renderProperties [listStyle all]
       --     `shouldEqual` "list-style:should not compile"
