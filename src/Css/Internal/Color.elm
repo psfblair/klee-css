@@ -4,7 +4,6 @@ module Css.Internal.Color
   , NubColorDescriptorWithInvert, nubColorFactoryWithInvert
   , ColorDescriptorWithInvert, colorFactoryWithInvert
   , rgbaString, hslaString, invalidRgb, invalidHsl
-  , invalidFractionOf1, join
   ) where
 
 import String
@@ -105,10 +104,4 @@ invalidRgb r g b =
 invalidHsl : Int -> Float -> Float -> Bool
 invalidHsl h s l =
   let invalidHue num = num > 360 || num < 0      
-  in invalidHue h || invalidFractionOf1 s || invalidFractionOf1 l
-  
-invalidFractionOf1 : Float -> Bool
-invalidFractionOf1 num = num > 1.0 || num < 0
-
-join : List String -> String
-join strings = String.join "," strings
+  in invalidHue h || Utils.invalidFractionOf1 s || Utils.invalidFractionOf1 l

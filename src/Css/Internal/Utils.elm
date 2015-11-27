@@ -1,4 +1,10 @@
-module Css.Internal.Utils where
+module Css.Internal.Utils 
+  ( quote
+  , compose, mapPairwise
+  , quadrupleOf
+  , floatMod, toFixed, invalidFractionOf1
+  , toHexString, fromHex
+  ) where
 
 import Char as Char
 import String as String
@@ -13,6 +19,7 @@ quote str =
    let pattern = Regex.regex "\""
        escaped = str |> Regex.replace Regex.All pattern (\_ -> "\\\"")
    in "\"" ++ escaped ++ "\""
+
 
 compose : List (a -> a) -> a -> a
 compose = List.foldl (>>) identity
@@ -40,6 +47,10 @@ toFixed decimalPlaces x =
   let powersOf10 = 10 ^ decimalPlaces
       shiftedAndRounded = x * powersOf10 |> round |> toFloat
   in shiftedAndRounded / powersOf10
+
+
+invalidFractionOf1 : Float -> Bool
+invalidFractionOf1 num = num > 1.0 || num < 0
 
 
 toHexString : Int -> Int -> String

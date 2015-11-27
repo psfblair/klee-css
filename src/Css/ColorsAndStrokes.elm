@@ -44,16 +44,17 @@ rgb r g b =
   \factory -> 
     if Color.invalidRgb r g b
     then factory.invalid_ 
-          ("INVALID COLOR: " ++ Color.join [toString r, toString g, toString b])
+          ("INVALID COLOR: " ++ 
+            String.join "," [toString r, toString g, toString b])
     else ElmColor.rgb r g b |> factory.rgbaColor
 
 rgba : Int -> Int -> Int -> Float -> Color.NubColorDescriptor rec
 rgba r g b a = 
   \factory -> 
-    if Color.invalidRgb r g b || Color.invalidFractionOf1 a
+    if Color.invalidRgb r g b || Utils.invalidFractionOf1 a
     then factory.invalid_ 
           ("INVALID COLOR: " ++ 
-            Color.join [toString r, toString g, toString b, toString a])
+            String.join "," [toString r, toString g, toString b, toString a])
     else ElmColor.rgba r g b a |> factory.rgbaColor
 
 hsl : Int -> Float -> Float -> Color.NubColorDescriptor rec
@@ -61,16 +62,17 @@ hsl h s l =
   \factory -> 
     if Color.invalidHsl h s l
     then factory.invalid_ 
-          ("INVALID COLOR: " ++ Color.join [toString h, toString s, toString l])
+          ("INVALID COLOR: " ++ 
+            String.join "," [toString h, toString s, toString l])
     else ElmColor.hsl (toFloat h |> degrees) s l |> factory.hslaColor
 
 hsla : Int -> Float -> Float -> Float -> Color.NubColorDescriptor rec
 hsla h s l a = 
   \factory -> 
-    if Color.invalidHsl h s l || Color.invalidFractionOf1 a
+    if Color.invalidHsl h s l || Utils.invalidFractionOf1 a
     then factory.invalid_ 
           ("INVALID COLOR: " ++ 
-            Color.join [toString h, toString s, toString l, toString a])
+            String.join "," [toString h, toString s, toString l, toString a])
     else ElmColor.hsla (toFloat h |> degrees) s l a |> factory.hslaColor
 
 hex : String -> Color.NubColorDescriptor rec
