@@ -3,12 +3,8 @@ module Css.TypographyTests where
 import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
-import Css.ColorsAndStrokes exposing 
-  (green, currentColor, transparent, rgb, solid, disc)
-import Css.Common exposing 
-  ( initial, inherit, unset, other, auto, normal, none, otherPrefixed
-  , webkit_, moz_
-  )
+import Css.ColorsAndStrokes exposing (..)
+import Css.Common exposing (..)
 import Css.Geometry exposing (unitless, px, pct, em, sideLeft)
 import Css exposing (renderProperties)
 
@@ -342,10 +338,12 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "font:should not compile"
       ]
     ]
-  , describe "the letter spacing functios"
+  , describe "the letter spacing function"
     [ it "should render a numeric spacing properly"
       [ renderProperties [ letterSpacing (px 20)]
           `shouldEqual` "letter-spacing:20px"
+      , renderProperties [letterSpacing (em 0.2)]
+          `shouldEqual` "letter-spacing:0.2em"
       ]
     , it "should render generic properties properly"
       [ renderProperties [letterSpacing initial]
@@ -379,7 +377,9 @@ suite = describe "Css.TextTests"
     ]
   , describe "the word spacing functions"
     [ it "should render a numeric spacing properly"
-      [ renderProperties [ wordSpacing (pct 20)]
+      [ renderProperties [ wordSpacing (px 20)]
+          `shouldEqual` "word-spacing:20px"
+      , renderProperties [ wordSpacing (pct 20)]
           `shouldEqual` "word-spacing:20%"
       ]
     , it "should render generic properties properly"
@@ -460,9 +460,6 @@ suite = describe "Css.TextTests"
         [ textShadow (aShadow (px 20) (em 30) |> shadowColor currentColor) ]
             `shouldEqual` "text-shadow:20px 30em currentColor"
       -- , renderProperties 
-      --   [ textShadow (aShadow (px 20) (em 30) |> shadowColor transparent) ]
-      --       `shouldEqual` "text-shadow:should not compile"
-      -- , renderProperties 
       --   [ textShadow (aShadow (px 20) (em 30) |> shadowColor inherit) ]
       --       `shouldEqual` "text-shadow:should not compile"
       ]
@@ -499,12 +496,14 @@ suite = describe "Css.TextTests"
   , describe "the text shadows function"
     [ it "should render simple shadows properly"
       [ renderProperties 
-          [ textShadows [ (aShadow (px 20) (em 30)), (aShadow (px 10) (pct 40)) ] ]
+          [ textShadows [ (aShadow (px 20) (em 30)), 
+                          (aShadow (px 10) (pct 40)) ] ]
               `shouldEqual` "text-shadow:20px 30em,10px 40%"
       ]
-    , it "should render omposite shadows properly"
+    , it "should render composite shadows properly"
       [ renderProperties 
-        [ textShadows [(aShadow (px 20) (em 30) |> shadowBlur (px 30)), (aShadow (px 10) (pct 40)) ] ]
+        [ textShadows [ (aShadow (px 20) (em 30) |> shadowBlur (px 30)), 
+                        (aShadow (px 10) (pct 40)) ] ]
             `shouldEqual` "text-shadow:20px 30em 30px,10px 40%"
       ]
     ]
@@ -542,8 +541,6 @@ suite = describe "Css.TextTests"
       -- , renderProperties [textIndent none]
       --     `shouldEqual` "text-indent:should not compile"      
       -- , renderProperties [textIndent visible]
-      --     `shouldEqual` "text-indent:should not compile"
-      -- , renderProperties [textIndent hidden]
       --     `shouldEqual` "text-indent:should not compile"
       ]
     ]
@@ -656,24 +653,13 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "white-space:should not compile"
       ]
     ]
+-- TODO There are more complex values for decoration, e.g., 
+-- text-decoration: underline red; 
+-- text-decoration: underline wavy red;
   , describe "the text decoration function"
     [ it "should render preset values properly"
       [ renderProperties [ textDecoration underline ]
           `shouldEqual` "text-decoration:underline"
-      , renderProperties [ textDecoration overline ]
-          `shouldEqual` "text-decoration:overline"
-      , renderProperties [ textDecoration lineThrough ]
-          `shouldEqual` "text-decoration:line-through"
-      -- , renderProperties [ textDecoration solid ]
-      --     `shouldEqual` "text-decoration:should not compile"
-      -- , renderProperties [ textDecoration double ]
-      --     `shouldEqual` "text-decoration:should not compile"
-      -- , renderProperties [ textDecoration dotted ]
-      --     `shouldEqual` "text-decoration:should not compile"
-      -- , renderProperties [ textDecoration dashed ]
-      --     `shouldEqual` "text-decoration:should not compile"
-      -- , renderProperties [ textDecoration wavy ]
-      --     `shouldEqual` "text-decoration:should not compile"
       ]
     , it "should render generic properties properly"
       [ renderProperties [textDecoration initial]
@@ -705,24 +691,13 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "text-decoration-line:should not compile"
       ]
     ]
+-- TODO There are more complex values for text-decoration-line, e.g., 
+-- text-decoration: underline overline; 
+-- text-decoration: overline underline line-through;
   , describe "the text decoration line function"
     [ it "should render preset values properly"
-      [ renderProperties [ textDecorationLine underline ]
-          `shouldEqual` "text-decoration-line:underline"
-      ,renderProperties [ textDecorationLine overline ]
+      [ renderProperties [ textDecorationLine overline ]
           `shouldEqual` "text-decoration-line:overline"
-      ,renderProperties [ textDecorationLine lineThrough ]
-          `shouldEqual` "text-decoration-line:line-through"
-      -- , renderProperties [ textDecorationLine solid ]
-      --     `shouldEqual` "text-decoration-line:should not compile"
-      -- , renderProperties [ textDecorationLine double ]
-      --     `shouldEqual` "text-decoration-line:should not compile"
-      -- , renderProperties [ textDecorationLine dotted ]
-      --     `shouldEqual` "text-decoration-line:should not compile"
-      -- , renderProperties [ textDecorationLine dashed ]
-      --     `shouldEqual` "text-decoration-line:should not compile"
-      -- , renderProperties [ textDecorationLine wavy ]
-      --     `shouldEqual` "text-decoration-line:should not compile"
       ]
     , it "should render generic properties properly"
       [ renderProperties [textDecorationLine initial]
@@ -799,6 +774,20 @@ suite = describe "Css.TextTests"
     [ it "should render preset values properly"
       [ renderProperties [ textDecorationStyle solid ]
           `shouldEqual` "text-decoration-style:solid"
+      , renderProperties [ textDecorationStyle double ]
+          `shouldEqual` "text-decoration-style:double"
+      , renderProperties [ textDecorationStyle dashed ]
+          `shouldEqual` "text-decoration-style:double"
+      , renderProperties [ textDecorationStyle wavy ]
+          `shouldEqual` "text-decoration-style:double"
+      -- , renderProperties [ textDecorationStyle groove ]
+      --     `shouldEqual` "text-decoration-style:should not compile"
+      -- , renderProperties [ textDecorationStyle ridge ]
+      --     `shouldEqual` "text-decoration-style:should not compile"
+      -- , renderProperties [ textDecorationStyle inset ]
+      --     `shouldEqual` "text-decoration-style:should not compile"
+      -- , renderProperties [ textDecorationStyle outset ]
+      --     `shouldEqual` "text-decoration-style:should not compile"
       ]
     , it "should render generic properties properly"
       [ renderProperties [textDecorationStyle initial]
@@ -865,6 +854,8 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "text-transform:should not compile"
       ]
     ]
+-- TODO need textOverflow, textJustify   
+-- TODO list-style-type can take a string argument
   , describe "The list style type function"
     [ it "should render a named style type properly"
       [ renderProperties [listStyleType disc]
@@ -877,6 +868,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "list-style-type:inherit"
       , renderProperties [listStyleType initial]
           `shouldEqual` "list-style-type:initial"
+      , renderProperties [listStyleType unset]
+          `shouldEqual` "list-style-type:unset"
       , renderProperties [listStyleType (other "foo")]
           `shouldEqual` "list-style-type:foo"
       , renderProperties [listStyleType (otherPrefixed [webkit_, moz_] "foo")] 
@@ -896,8 +889,6 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "list-style-type:should not compile"
       -- , renderProperties [listStyleType hidden]
       --     `shouldEqual` "list-style-type:should not compile"
-      -- , renderProperties [listStyleType unset]
-      --     `shouldEqual` "list-style-type:should not compile"
       ]  
     ]
   , describe "The list style position function"
@@ -910,6 +901,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "list-style-position:inherit"
       , renderProperties [listStylePosition initial]
           `shouldEqual` "list-style-position:initial"
+      , renderProperties [listStylePosition unset]
+          `shouldEqual` "list-style-position:unset"
       , renderProperties [listStylePosition (other "foo")]
           `shouldEqual` "list-style-position:foo"
       , renderProperties [listStylePosition (otherPrefixed [webkit_, moz_] "foo")] 
@@ -931,8 +924,6 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "list-style-position:should not compile"
       -- , renderProperties [listStylePosition hidden]
       --     `shouldEqual` "list-style-position:should not compile"
-      -- , renderProperties [listStylePosition unset]
-      --     `shouldEqual` "list-style-position:should not compile"
       ]  
     ]
   , describe "The list style image function"
@@ -947,6 +938,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "list-style-image:initial"
       , renderProperties [listStyleImage none]
           `shouldEqual` "list-style-image:none"
+      , renderProperties [listStyleImage unset]
+          `shouldEqual` "list-style-image:unset"
       , renderProperties [listStyleImage (other "foo")]
           `shouldEqual` "list-style-image:foo"
       , renderProperties [listStyleImage (otherPrefixed [webkit_, moz_] "foo")] 
@@ -966,8 +959,6 @@ suite = describe "Css.TextTests"
       --     `shouldEqual` "list-style-image:should not compile"
       -- , renderProperties [listStyleImage hidden]
       --     `shouldEqual` "list-style-image:should not compile"
-      -- , renderProperties [listStyleImage unset]
-      --     `shouldEqual` "list-style-image:should not compile"
       ]  
     ]  
   , describe "The list style shorthand function"
@@ -984,6 +975,8 @@ suite = describe "Css.TextTests"
           `shouldEqual` "list-style:inherit"
       , renderProperties [ listStyle initial ]
           `shouldEqual` "list-style:initial"
+      , renderProperties [ listStyle unset ]
+          `shouldEqual` "list-style:unset"
       , renderProperties [ listStyle (other "foo") ]
           `shouldEqual` "list-style:foo"
       , renderProperties [listStyle (otherPrefixed [webkit_, moz_] "foo")] 
@@ -1004,8 +997,6 @@ suite = describe "Css.TextTests"
       -- , renderProperties [listStyle visible]
       --     `shouldEqual` "list-style:should not compile"
       -- , renderProperties [listStyle hidden]
-      --     `shouldEqual` "list-style:should not compile"
-      -- , renderProperties [listStyle unset]
       --     `shouldEqual` "list-style:should not compile"
       ]  
     ]  

@@ -13,7 +13,6 @@ type alias NubTextDecorationFactory rec =
   { rec | underline : Property.Value
         , overline : Property.Value
         , lineThrough : Property.Value
-        , blink : Property.Value
         , other_ : Property.Value -> Property.Value
   }
 
@@ -22,7 +21,6 @@ nubTextDecorationFactory =
   { underline = Property.stringValue "underline"
   , overline = Property.stringValue "overline"
   , lineThrough = Property.stringValue "line-through"
-  , blink = Property.stringValue "blink"
   , other_ val = Common.otherValue val
   }
 

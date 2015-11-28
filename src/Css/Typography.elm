@@ -309,7 +309,7 @@ withLineHeight : Linear.NubSizeDescriptor {} szLinHeight ->
 withLineHeight lineHeightDescriptor innerDescriptor =
   \compositeFactory -> 
     let lineHeightVal = lineHeightDescriptor Linear.nubSizeFactory
-    in Font.addLineHeight lineHeightVal innerDescriptor compositeFactory
+    in  Font.addLineHeight lineHeightVal innerDescriptor compositeFactory
 
 withWeight : Weight.NubFontWeightDescriptor {} -> 
              Font.ComposedFontDescriptor -> 
@@ -499,13 +499,18 @@ preLine : Whitespace.WhiteSpaceDescriptor
 preLine = \factory -> factory.preLine
 
 -------------------------------------------------------------------------------
-
+-- TODO There are more complex values for decoration, e.g., 
+-- text-decoration: underline red; 
+-- text-decoration: underline wavy red;
 textDecoration : Decoration.TextDecorationDescriptor -> 
                  Stylesheet.PropertyRuleAppender
 textDecoration descriptor = 
   let decorationValue = descriptor Decoration.textDecorationFactory
   in Stylesheet.simpleProperty "text-decoration" decorationValue
 
+-- TODO There are more complex values for text-decoration-line, e.g., 
+-- text-decoration: underline overline; 
+-- text-decoration: overline underline line-through;
 textDecorationLine : Decoration.TextDecorationDescriptor -> 
                      Stylesheet.PropertyRuleAppender
 textDecorationLine descriptor = 
@@ -555,6 +560,12 @@ fullWidth : Transform.TextTransformDescriptor
 fullWidth = \factory -> factory.fullWidth
 
 -------------------------------------------------------------------------------
+
+-- TODO need textOverflow, textJustify   
+
+-------------------------------------------------------------------------------
+
+-- TODO list-style-type can take a string argument
 
 listStyleType : List.ListStyleTypeDescriptor -> Stylesheet.PropertyRuleAppender
 listStyleType descriptor = 
