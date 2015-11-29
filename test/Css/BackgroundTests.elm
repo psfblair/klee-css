@@ -15,6 +15,7 @@ import Css exposing (renderProperties)
 suite : Spec
 suite = describe "Css.BackgroundTests"
   [ describe "background"
+    -- TODO - Size combinator can actually take "auto" and image can take "none"
     [ it "should render combinations of the combinators properly"
       [ renderProperties 
           [ background (withPosition (placed sideLeft sideTop) Nothing) ]
@@ -150,10 +151,10 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background-color:#73D216"
       , renderProperties [ backgroundColor (rgba 255 255 255 0.5) ]
           `shouldEqual` "background-color:rgba(255,255,255,0.5)"
-      ]
-    , it "should render transparent properly"
-      [ renderProperties [ backgroundColor transparent ]
+      , renderProperties [ backgroundColor transparent ]
           `shouldEqual` "background-color:transparent"
+      , renderProperties [ backgroundColor currentColor ]
+          `shouldEqual` "background-color:currentColor"
       ]
     , it "should render generic colors properly" 
       [ renderProperties [ backgroundColor initial ]
@@ -195,10 +196,10 @@ suite = describe "Css.BackgroundTests"
           `shouldEqual` "background-image:initial"
       , renderProperties [ backgroundImage inherit ]
           `shouldEqual` "background-image:inherit"
-      , renderProperties [ backgroundImage unset ]
-          `shouldEqual` "background-image:unset"
       , renderProperties [ backgroundImage none ]
           `shouldEqual` "background-image:none"
+      , renderProperties [ backgroundImage unset ]
+          `shouldEqual` "background-image:unset"
       , renderProperties [ backgroundImage (other "foo") ]
           `shouldEqual` "background-image:foo"
       , renderProperties [ backgroundImage (otherPrefixed [webkit_, moz_] "foo") ] 
@@ -305,19 +306,12 @@ suite = describe "Css.BackgroundTests"
       ]
     ]
   , describe "backgroundRepeat"
+  -- TODO syntax that takes horizontal and vertical values separately
     [ it "should render properly"
       [ renderProperties [ backgroundRepeat repeat ]
           `shouldEqual` "background-repeat:repeat"
       , renderProperties [ backgroundRepeat space ]
           `shouldEqual` "background-repeat:space"
-      , renderProperties [ backgroundRepeat roundRepeat ]
-          `shouldEqual` "background-repeat:round"
-      , renderProperties [ backgroundRepeat noRepeat ]
-          `shouldEqual` "background-repeat:no-repeat"
-      , renderProperties [ backgroundRepeat repeatX ]
-          `shouldEqual` "background-repeat:repeat-x"
-      , renderProperties [ backgroundRepeat repeatY ]
-          `shouldEqual` "background-repeat:repeat-y"
       ]  
     , it "should render generic repeat properties properly" 
       [ renderProperties [ backgroundRepeat initial ]
@@ -356,6 +350,7 @@ suite = describe "Css.BackgroundTests"
       , renderProperties [ backgroundSize contain ]
           `shouldEqual` "background-size:contain"
       ]
+      -- TODO two-value syntax can take "auto" twice or in the first position.
     , it "should render dimensioned sizes properly"
       [ renderProperties [ backgroundSize ((px 20) `by` (px 30)) ]
           `shouldEqual` "background-size:20px 30px"

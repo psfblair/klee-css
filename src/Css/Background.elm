@@ -117,6 +117,7 @@ withOrigin originDescriptor composedDescriptor =
        newComponents = Background.withOrigin origin innerComponents
    in Background.adjoinComponents newComponents
 
+-- TODO - Size can actually take "auto" and image can take "none"
 withPosition : BgPosition.BackgroundPositionDescriptor sz1 sz2 -> 
                Maybe (BgSize.BackgroundSizeDescriptor sz3) -> 
                Background.ComposedBackgroundDescriptor rec
@@ -208,7 +209,7 @@ positioned : Linear.NubSizeDescriptor {} szH ->
 positioned horiz vert = \factory -> factory.sizedPosition horiz vert
 
 -------------------------------------------------------------------------------
-
+-- TODO syntax that takes horizontal and vertical values separately
 backgroundRepeat : Repeat.BackgroundRepeatDescriptor -> 
                    Stylesheet.PropertyRuleAppender
 backgroundRepeat descriptor = 
@@ -252,5 +253,6 @@ by : Linear.NubSizeDescriptor {} sz ->
      BgSize.BackgroundSizeDescriptor sz
 by width height = \factory -> factory.backgroundSize width height
 
+-- TODO two-value syntax can take "auto" twice or in the first position.
 bgWidth : Linear.NubSizeDescriptor {} sz -> BgSize.BackgroundSizeDescriptor sz
 bgWidth width = \factory -> factory.partial width
