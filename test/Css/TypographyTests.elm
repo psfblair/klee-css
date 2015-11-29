@@ -777,9 +777,9 @@ suite = describe "Css.TextTests"
       , renderProperties [ textDecorationStyle double ]
           `shouldEqual` "text-decoration-style:double"
       , renderProperties [ textDecorationStyle dashed ]
-          `shouldEqual` "text-decoration-style:double"
+          `shouldEqual` "text-decoration-style:dashed"
       , renderProperties [ textDecorationStyle wavy ]
-          `shouldEqual` "text-decoration-style:double"
+          `shouldEqual` "text-decoration-style:wavy"
       -- , renderProperties [ textDecorationStyle groove ]
       --     `shouldEqual` "text-decoration-style:should not compile"
       -- , renderProperties [ textDecorationStyle ridge ]
