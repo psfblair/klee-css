@@ -54,10 +54,10 @@ import Css.Internal.Background.Image as BgImage
 import Css.Internal.Background.Position as BgPosition
 import Css.Internal.Background.Repeat as Repeat
 import Css.Internal.Background.Size as BgSize
-import Css.Internal.Box.Sizing as BoxSizing
 import Css.Internal.Color as Color
 import Css.Internal.Geometry.Linear as Linear
 import Css.Internal.Geometry.Sides as Sides
+import Css.Internal.Layout.BoxSizing as BoxSizing
 import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------

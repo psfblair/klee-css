@@ -4,10 +4,10 @@ import Spec exposing (..)
 import Css.TestUtils exposing (it)
 
 import Css.Background exposing (..)
-import Css.Box exposing (..)
 import Css.ColorsAndStrokes exposing (..)
 import Css.Common exposing (..)
 import Css.Geometry exposing (..)
+import Css.Layout exposing (..)
 import Css exposing (renderProperties)
 
 -------------------------------------------------------------------------------

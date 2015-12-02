@@ -1,4 +1,4 @@
-module Css.Internal.Box.Sizing
+module Css.Internal.Layout.BoxSizing
   ( BoxSizingDescriptor, BoxTypeDescriptor, NubBoxTypeDescriptor
   , nubBoxTypeFactory, boxTypeFactory
   ) where

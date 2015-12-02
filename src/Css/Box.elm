@@ -1,12 +1,8 @@
 module Css.Box
   ( 
-  -- * Box-sizing.
-    boxSizing
-  , paddingBox, borderBox, contentBox
-
   -- * Box-shadow.
 
-  , boxShadow
+    boxShadow
   , shadow, boxInset, boxColor, boxBlur
 
   -- * Border properties.
@@ -28,6 +24,7 @@ module Css.Box
   , borderBottomRightRadius, borderBottomRightRadius2
 
   -- * Collapsing borders model for a table
+  
   , borderCollapse
   , borderSpacing, borderSpacing2
 
@@ -40,34 +37,14 @@ module Css.Box
 
 import Css.Internal.Box.Border as Border
 import Css.Internal.Box.Shadow as BoxShadow
-import Css.Internal.Box.Sizing as BoxSizing
 import Css.Internal.Box.Outline as Outline
 import Css.Internal.Color as Color
-import Css.Internal.Display as Display
 import Css.Internal.Geometry.Linear as Linear
+import Css.Internal.Layout.Visibility as Visibility
 import Css.Internal.Property as Property
 import Css.Internal.Stroke as Stroke
 import Css.Internal.Stylesheet as Stylesheet
 import Css.Internal.Utils as Utils
-
--------------------------------------------------------------------------------
-
--- These descriptors must be usable in cases where we don't want to accept 
--- generic properties; i.e., where we are constructing more complex descriptors. 
--- So we don't require that the common properties be present.
-paddingBox : BoxSizing.BoxTypeDescriptor rec
-paddingBox = \factory -> factory.boxType "padding-box"
-
-borderBox : BoxSizing.BoxTypeDescriptor rec
-borderBox = \factory ->  factory.boxType "border-box"
-
-contentBox : BoxSizing.BoxTypeDescriptor rec
-contentBox = \factory ->  factory.boxType "content-box"
-
-boxSizing : BoxSizing.BoxSizingDescriptor -> Stylesheet.PropertyRuleAppender
-boxSizing descriptor =
-  let boxType = descriptor BoxSizing.boxTypeFactory
-  in Stylesheet.simpleProperty "box-sizing" boxType
 
 -------------------------------------------------------------------------------
 {- boxShadow can be:
@@ -378,9 +355,10 @@ borderSpacing2 horizontal vertical =
       factory = (Linear.nubSizeFactory, Linear.nubSizeFactory)
   in Stylesheet.simpleProperty "border-spacing" (compositeDescriptor factory)
 
-borderCollapse : Display.VisibilityDescriptor {} -> Stylesheet.PropertyRuleAppender
+borderCollapse : Visibility.VisibilityDescriptor {} -> 
+                 Stylesheet.PropertyRuleAppender
 borderCollapse visibilityDescriptor =
-  let visibility = visibilityDescriptor Display.visibilityFactory
+  let visibility = visibilityDescriptor Visibility.visibilityFactory
   in Stylesheet.simpleProperty "border-collapse" visibility
 
 -------------------------------------------------------------------------------
