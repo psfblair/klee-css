@@ -16,7 +16,7 @@ import MyStyleConstants exposing (..)
 {-| To render this stylesheet from the command line, run the following command
 from the root directory of this project:
 
-    ./css-elm.sh example/MyStylesheet/Main.elm example/MyStyleConstants.elm > MyStylesheet.css
+    ./klee example/MyStylesheet/Main.elm example/MyStyleConstants.elm > MyStylesheet.css
 
 Note that for IO to take place, the module must be named Main. Therefore, if
 we have multiple stylesheets to render we have multiple Main modules in different

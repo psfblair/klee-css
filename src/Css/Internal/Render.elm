@@ -58,11 +58,11 @@ renderWith cfg stylesheets
   |> renderRules cfg []
   |> renderBanner cfg
 
-{- Adds a "Generated with css-elm" comment to the bottom of the rendered Css.
+{- Adds a "Generated with klee" comment to the bottom of the rendered Css.
 -}
 renderBanner : Config -> String -> String
 renderBanner cfg =
-  if | cfg.banner -> (\x -> x ++ "\n/* Generated with css-elm */")
+  if | cfg.banner -> (\x -> x ++ "\n/* Generated with klee */")
      | otherwise  -> identity
 
 -------------------------------------------------------------------------------
