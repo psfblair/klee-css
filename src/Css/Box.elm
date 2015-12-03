@@ -26,6 +26,7 @@ module Css.Box
   -- * Collapsing borders model for a table
   
   , borderCollapse
+  , separate
   , borderSpacing, borderSpacing2
 
   -- * Outline properties.
@@ -40,7 +41,6 @@ import Css.Internal.Box.Shadow as BoxShadow
 import Css.Internal.Box.Outline as Outline
 import Css.Internal.Color as Color
 import Css.Internal.Geometry.Linear as Linear
-import Css.Internal.Layout.Visibility as Visibility
 import Css.Internal.Property as Property
 import Css.Internal.Stroke as Stroke
 import Css.Internal.Stylesheet as Stylesheet
@@ -342,6 +342,15 @@ borderBottomRightRadius2 horizontal vertical =
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
+borderCollapse : Border.BorderCollapseDescriptor -> 
+                 Stylesheet.PropertyRuleAppender
+borderCollapse visibilityDescriptor =
+  let visibility = visibilityDescriptor Border.borderCollapseFactory
+  in Stylesheet.simpleProperty "border-collapse" visibility
+
+separate : Border.BorderCollapseDescriptor
+separate = \factory -> factory.separate
+
 borderSpacing : Linear.SizeDescriptor sz -> Stylesheet.PropertyRuleAppender
 borderSpacing lengthDescriptor =
   let spacingValue = lengthDescriptor Linear.basicSizeFactory
@@ -354,12 +363,6 @@ borderSpacing2 horizontal vertical =
   let compositeDescriptor = Property.spacePairValue horizontal vertical 
       factory = (Linear.nubSizeFactory, Linear.nubSizeFactory)
   in Stylesheet.simpleProperty "border-spacing" (compositeDescriptor factory)
-
-borderCollapse : Visibility.VisibilityDescriptor {} -> 
-                 Stylesheet.PropertyRuleAppender
-borderCollapse visibilityDescriptor =
-  let visibility = visibilityDescriptor Visibility.visibilityFactory
-  in Stylesheet.simpleProperty "border-collapse" visibility
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

@@ -19,8 +19,7 @@ module Css.Layout (
   , display
   , inline, block, listItem, runIn, inlineBlock, table, inlineTable, tableRowGroup
   , tableHeaderGroup, tableFooterGroup, tableRow, tableColumnGroup, tableColumn
-  , tableCell, tableCaption, displayNone, displayInherit, flex
-  , inlineFlex, grid, inlineGrid
+  , tableCell, tableCaption, flex, inlineFlex, grid, inlineGrid
 
   -- * Float
   
@@ -30,6 +29,7 @@ module Css.Layout (
   -- * Opacity
 
   , opacity
+  , opacityLevel
 
   -- * Overflow
 
@@ -43,16 +43,18 @@ module Css.Layout (
 
   -- * Vertical align
 
+  , verticalAlign
   , middle, vAlignSub, vAlignSuper, textTop, textBottom, vAlignTop, vAlignBottom
 
   -- * Visibility
 
-  , collapse, separate
   , visibility
+  , collapse
 
   -- * Z-index
 
   , zIndex
+  , zLevel
 
   ) where
 
@@ -93,13 +95,13 @@ clear descriptor =
   in Stylesheet.simpleProperty "clear" clearValue
 
 both : Clear.ClearDescriptor
-both factory = factory.clear "both"
+both = \factory -> factory.clear "both"
 
 clearLeft : Clear.ClearDescriptor
-clearLeft factory = factory.clear "left"
+clearLeft = \factory -> factory.clear "left"
 
 clearRight : Clear.ClearDescriptor
-clearRight factory = factory.clear "right"
+clearRight = \factory -> factory.clear "right"
 
 -------------------------------------------------------------------------------
 -- TODO The clip property is obsolete; replace with clip-path.
@@ -116,67 +118,61 @@ display descriptor =
   in Stylesheet.simpleProperty "display" displayValue
 
 inline : Display.DisplayDescriptor
-inline factory = factory.display "inline"
+inline = \factory -> factory.display "inline"
 
 block : Display.DisplayDescriptor
-block factory = factory.display "block"
+block = \factory -> factory.display "block"
 
 listItem : Display.DisplayDescriptor
-listItem factory = factory.display "list-item"
+listItem = \factory -> factory.display "list-item"
 
 runIn : Display.DisplayDescriptor
-runIn factory = factory.display "runIn"
+runIn = \factory -> factory.display "runIn"
 
 inlineBlock : Display.DisplayDescriptor
-inlineBlock factory = factory.display "inline-block"
+inlineBlock = \factory -> factory.display "inline-block"
 
 table : Display.DisplayDescriptor
-table factory = factory.display "table"
+table = \factory -> factory.display "table"
 
 inlineTable : Display.DisplayDescriptor
-inlineTable factory = factory.display "inline-table"
+inlineTable = \factory -> factory.display "inline-table"
 
 tableRowGroup : Display.DisplayDescriptor
-tableRowGroup factory = factory.display "table-row-Group"
+tableRowGroup = \factory -> factory.display "table-row-Group"
 
 tableHeaderGroup : Display.DisplayDescriptor
-tableHeaderGroup factory = factory.display "table-header-group"
+tableHeaderGroup = \factory -> factory.display "table-header-group"
 
 tableFooterGroup : Display.DisplayDescriptor
-tableFooterGroup factory = factory.display "table-footer-group"
+tableFooterGroup = \factory -> factory.display "table-footer-group"
 
 tableRow : Display.DisplayDescriptor
-tableRow factory = factory.display "table-row"
+tableRow = \factory -> factory.display "table-row"
 
 tableColumnGroup : Display.DisplayDescriptor
-tableColumnGroup factory = factory.display "table-column-group"
+tableColumnGroup = \factory -> factory.display "table-column-group"
 
 tableColumn : Display.DisplayDescriptor
-tableColumn factory = factory.display "table-column"
+tableColumn = \factory -> factory.display "table-column"
 
 tableCell : Display.DisplayDescriptor
-tableCell factory = factory.display "table-cell"
+tableCell = \factory -> factory.display "table-cell"
 
 tableCaption : Display.DisplayDescriptor
-tableCaption factory = factory.display "table-caption"
-
-displayNone : Display.DisplayDescriptor
-displayNone factory = factory.display "none"
-
-displayInherit : Display.DisplayDescriptor
-displayInherit factory = factory.display "inherit"
+tableCaption = \factory -> factory.display "table-caption"
 
 flex : Display.DisplayDescriptor
-flex factory = factory.display "flex"
+flex = \factory -> factory.display "flex"
 
 inlineFlex : Display.DisplayDescriptor
-inlineFlex factory = factory.display "inline-flex"
+inlineFlex = \factory -> factory.display "inline-flex"
 
 grid : Display.DisplayDescriptor
-grid factory = factory.display "grid"
+grid = \factory -> factory.display "grid"
 
 inlineGrid : Display.DisplayDescriptor
-inlineGrid factory = factory.display "inline-grid"
+inlineGrid = \factory -> factory.display "inline-grid"
 
 -------------------------------------------------------------------------------
 
@@ -186,10 +182,10 @@ float descriptor =
   in Stylesheet.simpleProperty "float" floatStyle
 
 floatLeft : Float.FloatStyleDescriptor
-floatLeft factory = factory.floatStyle "left"
+floatLeft = \factory -> factory.floatStyle "left"
 
 floatRight : Float.FloatStyleDescriptor
-floatRight factory = factory.floatStyle "right"
+floatRight = \factory -> factory.floatStyle "right"
 
 -------------------------------------------------------------------------------
 
@@ -198,8 +194,8 @@ opacity descriptor =
   let opacityValue = descriptor Opacity.opacityFactory
   in Stylesheet.simpleProperty "opacity" opacityValue
 
-pctOpacity : Float -> Opacity.OpacityDescriptor
-pctOpacity level factory = factory.opacity level
+opacityLevel : Float -> Opacity.OpacityDescriptor
+opacityLevel level = \factory -> factory.opacity level
 
 -------------------------------------------------------------------------------
 
@@ -219,7 +215,7 @@ overflowY descriptor =
   in Stylesheet.simpleProperty "overflow-y" overflowValue
 
 scroll : Overflow.OverflowDescriptor
-scroll factory = factory.overflow "scroll"
+scroll = \factory -> factory.overflow "scroll"
 
 -------------------------------------------------------------------------------
 
@@ -229,45 +225,45 @@ position descriptor =
   in Stylesheet.simpleProperty "position" positionValue
 
 static : Position.PositionDescriptor
-static factory = factory.position "static"
+static = \factory -> factory.position "static"
 
 absolute : Position.PositionDescriptor
-absolute factory = factory.position "absolute"
+absolute = \factory -> factory.position "absolute"
 
 fixed : Position.PositionDescriptor
-fixed factory = factory.position "fixed"
+fixed = \factory -> factory.position "fixed"
 
 relative : Position.PositionDescriptor
-relative factory = factory.position "relative"
+relative = \factory -> factory.position "relative"
 
 -------------------------------------------------------------------------------
 
-verticalAlign : VerticalAlign.VerticalAlignDescriptor {} -> 
+verticalAlign : VerticalAlign.VerticalAlignDescriptor sz -> 
                 Stylesheet.PropertyRuleAppender
 verticalAlign descriptor =
   let verticalAlignValue = descriptor VerticalAlign.verticalAlignFactory
   in Stylesheet.simpleProperty "vertical-align" verticalAlignValue
 
 middle : VerticalAlign.VerticalAlignDescriptor sz
-middle factory = factory.vAlign "middle"
+middle = \factory -> factory.vAlign "middle"
 
 vAlignSub : VerticalAlign.VerticalAlignDescriptor sz
-vAlignSub factory = factory.vAlign  "sub"
+vAlignSub = \factory -> factory.vAlign "sub"
 
 vAlignSuper : VerticalAlign.VerticalAlignDescriptor sz
-vAlignSuper factory = factory.vAlign  "super"
+vAlignSuper = \factory -> factory.vAlign "super"
 
 textTop : VerticalAlign.VerticalAlignDescriptor sz
-textTop factory = factory.vAlign  "text-top"
+textTop = \factory -> factory.vAlign "text-top"
 
 textBottom : VerticalAlign.VerticalAlignDescriptor sz
-textBottom factory = factory.vAlign  "text-bottom"
+textBottom = \factory -> factory.vAlign  "text-bottom"
 
 vAlignTop : VerticalAlign.VerticalAlignDescriptor sz
-vAlignTop factory = factory.vAlign  "top"
+vAlignTop = \factory -> factory.vAlign "top"
 
 vAlignBottom : VerticalAlign.VerticalAlignDescriptor sz
-vAlignBottom factory = factory.vAlign  "bottom"
+vAlignBottom = \factory -> factory.vAlign "bottom"
 
 -------------------------------------------------------------------------------
 
@@ -277,11 +273,8 @@ visibility descriptor =
   let visibilityValue = descriptor Visibility.extendedVisibilityFactory
   in Stylesheet.simpleProperty "visibility" visibilityValue
 
-separate : Visibility.VisibilityDescriptor rec
-separate = \factory -> factory.visibility "separate"
-
 collapse : Visibility.VisibilityDescriptor rec
-collapse = \factory -> factory.visibility "collapse"
+collapse = \factory -> factory.collapse
 
 -------------------------------------------------------------------------------
 
@@ -291,4 +284,4 @@ zIndex descriptor =
   in Stylesheet.simpleProperty "z-index" zIndexValue
 
 zLevel : Int -> ZIndex.ZIndexDescriptor
-zLevel num factory = factory.zIndex num
+zLevel num = \factory -> factory.zIndex num

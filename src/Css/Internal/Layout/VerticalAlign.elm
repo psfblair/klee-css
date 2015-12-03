@@ -22,7 +22,7 @@ type alias WithVerticalAlign =
 
 type alias VerticalAlignFactory sz = Linear.SizeFactory WithVerticalAlign sz
 
-verticalAlignFactory : VerticalAlignFactory {}
+verticalAlignFactory : VerticalAlignFactory sz
 verticalAlignFactory =
   let sizeFactory  = Linear.basicSizeFactory
       withBaseline = { sizeFactory  | baseline_ = Common.baselineValue }

@@ -1,5 +1,5 @@
 module Css.Internal.Layout.Visibility
-  ( VisibilityDescriptor, visibilityFactory
+  ( VisibilityDescriptor, VisibilityFactory, visibilityFactory
   , ExtendedVisibilityDescriptor, extendedVisibilityFactory
   ) where
 
@@ -12,13 +12,13 @@ type alias VisibilityDescriptor rec =
   VisibilityFactory rec -> Property.Value
 
 type alias NubVisibilityFactory rec =
-  { rec | visibility : String -> Property.Value
+  { rec | collapse : Property.Value
         , other_ : Property.Value -> Property.Value
   }
   
 nubVisibilityFactory : NubVisibilityFactory {}
 nubVisibilityFactory =
-  { visibility str = Property.stringValue str
+  { collapse = Property.stringValue "collapse"
   , other_ val = Common.otherValue val
   }
 

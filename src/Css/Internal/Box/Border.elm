@@ -2,11 +2,13 @@ module Css.Internal.Box.Border
   ( BorderDescriptor, borderFactory
   , NubBorderWidthDescriptor, nubBorderWidthFactory
   , BorderWidthDescriptor, borderWidthFactory
+  , BorderCollapseDescriptor, borderCollapseFactory
   ) where
 
 import Css.Internal.Color as Color
 import Css.Internal.Common as Common
 import Css.Internal.Geometry.Linear as Linear
+import Css.Internal.Layout.Visibility as Visibility
 import Css.Internal.Property as Property
 import Css.Internal.Stroke as Stroke
 
@@ -81,3 +83,16 @@ borderWidthFactory =
       withThin   = { withMedium  | thin   = Property.stringValue "thin"   }
       withThick  = { withThin    | thick  = Property.stringValue "thick"  }
   in withThick
+
+-------------------------------------------------------------------------------
+
+type alias BorderCollapseDescriptor = BorderCollapseFactory -> Property.Value
+
+type alias BorderCollapseFactory = Visibility.VisibilityFactory WithSeparate
+  
+type alias WithSeparate = { separate : Property.Value }  
+  
+borderCollapseFactory : BorderCollapseFactory
+borderCollapseFactory =
+  let visibilityFactory = Visibility.visibilityFactory
+  in { visibilityFactory | separate = Property.stringValue "separate" }
