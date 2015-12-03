@@ -2,159 +2,168 @@ module Css.Pointer (
 
   -- * Cursor
 
+    cursor
+    
+  , cursorUrl
+    
   , aliasCursor, allScroll, cell, contextMenu, colResize, copy, crosshair
   , defaultCursor, eResize, ewResize, grab, grabbing, help, move, nResize
   , neResize, neswResize, nsResize, nwResize, nwseResize, noDrop, notAllowed
   , pointer, progress, rowResize, sResize, seResize, swResize, textCursor
-  , cursorUrl, vTextCursor, wResize, wait, zoomIn, zoomOut
+  , vTextCursor, wResize, wait, zoomIn, zoomOut
 
   -- * Pointer-events
 
   , pointerEvents
+  
   , visiblePainted, visibleFill, visibleStroke, painted
   , fillEvents, strokeEvents, allEvents
   
-) where
+  ) where
+
+import Css.Internal.Pointer.Cursor as Cursor
+import Css.Internal.Pointer.Events as Events
+import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
-cursor : Display.CursorDescriptor -> Stylesheet.PropertyRuleAppender
+cursor : Cursor.CursorDescriptor -> Stylesheet.PropertyRuleAppender
 cursor descriptor =
-  let cursorValue = descriptor Display.cursorFactory
+  let cursorValue = descriptor Cursor.cursorFactory
   in Stylesheet.simpleProperty "cursor" cursorValue
 
-aliasCursor : Display.CursorDescriptor
-aliasCursor factory = factory.cursor "alias"
-
-allScroll : Display.CursorDescriptor
-allScroll factory = factory.cursor "all-scroll"
-
-cell : Display.CursorDescriptor
-cell factory = factory.cursor "cell"
-
-contextMenu : Display.CursorDescriptor
-contextMenu factory = factory.cursor "context-menu"
-
-colResize : Display.CursorDescriptor
-colResize factory = factory.cursor "col-resize"
-
-copy : Display.CursorDescriptor
-copy factory = factory.cursor "copy"
-
-crosshair : Display.CursorDescriptor
-crosshair factory = factory.cursor "crosshair"
-
-defaultCursor : Display.CursorDescriptor
-defaultCursor factory = factory.cursor "default"
-
-eResize : Display.CursorDescriptor
-eResize factory = factory.cursor "e-resize"
-
-ewResize : Display.CursorDescriptor
-ewResize factory = factory.cursor "ew-resize"
-
-grab : Display.CursorDescriptor
-grab factory = factory.cursor "grab"
-
-grabbing : Display.CursorDescriptor
-grabbing factory = factory.cursor "grabbing"
-
-help : Display.CursorDescriptor
-help factory = factory.cursor "help"
-
-move : Display.CursorDescriptor
-move factory = factory.cursor "move"
-
-nResize : Display.CursorDescriptor
-nResize factory = factory.cursor "n-resize"
-
-neResize : Display.CursorDescriptor
-neResize factory = factory.cursor "ne-resize"
-
-neswResize : Display.CursorDescriptor
-neswResize factory = factory.cursor "nesw-resize"
-
-nsResize : Display.CursorDescriptor
-nsResize factory = factory.cursor "ns-resize"
-
-nwResize : Display.CursorDescriptor
-nwResize factory = factory.cursor "nw-resize"
-
-nwseResize : Display.CursorDescriptor
-nwseResize factory = factory.cursor "nwse-resize"
-
-noDrop : Display.CursorDescriptor
-noDrop factory = factory.cursor "no-drop"
-
-notAllowed : Display.CursorDescriptor
-notAllowed factory = factory.cursor "not-allowed"
-
-pointer : Display.CursorDescriptor
-pointer factory = factory.cursor "pointer"
-
-progress : Display.CursorDescriptor
-progress factory = factory.cursor "progress"
-
-rowResize : Display.CursorDescriptor
-rowResize factory = factory.cursor "row-resize"
-
-sResize : Display.CursorDescriptor
-sResize factory = factory.cursor "sResize"
-
-seResize : Display.CursorDescriptor
-seResize factory = factory.cursor "se-resize"
-
-swResize : Display.CursorDescriptor
-swResize factory = factory.cursor "sw-resize"
-
-textCursor : Display.CursorDescriptor
-textCursor factory = factory.cursor "text"
-
-cursorUrl : String -> Display.CursorDescriptor
+cursorUrl : String -> Cursor.CursorDescriptor
 cursorUrl url factory =
   let urlexpr =  "url(\"" ++ url  ++ "\")"
   in factory.cursor urlexpr
 
-vTextCursor : Display.CursorDescriptor
-vTextCursor factory = factory.cursor "vertical-text"
+aliasCursor : Cursor.CursorDescriptor
+aliasCursor = \factory -> factory.cursor "alias"
 
-wResize : Display.CursorDescriptor
-wResize factory = factory.cursor "sResize"
+allScroll : Cursor.CursorDescriptor
+allScroll = \factory -> factory.cursor "all-scroll"
 
-wait : Display.CursorDescriptor
-wait factory = factory.cursor "wait"
+cell : Cursor.CursorDescriptor
+cell = \factory -> factory.cursor "cell"
 
-zoomIn : Display.CursorDescriptor
-zoomIn factory = factory.cursor "zoom-in"
+contextMenu : Cursor.CursorDescriptor
+contextMenu = \factory -> factory.cursor "context-menu"
 
-zoomOut : Display.CursorDescriptor
-zoomOut factory = factory.cursor "zoom-out"
+colResize : Cursor.CursorDescriptor
+colResize = \factory -> factory.cursor "col-resize"
+
+copy : Cursor.CursorDescriptor
+copy = \factory -> factory.cursor "copy"
+
+crosshair : Cursor.CursorDescriptor
+crosshair = \factory -> factory.cursor "crosshair"
+
+defaultCursor : Cursor.CursorDescriptor
+defaultCursor = \factory -> factory.cursor "default"
+
+eResize : Cursor.CursorDescriptor
+eResize = \factory -> factory.cursor "e-resize"
+
+ewResize : Cursor.CursorDescriptor
+ewResize = \factory -> factory.cursor "ew-resize"
+
+grab : Cursor.CursorDescriptor
+grab = \factory -> factory.cursor "grab"
+
+grabbing : Cursor.CursorDescriptor
+grabbing = \factory -> factory.cursor "grabbing"
+
+help : Cursor.CursorDescriptor
+help = \factory -> factory.cursor "help"
+
+move : Cursor.CursorDescriptor
+move = \factory -> factory.cursor "move"
+
+nResize : Cursor.CursorDescriptor
+nResize = \factory -> factory.cursor "n-resize"
+
+neResize : Cursor.CursorDescriptor
+neResize = \factory -> factory.cursor "ne-resize"
+
+neswResize : Cursor.CursorDescriptor
+neswResize = \factory -> factory.cursor "nesw-resize"
+
+nsResize : Cursor.CursorDescriptor
+nsResize = \factory -> factory.cursor "ns-resize"
+
+nwResize : Cursor.CursorDescriptor
+nwResize = \factory -> factory.cursor "nw-resize"
+
+nwseResize : Cursor.CursorDescriptor
+nwseResize = \factory -> factory.cursor "nwse-resize"
+
+noDrop : Cursor.CursorDescriptor
+noDrop = \factory -> factory.cursor "no-drop"
+
+notAllowed : Cursor.CursorDescriptor
+notAllowed = \factory -> factory.cursor "not-allowed"
+
+pointer : Cursor.CursorDescriptor
+pointer = \factory -> factory.cursor "pointer"
+
+progress : Cursor.CursorDescriptor
+progress = \factory -> factory.cursor "progress"
+
+rowResize : Cursor.CursorDescriptor
+rowResize = \factory -> factory.cursor "row-resize"
+
+sResize : Cursor.CursorDescriptor
+sResize = \factory -> factory.cursor "s-resize"
+
+seResize : Cursor.CursorDescriptor
+seResize = \factory -> factory.cursor "se-resize"
+
+swResize : Cursor.CursorDescriptor
+swResize = \factory -> factory.cursor "sw-resize"
+
+textCursor : Cursor.CursorDescriptor
+textCursor = \factory -> factory.cursor "text"
+
+vTextCursor : Cursor.CursorDescriptor
+vTextCursor = \factory -> factory.cursor "vertical-text"
+
+wResize : Cursor.CursorDescriptor
+wResize = \factory -> factory.cursor "w-resize"
+
+wait : Cursor.CursorDescriptor
+wait = \factory -> factory.cursor "wait"
+
+zoomIn : Cursor.CursorDescriptor
+zoomIn = \factory -> factory.cursor "zoom-in"
+
+zoomOut : Cursor.CursorDescriptor
+zoomOut = \factory -> factory.cursor "zoom-out"
 
 -------------------------------------------------------------------------------
 
-pointerEvents : Display.PointerEventsDescriptor -> 
+pointerEvents : Events.PointerEventsDescriptor -> 
                 Stylesheet.PropertyRuleAppender
 pointerEvents descriptor =
-  let pointerEventsValue = descriptor Display.pointerEventsFactory
+  let pointerEventsValue = descriptor Events.pointerEventsFactory
   in Stylesheet.simpleProperty "pointer-events" pointerEventsValue
 
-visiblePainted : Display.PointerEventsDescriptor
-visiblePainted factory = factory.pointerEvents "visiblePainted"
+visiblePainted : Events.PointerEventsDescriptor
+visiblePainted = \factory -> factory.pointerEvents "visiblePainted"
 
-visibleFill : Display.PointerEventsDescriptor
-visibleFill factory = factory.pointerEvents "visibleFill"
+visibleFill : Events.PointerEventsDescriptor
+visibleFill = \factory -> factory.pointerEvents "visibleFill"
 
-visibleStroke : Display.PointerEventsDescriptor
-visibleStroke factory = factory.pointerEvents "visibleStroke"
+visibleStroke : Events.PointerEventsDescriptor
+visibleStroke = \factory -> factory.pointerEvents "visibleStroke"
 
-painted : Display.PointerEventsDescriptor
-painted factory = factory.pointerEvents "painted"
+painted : Events.PointerEventsDescriptor
+painted = \factory -> factory.pointerEvents "painted"
 
-fillEvents : Display.PointerEventsDescriptor
-fillEvents factory = factory.pointerEvents "fill"
+fillEvents : Events.PointerEventsDescriptor
+fillEvents = \factory -> factory.pointerEvents "fill"
 
-strokeEvents : Display.PointerEventsDescriptor
-strokeEvents factory = factory.pointerEvents "stroke"
+strokeEvents : Events.PointerEventsDescriptor
+strokeEvents = \factory -> factory.pointerEvents "stroke"
 
-allEvents : Display.PointerEventsDescriptor
-allEvents factory = factory.pointerEvents "all"
+allEvents : Events.PointerEventsDescriptor
+allEvents = \factory -> factory.pointerEvents "all"

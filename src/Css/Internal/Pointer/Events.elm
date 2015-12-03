@@ -25,9 +25,11 @@ type alias PointerEventsFactory =
     (Common.Initial Property.Value
       (Common.Inherit Property.Value
         (Common.Unset Property.Value 
-          (Common.Auto Property.Value {}))))
+          (Common.Auto Property.Value 
+            (Common.None Property.Value {})))))
   
 pointerEventsFactory : PointerEventsFactory
 pointerEventsFactory =
-  let withAuto = { nubPointerEventsFactory | auto_ = Common.autoValue }
+  let withNone = { nubPointerEventsFactory | none_ = Common.noneValue }
+      withAuto = { withNone                | auto_ = Common.autoValue }
   in Common.addCommonValues withAuto

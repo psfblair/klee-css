@@ -10,10 +10,11 @@ import CssTests
 import Css.BackgroundTests
 import Css.BoxTests
 import Css.ColorTests
--- import Css.DisplayTests
 import Css.GeometryTests
-import Css.TypographyTests
+import Css.LayoutTests
+import Css.PointerTests
 import Css.PseudoTests
+import Css.TypographyTests
 import Css.Internal.PropertyTests
 import Css.Internal.UtilsTests
 
@@ -26,8 +27,9 @@ allTests =
     , Css.BackgroundTests.suite
     , Css.BoxTests.suite
     , Css.ColorTests.suite
---    , Css.DisplayTests.suite
     , Css.GeometryTests.suite
+    , Css.LayoutTests.suite
+    , Css.PointerTests.suite
     , Css.PseudoTests.suite
     , Css.TypographyTests.suite
     , Css.Internal.PropertyTests.suite

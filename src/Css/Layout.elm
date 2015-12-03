@@ -71,9 +71,11 @@ import Css.Internal.Stylesheet as Stylesheet
 
 -------------------------------------------------------------------------------
 
--- These descriptors must be usable in cases where we don't want to accept 
--- generic properties; i.e., where we are constructing more complex descriptors. 
--- So we don't require that the common properties be present.
+boxSizing : BoxSizing.BoxSizingDescriptor -> Stylesheet.PropertyRuleAppender
+boxSizing descriptor =
+  let boxType = descriptor BoxSizing.boxTypeFactory
+  in Stylesheet.simpleProperty "box-sizing" boxType
+
 paddingBox : BoxSizing.BoxTypeDescriptor rec
 paddingBox = \factory -> factory.boxType "padding-box"
 
@@ -82,11 +84,6 @@ borderBox = \factory ->  factory.boxType "border-box"
 
 contentBox : BoxSizing.BoxTypeDescriptor rec
 contentBox = \factory ->  factory.boxType "content-box"
-
-boxSizing : BoxSizing.BoxSizingDescriptor -> Stylesheet.PropertyRuleAppender
-boxSizing descriptor =
-  let boxType = descriptor BoxSizing.boxTypeFactory
-  in Stylesheet.simpleProperty "box-sizing" boxType
 
 -------------------------------------------------------------------------------
 
@@ -105,7 +102,7 @@ clearRight : Clear.ClearDescriptor
 clearRight factory = factory.clear "right"
 
 -------------------------------------------------------------------------------
---TODO Remove; use clip-path instead
+-- TODO The clip property is obsolete; replace with clip-path.
 clip : Clip.ClipDescriptor a b c d -> Stylesheet.PropertyRuleAppender
 clip descriptor =
   let clipValue = descriptor Clip.clipFactory
