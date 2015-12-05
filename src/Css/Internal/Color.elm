@@ -30,6 +30,7 @@ type alias ColorDescriptorWithInvert rec =
 type alias NubColorFactory rec =
   { rec | rgbaColor : ElmColor.Color -> Property.Value
         , hslaColor : ElmColor.Color -> Property.Value
+        , named : String -> ElmColor.Color -> Property.Value
         , currentColor : Property.Value
         , invalid_ : String -> Property.Value
         , other_ : Property.Value -> Property.Value
@@ -40,6 +41,7 @@ nubColorFactory : NubColorFactory {}
 nubColorFactory =
   { rgbaColor color = rgbaString color |> Property.stringValue
   , hslaColor color = hslaString color |> Property.stringValue
+  , named name color = Property.stringValue name
   , currentColor = Property.stringValue "currentColor"
   , invalid_ str = Property.stringValue str
   , other_ val = Common.otherValue val

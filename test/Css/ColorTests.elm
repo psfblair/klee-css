@@ -120,14 +120,27 @@ suite = describe "Css.ColorTests"
           `shouldEqual` (stringValue "INVALID COLOR: 99,0.61,1.1")
       ]
     ]
+  , describe "the CSS named colors" 
+    [ it "are rendered as strings"
+      [ cssWhite testColorExtractor
+          `shouldEqual` (stringValue "White")
+      ]
+    ]
+  , describe "the Elm named colors" 
+    [ it "are rendered as rgba colors"
+      [ red testColorExtractor
+          `shouldEqual` (stringValue "r:204, g:0, b:0, a:1")
+      ]
+    ]
   ]
 
 testColorExtractor : { rgbaColor : ElmColor.Color -> Value
-                 , hslaColor : ElmColor.Color -> Value
-                 , currentColor : Value
-                 , invalid_ : String -> Value
-                 , other_ : Value -> Value
-                 }
+                     , hslaColor : ElmColor.Color -> Value
+                     , named: String -> ElmColor.Color -> Value
+                     , currentColor : Value
+                     , invalid_ : String -> Value
+                     , other_ : Value -> Value
+                     }
 testColorExtractor =
   { rgbaColor elmColor = 
       let color = ElmColor.toRgb elmColor
@@ -143,6 +156,7 @@ testColorExtractor =
                           ", l:" ++ (toString color.lightness) ++ 
                           ", a:" ++ (toString color.alpha)
       in stringValue colorString
+  , named name elmColor = stringValue name
   , currentColor = stringValue "currentColor"
   , invalid_ str = stringValue str
   , other_ val = otherValue val
