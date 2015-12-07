@@ -3,6 +3,8 @@ module Css.ColorsAndStrokes
   -- Colors. Colors without the "css" prefix represent Elm colors.
 
     rgb, rgba, hsl, hsla, hex
+  , lighten, darken, lerp
+  
   , currentColor, transparent, invert
 
   , cssAntiqueWhite, cssAqua, cssAquamarine, cssAzure, cssBeige, cssBisque
@@ -63,13 +65,12 @@ import String as String
 
 import Css.Internal.Color as Color
 import Css.Internal.List as List
-import Css.Internal.Property as Property
 import Css.Internal.Stroke as Stroke
 import Css.Internal.Utils as Utils
 
 -------------------------------------------------------------------------------
 
-rgb : Int -> Int -> Int -> Color.NubColorDescriptor rec
+rgb : Int -> Int -> Int -> Color.ManipulableColorDescriptor rec resultType
 rgb r g b = 
   \factory -> 
     if Color.invalidRgb r g b
@@ -78,7 +79,7 @@ rgb r g b =
             String.join "," [toString r, toString g, toString b])
     else ElmColor.rgb r g b |> factory.rgbaColor
 
-rgba : Int -> Int -> Int -> Float -> Color.NubColorDescriptor rec
+rgba : Int -> Int -> Int -> Float -> Color.ManipulableColorDescriptor rec resultType
 rgba r g b a = 
   \factory -> 
     if Color.invalidRgb r g b || Utils.invalidFractionOf1 a
@@ -87,7 +88,7 @@ rgba r g b a =
             String.join "," [toString r, toString g, toString b, toString a])
     else ElmColor.rgba r g b a |> factory.rgbaColor
 
-hsl : Int -> Float -> Float -> Color.NubColorDescriptor rec
+hsl : Int -> Float -> Float -> Color.ManipulableColorDescriptor rec resultType
 hsl h s l = 
   \factory -> 
     if Color.invalidHsl h s l
@@ -96,7 +97,7 @@ hsl h s l =
             String.join "," [toString h, toString s, toString l])
     else ElmColor.hsl (toFloat h |> degrees) s l |> factory.hslaColor
 
-hsla : Int -> Float -> Float -> Float -> Color.NubColorDescriptor rec
+hsla : Int -> Float -> Float -> Float -> Color.ManipulableColorDescriptor rec resultType
 hsla h s l a = 
   \factory -> 
     if Color.invalidHsl h s l || Utils.invalidFractionOf1 a
@@ -105,7 +106,7 @@ hsla h s l a =
             String.join "," [toString h, toString s, toString l, toString a])
     else ElmColor.hsla (toFloat h |> degrees) s l a |> factory.hslaColor
 
-hex : String -> Color.NubColorDescriptor rec
+hex : String -> Color.ManipulableColorDescriptor rec resultType
 hex str = 
   \factory ->
     let unhex digit1 digit2 = Utils.fromHex <| String.fromList [digit1, digit2]
@@ -134,681 +135,701 @@ hex str =
       Ok color -> factory.rgbaColor color
       Err str -> factory.invalid_ str
 
+-------------------------------------------------------------------------------
+lighten : Float -> 
+          Color.ManipulableColorDescriptor {} Color.ColorHolder -> 
+          Color.ManipulableColorDescriptor rec resultType
+lighten factor colorDescriptor = lerp factor colorDescriptor white
+
+darken : Float -> 
+         Color.ManipulableColorDescriptor {} Color.ColorHolder-> 
+         Color.ManipulableColorDescriptor rec resultType
+darken factor colorDescriptor = lerp factor colorDescriptor black
+
+lerp : Float -> 
+       Color.ManipulableColorDescriptor {} Color.ColorHolder -> 
+       Color.ManipulableColorDescriptor {} Color.ColorHolder -> 
+       Color.ManipulableColorDescriptor rec resultType
+lerp factor startColorDescriptor boundaryColorDescriptor = 
+  Color.descriptorLerp factor startColorDescriptor boundaryColorDescriptor
+
+-------------------------------------------------------------------------------
+
 currentColor : Color.NubColorDescriptor rec
 currentColor = \factory -> factory.currentColor
 
 transparent : Color.NubColorDescriptor rec
-transparent = \factory -> Property.stringValue "transparent" |> factory.other_
+transparent = \factory -> factory.transparent
 
 invert : Color.NubColorDescriptorWithInvert rec
 invert = \factory -> factory.invert
 
 -------------------------------------------------------------------------------
--- Css colors. The names are used in the generated CSS.
+-- Css colors. The generated CSS uses the color names.
 
-cssAntiqueWhite : Color.NubColorDescriptor rec
+cssAntiqueWhite : Color.ManipulableColorDescriptor rec resultType
 cssAntiqueWhite = 
-  \factory -> factory.named "AntiqueWhite" (ElmColor.rgb 250 235 215)
+  \factory -> factory.namedRgba "AntiqueWhite" (ElmColor.rgb 250 235 215)
 
-cssAqua : Color.NubColorDescriptor rec
+cssAqua : Color.ManipulableColorDescriptor rec resultType
 cssAqua = 
-  \factory -> factory.named "Aqua" (ElmColor.rgb 0 255 255)
+  \factory -> factory.namedRgba "Aqua" (ElmColor.rgb 0 255 255)
 
-cssAquamarine : Color.NubColorDescriptor rec
+cssAquamarine : Color.ManipulableColorDescriptor rec resultType
 cssAquamarine = 
-  \factory -> factory.named "Aquamarine" (ElmColor.rgb 127 255 212)
+  \factory -> factory.namedRgba "Aquamarine" (ElmColor.rgb 127 255 212)
 
-cssAzure : Color.NubColorDescriptor rec
+cssAzure : Color.ManipulableColorDescriptor rec resultType
 cssAzure = 
-  \factory -> factory.named "Azure" (ElmColor.rgb 240 255 255)
+  \factory -> factory.namedRgba "Azure" (ElmColor.rgb 240 255 255)
 
-cssBeige : Color.NubColorDescriptor rec
+cssBeige : Color.ManipulableColorDescriptor rec resultType
 cssBeige = 
-  \factory -> factory.named "Beige" (ElmColor.rgb 245 245 220)
+  \factory -> factory.namedRgba "Beige" (ElmColor.rgb 245 245 220)
 
-cssBisque : Color.NubColorDescriptor rec
+cssBisque : Color.ManipulableColorDescriptor rec resultType
 cssBisque = 
-  \factory -> factory.named "Bisque" (ElmColor.rgb 255 228 196)
+  \factory -> factory.namedRgba "Bisque" (ElmColor.rgb 255 228 196)
 
-cssBlack : Color.NubColorDescriptor rec
+cssBlack : Color.ManipulableColorDescriptor rec resultType
 cssBlack = 
-  \factory -> factory.named "Black" (ElmColor.rgb 0 0 0)
+  \factory -> factory.namedRgba "Black" (ElmColor.rgb 0 0 0)
 
-cssBlanchedAlmond : Color.NubColorDescriptor rec
+cssBlanchedAlmond : Color.ManipulableColorDescriptor rec resultType
 cssBlanchedAlmond = 
-  \factory -> factory.named "BlanchedAlmond" (ElmColor.rgb 255 235 205)
+  \factory -> factory.namedRgba "BlanchedAlmond" (ElmColor.rgb 255 235 205)
 
-cssBlue : Color.NubColorDescriptor rec
+cssBlue : Color.ManipulableColorDescriptor rec resultType
 cssBlue = 
-  \factory -> factory.named "Blue" (ElmColor.rgb 0 0 255)
+  \factory -> factory.namedRgba "Blue" (ElmColor.rgb 0 0 255)
 
-cssBlueViolet : Color.NubColorDescriptor rec
+cssBlueViolet : Color.ManipulableColorDescriptor rec resultType
 cssBlueViolet = 
-  \factory -> factory.named "BlueViolet" (ElmColor.rgb 138 43 226)
+  \factory -> factory.namedRgba "BlueViolet" (ElmColor.rgb 138 43 226)
 
-cssBrown : Color.NubColorDescriptor rec
+cssBrown : Color.ManipulableColorDescriptor rec resultType
 cssBrown = 
-  \factory -> factory.named "Brown" (ElmColor.rgb 165 42 42)
+  \factory -> factory.namedRgba "Brown" (ElmColor.rgb 165 42 42)
 
-cssBurlyWood : Color.NubColorDescriptor rec
+cssBurlyWood : Color.ManipulableColorDescriptor rec resultType
 cssBurlyWood = 
-  \factory -> factory.named "BurlyWood" (ElmColor.rgb 222 184 135)
+  \factory -> factory.namedRgba "BurlyWood" (ElmColor.rgb 222 184 135)
 
-cssCadetBlue : Color.NubColorDescriptor rec
+cssCadetBlue : Color.ManipulableColorDescriptor rec resultType
 cssCadetBlue = 
-  \factory -> factory.named "CadetBlue" (ElmColor.rgb 95 158 160)
+  \factory -> factory.namedRgba "CadetBlue" (ElmColor.rgb 95 158 160)
 
-cssChartreuse : Color.NubColorDescriptor rec
+cssChartreuse : Color.ManipulableColorDescriptor rec resultType
 cssChartreuse = 
-  \factory -> factory.named "Chartreuse" (ElmColor.rgb 127 255 0)
+  \factory -> factory.namedRgba "Chartreuse" (ElmColor.rgb 127 255 0)
 
-cssChocolate : Color.NubColorDescriptor rec
+cssChocolate : Color.ManipulableColorDescriptor rec resultType
 cssChocolate = 
-  \factory -> factory.named "Chocolate" (ElmColor.rgb 210 105 30)
+  \factory -> factory.namedRgba "Chocolate" (ElmColor.rgb 210 105 30)
 
-cssCoral : Color.NubColorDescriptor rec
+cssCoral : Color.ManipulableColorDescriptor rec resultType
 cssCoral = 
-  \factory -> factory.named "Coral" (ElmColor.rgb 255 127 80)
+  \factory -> factory.namedRgba "Coral" (ElmColor.rgb 255 127 80)
 
-cssCornflowerBlue : Color.NubColorDescriptor rec
+cssCornflowerBlue : Color.ManipulableColorDescriptor rec resultType
 cssCornflowerBlue = 
-  \factory -> factory.named "CornflowerBlue" (ElmColor.rgb 100 149 237)
+  \factory -> factory.namedRgba "CornflowerBlue" (ElmColor.rgb 100 149 237)
 
-cssCornsilk : Color.NubColorDescriptor rec
+cssCornsilk : Color.ManipulableColorDescriptor rec resultType
 cssCornsilk = 
-  \factory -> factory.named "Cornsilk" (ElmColor.rgb 255 248 220)
+  \factory -> factory.namedRgba "Cornsilk" (ElmColor.rgb 255 248 220)
 
-cssCrimson : Color.NubColorDescriptor rec
+cssCrimson : Color.ManipulableColorDescriptor rec resultType
 cssCrimson = 
-  \factory -> factory.named "Crimson" (ElmColor.rgb 220 20 60)
+  \factory -> factory.namedRgba "Crimson" (ElmColor.rgb 220 20 60)
 
-cssCyan : Color.NubColorDescriptor rec
+cssCyan : Color.ManipulableColorDescriptor rec resultType
 cssCyan = 
-  \factory -> factory.named "Cyan" (ElmColor.rgb 0 255 255)
+  \factory -> factory.namedRgba "Cyan" (ElmColor.rgb 0 255 255)
 
-cssDarkBlue : Color.NubColorDescriptor rec
+cssDarkBlue : Color.ManipulableColorDescriptor rec resultType
 cssDarkBlue = 
-  \factory -> factory.named "DarkBlue" (ElmColor.rgb 0 0 139)
+  \factory -> factory.namedRgba "DarkBlue" (ElmColor.rgb 0 0 139)
 
-cssDarkCyan : Color.NubColorDescriptor rec
+cssDarkCyan : Color.ManipulableColorDescriptor rec resultType
 cssDarkCyan = 
-  \factory -> factory.named "DarkCyan" (ElmColor.rgb 0 139 139)
+  \factory -> factory.namedRgba "DarkCyan" (ElmColor.rgb 0 139 139)
 
-cssDarkGoldenRod : Color.NubColorDescriptor rec
+cssDarkGoldenRod : Color.ManipulableColorDescriptor rec resultType
 cssDarkGoldenRod = 
-  \factory -> factory.named "DarkGoldenRod" (ElmColor.rgb 184 134 11)
+  \factory -> factory.namedRgba "DarkGoldenRod" (ElmColor.rgb 184 134 11)
 
-cssDarkGray : Color.NubColorDescriptor rec
+cssDarkGray : Color.ManipulableColorDescriptor rec resultType
 cssDarkGray = 
-  \factory -> factory.named "DarkGray" (ElmColor.rgb 169 169 169)
+  \factory -> factory.namedRgba "DarkGray" (ElmColor.rgb 169 169 169)
 
-cssDarkGreen : Color.NubColorDescriptor rec
+cssDarkGreen : Color.ManipulableColorDescriptor rec resultType
 cssDarkGreen = 
-  \factory -> factory.named "DarkGreen" (ElmColor.rgb 0 100 0)
+  \factory -> factory.namedRgba "DarkGreen" (ElmColor.rgb 0 100 0)
 
-cssDarkKhaki : Color.NubColorDescriptor rec
+cssDarkKhaki : Color.ManipulableColorDescriptor rec resultType
 cssDarkKhaki = 
-  \factory -> factory.named "DarkKhaki" (ElmColor.rgb 189 183 107)
+  \factory -> factory.namedRgba "DarkKhaki" (ElmColor.rgb 189 183 107)
 
-cssDarkMagenta : Color.NubColorDescriptor rec
+cssDarkMagenta : Color.ManipulableColorDescriptor rec resultType
 cssDarkMagenta = 
-  \factory -> factory.named "DarkMagenta" (ElmColor.rgb 139 0 139)
+  \factory -> factory.namedRgba "DarkMagenta" (ElmColor.rgb 139 0 139)
 
-cssDarkOliveGreen : Color.NubColorDescriptor rec
+cssDarkOliveGreen : Color.ManipulableColorDescriptor rec resultType
 cssDarkOliveGreen = 
-  \factory -> factory.named "DarkOliveGreen" (ElmColor.rgb 85 107 47)
+  \factory -> factory.namedRgba "DarkOliveGreen" (ElmColor.rgb 85 107 47)
 
-cssDarkOrange : Color.NubColorDescriptor rec
+cssDarkOrange : Color.ManipulableColorDescriptor rec resultType
 cssDarkOrange = 
-  \factory -> factory.named "DarkOrange" (ElmColor.rgb 255 140 0)
+  \factory -> factory.namedRgba "DarkOrange" (ElmColor.rgb 255 140 0)
 
-cssDarkOrchid : Color.NubColorDescriptor rec
+cssDarkOrchid : Color.ManipulableColorDescriptor rec resultType
 cssDarkOrchid = 
-  \factory -> factory.named "DarkOrchid" (ElmColor.rgb 153 50 204)
+  \factory -> factory.namedRgba "DarkOrchid" (ElmColor.rgb 153 50 204)
 
-cssDarkRed : Color.NubColorDescriptor rec
+cssDarkRed : Color.ManipulableColorDescriptor rec resultType
 cssDarkRed = 
-  \factory -> factory.named "DarkRed" (ElmColor.rgb 139 0 0)
+  \factory -> factory.namedRgba "DarkRed" (ElmColor.rgb 139 0 0)
 
-cssDarkSalmon : Color.NubColorDescriptor rec
+cssDarkSalmon : Color.ManipulableColorDescriptor rec resultType
 cssDarkSalmon = 
-  \factory -> factory.named "DarkSalmon" (ElmColor.rgb 233 150 122)
+  \factory -> factory.namedRgba "DarkSalmon" (ElmColor.rgb 233 150 122)
 
-cssDarkSeaGreen : Color.NubColorDescriptor rec
+cssDarkSeaGreen : Color.ManipulableColorDescriptor rec resultType
 cssDarkSeaGreen = 
-  \factory -> factory.named "DarkSeaGreen" (ElmColor.rgb 143 188 143)
+  \factory -> factory.namedRgba "DarkSeaGreen" (ElmColor.rgb 143 188 143)
 
-cssDarkSlateBlue : Color.NubColorDescriptor rec
+cssDarkSlateBlue : Color.ManipulableColorDescriptor rec resultType
 cssDarkSlateBlue = 
-  \factory -> factory.named "DarkSlateBlue" (ElmColor.rgb 72 61 139)
+  \factory -> factory.namedRgba "DarkSlateBlue" (ElmColor.rgb 72 61 139)
 
-cssDarkSlateGray : Color.NubColorDescriptor rec
+cssDarkSlateGray : Color.ManipulableColorDescriptor rec resultType
 cssDarkSlateGray = 
-  \factory -> factory.named "DarkSlateGray" (ElmColor.rgb 47 79 79)
+  \factory -> factory.namedRgba "DarkSlateGray" (ElmColor.rgb 47 79 79)
 
-cssDarkTurquoise : Color.NubColorDescriptor rec
+cssDarkTurquoise : Color.ManipulableColorDescriptor rec resultType
 cssDarkTurquoise = 
-  \factory -> factory.named "DarkTurquoise" (ElmColor.rgb 0 206 209)
+  \factory -> factory.namedRgba "DarkTurquoise" (ElmColor.rgb 0 206 209)
 
-cssDarkViolet : Color.NubColorDescriptor rec
+cssDarkViolet : Color.ManipulableColorDescriptor rec resultType
 cssDarkViolet = 
-  \factory -> factory.named "DarkViolet" (ElmColor.rgb 148 0 211)
+  \factory -> factory.namedRgba "DarkViolet" (ElmColor.rgb 148 0 211)
 
-cssDeepPink : Color.NubColorDescriptor rec
+cssDeepPink : Color.ManipulableColorDescriptor rec resultType
 cssDeepPink = 
-  \factory -> factory.named "DeepPink" (ElmColor.rgb 255 20 147)
+  \factory -> factory.namedRgba "DeepPink" (ElmColor.rgb 255 20 147)
 
-cssDeepSkyBlue : Color.NubColorDescriptor rec
+cssDeepSkyBlue : Color.ManipulableColorDescriptor rec resultType
 cssDeepSkyBlue = 
-  \factory -> factory.named "DeepSkyBlue" (ElmColor.rgb 0 191 255)
+  \factory -> factory.namedRgba "DeepSkyBlue" (ElmColor.rgb 0 191 255)
 
-cssDimGray : Color.NubColorDescriptor rec
+cssDimGray : Color.ManipulableColorDescriptor rec resultType
 cssDimGray = 
-  \factory -> factory.named "DimGray" (ElmColor.rgb 105 105 105)
+  \factory -> factory.namedRgba "DimGray" (ElmColor.rgb 105 105 105)
 
-cssDodgerBlue : Color.NubColorDescriptor rec
+cssDodgerBlue : Color.ManipulableColorDescriptor rec resultType
 cssDodgerBlue = 
-  \factory -> factory.named "DodgerBlue" (ElmColor.rgb 30 144 255)
+  \factory -> factory.namedRgba "DodgerBlue" (ElmColor.rgb 30 144 255)
 
-cssFireBrick : Color.NubColorDescriptor rec
+cssFireBrick : Color.ManipulableColorDescriptor rec resultType
 cssFireBrick = 
-  \factory -> factory.named "FireBrick" (ElmColor.rgb 178 34 34)
+  \factory -> factory.namedRgba "FireBrick" (ElmColor.rgb 178 34 34)
 
-cssFloralWhite : Color.NubColorDescriptor rec
+cssFloralWhite : Color.ManipulableColorDescriptor rec resultType
 cssFloralWhite = 
-  \factory -> factory.named "FloralWhite" (ElmColor.rgb 255 250 240)
+  \factory -> factory.namedRgba "FloralWhite" (ElmColor.rgb 255 250 240)
 
-cssForestGreen : Color.NubColorDescriptor rec
+cssForestGreen : Color.ManipulableColorDescriptor rec resultType
 cssForestGreen = 
-  \factory -> factory.named "ForestGreen" (ElmColor.rgb 34 139 34)
+  \factory -> factory.namedRgba "ForestGreen" (ElmColor.rgb 34 139 34)
 
-cssFuchsia : Color.NubColorDescriptor rec
+cssFuchsia : Color.ManipulableColorDescriptor rec resultType
 cssFuchsia = 
-  \factory -> factory.named "Fuchsia" (ElmColor.rgb 255 0 255)
+  \factory -> factory.namedRgba "Fuchsia" (ElmColor.rgb 255 0 255)
 
-cssGainsboro : Color.NubColorDescriptor rec
+cssGainsboro : Color.ManipulableColorDescriptor rec resultType
 cssGainsboro = 
-  \factory -> factory.named "Gainsboro" (ElmColor.rgb 220 220 220)
+  \factory -> factory.namedRgba "Gainsboro" (ElmColor.rgb 220 220 220)
 
-cssGhostWhite : Color.NubColorDescriptor rec
+cssGhostWhite : Color.ManipulableColorDescriptor rec resultType
 cssGhostWhite = 
-  \factory -> factory.named "GhostWhite" (ElmColor.rgb 248 248 255)
+  \factory -> factory.namedRgba "GhostWhite" (ElmColor.rgb 248 248 255)
 
-cssGold : Color.NubColorDescriptor rec
+cssGold : Color.ManipulableColorDescriptor rec resultType
 cssGold = 
-  \factory -> factory.named "Gold" (ElmColor.rgb 255 215 0)
+  \factory -> factory.namedRgba "Gold" (ElmColor.rgb 255 215 0)
 
-cssGoldenRod : Color.NubColorDescriptor rec
+cssGoldenRod : Color.ManipulableColorDescriptor rec resultType
 cssGoldenRod = 
-  \factory -> factory.named "GoldenRod" (ElmColor.rgb 218 165 32)
+  \factory -> factory.namedRgba "GoldenRod" (ElmColor.rgb 218 165 32)
 
-cssGray : Color.NubColorDescriptor rec
+cssGray : Color.ManipulableColorDescriptor rec resultType
 cssGray = 
-  \factory -> factory.named "Gray" (ElmColor.rgb 128 128 128)
+  \factory -> factory.namedRgba "Gray" (ElmColor.rgb 128 128 128)
 
-cssGreen : Color.NubColorDescriptor rec
+cssGreen : Color.ManipulableColorDescriptor rec resultType
 cssGreen = 
-  \factory -> factory.named "Green" (ElmColor.rgb 0 128 0)
+  \factory -> factory.namedRgba "Green" (ElmColor.rgb 0 128 0)
 
-cssGreenYellow : Color.NubColorDescriptor rec
+cssGreenYellow : Color.ManipulableColorDescriptor rec resultType
 cssGreenYellow = 
-  \factory -> factory.named "GreenYellow" (ElmColor.rgb 173 255 47)
+  \factory -> factory.namedRgba "GreenYellow" (ElmColor.rgb 173 255 47)
 
-cssHoneyDew : Color.NubColorDescriptor rec
+cssHoneyDew : Color.ManipulableColorDescriptor rec resultType
 cssHoneyDew = 
-  \factory -> factory.named "HoneyDew" (ElmColor.rgb 240 255 240)
+  \factory -> factory.namedRgba "HoneyDew" (ElmColor.rgb 240 255 240)
 
-cssHotPink : Color.NubColorDescriptor rec
+cssHotPink : Color.ManipulableColorDescriptor rec resultType
 cssHotPink = 
-  \factory -> factory.named "HotPink" (ElmColor.rgb 255 105 180)
+  \factory -> factory.namedRgba "HotPink" (ElmColor.rgb 255 105 180)
 
-cssIndianRed  : Color.NubColorDescriptor rec
+cssIndianRed  : Color.ManipulableColorDescriptor rec resultType
 cssIndianRed  = 
-  \factory -> factory.named "IndianRed " (ElmColor.rgb 205 92 92)
+  \factory -> factory.namedRgba "IndianRed " (ElmColor.rgb 205 92 92)
 
-cssIndigo  : Color.NubColorDescriptor rec
+cssIndigo  : Color.ManipulableColorDescriptor rec resultType
 cssIndigo  = 
-  \factory -> factory.named "Indigo " (ElmColor.rgb 75 0 130)
+  \factory -> factory.namedRgba "Indigo " (ElmColor.rgb 75 0 130)
 
-cssIvory : Color.NubColorDescriptor rec
+cssIvory : Color.ManipulableColorDescriptor rec resultType
 cssIvory = 
-  \factory -> factory.named "Ivory" (ElmColor.rgb 255 255 240)
+  \factory -> factory.namedRgba "Ivory" (ElmColor.rgb 255 255 240)
 
-cssKhaki : Color.NubColorDescriptor rec
+cssKhaki : Color.ManipulableColorDescriptor rec resultType
 cssKhaki = 
-  \factory -> factory.named "Khaki" (ElmColor.rgb 240 230 140)
+  \factory -> factory.namedRgba "Khaki" (ElmColor.rgb 240 230 140)
 
-cssLavender : Color.NubColorDescriptor rec
+cssLavender : Color.ManipulableColorDescriptor rec resultType
 cssLavender = 
-  \factory -> factory.named "Lavender" (ElmColor.rgb 230 230 250)
+  \factory -> factory.namedRgba "Lavender" (ElmColor.rgb 230 230 250)
 
-cssLavenderBlush : Color.NubColorDescriptor rec
+cssLavenderBlush : Color.ManipulableColorDescriptor rec resultType
 cssLavenderBlush = 
-  \factory -> factory.named "LavenderBlush" (ElmColor.rgb 255 240 245)
+  \factory -> factory.namedRgba "LavenderBlush" (ElmColor.rgb 255 240 245)
 
-cssLawnGreen : Color.NubColorDescriptor rec
+cssLawnGreen : Color.ManipulableColorDescriptor rec resultType
 cssLawnGreen = 
-  \factory -> factory.named "LawnGreen" (ElmColor.rgb 124 252 0)
+  \factory -> factory.namedRgba "LawnGreen" (ElmColor.rgb 124 252 0)
 
-cssLemonChiffon : Color.NubColorDescriptor rec
+cssLemonChiffon : Color.ManipulableColorDescriptor rec resultType
 cssLemonChiffon = 
-  \factory -> factory.named "LemonChiffon" (ElmColor.rgb 255 250 205)
+  \factory -> factory.namedRgba "LemonChiffon" (ElmColor.rgb 255 250 205)
 
-cssLightBlue : Color.NubColorDescriptor rec
+cssLightBlue : Color.ManipulableColorDescriptor rec resultType
 cssLightBlue = 
-  \factory -> factory.named "LightBlue" (ElmColor.rgb 173 216 230)
+  \factory -> factory.namedRgba "LightBlue" (ElmColor.rgb 173 216 230)
 
-cssLightCoral : Color.NubColorDescriptor rec
+cssLightCoral : Color.ManipulableColorDescriptor rec resultType
 cssLightCoral = 
-  \factory -> factory.named "LightCoral" (ElmColor.rgb 240 128 128)
+  \factory -> factory.namedRgba "LightCoral" (ElmColor.rgb 240 128 128)
 
-cssLightCyan : Color.NubColorDescriptor rec
+cssLightCyan : Color.ManipulableColorDescriptor rec resultType
 cssLightCyan = 
-  \factory -> factory.named "LightCyan" (ElmColor.rgb 224 255 255)
+  \factory -> factory.namedRgba "LightCyan" (ElmColor.rgb 224 255 255)
 
-cssLightGoldenRodYellow : Color.NubColorDescriptor rec
+cssLightGoldenRodYellow : Color.ManipulableColorDescriptor rec resultType
 cssLightGoldenRodYellow = 
-  \factory -> factory.named "LightGoldenRodYellow" (ElmColor.rgb 250 250 210)
+  \factory -> factory.namedRgba "LightGoldenRodYellow" (ElmColor.rgb 250 250 210)
 
-cssLightGray : Color.NubColorDescriptor rec
+cssLightGray : Color.ManipulableColorDescriptor rec resultType
 cssLightGray = 
-  \factory -> factory.named "LightGray" (ElmColor.rgb 211 211 211)
+  \factory -> factory.namedRgba "LightGray" (ElmColor.rgb 211 211 211)
 
-cssLightGreen : Color.NubColorDescriptor rec
+cssLightGreen : Color.ManipulableColorDescriptor rec resultType
 cssLightGreen = 
-  \factory -> factory.named "LightGreen" (ElmColor.rgb 144 238 144)
+  \factory -> factory.namedRgba "LightGreen" (ElmColor.rgb 144 238 144)
 
-cssLightPink : Color.NubColorDescriptor rec
+cssLightPink : Color.ManipulableColorDescriptor rec resultType
 cssLightPink = 
-  \factory -> factory.named "LightPink" (ElmColor.rgb 255 182 193)
+  \factory -> factory.namedRgba "LightPink" (ElmColor.rgb 255 182 193)
 
-cssLightSalmon : Color.NubColorDescriptor rec
+cssLightSalmon : Color.ManipulableColorDescriptor rec resultType
 cssLightSalmon = 
-  \factory -> factory.named "LightSalmon" (ElmColor.rgb 255 160 122)
+  \factory -> factory.namedRgba "LightSalmon" (ElmColor.rgb 255 160 122)
 
-cssLightSeaGreen : Color.NubColorDescriptor rec
+cssLightSeaGreen : Color.ManipulableColorDescriptor rec resultType
 cssLightSeaGreen = 
-  \factory -> factory.named "LightSeaGreen" (ElmColor.rgb 32 178 170)
+  \factory -> factory.namedRgba "LightSeaGreen" (ElmColor.rgb 32 178 170)
 
-cssLightSkyBlue : Color.NubColorDescriptor rec
+cssLightSkyBlue : Color.ManipulableColorDescriptor rec resultType
 cssLightSkyBlue = 
-  \factory -> factory.named "LightSkyBlue" (ElmColor.rgb 135 206 250)
+  \factory -> factory.namedRgba "LightSkyBlue" (ElmColor.rgb 135 206 250)
 
-cssLightSlateGray : Color.NubColorDescriptor rec
+cssLightSlateGray : Color.ManipulableColorDescriptor rec resultType
 cssLightSlateGray = 
-  \factory -> factory.named "LightSlateGray" (ElmColor.rgb 119 136 153)
+  \factory -> factory.namedRgba "LightSlateGray" (ElmColor.rgb 119 136 153)
 
-cssLightSteelBlue : Color.NubColorDescriptor rec
+cssLightSteelBlue : Color.ManipulableColorDescriptor rec resultType
 cssLightSteelBlue = 
-  \factory -> factory.named "LightSteelBlue" (ElmColor.rgb 176 196 222)
+  \factory -> factory.namedRgba "LightSteelBlue" (ElmColor.rgb 176 196 222)
 
-cssLightYellow : Color.NubColorDescriptor rec
+cssLightYellow : Color.ManipulableColorDescriptor rec resultType
 cssLightYellow = 
-  \factory -> factory.named "LightYellow" (ElmColor.rgb 255 255 224)
+  \factory -> factory.namedRgba "LightYellow" (ElmColor.rgb 255 255 224)
 
-cssLime : Color.NubColorDescriptor rec
+cssLime : Color.ManipulableColorDescriptor rec resultType
 cssLime = 
-  \factory -> factory.named "Lime" (ElmColor.rgb 0 255 0)
+  \factory -> factory.namedRgba "Lime" (ElmColor.rgb 0 255 0)
 
-cssLimeGreen : Color.NubColorDescriptor rec
+cssLimeGreen : Color.ManipulableColorDescriptor rec resultType
 cssLimeGreen = 
-  \factory -> factory.named "LimeGreen" (ElmColor.rgb 50 205 50)
+  \factory -> factory.namedRgba "LimeGreen" (ElmColor.rgb 50 205 50)
 
-cssLinen : Color.NubColorDescriptor rec
+cssLinen : Color.ManipulableColorDescriptor rec resultType
 cssLinen = 
-  \factory -> factory.named "Linen" (ElmColor.rgb 250 240 230)
+  \factory -> factory.namedRgba "Linen" (ElmColor.rgb 250 240 230)
 
-cssMagenta : Color.NubColorDescriptor rec
+cssMagenta : Color.ManipulableColorDescriptor rec resultType
 cssMagenta = 
-  \factory -> factory.named "Magenta" (ElmColor.rgb 255 0 255)
+  \factory -> factory.namedRgba "Magenta" (ElmColor.rgb 255 0 255)
 
-cssMaroon : Color.NubColorDescriptor rec
+cssMaroon : Color.ManipulableColorDescriptor rec resultType
 cssMaroon = 
-  \factory -> factory.named "Maroon" (ElmColor.rgb 128 0 0)
+  \factory -> factory.namedRgba "Maroon" (ElmColor.rgb 128 0 0)
 
-cssMediumAquaMarine : Color.NubColorDescriptor rec
+cssMediumAquaMarine : Color.ManipulableColorDescriptor rec resultType
 cssMediumAquaMarine = 
-  \factory -> factory.named "MediumAquaMarine" (ElmColor.rgb 102 205 170)
+  \factory -> factory.namedRgba "MediumAquaMarine" (ElmColor.rgb 102 205 170)
 
-cssMediumBlue : Color.NubColorDescriptor rec
+cssMediumBlue : Color.ManipulableColorDescriptor rec resultType
 cssMediumBlue = 
-  \factory -> factory.named "MediumBlue" (ElmColor.rgb 0 0 205)
+  \factory -> factory.namedRgba "MediumBlue" (ElmColor.rgb 0 0 205)
 
-cssMediumOrchid : Color.NubColorDescriptor rec
+cssMediumOrchid : Color.ManipulableColorDescriptor rec resultType
 cssMediumOrchid = 
-  \factory -> factory.named "MediumOrchid" (ElmColor.rgb 186 85 211)
+  \factory -> factory.namedRgba "MediumOrchid" (ElmColor.rgb 186 85 211)
 
-cssMediumPurple : Color.NubColorDescriptor rec
+cssMediumPurple : Color.ManipulableColorDescriptor rec resultType
 cssMediumPurple = 
-  \factory -> factory.named "MediumPurple" (ElmColor.rgb 147 112 219)
+  \factory -> factory.namedRgba "MediumPurple" (ElmColor.rgb 147 112 219)
 
-cssMediumSeaGreen : Color.NubColorDescriptor rec
+cssMediumSeaGreen : Color.ManipulableColorDescriptor rec resultType
 cssMediumSeaGreen = 
-  \factory -> factory.named "MediumSeaGreen" (ElmColor.rgb 60 179 113)
+  \factory -> factory.namedRgba "MediumSeaGreen" (ElmColor.rgb 60 179 113)
 
-cssMediumSlateBlue : Color.NubColorDescriptor rec
+cssMediumSlateBlue : Color.ManipulableColorDescriptor rec resultType
 cssMediumSlateBlue = 
-  \factory -> factory.named "MediumSlateBlue" (ElmColor.rgb 123 104 238)
+  \factory -> factory.namedRgba "MediumSlateBlue" (ElmColor.rgb 123 104 238)
 
-cssMediumSpringGreen : Color.NubColorDescriptor rec
+cssMediumSpringGreen : Color.ManipulableColorDescriptor rec resultType
 cssMediumSpringGreen = 
-  \factory -> factory.named "MediumSpringGreen" (ElmColor.rgb 0 250 154)
+  \factory -> factory.namedRgba "MediumSpringGreen" (ElmColor.rgb 0 250 154)
 
-cssMediumTurquoise : Color.NubColorDescriptor rec
+cssMediumTurquoise : Color.ManipulableColorDescriptor rec resultType
 cssMediumTurquoise = 
-  \factory -> factory.named "MediumTurquoise" (ElmColor.rgb 72 209 204)
+  \factory -> factory.namedRgba "MediumTurquoise" (ElmColor.rgb 72 209 204)
 
-cssMediumVioletRed : Color.NubColorDescriptor rec
+cssMediumVioletRed : Color.ManipulableColorDescriptor rec resultType
 cssMediumVioletRed = 
-  \factory -> factory.named "MediumVioletRed" (ElmColor.rgb 199 21 133)
+  \factory -> factory.namedRgba "MediumVioletRed" (ElmColor.rgb 199 21 133)
 
-cssMidnightBlue : Color.NubColorDescriptor rec
+cssMidnightBlue : Color.ManipulableColorDescriptor rec resultType
 cssMidnightBlue = 
-  \factory -> factory.named "MidnightBlue" (ElmColor.rgb 25 25 112)
+  \factory -> factory.namedRgba "MidnightBlue" (ElmColor.rgb 25 25 112)
 
-cssMintCream : Color.NubColorDescriptor rec
+cssMintCream : Color.ManipulableColorDescriptor rec resultType
 cssMintCream = 
-  \factory -> factory.named "MintCream" (ElmColor.rgb 245 255 250)
+  \factory -> factory.namedRgba "MintCream" (ElmColor.rgb 245 255 250)
 
-cssMistyRose : Color.NubColorDescriptor rec
+cssMistyRose : Color.ManipulableColorDescriptor rec resultType
 cssMistyRose = 
-  \factory -> factory.named "MistyRose" (ElmColor.rgb 255 228 225)
+  \factory -> factory.namedRgba "MistyRose" (ElmColor.rgb 255 228 225)
 
-cssMoccasin : Color.NubColorDescriptor rec
+cssMoccasin : Color.ManipulableColorDescriptor rec resultType
 cssMoccasin = 
-  \factory -> factory.named "Moccasin" (ElmColor.rgb 255 228 181)
+  \factory -> factory.namedRgba "Moccasin" (ElmColor.rgb 255 228 181)
 
-cssNavajoWhite : Color.NubColorDescriptor rec
+cssNavajoWhite : Color.ManipulableColorDescriptor rec resultType
 cssNavajoWhite = 
-  \factory -> factory.named "NavajoWhite" (ElmColor.rgb 255 222 173)
+  \factory -> factory.namedRgba "NavajoWhite" (ElmColor.rgb 255 222 173)
 
-cssNavy : Color.NubColorDescriptor rec
+cssNavy : Color.ManipulableColorDescriptor rec resultType
 cssNavy = 
-  \factory -> factory.named "Navy" (ElmColor.rgb 0 0 128)
+  \factory -> factory.namedRgba "Navy" (ElmColor.rgb 0 0 128)
 
-cssOldLace : Color.NubColorDescriptor rec
+cssOldLace : Color.ManipulableColorDescriptor rec resultType
 cssOldLace = 
-  \factory -> factory.named "OldLace" (ElmColor.rgb 253 245 230)
+  \factory -> factory.namedRgba "OldLace" (ElmColor.rgb 253 245 230)
 
-cssOlive : Color.NubColorDescriptor rec
+cssOlive : Color.ManipulableColorDescriptor rec resultType
 cssOlive = 
-  \factory -> factory.named "Olive" (ElmColor.rgb 128 128 0)
+  \factory -> factory.namedRgba "Olive" (ElmColor.rgb 128 128 0)
 
-cssOliveDrab : Color.NubColorDescriptor rec
+cssOliveDrab : Color.ManipulableColorDescriptor rec resultType
 cssOliveDrab = 
-  \factory -> factory.named "OliveDrab" (ElmColor.rgb 107 142 35)
+  \factory -> factory.namedRgba "OliveDrab" (ElmColor.rgb 107 142 35)
 
-cssOrange : Color.NubColorDescriptor rec
+cssOrange : Color.ManipulableColorDescriptor rec resultType
 cssOrange = 
-  \factory -> factory.named "Orange" (ElmColor.rgb 255 165 0)
+  \factory -> factory.namedRgba "Orange" (ElmColor.rgb 255 165 0)
 
-cssOrangeRed : Color.NubColorDescriptor rec
+cssOrangeRed : Color.ManipulableColorDescriptor rec resultType
 cssOrangeRed = 
-  \factory -> factory.named "OrangeRed" (ElmColor.rgb 255 69 0)
+  \factory -> factory.namedRgba "OrangeRed" (ElmColor.rgb 255 69 0)
 
-cssOrchid : Color.NubColorDescriptor rec
+cssOrchid : Color.ManipulableColorDescriptor rec resultType
 cssOrchid = 
-  \factory -> factory.named "Orchid" (ElmColor.rgb 218 112 214)
+  \factory -> factory.namedRgba "Orchid" (ElmColor.rgb 218 112 214)
 
-cssPaleGoldenRod : Color.NubColorDescriptor rec
+cssPaleGoldenRod : Color.ManipulableColorDescriptor rec resultType
 cssPaleGoldenRod = 
-  \factory -> factory.named "PaleGoldenRod" (ElmColor.rgb 238 232 170)
+  \factory -> factory.namedRgba "PaleGoldenRod" (ElmColor.rgb 238 232 170)
 
-cssPaleGreen : Color.NubColorDescriptor rec
+cssPaleGreen : Color.ManipulableColorDescriptor rec resultType
 cssPaleGreen = 
-  \factory -> factory.named "PaleGreen" (ElmColor.rgb 152 251 152)
+  \factory -> factory.namedRgba "PaleGreen" (ElmColor.rgb 152 251 152)
 
-cssPaleTurquoise : Color.NubColorDescriptor rec
+cssPaleTurquoise : Color.ManipulableColorDescriptor rec resultType
 cssPaleTurquoise = 
-  \factory -> factory.named "PaleTurquoise" (ElmColor.rgb 175 238 238)
+  \factory -> factory.namedRgba "PaleTurquoise" (ElmColor.rgb 175 238 238)
 
-cssPaleVioletRed : Color.NubColorDescriptor rec
+cssPaleVioletRed : Color.ManipulableColorDescriptor rec resultType
 cssPaleVioletRed = 
-  \factory -> factory.named "PaleVioletRed" (ElmColor.rgb 219 112 147)
+  \factory -> factory.namedRgba "PaleVioletRed" (ElmColor.rgb 219 112 147)
 
-cssPapayaWhip : Color.NubColorDescriptor rec
+cssPapayaWhip : Color.ManipulableColorDescriptor rec resultType
 cssPapayaWhip = 
-  \factory -> factory.named "PapayaWhip" (ElmColor.rgb 255 239 213)
+  \factory -> factory.namedRgba "PapayaWhip" (ElmColor.rgb 255 239 213)
 
-cssPeachPuff : Color.NubColorDescriptor rec
+cssPeachPuff : Color.ManipulableColorDescriptor rec resultType
 cssPeachPuff = 
-  \factory -> factory.named "PeachPuff" (ElmColor.rgb 255 218 185)
+  \factory -> factory.namedRgba "PeachPuff" (ElmColor.rgb 255 218 185)
 
-cssPeru : Color.NubColorDescriptor rec
+cssPeru : Color.ManipulableColorDescriptor rec resultType
 cssPeru = 
-  \factory -> factory.named "Peru" (ElmColor.rgb 205 133 63)
+  \factory -> factory.namedRgba "Peru" (ElmColor.rgb 205 133 63)
 
-cssPink : Color.NubColorDescriptor rec
+cssPink : Color.ManipulableColorDescriptor rec resultType
 cssPink = 
-  \factory -> factory.named "Pink" (ElmColor.rgb 255 192 203)
+  \factory -> factory.namedRgba "Pink" (ElmColor.rgb 255 192 203)
 
-cssPlum : Color.NubColorDescriptor rec
+cssPlum : Color.ManipulableColorDescriptor rec resultType
 cssPlum = 
-  \factory -> factory.named "Plum" (ElmColor.rgb 221 160 221)
+  \factory -> factory.namedRgba "Plum" (ElmColor.rgb 221 160 221)
 
-cssPowderBlue : Color.NubColorDescriptor rec
+cssPowderBlue : Color.ManipulableColorDescriptor rec resultType
 cssPowderBlue = 
-  \factory -> factory.named "PowderBlue" (ElmColor.rgb 176 224 230)
+  \factory -> factory.namedRgba "PowderBlue" (ElmColor.rgb 176 224 230)
 
-cssPurple : Color.NubColorDescriptor rec
+cssPurple : Color.ManipulableColorDescriptor rec resultType
 cssPurple = 
-  \factory -> factory.named "Purple" (ElmColor.rgb 128 0 128)
+  \factory -> factory.namedRgba "Purple" (ElmColor.rgb 128 0 128)
 
-cssRebeccaPurple : Color.NubColorDescriptor rec
+cssRebeccaPurple : Color.ManipulableColorDescriptor rec resultType
 cssRebeccaPurple = 
-  \factory -> factory.named "RebeccaPurple" (ElmColor.rgb 102 51 153)
+  \factory -> factory.namedRgba "RebeccaPurple" (ElmColor.rgb 102 51 153)
 
-cssRed : Color.NubColorDescriptor rec
+cssRed : Color.ManipulableColorDescriptor rec resultType
 cssRed = 
-  \factory -> factory.named "Red" (ElmColor.rgb 255 0 0)
+  \factory -> factory.namedRgba "Red" (ElmColor.rgb 255 0 0)
 
-cssRosyBrown : Color.NubColorDescriptor rec
+cssRosyBrown : Color.ManipulableColorDescriptor rec resultType
 cssRosyBrown = 
-  \factory -> factory.named "RosyBrown" (ElmColor.rgb 188 143 143)
+  \factory -> factory.namedRgba "RosyBrown" (ElmColor.rgb 188 143 143)
 
-cssRoyalBlue : Color.NubColorDescriptor rec
+cssRoyalBlue : Color.ManipulableColorDescriptor rec resultType
 cssRoyalBlue = 
-  \factory -> factory.named "RoyalBlue" (ElmColor.rgb 65 105 225)
+  \factory -> factory.namedRgba "RoyalBlue" (ElmColor.rgb 65 105 225)
 
-cssSaddleBrown : Color.NubColorDescriptor rec
+cssSaddleBrown : Color.ManipulableColorDescriptor rec resultType
 cssSaddleBrown = 
-  \factory -> factory.named "SaddleBrown" (ElmColor.rgb 139 69 19)
+  \factory -> factory.namedRgba "SaddleBrown" (ElmColor.rgb 139 69 19)
 
-cssSalmon : Color.NubColorDescriptor rec
+cssSalmon : Color.ManipulableColorDescriptor rec resultType
 cssSalmon = 
-  \factory -> factory.named "Salmon" (ElmColor.rgb 250 128 114)
+  \factory -> factory.namedRgba "Salmon" (ElmColor.rgb 250 128 114)
 
-cssSandyBrown : Color.NubColorDescriptor rec
+cssSandyBrown : Color.ManipulableColorDescriptor rec resultType
 cssSandyBrown = 
-  \factory -> factory.named "SandyBrown" (ElmColor.rgb 244 164 96)
+  \factory -> factory.namedRgba "SandyBrown" (ElmColor.rgb 244 164 96)
 
-cssSeaGreen : Color.NubColorDescriptor rec
+cssSeaGreen : Color.ManipulableColorDescriptor rec resultType
 cssSeaGreen = 
-  \factory -> factory.named "SeaGreen" (ElmColor.rgb 46 139 87)
+  \factory -> factory.namedRgba "SeaGreen" (ElmColor.rgb 46 139 87)
 
-cssSeaShell : Color.NubColorDescriptor rec
+cssSeaShell : Color.ManipulableColorDescriptor rec resultType
 cssSeaShell = 
-  \factory -> factory.named "SeaShell" (ElmColor.rgb 255 245 238)
+  \factory -> factory.namedRgba "SeaShell" (ElmColor.rgb 255 245 238)
 
-cssSienna : Color.NubColorDescriptor rec
+cssSienna : Color.ManipulableColorDescriptor rec resultType
 cssSienna = 
-  \factory -> factory.named "Sienna" (ElmColor.rgb 160 82 45)
+  \factory -> factory.namedRgba "Sienna" (ElmColor.rgb 160 82 45)
 
-cssSilver : Color.NubColorDescriptor rec
+cssSilver : Color.ManipulableColorDescriptor rec resultType
 cssSilver = 
-  \factory -> factory.named "Silver" (ElmColor.rgb 192 192 192)
+  \factory -> factory.namedRgba "Silver" (ElmColor.rgb 192 192 192)
 
-cssSkyBlue : Color.NubColorDescriptor rec
+cssSkyBlue : Color.ManipulableColorDescriptor rec resultType
 cssSkyBlue = 
-  \factory -> factory.named "SkyBlue" (ElmColor.rgb 135 206 235)
+  \factory -> factory.namedRgba "SkyBlue" (ElmColor.rgb 135 206 235)
 
-cssSlateBlue : Color.NubColorDescriptor rec
+cssSlateBlue : Color.ManipulableColorDescriptor rec resultType
 cssSlateBlue = 
-  \factory -> factory.named "SlateBlue" (ElmColor.rgb 106 90 205)
+  \factory -> factory.namedRgba "SlateBlue" (ElmColor.rgb 106 90 205)
 
-cssSlateGray : Color.NubColorDescriptor rec
+cssSlateGray : Color.ManipulableColorDescriptor rec resultType
 cssSlateGray = 
-  \factory -> factory.named "SlateGray" (ElmColor.rgb 112 128 144)
+  \factory -> factory.namedRgba "SlateGray" (ElmColor.rgb 112 128 144)
 
-cssSnow : Color.NubColorDescriptor rec
+cssSnow : Color.ManipulableColorDescriptor rec resultType
 cssSnow = 
-  \factory -> factory.named "Snow" (ElmColor.rgb 255 250 250)
+  \factory -> factory.namedRgba "Snow" (ElmColor.rgb 255 250 250)
 
-cssSpringGreen : Color.NubColorDescriptor rec
+cssSpringGreen : Color.ManipulableColorDescriptor rec resultType
 cssSpringGreen = 
-  \factory -> factory.named "SpringGreen" (ElmColor.rgb 0 255 127)
+  \factory -> factory.namedRgba "SpringGreen" (ElmColor.rgb 0 255 127)
 
-cssSteelBlue : Color.NubColorDescriptor rec
+cssSteelBlue : Color.ManipulableColorDescriptor rec resultType
 cssSteelBlue = 
-  \factory -> factory.named "SteelBlue" (ElmColor.rgb 70 130 180)
+  \factory -> factory.namedRgba "SteelBlue" (ElmColor.rgb 70 130 180)
 
-cssTan : Color.NubColorDescriptor rec
+cssTan : Color.ManipulableColorDescriptor rec resultType
 cssTan = 
-  \factory -> factory.named "Tan" (ElmColor.rgb 210 180 140)
+  \factory -> factory.namedRgba "Tan" (ElmColor.rgb 210 180 140)
 
-cssTeal : Color.NubColorDescriptor rec
+cssTeal : Color.ManipulableColorDescriptor rec resultType
 cssTeal = 
-  \factory -> factory.named "Teal" (ElmColor.rgb 0 128 128)
+  \factory -> factory.namedRgba "Teal" (ElmColor.rgb 0 128 128)
 
-cssThistle : Color.NubColorDescriptor rec
+cssThistle : Color.ManipulableColorDescriptor rec resultType
 cssThistle = 
-  \factory -> factory.named "Thistle" (ElmColor.rgb 216 191 216)
+  \factory -> factory.namedRgba "Thistle" (ElmColor.rgb 216 191 216)
 
-cssTomato : Color.NubColorDescriptor rec
+cssTomato : Color.ManipulableColorDescriptor rec resultType
 cssTomato = 
-  \factory -> factory.named "Tomato" (ElmColor.rgb 255 99 71)
+  \factory -> factory.namedRgba "Tomato" (ElmColor.rgb 255 99 71)
 
-cssTurquoise : Color.NubColorDescriptor rec
+cssTurquoise : Color.ManipulableColorDescriptor rec resultType
 cssTurquoise = 
-  \factory -> factory.named "Turquoise" (ElmColor.rgb 64 224 208)
+  \factory -> factory.namedRgba "Turquoise" (ElmColor.rgb 64 224 208)
 
-cssViolet : Color.NubColorDescriptor rec
+cssViolet : Color.ManipulableColorDescriptor rec resultType
 cssViolet = 
-  \factory -> factory.named "Violet" (ElmColor.rgb 238 130 238)
+  \factory -> factory.namedRgba "Violet" (ElmColor.rgb 238 130 238)
 
-cssWheat : Color.NubColorDescriptor rec
+cssWheat : Color.ManipulableColorDescriptor rec resultType
 cssWheat = 
-  \factory -> factory.named "Wheat" (ElmColor.rgb 245 222 179)
+  \factory -> factory.namedRgba "Wheat" (ElmColor.rgb 245 222 179)
 
-cssWhite : Color.NubColorDescriptor rec
+cssWhite : Color.ManipulableColorDescriptor rec resultType
 cssWhite = 
-  \factory -> factory.named "White" (ElmColor.rgb 255 255 255)
+  \factory -> factory.namedRgba "White" (ElmColor.rgb 255 255 255)
 
-cssWhiteSmoke : Color.NubColorDescriptor rec
+cssWhiteSmoke : Color.ManipulableColorDescriptor rec resultType
 cssWhiteSmoke = 
-  \factory -> factory.named "WhiteSmoke" (ElmColor.rgb 245 245 245)
+  \factory -> factory.namedRgba "WhiteSmoke" (ElmColor.rgb 245 245 245)
 
-cssYellow : Color.NubColorDescriptor rec
+cssYellow : Color.ManipulableColorDescriptor rec resultType
 cssYellow = 
-  \factory -> factory.named "Yellow" (ElmColor.rgb 255 255 0)
+  \factory -> factory.namedRgba "Yellow" (ElmColor.rgb 255 255 0)
 
-cssYellowGreen : Color.NubColorDescriptor rec
+cssYellowGreen : Color.ManipulableColorDescriptor rec resultType
 cssYellowGreen = 
-  \factory -> factory.named "YellowGreen" (ElmColor.rgb 154 205 50)
+  \factory -> factory.namedRgba "YellowGreen" (ElmColor.rgb 154 205 50)
 
 -------------------------------------------------------------------------------
 -- Elm colors.
 
-red : Color.NubColorDescriptor rec
+red : Color.ManipulableColorDescriptor rec resultType
 red = \factory -> ElmColor.red |> factory.rgbaColor
 
-orange : Color.NubColorDescriptor rec
+orange : Color.ManipulableColorDescriptor rec resultType
 orange = \factory -> ElmColor.orange |> factory.rgbaColor
 
-yellow : Color.NubColorDescriptor rec
+yellow : Color.ManipulableColorDescriptor rec resultType
 yellow = \factory -> ElmColor.yellow |> factory.rgbaColor
 
-green : Color.NubColorDescriptor rec
+green : Color.ManipulableColorDescriptor rec resultType
 green = \factory -> ElmColor.green |> factory.rgbaColor
 
-blue : Color.NubColorDescriptor rec
+blue : Color.ManipulableColorDescriptor rec resultType
 blue = \factory -> ElmColor.blue |> factory.rgbaColor
 
-purple : Color.NubColorDescriptor rec
+purple : Color.ManipulableColorDescriptor rec resultType
 purple = \factory -> ElmColor.purple |> factory.rgbaColor
 
-brown : Color.NubColorDescriptor rec
+brown : Color.ManipulableColorDescriptor rec resultType
 brown = \factory -> ElmColor.brown |> factory.rgbaColor
 
 
 
-lightRed : Color.NubColorDescriptor rec
+lightRed : Color.ManipulableColorDescriptor rec resultType
 lightRed = \factory -> ElmColor.lightRed |> factory.rgbaColor
 
-lightOrange : Color.NubColorDescriptor rec
+lightOrange : Color.ManipulableColorDescriptor rec resultType
 lightOrange = \factory -> ElmColor.lightOrange |> factory.rgbaColor
 
-lightYellow : Color.NubColorDescriptor rec
+lightYellow : Color.ManipulableColorDescriptor rec resultType
 lightYellow = \factory -> ElmColor.lightYellow |> factory.rgbaColor
 
-lightGreen : Color.NubColorDescriptor rec
+lightGreen : Color.ManipulableColorDescriptor rec resultType
 lightGreen = \factory -> ElmColor.lightGreen |> factory.rgbaColor
 
-lightBlue : Color.NubColorDescriptor rec
+lightBlue : Color.ManipulableColorDescriptor rec resultType
 lightBlue = \factory -> ElmColor.lightBlue |> factory.rgbaColor
 
-lightPurple : Color.NubColorDescriptor rec
+lightPurple : Color.ManipulableColorDescriptor rec resultType
 lightPurple = \factory -> ElmColor.lightPurple |> factory.rgbaColor
 
-lightBrown : Color.NubColorDescriptor rec
+lightBrown : Color.ManipulableColorDescriptor rec resultType
 lightBrown = \factory -> ElmColor.lightBrown |> factory.rgbaColor
 
 
 
-darkRed : Color.NubColorDescriptor rec
+darkRed : Color.ManipulableColorDescriptor rec resultType
 darkRed = \factory -> ElmColor.darkRed |> factory.rgbaColor
 
-darkOrange : Color.NubColorDescriptor rec
+darkOrange : Color.ManipulableColorDescriptor rec resultType
 darkOrange = \factory -> ElmColor.darkOrange |> factory.rgbaColor
 
-darkYellow : Color.NubColorDescriptor rec
+darkYellow : Color.ManipulableColorDescriptor rec resultType
 darkYellow = \factory -> ElmColor.darkYellow |> factory.rgbaColor
 
-darkGreen : Color.NubColorDescriptor rec
+darkGreen : Color.ManipulableColorDescriptor rec resultType
 darkGreen = \factory -> ElmColor.darkGreen |> factory.rgbaColor
 
-darkBlue : Color.NubColorDescriptor rec
+darkBlue : Color.ManipulableColorDescriptor rec resultType
 darkBlue = \factory -> ElmColor.darkBlue |> factory.rgbaColor
 
-darkPurple : Color.NubColorDescriptor rec
+darkPurple : Color.ManipulableColorDescriptor rec resultType
 darkPurple = \factory -> ElmColor.darkPurple |> factory.rgbaColor
 
-darkBrown : Color.NubColorDescriptor rec
+darkBrown : Color.ManipulableColorDescriptor rec resultType
 darkBrown = \factory -> ElmColor.darkBrown |> factory.rgbaColor
 
 
 
-white : Color.NubColorDescriptor rec
+white : Color.ManipulableColorDescriptor rec resultType
 white = \factory -> ElmColor.white |> factory.rgbaColor
 
-lightGrey : Color.NubColorDescriptor rec
+lightGrey : Color.ManipulableColorDescriptor rec resultType
 lightGrey = \factory -> ElmColor.lightGrey |> factory.rgbaColor
 
-lightGray : Color.NubColorDescriptor rec
+lightGray : Color.ManipulableColorDescriptor rec resultType
 lightGray = \factory -> ElmColor.lightGray |> factory.rgbaColor
 
-grey : Color.NubColorDescriptor rec
+grey : Color.ManipulableColorDescriptor rec resultType
 grey = \factory -> ElmColor.grey |> factory.rgbaColor
 
-gray : Color.NubColorDescriptor rec
+gray : Color.ManipulableColorDescriptor rec resultType
 gray = \factory -> ElmColor.gray |> factory.rgbaColor
 
-darkGrey : Color.NubColorDescriptor rec
+darkGrey : Color.ManipulableColorDescriptor rec resultType
 darkGrey = \factory -> ElmColor.darkGrey |> factory.rgbaColor
 
-darkGray : Color.NubColorDescriptor rec
+darkGray : Color.ManipulableColorDescriptor rec resultType
 darkGray = \factory -> ElmColor.darkGray |> factory.rgbaColor
 
-lightCharcoal : Color.NubColorDescriptor rec 
+lightCharcoal : Color.ManipulableColorDescriptor rec resultType 
 lightCharcoal = \factory -> ElmColor.lightCharcoal |> factory.rgbaColor
 
-charcoal : Color.NubColorDescriptor rec
+charcoal : Color.ManipulableColorDescriptor rec resultType
 charcoal = \factory -> ElmColor.charcoal |> factory.rgbaColor
 
-darkCharcoal : Color.NubColorDescriptor rec
+darkCharcoal : Color.ManipulableColorDescriptor rec resultType
 darkCharcoal = \factory -> ElmColor.darkCharcoal |> factory.rgbaColor
 
-black : Color.NubColorDescriptor rec
+black : Color.ManipulableColorDescriptor rec resultType
 black = \factory -> ElmColor.black |> factory.rgbaColor
 
 -------------------------------------------------------------------------------

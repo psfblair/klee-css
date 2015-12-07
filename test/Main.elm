@@ -15,6 +15,7 @@ import Css.LayoutTests
 import Css.PointerTests
 import Css.PseudoTests
 import Css.TypographyTests
+import Css.Internal.InternalColorTests
 import Css.Internal.PropertyTests
 import Css.Internal.UtilsTests
 
@@ -32,6 +33,7 @@ allTests =
     , Css.PointerTests.suite
     , Css.PseudoTests.suite
     , Css.TypographyTests.suite
+    , Css.Internal.InternalColorTests.suite
     , Css.Internal.PropertyTests.suite
     , Css.Internal.UtilsTests.suite
     ]

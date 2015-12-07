@@ -2,7 +2,7 @@ module Css.Internal.Utils
   ( quote
   , compose, mapPairwise
   , quadrupleOf
-  , floatMod, toFixed, invalidFractionOf1
+  , floatMod, toFixed, percentStr, invalidFractionOf1
   , toHexString, fromHex
   ) where
 
@@ -52,6 +52,8 @@ toFixed decimalPlaces x =
 invalidFractionOf1 : Float -> Bool
 invalidFractionOf1 num = num > 1.0 || num < 0
 
+percentStr : Float -> String
+percentStr num = num * 100 |> toFixed 0 |> toString |> \x -> x ++ "%"
 
 toHexString : Int -> Int -> String
 toHexString minimumDigits num =
