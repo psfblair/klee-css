@@ -14,26 +14,7 @@ import Css.Internal.Property as Property
 type alias ListStyleTypeDescriptor = ListStyleTypeFactory -> Property.Value
   
 type alias ListStyleTypeFactory =
-  { disc : Property.Value
-  , armenian : Property.Value
-  , circleListStyleType : Property.Value
-  , cjkIdeographic : Property.Value
-  , decimal : Property.Value
-  , decimalLeadingZero : Property.Value
-  , georgian : Property.Value
-  , hebrew : Property.Value
-  , hiragana : Property.Value
-  , hiraganaIroha : Property.Value
-  , katakana : Property.Value
-  , katakanaIroha : Property.Value
-  , lowerAlpha : Property.Value
-  , lowerGreek : Property.Value
-  , lowerLatin : Property.Value
-  , lowerRoman : Property.Value
-  , square : Property.Value
-  , upperAlpha : Property.Value
-  , upperLatin : Property.Value
-  , upperRoman : Property.Value
+  { named: String -> Property.Value
   , initial_ : Property.Value
   , inherit_ : Property.Value
   , unset_   : Property.Value
@@ -43,26 +24,7 @@ type alias ListStyleTypeFactory =
 
 listStyleTypeFactory : ListStyleTypeFactory
 listStyleTypeFactory =
-  { disc = Property.stringValue "disc"
-  , armenian = Property.stringValue "armenian"
-  , circleListStyleType = Property.stringValue "circle"
-  , cjkIdeographic = Property.stringValue "cjk-ideographic"
-  , decimal = Property.stringValue "decimal"
-  , decimalLeadingZero = Property.stringValue "decimal-leading-zero"
-  , georgian = Property.stringValue "georgian"
-  , hebrew = Property.stringValue "hebrew"
-  , hiragana = Property.stringValue "hiragana"
-  , hiraganaIroha = Property.stringValue "hiragana-iroha"
-  , katakana = Property.stringValue "katakana"
-  , katakanaIroha = Property.stringValue "katakana-iroha"
-  , lowerAlpha = Property.stringValue "lower-alpha"
-  , lowerGreek = Property.stringValue "lower-greek"
-  , lowerLatin = Property.stringValue "lower-latin"
-  , lowerRoman = Property.stringValue "lower-roman"
-  , square = Property.stringValue "square"
-  , upperAlpha = Property.stringValue "upper-alpha"
-  , upperLatin = Property.stringValue "upper-latin"
-  , upperRoman = Property.stringValue "upper-roman"
+  { named str = Property.stringValue str 
   , initial_ = Common.initialValue
   , inherit_ = Common.inheritValue
   , unset_   = Common.unsetValue

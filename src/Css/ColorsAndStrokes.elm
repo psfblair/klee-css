@@ -862,63 +862,63 @@ outset : Stroke.NubBorderStrokeDescriptor rec
 outset = \factory -> factory.stroke "outset"
 
 -------------------------------------------------------------------------------
--- TODO simplify this.
+  
 disc : List.ListStyleTypeDescriptor
-disc = \factory -> factory.disc
+disc = \factory -> factory.named "disc"
 
 armenian : List.ListStyleTypeDescriptor
-armenian = \factory -> factory.armenian
+armenian = \factory -> factory.named "armenian"
 
 circleListStyle : List.ListStyleTypeDescriptor
-circleListStyle = \factory -> factory.circleListStyleType
+circleListStyle = \factory -> factory.named "circle"
 
 cjkIdeographic : List.ListStyleTypeDescriptor
-cjkIdeographic = \factory -> factory.cjkIdeographic
+cjkIdeographic = \factory -> factory.named "cjk-ideographic"
 
 decimal : List.ListStyleTypeDescriptor
-decimal = \factory -> factory.decimal
+decimal = \factory -> factory.named "decimal"
 
 decimalLeadingZero : List.ListStyleTypeDescriptor
-decimalLeadingZero = \factory -> factory.decimalLeadingZero
+decimalLeadingZero = \factory -> factory.named "decimal-leading-zero"
 
 georgian : List.ListStyleTypeDescriptor
-georgian = \factory -> factory.georgian
+georgian = \factory -> factory.named "georgian"
 
 hebrew : List.ListStyleTypeDescriptor
-hebrew = \factory -> factory.hebrew
+hebrew = \factory -> factory.named "hebrew"
 
 hiragana : List.ListStyleTypeDescriptor
-hiragana = \factory -> factory.hiragana
+hiragana = \factory -> factory.named "hiragana"
 
 hiraganaIroha : List.ListStyleTypeDescriptor
-hiraganaIroha = \factory -> factory.hiraganaIroha
+hiraganaIroha = \factory -> factory.named "hiragana-iroha"
 
 katakana : List.ListStyleTypeDescriptor
-katakana = \factory -> factory.katakana
+katakana = \factory -> factory.named "katakana"
 
 katakanaIroha : List.ListStyleTypeDescriptor
-katakanaIroha = \factory -> factory.katakanaIroha
+katakanaIroha = \factory -> factory.named "katakana-iroha"
 
 lowerAlpha : List.ListStyleTypeDescriptor
-lowerAlpha = \factory -> factory.lowerAlpha
+lowerAlpha = \factory -> factory.named "lower-alpha"
 
 lowerGreek : List.ListStyleTypeDescriptor
-lowerGreek = \factory -> factory.lowerGreek
+lowerGreek = \factory -> factory.named "lower-greek"
 
 lowerLatin : List.ListStyleTypeDescriptor
-lowerLatin = \factory -> factory.lowerLatin
+lowerLatin = \factory -> factory.named "lower-latin"
 
 lowerRoman : List.ListStyleTypeDescriptor
-lowerRoman = \factory -> factory.lowerRoman
+lowerRoman = \factory -> factory.named "lower-roman"
 
 square : List.ListStyleTypeDescriptor
-square = \factory -> factory.square
+square = \factory -> factory.named "square"
 
 upperAlpha : List.ListStyleTypeDescriptor
-upperAlpha = \factory -> factory.upperAlpha
+upperAlpha = \factory -> factory.named "upper-alpha"
 
 upperLatin : List.ListStyleTypeDescriptor
-upperLatin = \factory -> factory.upperLatin
+upperLatin = \factory -> factory.named "upper-latin"
 
 upperRoman : List.ListStyleTypeDescriptor
-upperRoman = \factory -> factory.upperRoman
+upperRoman = \factory -> factory.named "upper-roman"
