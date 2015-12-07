@@ -143,7 +143,8 @@ colorManipulationFactory =
   , namedRgba name color = color |> ValidRgbaColor
   , invalid_ str = InvalidColor str
   }
-
+  
+-- TODO Elm color gives NaN for H of black and white, and S of white; need a fix
 descriptorLerp : Float -> 
                  ManipulableColorDescriptor {} ColorHolder -> 
                  ManipulableColorDescriptor {} ColorHolder -> 
